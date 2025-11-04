@@ -1,3 +1,4 @@
+import Footer from "@/components/custom/Footer";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -141,6 +142,8 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 };

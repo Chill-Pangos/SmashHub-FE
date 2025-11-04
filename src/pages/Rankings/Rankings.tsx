@@ -1,3 +1,4 @@
+import Footer from "@/components/custom/Footer";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -337,6 +338,7 @@ const Rankings = () => {
           </Card>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
