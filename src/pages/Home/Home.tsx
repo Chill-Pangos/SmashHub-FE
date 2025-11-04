@@ -59,7 +59,7 @@ const Home = () => {
     <div className="min-h-screen bg-background">
       {/* Hero Section*/}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-secondary/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-secondary/20" />
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="text-center">
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-balance mb-6">
