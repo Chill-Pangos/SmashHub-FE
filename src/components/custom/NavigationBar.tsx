@@ -2,6 +2,7 @@ import { LogIn, Trophy, UserPlus } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Button } from "../ui/button";
 import ThemeToggle from "./ThemeToggle";
+import useScrollHide from "@/hooks/useScrollHide";
 
 const navItems = [
   { name: "Home", to: "/" },
@@ -11,8 +12,14 @@ const navItems = [
 ];
 
 const NavigationBar = () => {
+  const isVisible = useScrollHide();
+
   return (
-    <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-transform duration-300 ${
+        isVisible ? "translate-y-0" : "-translate-y-full"
+      }`}
+    >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
