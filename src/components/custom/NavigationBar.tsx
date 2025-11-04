@@ -1,4 +1,3 @@
-import React from "react";
 import { LogIn, Trophy, UserPlus } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Button } from "../ui/button";
