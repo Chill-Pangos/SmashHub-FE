@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { AlertCircle, Home, Search } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { AlertCircle, ArrowLeft, Home, Search } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const NotFound = () => {
+  const nav = useNavigate();
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center min-h-screen">
@@ -32,6 +34,15 @@ const NotFound = () => {
 
             {/* Buttons */}
             <div className="flex flex-col gap-3">
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => nav(-1)}
+                className="w-full bg-transparent"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Go Back
+              </Button>
               <Button size="lg" asChild className="w-full">
                 <NavLink to="/">
                   <Home className="w-4 h-4 mr-2" />

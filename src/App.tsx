@@ -5,20 +5,28 @@ import SignIn from "./pages/Auth/SignIn/SignIn";
 import SignUp from "./pages/Auth/SignUp/SignUp";
 import Rankings from "./pages/Rankings/Rankings";
 import NotFound from "./pages/NotFound/NotFound";
+import Dashboard from "./pages/Admin/Dashboard";
+import PublicLayout from "./layouts/PublicLayout";
+import PrivateLayout from "./layouts/PrivateLayout";
 
 function App() {
   return (
     <BrowserRouter>
-      <NavigationBar />
-      <div className="pt-20">
-        <Routes>
+      <Routes>
+        {/* Public routes */}
+        <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/rankings" element={<Rankings />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
+        </Route>
+
+        <Route element={<PrivateLayout />}>
+          <Route path="/admin/dashboard" element={<Dashboard />} />
+        </Route>
+
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </BrowserRouter>
   );
 }
