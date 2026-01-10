@@ -47,19 +47,17 @@ const matches = [
   },
 ];
 
-export default function MatchesPage() {
+export default function MatchManagement() {
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="mb-8 flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Match Management
-          </h1>
-          <p className="text-muted-foreground">View and manage all matches</p>
+          <h2 className="text-3xl font-bold">Match Management</h2>
+          <p className="text-muted-foreground">Track and manage all matches</p>
         </div>
         <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          Schedule Match
+          <Plus className="mr-2 h-4 w-4" />
+          Add Match
         </Button>
       </div>
 
@@ -69,9 +67,9 @@ export default function MatchesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Players</TableHead>
-                <TableHead>Score</TableHead>
                 <TableHead>Tournament</TableHead>
                 <TableHead>Date</TableHead>
+                <TableHead>Score</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -82,13 +80,9 @@ export default function MatchesPage() {
                   <TableCell className="font-medium">
                     {match.player1} vs {match.player2}
                   </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="font-mono">
-                      {match.score}
-                    </Badge>
-                  </TableCell>
                   <TableCell>{match.tournament}</TableCell>
                   <TableCell>{match.date}</TableCell>
+                  <TableCell>{match.score}</TableCell>
                   <TableCell>
                     <Badge
                       variant={
@@ -101,7 +95,7 @@ export default function MatchesPage() {
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
+                        <Button variant="ghost" size="sm">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -109,6 +103,9 @@ export default function MatchesPage() {
                         <DropdownMenuItem>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive">
+                          Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

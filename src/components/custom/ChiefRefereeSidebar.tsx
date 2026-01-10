@@ -1,12 +1,9 @@
 "use client";
 
 import {
-  Trophy,
-  Users,
-  Calendar,
-  Target,
-  Award,
-  BarChart3,
+  AlertCircle,
+  FileCheck,
+  Shield,
   Settings,
   LogOut,
   Menu,
@@ -14,22 +11,20 @@ import {
 import { useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 
-interface SidebarProps {
+interface ChiefRefereeSidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
 
-export default function AdminSidebar({
+export default function ChiefRefereeSidebar({
   activeTab,
   setActiveTab,
-}: SidebarProps) {
+}: ChiefRefereeSidebarProps) {
   const [isOpen, setIsOpen] = useState(true);
 
   const menuItems = [
-    { id: "overview", label: "System Dashboard", icon: BarChart3 },
-    { id: "users", label: "User Management", icon: Users },
-    { id: "rbac", label: "RBAC Settings", icon: Award },
-    { id: "logs", label: "System Logs", icon: Calendar },
+    { id: "complaint-board", label: "Complaint Board", icon: AlertCircle },
+    { id: "dispute-resolution", label: "Dispute Resolution", icon: FileCheck },
   ];
 
   return (
@@ -51,13 +46,15 @@ export default function AdminSidebar({
         <div className="p-6 border-b border-border">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <Trophy className="text-primary-foreground" size={24} />
+              <Shield className="text-primary-foreground" size={24} />
             </div>
             <div>
-              <h1 className="font-bold text-lg text-card-foreground">Admin</h1>
-              <p className="text-xs text-muted-foreground">Management</p>
+              <h1 className="font-bold text-lg text-card-foreground">
+                Tổng TT
+              </h1>
+              <p className="text-xs text-muted-foreground">Chief Referee</p>
             </div>
-            <div>
+            <div className="ml-auto">
               <ThemeToggle />
             </div>
           </div>
@@ -84,7 +81,7 @@ export default function AdminSidebar({
           })}
         </nav>
 
-        <div className="p-4 border-t border-border mt-auto space-y-2">
+        <div className="p-4 border-t border-border mt-auto space-y-2 absolute bottom-0 w-full">
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-card-foreground hover:bg-accent transition-colors">
             <Settings size={20} />
             <span>Settings</span>

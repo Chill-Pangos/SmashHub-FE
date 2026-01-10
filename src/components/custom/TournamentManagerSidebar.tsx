@@ -4,9 +4,12 @@ import {
   Trophy,
   Users,
   Calendar,
-  Target,
-  Award,
-  BarChart3,
+  UserPlus,
+  CalendarCheck,
+  Edit,
+  FileText,
+  Key,
+  LayoutDashboard,
   Settings,
   LogOut,
   Menu,
@@ -14,22 +17,27 @@ import {
 import { useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 
-interface SidebarProps {
+interface TournamentManagerSidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
 
-export default function AdminSidebar({
+export default function TournamentManagerSidebar({
   activeTab,
   setActiveTab,
-}: SidebarProps) {
+}: TournamentManagerSidebarProps) {
   const [isOpen, setIsOpen] = useState(true);
 
   const menuItems = [
-    { id: "overview", label: "System Dashboard", icon: BarChart3 },
-    { id: "users", label: "User Management", icon: Users },
-    { id: "rbac", label: "RBAC Settings", icon: Award },
-    { id: "logs", label: "System Logs", icon: Calendar },
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "setup-wizard", label: "Setup Wizard", icon: Trophy },
+    { id: "delegations", label: "Delegations", icon: Users },
+    { id: "referees", label: "Referee Assignment", icon: UserPlus },
+    { id: "scheduling", label: "Scheduling Matrix", icon: Calendar },
+    { id: "matches", label: "Match Management", icon: CalendarCheck },
+    { id: "results", label: "Result Correction", icon: Edit },
+    { id: "reports", label: "Reports Center", icon: FileText },
+    { id: "accounts", label: "Delegation Accounts", icon: Key },
   ];
 
   return (
@@ -54,16 +62,18 @@ export default function AdminSidebar({
               <Trophy className="text-primary-foreground" size={24} />
             </div>
             <div>
-              <h1 className="font-bold text-lg text-card-foreground">Admin</h1>
-              <p className="text-xs text-muted-foreground">Management</p>
+              <h1 className="font-bold text-lg text-card-foreground">QLGĐ</h1>
+              <p className="text-xs text-muted-foreground">
+                Tournament Manager
+              </p>
             </div>
-            <div>
+            <div className="ml-auto">
               <ThemeToggle />
             </div>
           </div>
         </div>
 
-        <nav className="p-4 space-y-2">
+        <nav className="p-4 space-y-2 max-h-[calc(100vh-200px)] overflow-y-auto">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -78,7 +88,7 @@ export default function AdminSidebar({
                 }`}
               >
                 <Icon size={20} />
-                <span>{item.label}</span>
+                <span className="text-sm">{item.label}</span>
               </button>
             );
           })}

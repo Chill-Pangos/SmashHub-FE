@@ -39,19 +39,9 @@ const trendData = [
   { month: "Jun", matches: 178, tournaments: 4 },
 ];
 
-export default function Statistics() {
+export default function StatisticsCharts() {
   return (
-    <div className="p-8 space-y-8">
-      {/* Header */}
-      <div>
-        <h2 className="text-3xl font-bold text-foreground mb-2">
-          Statistics & Analytics
-        </h2>
-        <p className="text-muted-foreground">
-          Comprehensive platform performance metrics
-        </p>
-      </div>
-
+    <div className="space-y-6">
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-card border border-border rounded-lg p-6">

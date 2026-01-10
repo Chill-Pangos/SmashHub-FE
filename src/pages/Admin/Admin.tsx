@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import DashboardOverview from "./Dashboard";
-import PlayersManagement from "./UserManagerment";
-import MatchesSchedule from "./ScheduleManagement";
-import TournamentsManagement from "./TournamentManagement";
-import Statistics from "./Statistics";
+import SystemDashboard from "./SystemDashboard/SystemDashboard";
+import UserManagement from "./UserManagement/UserManagement";
+import RBACSettings from "./RBACSettings/RBACSettings";
+import SystemLogs from "./SystemLogs/SystemLogs";
 import AdminSidebar from "@/components/custom/AdminSidebar";
 
 export default function AdminPage() {
@@ -14,17 +13,15 @@ export default function AdminPage() {
   const renderContent = () => {
     switch (activeTab) {
       case "overview":
-        return <DashboardOverview />;
-      case "players":
-        return <PlayersManagement />;
-      case "matches":
-        return <MatchesSchedule />;
-      case "tournaments":
-        return <TournamentsManagement />;
-      case "statistics":
-        return <Statistics />;
+        return <SystemDashboard />;
+      case "users":
+        return <UserManagement />;
+      case "rbac":
+        return <RBACSettings />;
+      case "logs":
+        return <SystemLogs />;
       default:
-        return <DashboardOverview />;
+        return <SystemDashboard />;
     }
   };
 
