@@ -7,7 +7,6 @@ import NotFound from "./pages/NotFound/NotFound";
 import PublicLayout from "./layouts/PublicLayout";
 import PrivateLayout from "./layouts/PrivateLayout";
 import AdminPage from "./pages/Admin/Admin";
-import TournamentManagementPage from "./pages/TournamentManagement/TournamentManagementPage";
 
 // Admin Pages
 import SystemDashboard from "./pages/Admin/SystemDashboard/SystemDashboard";
@@ -103,14 +102,6 @@ function App() {
           <Route
             path="/tournament-manager/schedule"
             element={<ScheduleManagement />}
-          />
-        </Route>
-
-        {/* Private routes - Tournament Management (User) */}
-        <Route element={<PrivateLayout />}>
-          <Route
-            path="/tournament-management"
-            element={<TournamentManagementPage />}
           />
         </Route>
 
