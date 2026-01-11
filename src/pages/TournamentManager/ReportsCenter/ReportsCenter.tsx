@@ -1,86 +1,58 @@
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Download, FileText, Printer } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Search } from "lucide-react";
+import { useState } from "react";
+import { ReportList, ReportGenerator, ExportOptions } from "./components";
 
 export default function ReportsCenter() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("all");
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Xuất báo cáo & Biên bản</h1>
+        <h1 className="text-3xl font-bold">Trung tâm báo cáo</h1>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="p-6">
-          <FileText className="h-8 w-8 text-blue-500 mb-4" />
-          <h3 className="font-semibold mb-2">Biên bản thi đấu</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Xuất biên bản kết quả các trận đấu
-          </p>
-          <Button className="w-full">
-            <Download className="mr-2 h-4 w-4" />
-            Tải xuống
-          </Button>
-        </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="flex gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Tìm kiếm báo cáo..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={filterType} onValueChange={setFilterType}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả</SelectItem>
+                <SelectItem value="tournament">Giải đấu</SelectItem>
+                <SelectItem value="delegation">Đoàn</SelectItem>
+                <SelectItem value="match">Trận đấu</SelectItem>
+                <SelectItem value="statistics">Thống kê</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-        <Card className="p-6">
-          <FileText className="h-8 w-8 text-green-500 mb-4" />
-          <h3 className="font-semibold mb-2">Báo cáo tổng kết</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Báo cáo tổng hợp về giải đấu
-          </p>
-          <Button className="w-full">
-            <Download className="mr-2 h-4 w-4" />
-            Tải xuống
-          </Button>
-        </Card>
+          <ReportList />
+        </div>
 
-        <Card className="p-6">
-          <FileText className="h-8 w-8 text-purple-500 mb-4" />
-          <h3 className="font-semibold mb-2">Bảng xếp hạng</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Xuất bảng xếp hạng giải đấu
-          </p>
-          <Button className="w-full">
-            <Download className="mr-2 h-4 w-4" />
-            Tải xuống
-          </Button>
-        </Card>
-
-        <Card className="p-6">
-          <FileText className="h-8 w-8 text-orange-500 mb-4" />
-          <h3 className="font-semibold mb-2">Danh sách VĐV</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Xuất danh sách vận động viên
-          </p>
-          <Button className="w-full">
-            <Download className="mr-2 h-4 w-4" />
-            Tải xuống
-          </Button>
-        </Card>
-
-        <Card className="p-6">
-          <FileText className="h-8 w-8 text-red-500 mb-4" />
-          <h3 className="font-semibold mb-2">Lịch thi đấu</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Xuất lịch thi đấu chi tiết
-          </p>
-          <Button className="w-full">
-            <Download className="mr-2 h-4 w-4" />
-            Tải xuống
-          </Button>
-        </Card>
-
-        <Card className="p-6">
-          <FileText className="h-8 w-8 text-teal-500 mb-4" />
-          <h3 className="font-semibold mb-2">Báo cáo thống kê</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Các chỉ số thống kê giải đấu
-          </p>
-          <Button className="w-full">
-            <Download className="mr-2 h-4 w-4" />
-            Tải xuống
-          </Button>
-        </Card>
+        <div className="space-y-6">
+          <ReportGenerator />
+          <ExportOptions />
+        </div>
       </div>
     </div>
   );

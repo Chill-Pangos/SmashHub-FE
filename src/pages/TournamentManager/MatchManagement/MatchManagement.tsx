@@ -1,120 +1,67 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Plus, Edit, MoreHorizontal } from "lucide-react";
-
-const matches = [
-  {
-    id: 1,
-    player1: "Alex Chen",
-    player2: "Maria Rodriguez",
-    score: "3-1",
-    tournament: "Spring Championship",
-    date: "2025-01-15",
-    status: "completed",
-  },
-  {
-    id: 2,
-    player1: "David Kim",
-    player2: "Sarah Johnson",
-    score: "3-2",
-    tournament: "Weekly League",
-    date: "2025-01-14",
-    status: "completed",
-  },
-  {
-    id: 3,
-    player1: "Emma Wilson",
-    player2: "James Park",
-    score: "TBD",
-    tournament: "Spring Championship",
-    date: "2025-02-01",
-    status: "upcoming",
-  },
-];
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Plus, Search, Download, Calendar as CalendarIcon } from "lucide-react";
+import { MatchTable, MatchFilters } from "./components";
+import type { Match } from "./components";
 
 export default function MatchManagement() {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleEdit = (match: Match) => {
+    console.log("Edit match:", match);
+  };
+
+  const handleViewDetail = (matchId: number) => {
+    console.log("View match detail:", matchId);
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold">Match Management</h2>
-          <p className="text-muted-foreground">Track and manage all matches</p>
+          <h1 className="text-3xl font-bold">Quản lý trận đấu</h1>
+          <p className="text-muted-foreground mt-1">
+            Theo dõi và quản lý tất cả trận đấu
+          </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Match
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline">
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            Xem lịch
+          </Button>
+          <Button variant="outline">
+            <Download className="mr-2 h-4 w-4" />
+            Xuất lịch thi đấu
+          </Button>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Tạo trận đấu
+          </Button>
+        </div>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Players</TableHead>
-                <TableHead>Tournament</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Score</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {matches.map((match) => (
-                <TableRow key={match.id}>
-                  <TableCell className="font-medium">
-                    {match.player1} vs {match.player2}
-                  </TableCell>
-                  <TableCell>{match.tournament}</TableCell>
-                  <TableCell>{match.date}</TableCell>
-                  <TableCell>{match.score}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        match.status === "completed" ? "default" : "secondary"
-                      }
-                    >
-                      {match.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
+      <MatchFilters />
+
+      <Card className="p-6">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Tìm kiếm theo mã trận, vận động viên, đoàn..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
+
+        <MatchTable
+          searchQuery={searchQuery}
+          onEdit={handleEdit}
+          onViewDetail={handleViewDetail}
+        />
       </Card>
     </div>
   );

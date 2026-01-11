@@ -25,7 +25,6 @@ import ResultCorrection from "./pages/TournamentManager/ResultCorrection/ResultC
 import ReportsCenter from "./pages/TournamentManager/ReportsCenter/ReportsCenter";
 import DelegationAccountManagement from "./pages/TournamentManager/DelegationAccountManagement/DelegationAccountManagement";
 import MatchManagement from "./pages/TournamentManager/MatchManagement/MatchManagement";
-import ScheduleManagement from "./pages/TournamentManager/ScheduleManagement/ScheduleManagement";
 
 // Chief Referee Pages (Tổng TT)
 import ChiefRefereePage from "./pages/ChiefReferee/ChiefRefereePage";
@@ -98,10 +97,6 @@ function App() {
           <Route
             path="/tournament-manager/matches"
             element={<MatchManagement />}
-          />
-          <Route
-            path="/tournament-manager/schedule"
-            element={<ScheduleManagement />}
           />
         </Route>
 

@@ -1,115 +1,130 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ArrowRight, ArrowLeft } from "lucide-react";
+import {
+  StepIndicator,
+  BasicInfoForm,
+  CategorySettings,
+  DelegationSelection,
+  ConfirmationSummary
+} from "./components";
 
 export default function TournamentSetupWizard() {
   const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState({
+    name: "",
+    startDate: "",
+    endDate: "",
+    venue: "",
+    address: "",
+    description: "",
+    type: "",
+    level: ""
+  });
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedDelegations, setSelectedDelegations] = useState<string[]>([]);
+
+  const handleFormChange = (field: string, value: string) => {
+    setFormData({ ...formData, [field]: value });
+  };
+
+  const canProceed = () => {
+    switch (step) {
+      case 1:
+        return formData.name && formData.startDate && formData.endDate && 
+               formData.venue && formData.type && formData.level;
+      case 2:
+        return selectedCategories.length > 0;
+      case 3:
+        return selectedDelegations.length > 0;
+      case 4:
+        return true;
+      default:
+        return false;
+    }
+  };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Thiết lập giải đấu</h1>
+    <div className="p-6 max-w-6xl mx-auto">
+      <h1 className="text-3xl font-bold mb-8">Thiết lập giải đấu mới</h1>
+
+      <StepIndicator currentStep={step} />
 
       <div className="mb-8">
-        <div className="flex items-center justify-between">
-          {[1, 2, 3, 4].map((s) => (
-            <div key={s} className="flex items-center flex-1">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  step >= s
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {s}
-              </div>
-              {s < 4 && (
-                <div
-                  className={`flex-1 h-1 mx-2 ${
-                    step > s ? "bg-primary" : "bg-muted"
-                  }`}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="flex justify-between mt-2 text-sm">
-          <span>Thông tin cơ bản</span>
-          <span>Thể thức</span>
-          <span>Nội dung thi đấu</span>
-          <span>Xác nhận</span>
-        </div>
-      </div>
-
-      <Card className="p-6">
         {step === 1 && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Thông tin cơ bản</h2>
-            <div>
-              <Label>Tên giải đấu</Label>
-              <Input placeholder="Nhập tên giải đấu" />
-            </div>
-            <div>
-              <Label>Địa điểm</Label>
-              <Input placeholder="Nhập địa điểm" />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Ngày bắt đầu</Label>
-                <Input type="date" />
-              </div>
-              <div>
-                <Label>Ngày kết thúc</Label>
-                <Input type="date" />
-              </div>
-            </div>
-          </div>
+          <BasicInfoForm formData={formData} onChange={handleFormChange} />
         )}
-
         {step === 2 && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Thể thức thi đấu</h2>
-            <div className="text-muted-foreground">
-              Chọn thể thức thi đấu phù hợp với giải đấu của bạn
-            </div>
-          </div>
+          <CategorySettings 
+            selectedCategories={selectedCategories}
+            onChange={setSelectedCategories}
+          />
         )}
-
         {step === 3 && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Nội dung thi đấu</h2>
-            <div className="text-muted-foreground">
-              Thêm các nội dung thi đấu và hạng mục
-            </div>
-          </div>
+          <DelegationSelection
+            selectedDelegations={selectedDelegations}
+            onChange={setSelectedDelegations}
+          />
         )}
-
         {step === 4 && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Xác nhận thông tin</h2>
-            <div className="text-muted-foreground">
-              Kiểm tra lại thông tin trước khi tạo giải đấu
+          <div className="space-y-6">
+            <ConfirmationSummary
+              formData={formData}
+              selectedCategories={selectedCategories}
+              selectedDelegations={selectedDelegations}
+            />
+          </div>
+        )}
+        {step === 5 && (
+          <div className="text-center py-12">
+            <div className="mb-4">
+              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-8 h-8 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Tạo giải đấu thành công!</h2>
+            <p className="text-muted-foreground mb-6">
+              Giải đấu đã được tạo và sẵn sàng để bắt đầu.
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Button variant="outline">Quay lại danh sách</Button>
+              <Button>Xem chi tiết giải đấu</Button>
             </div>
           </div>
         )}
-      </Card>
-
-      <div className="flex justify-between mt-6">
-        <Button
-          variant="outline"
-          onClick={() => setStep(Math.max(1, step - 1))}
-          disabled={step === 1}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Quay lại
-        </Button>
-        <Button onClick={() => setStep(Math.min(4, step + 1))}>
-          {step === 4 ? "Hoàn thành" : "Tiếp theo"}
-          {step < 4 && <ArrowRight className="ml-2 h-4 w-4" />}
-        </Button>
       </div>
+
+      {step < 5 && (
+        <div className="flex justify-between">
+          <Button
+            variant="outline"
+            onClick={() => setStep(step - 1)}
+            disabled={step === 1}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Quay lại
+          </Button>
+          <Button
+            onClick={() => setStep(step + 1)}
+            disabled={!canProceed()}
+          >
+            {step === 4 ? "Hoàn tất" : "Tiếp theo"}
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
