@@ -29,15 +29,15 @@ export default function TournamentManagerSidebar({
   const [isOpen, setIsOpen] = useState(true);
 
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "setup-wizard", label: "Setup Wizard", icon: Trophy },
-    { id: "delegations", label: "Delegations", icon: Users },
-    { id: "referees", label: "Referee Assignment", icon: UserPlus },
-    { id: "scheduling", label: "Scheduling Matrix", icon: Calendar },
-    { id: "matches", label: "Match Management", icon: CalendarCheck },
-    { id: "results", label: "Result Correction", icon: Edit },
-    { id: "reports", label: "Reports Center", icon: FileText },
-    { id: "accounts", label: "Delegation Accounts", icon: Key },
+    { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
+    { id: "setup-wizard", label: "Thiết lập giải đấu", icon: Trophy },
+    { id: "delegations", label: "Quản lý đoàn", icon: Users },
+    { id: "referees", label: "Phân công trọng tài", icon: UserPlus },
+    { id: "scheduling", label: "Ma trận lịch thi đấu", icon: Calendar },
+    { id: "matches", label: "Quản lý trận đấu", icon: CalendarCheck },
+    { id: "results", label: "Điều chỉnh kết quả", icon: Edit },
+    { id: "reports", label: "Trung tâm báo cáo", icon: FileText },
+    { id: "accounts", label: "Tài khoản đoàn", icon: Key },
   ];
 
   return (
@@ -64,7 +64,7 @@ export default function TournamentManagerSidebar({
             <div>
               <h1 className="font-bold text-lg text-card-foreground">QLGĐ</h1>
               <p className="text-xs text-muted-foreground">
-                Tournament Manager
+                Quản lý giải đấu
               </p>
             </div>
             <div className="ml-auto">
@@ -97,11 +97,11 @@ export default function TournamentManagerSidebar({
         <div className="p-4 border-t border-border mt-auto space-y-2">
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-card-foreground hover:bg-accent transition-colors">
             <Settings size={20} />
-            <span>Settings</span>
+            <span>Cài đặt</span>
           </button>
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors">
             <LogOut size={20} />
-            <span>Logout</span>
+            <span>Đăng xuất</span>
           </button>
         </div>
       </aside>

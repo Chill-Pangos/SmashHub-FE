@@ -1,8 +1,11 @@
 "use client";
 
 import {
+  LayoutDashboard,
   AlertCircle,
   FileCheck,
+  Monitor,
+  ScrollText,
   Shield,
   Settings,
   LogOut,
@@ -23,8 +26,11 @@ export default function ChiefRefereeSidebar({
   const [isOpen, setIsOpen] = useState(true);
 
   const menuItems = [
-    { id: "complaint-board", label: "Complaint Board", icon: AlertCircle },
-    { id: "dispute-resolution", label: "Dispute Resolution", icon: FileCheck },
+    { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
+    { id: "complaint-board", label: "Theo dõi khiếu nại", icon: AlertCircle },
+    { id: "dispute-resolution", label: "Xử lý chi tiết", icon: FileCheck },
+    { id: "match-supervision", label: "Giám sát trận đấu", icon: Monitor },
+    { id: "decision-log", label: "Nhật ký quyết định", icon: ScrollText },
   ];
 
   return (
@@ -52,7 +58,7 @@ export default function ChiefRefereeSidebar({
               <h1 className="font-bold text-lg text-card-foreground">
                 Tổng TT
               </h1>
-              <p className="text-xs text-muted-foreground">Chief Referee</p>
+              <p className="text-xs text-muted-foreground">Tổng trọng tài</p>
             </div>
             <div className="ml-auto">
               <ThemeToggle />
@@ -81,14 +87,14 @@ export default function ChiefRefereeSidebar({
           })}
         </nav>
 
-        <div className="p-4 border-t border-border mt-auto space-y-2 absolute bottom-0 w-full">
+        <div className="p-4 border-t border-border mt-auto space-y-2">
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-card-foreground hover:bg-accent transition-colors">
             <Settings size={20} />
-            <span>Settings</span>
+            <span>Cài đặt</span>
           </button>
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors">
             <LogOut size={20} />
-            <span>Logout</span>
+            <span>Đăng xuất</span>
           </button>
         </div>
       </aside>

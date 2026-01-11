@@ -4,7 +4,6 @@ import {
   Trophy,
   Users,
   Calendar,
-  Target,
   Award,
   BarChart3,
   Settings,
@@ -26,10 +25,10 @@ export default function AdminSidebar({
   const [isOpen, setIsOpen] = useState(true);
 
   const menuItems = [
-    { id: "overview", label: "System Dashboard", icon: BarChart3 },
-    { id: "users", label: "User Management", icon: Users },
-    { id: "rbac", label: "RBAC Settings", icon: Award },
-    { id: "logs", label: "System Logs", icon: Calendar },
+    { id: "overview", label: "Tổng quan hệ thống", icon: BarChart3 },
+    { id: "users", label: "Quản lý người dùng", icon: Users },
+    { id: "rbac", label: "Cài đặt phân quyền", icon: Award },
+    { id: "logs", label: "Nhật ký hệ thống", icon: Calendar },
   ];
 
   return (
@@ -55,7 +54,7 @@ export default function AdminSidebar({
             </div>
             <div>
               <h1 className="font-bold text-lg text-card-foreground">Admin</h1>
-              <p className="text-xs text-muted-foreground">Management</p>
+              <p className="text-xs text-muted-foreground">Quản trị hệ thống</p>
             </div>
             <div>
               <ThemeToggle />
@@ -87,11 +86,11 @@ export default function AdminSidebar({
         <div className="p-4 border-t border-border mt-auto space-y-2">
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-card-foreground hover:bg-accent transition-colors">
             <Settings size={20} />
-            <span>Settings</span>
+            <span>Cài đặt</span>
           </button>
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors">
             <LogOut size={20} />
-            <span>Logout</span>
+            <span>Đăng xuất</span>
           </button>
         </div>
       </aside>
