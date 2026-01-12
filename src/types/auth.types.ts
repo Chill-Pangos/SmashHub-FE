@@ -2,7 +2,12 @@
 
 export type ApiResponse<T = void> = 
   | { success: true; message: string; data: T }
-  | { success: false; message: string; data?: never };
+  | { success: false; error: { code: string; message: string }; data?: never };
+
+export interface ApiError {
+  code: string;
+  message: string;
+}
 
 // ==================== Request Types ====================
 
@@ -42,13 +47,27 @@ export interface ResetPasswordRequest {
   newPassword: string;
 }
 
+export interface SendEmailVerificationRequest {
+  email: string;
+}
+
+export interface VerifyEmailOtpRequest {
+  email: string;
+  otp: string;
+}
+
+export interface ResendEmailVerificationRequest {
+  email: string;
+}
+
 // ==================== Data Models ====================
 
 export interface User {
   id: number;
   username: string;
   email: string;
-  role?: string;
+  roles: number[];
+  isEmailVerified: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

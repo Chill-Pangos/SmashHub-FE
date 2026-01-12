@@ -7,6 +7,9 @@ import type {
   ForgotPasswordRequest,
   VerifyOtpRequest,
   ResetPasswordRequest,
+  SendEmailVerificationRequest,
+  VerifyEmailOtpRequest,
+  ResendEmailVerificationRequest,
   AuthResponse,
   RefreshTokenResponse,
   ProfileResponse,
@@ -127,6 +130,42 @@ class AuthService {
   async logout(): Promise<SuccessResponse> {
     const response = await axiosInstance.post<SuccessResponse>(
       `${this.AUTH_PREFIX}/logout`
+    );
+    return response.data;
+  }
+
+  /**
+   * Send email verification OTP
+   * POST /api/auth/send-email-verification
+   */
+  async sendEmailVerification(data: SendEmailVerificationRequest): Promise<SuccessResponse> {
+    const response = await axiosInstance.post<SuccessResponse>(
+      `${this.AUTH_PREFIX}/send-email-verification`,
+      data
+    );
+    return response.data;
+  }
+
+  /**
+   * Verify email with OTP
+   * POST /api/auth/verify-email-otp
+   */
+  async verifyEmailOtp(data: VerifyEmailOtpRequest): Promise<SuccessResponse> {
+    const response = await axiosInstance.post<SuccessResponse>(
+      `${this.AUTH_PREFIX}/verify-email-otp`,
+      data
+    );
+    return response.data;
+  }
+
+  /**
+   * Resend email verification OTP
+   * POST /api/auth/resend-email-verification
+   */
+  async resendEmailVerification(data: ResendEmailVerificationRequest): Promise<SuccessResponse> {
+    const response = await axiosInstance.post<SuccessResponse>(
+      `${this.AUTH_PREFIX}/resend-email-verification`,
+      data
     );
     return response.data;
   }
