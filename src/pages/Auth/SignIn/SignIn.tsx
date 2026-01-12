@@ -11,23 +11,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
 import { Lock, Mail, Trophy, Loader2 } from "lucide-react";
-import { authService } from "@/services";
+import { useAuthOperations } from "@/hooks";
 import {
   validateLoginForm,
   hasValidationErrors,
+  showToast,
   type LoginFormData,
   type ValidationErrors,
 } from "@/utils";
-import { unwrapApiResponse, showApiError, showToast } from "@/utils";
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const { login, loading, error: authError } = useAuthOperations();
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
-  const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -53,31 +53,24 @@ const SignIn = () => {
       return;
     }
 
-    setIsLoading(true);
+    // Call login from useAuthOperations
+    const result = await login(formData);
 
-    try {
-      // Call login API
-      const response = await authService.login(formData);
-
-      // Unwrap response
-      const authData = unwrapApiResponse(response);
-
-      // Save auth data to localStorage
-      authService.saveAuthData(authData);
-
+    if (result.success && result.data) {
       // Show success message
       showToast.success(
         "Đăng nhập thành công",
-        `Chào mừng trở lại, ${authData.user.username}!`
+        `Chào mừng trở lại, ${result.data.user.username}!`
       );
 
       // Redirect to home page
       navigate("/");
-    } catch (error) {
-      // Show error toast
-      showApiError(error, "Đăng nhập thất bại");
-    } finally {
-      setIsLoading(false);
+    } else {
+      // Error is already set in authError state
+      showToast.error(
+        "Đăng nhập thất bại",
+        result.error || authError || undefined
+      );
     }
   };
 
@@ -120,7 +113,7 @@ const SignIn = () => {
                     className="pl-10 bg-input border-border text-foreground"
                     value={formData.email}
                     onChange={handleChange}
-                    disabled={isLoading}
+                    disabled={loading}
                     required
                   />
                 </div>
@@ -142,7 +135,7 @@ const SignIn = () => {
                     className="pl-10 bg-input border-border text-foreground"
                     value={formData.password}
                     onChange={handleChange}
-                    disabled={isLoading}
+                    disabled={loading}
                     required
                   />
                 </div>
@@ -159,7 +152,7 @@ const SignIn = () => {
                     className="rounded border-border"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    disabled={isLoading}
+                    disabled={loading}
                   />
                   <Label
                     htmlFor="remember"
@@ -180,9 +173,9 @@ const SignIn = () => {
                 type="submit"
                 className="w-full"
                 size="lg"
-                disabled={isLoading}
+                disabled={loading}
               >
-                {isLoading ? (
+                {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Đang đăng nhập...

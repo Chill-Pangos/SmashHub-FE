@@ -10,20 +10,28 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
-import { Lock, Mail, Trophy, User, Loader2 } from "lucide-react";
-import { authService } from "@/services";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Lock, Mail, Trophy, User, Loader2, UserCog } from "lucide-react";
+import { useAuthOperations } from "@/hooks";
 import {
   validateRegisterForm,
   hasValidationErrors,
   checkPasswordStrength,
+  showToast,
   PasswordStrength,
   type RegisterFormData,
   type ValidationErrors,
 } from "@/utils";
-import { unwrapApiResponse, showApiError, showToast } from "@/utils";
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const { register, loading, error: authError } = useAuthOperations();
   const [formData, setFormData] = useState<RegisterFormData>({
     username: "",
     email: "",
@@ -32,7 +40,6 @@ const SignUp = () => {
     role: "spectator",
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
-  const [isLoading, setIsLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -96,36 +103,29 @@ const SignUp = () => {
       return;
     }
 
-    setIsLoading(true);
+    // Call register from useAuthOperations
+    const result = await register({
+      username: formData.username,
+      email: formData.email,
+      password: formData.password,
+      role: formData.role,
+    });
 
-    try {
-      // Call register API
-      const response = await authService.register({
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        role: formData.role,
-      });
-
-      // Unwrap response
-      const authData = unwrapApiResponse(response);
-
-      // Save auth data to localStorage
-      authService.saveAuthData(authData);
-
+    if (result.success && result.data) {
       // Show success message
       showToast.success(
         "Đăng ký thành công",
-        `Chào mừng bạn đến với SmashHub, ${authData.user.username}!`
+        `Chào mừng bạn đến với SmashHub, ${result.data.user.username}!`
       );
 
       // Redirect to home page
       navigate("/");
-    } catch (error) {
-      // Show error toast
-      showApiError(error, "Đăng ký thất bại");
-    } finally {
-      setIsLoading(false);
+    } else {
+      // Error is already set in authError state
+      showToast.error(
+        "Đăng ký thất bại",
+        result.error || authError || undefined
+      );
     }
   };
 
@@ -168,7 +168,7 @@ const SignUp = () => {
                     className="pl-10 bg-input border-border text-foreground"
                     value={formData.username}
                     onChange={handleChange}
-                    disabled={isLoading}
+                    disabled={loading}
                     required
                   />
                 </div>
@@ -190,7 +190,7 @@ const SignUp = () => {
                     className="pl-10 bg-input border-border text-foreground"
                     value={formData.email}
                     onChange={handleChange}
-                    disabled={isLoading}
+                    disabled={loading}
                     required
                   />
                 </div>
@@ -212,7 +212,7 @@ const SignUp = () => {
                     className="pl-10 bg-input border-border text-foreground"
                     value={formData.password}
                     onChange={handleChange}
-                    disabled={isLoading}
+                    disabled={loading}
                     required
                   />
                 </div>
@@ -247,7 +247,7 @@ const SignUp = () => {
                     className="pl-10 bg-input border-border text-foreground"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    disabled={isLoading}
+                    disabled={loading}
                     required
                   />
                 </div>
@@ -258,6 +258,61 @@ const SignUp = () => {
                 )}
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="role" className="text-card-foreground">
+                  Loại tài khoản
+                </Label>
+                <Select
+                  value={formData.role}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      role: value as "spectator" | "player" | "organizer",
+                    }))
+                  }
+                  disabled={loading}
+                >
+                  <SelectTrigger className="w-full bg-input border-border text-foreground">
+                    <div className="flex items-center gap-2">
+                      <UserCog className="h-4 w-4 text-muted-foreground" />
+                      <SelectValue placeholder="Chọn loại tài khoản" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="spectator">
+                      <div className="flex flex-col">
+                        <span className="font-medium">Khán giả</span>
+                        <span className="text-xs text-muted-foreground">
+                          Xem và theo dõi các trận đấu
+                        </span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="player">
+                      <div className="flex flex-col">
+                        <span className="font-medium">Vận động viên</span>
+                        <span className="text-xs text-muted-foreground">
+                          Tham gia thi đấu
+                        </span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="organizer">
+                      <div className="flex flex-col">
+                        <span className="font-medium">Ban tổ chức</span>
+                        <span className="text-xs text-muted-foreground">
+                          Tổ chức và quản lý giải đấu
+                        </span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.role && (
+                  <p className="text-sm text-red-500">{errors.role}</p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Bạn có thể thay đổi loại tài khoản sau khi đăng ký
+                </p>
+              </div>
+
               <div className="flex items-center space-x-2">
                 <input
                   id="terms"
@@ -265,7 +320,7 @@ const SignUp = () => {
                   className="rounded border-border"
                   checked={agreedToTerms}
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  disabled={isLoading}
+                  disabled={loading}
                   required
                 />
                 <Label
@@ -293,9 +348,9 @@ const SignUp = () => {
                 type="submit"
                 className="w-full"
                 size="lg"
-                disabled={isLoading}
+                disabled={loading}
               >
-                {isLoading ? (
+                {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Đang tạo tài khoản...
