@@ -15,9 +15,16 @@ export const unwrapApiResponse = <T>(response: ApiResponse<T>): T => {
     return response.data;
   }
 
-  // Transform technical error to user-friendly message
-  const userMessage = getUserFriendlyMessage(response.message);
-  throw new Error(userMessage);
+  // Handle new error format with error.code and error.message
+  if ("error" in response && response.error) {
+    const userMessage = getUserFriendlyMessage(
+      response.error.code,
+      response.error.message
+    );
+    throw new Error(userMessage);
+  }
+
+  throw new Error("An error occurred");
 };
 
 /**
@@ -46,8 +53,15 @@ export const handleApiCall = async <T>(
     const response = await apiCall();
 
     if (!response.success) {
-      const userMessage = getUserFriendlyMessage(response.message);
-      throw new Error(userMessage);
+      // Handle new error format
+      if ("error" in response && response.error) {
+        const userMessage = getUserFriendlyMessage(
+          response.error.code,
+          response.error.message
+        );
+        throw new Error(userMessage);
+      }
+      throw new Error("Request failed");
     }
 
     // Show success toast if enabled
