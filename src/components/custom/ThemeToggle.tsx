@@ -14,6 +14,10 @@ export default function ThemeToggle() {
     const initial = saved || (systemPrefersDark ? "dark" : "light");
     setTheme(initial);
     document.documentElement.classList.toggle("dark", initial === "dark");
+
+    console.log("saved", saved);
+    console.log("systemPrefersDark", systemPrefersDark);
+    console.log("initial", initial);
   }, []);
 
   const toggleTheme = () => {
