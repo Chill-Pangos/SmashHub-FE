@@ -787,3 +787,71 @@ export const validateTournamentSearchFilters = (
 
   return errors;
 };
+
+// ==================== Role Validation ====================
+
+/**
+ * Validate role name
+ */
+export const validateRoleName = (name: string): string | null => {
+  if (!name || name.trim() === "") {
+    return "Tên role không được để trống";
+  }
+
+  if (name.length < 2) {
+    return "Tên role phải có ít nhất 2 ký tự";
+  }
+
+  if (name.length > 50) {
+    return "Tên role không được vượt quá 50 ký tự";
+  }
+
+  // Allow letters, numbers, spaces, hyphens, underscores
+  if (!/^[a-zA-Z0-9\s\-_]+$/.test(name)) {
+    return "Tên role chỉ được chứa chữ cái, số, khoảng trắng, gạch ngang và gạch dưới";
+  }
+
+  return null;
+};
+
+/**
+ * Validate role description
+ */
+export const validateRoleDescription = (
+  description?: string
+): string | null => {
+  if (!description || description.trim() === "") {
+    return null; // Description is optional
+  }
+
+  if (description.length > 500) {
+    return "Mô tả không được vượt quá 500 ký tự";
+  }
+
+  return null;
+};
+
+/**
+ * Role form data interface
+ */
+export interface RoleFormData {
+  name: string;
+  description?: string;
+}
+
+/**
+ * Validate entire role form
+ */
+export const validateRoleForm = (data: RoleFormData): ValidationErrors => {
+  const errors: ValidationErrors = {};
+
+  const nameError = validateRoleName(data.name);
+  if (nameError) errors.name = nameError;
+
+  if (data.description) {
+    const descError = validateRoleDescription(data.description);
+    if (descError) errors.description = descError;
+  }
+
+  return errors;
+};
