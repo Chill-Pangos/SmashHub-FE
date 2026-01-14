@@ -174,7 +174,7 @@ export interface RegisterFormData {
   email: string;
   password: string;
   confirmPassword: string;
-  role?: "spectator" | "player" | "organizer";
+  role?: "spectator" | "athlete" | "coach" | "team_manager";
 }
 
 export interface ValidationErrors {

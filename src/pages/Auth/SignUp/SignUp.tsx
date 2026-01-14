@@ -267,7 +267,11 @@ const SignUp = () => {
                   onValueChange={(value) =>
                     setFormData((prev) => ({
                       ...prev,
-                      role: value as "spectator" | "player" | "organizer",
+                      role: value as
+                        | "spectator"
+                        | "athlete"
+                        | "coach"
+                        | "team_manager",
                     }))
                   }
                   disabled={loading}
@@ -281,13 +285,13 @@ const SignUp = () => {
                   <SelectContent>
                     <SelectItem value="spectator">
                       <div className="flex flex-col">
-                        <span className="font-medium">Khán giả</span>
+                        <span className="font-medium">Người xem</span>
                         <span className="text-xs text-muted-foreground">
                           Xem và theo dõi các trận đấu
                         </span>
                       </div>
                     </SelectItem>
-                    <SelectItem value="player">
+                    <SelectItem value="athlete">
                       <div className="flex flex-col">
                         <span className="font-medium">Vận động viên</span>
                         <span className="text-xs text-muted-foreground">
@@ -295,11 +299,19 @@ const SignUp = () => {
                         </span>
                       </div>
                     </SelectItem>
-                    <SelectItem value="organizer">
+                    <SelectItem value="coach">
                       <div className="flex flex-col">
-                        <span className="font-medium">Ban tổ chức</span>
+                        <span className="font-medium">Huấn luyện viên</span>
                         <span className="text-xs text-muted-foreground">
-                          Tổ chức và quản lý giải đấu
+                          Hướng dẫn và hỗ trợ vận động viên
+                        </span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="team_manager">
+                      <div className="flex flex-col">
+                        <span className="font-medium">Trưởng đoàn</span>
+                        <span className="text-xs text-muted-foreground">
+                          Quản lý và điều phối đội tuyển
                         </span>
                       </div>
                     </SelectItem>

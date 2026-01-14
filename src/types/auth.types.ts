@@ -15,7 +15,7 @@ export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
-  role?: 'spectator' | 'player' | 'organizer';
+  role?: 'spectator' | 'athlete' | 'coach' | 'team_manager';
 }
 
 export interface LoginRequest {
