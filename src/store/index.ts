@@ -2,3 +2,6 @@
 export * from './authContext';
 export * from './authStore';
 export * from './useAuth';
+export * from './roleContext';
+export * from './roleStore';
+export * from './useRole';

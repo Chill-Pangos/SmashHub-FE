@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "@/services";
-import { useAuth } from "@/store";
+import { useAuth, useRole } from "@/store";
 import type {
   RegisterRequest,
   LoginRequest,
@@ -38,6 +38,7 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
 export const useAuthOperations = () => {
   const navigate = useNavigate();
   const { login: setAuthData, logout: clearAuthData, updateUser } = useAuth();
+  const { getDefaultRouteForRoles } = useRole();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,10 +49,19 @@ export const useAuthOperations = () => {
     try {
       setLoading(true);
       setError(null);
+
+      // Clear any existing auth data before register
+      authService.clearAuthData();
+      clearAuthData();
+
       const response = await authService.register(data);
 
       if (response.success) {
+        // Save new auth data
         setAuthData(response.data);
+        // Redirect based on user role
+        const redirectPath = getDefaultRouteForRoles(response.data.user.roles);
+        navigate(redirectPath, { replace: true });
         return { success: true, data: response.data };
       }
       return { success: false, error: "Registration failed" };
@@ -71,10 +81,22 @@ export const useAuthOperations = () => {
     try {
       setLoading(true);
       setError(null);
+
+      // Clear any existing auth data before login
+      authService.clearAuthData();
+      clearAuthData();
+
       const response = await authService.login(data);
 
       if (response.success) {
+        // Save new auth data
         setAuthData(response.data);
+        // Debug log
+        console.log("Login success - User roles:", response.data.user.roles);
+        // Redirect based on user role
+        const redirectPath = getDefaultRouteForRoles(response.data.user.roles);
+        console.log("Redirecting to:", redirectPath);
+        navigate(redirectPath, { replace: true });
         return { success: true, data: response.data };
       }
       return { success: false, error: "Login failed" };
@@ -94,12 +116,18 @@ export const useAuthOperations = () => {
     try {
       setLoading(true);
       setError(null);
+      // Call backend logout API
       await authService.logout();
     } catch (err) {
       console.error("Logout error:", err);
+      // Continue with logout even if API call fails
     } finally {
+      // Clear localStorage first
+      authService.clearAuthData();
+      // Then clear auth context state
       clearAuthData();
       setLoading(false);
+      // Redirect to signin
       navigate("/signin");
     }
   };
