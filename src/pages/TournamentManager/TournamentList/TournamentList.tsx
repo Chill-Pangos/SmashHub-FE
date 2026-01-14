@@ -35,12 +35,12 @@ export default function TournamentList() {
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [editingTournamentId, setEditingTournamentId] = useState<
-    number | null
-  >(null);
-  const [viewingTournamentId, setViewingTournamentId] = useState<
-    number | null
-  >(null);
+  const [editingTournamentId, setEditingTournamentId] = useState<number | null>(
+    null
+  );
+  const [viewingTournamentId, setViewingTournamentId] = useState<number | null>(
+    null
+  );
 
   const [filters, setFilters] = useState<TournamentSearchFilters>({
     skip: 0,
@@ -325,20 +325,24 @@ export default function TournamentList() {
                       ? "all"
                       : filters.isGroupStage.toString()
                   }
-                  onValueChange={(value) =>
-                    setFilters({
-                      ...filters,
-                      isGroupStage: value === "all" ? undefined : value === "true",
-                    })
-                  }
+                  onValueChange={(value) => {
+                    const newFilters = { ...filters };
+                    if (value === "all") {
+                      // Xóa hoàn toàn property để không gửi lên backend
+                      delete newFilters.isGroupStage;
+                    } else {
+                      newFilters.isGroupStage = value === "true";
+                    }
+                    setFilters(newFilters);
+                  }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Tất cả" />
+                    <SelectValue placeholder="Chọn..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Tất cả</SelectItem>
-                    <SelectItem value="true">Có</SelectItem>
-                    <SelectItem value="false">Không</SelectItem>
+                    <SelectItem value="all">Tất cả (Có + Không)</SelectItem>
+                    <SelectItem value="true">Có vòng bảng</SelectItem>
+                    <SelectItem value="false">Không có vòng bảng</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -48,23 +48,21 @@ export default function AppRouter() {
   return (
     <Routes>
       {/* Public routes - accessible without authentication */}
-      <PublicRoutes />
+      {PublicRoutes()}
 
       {/* Protected routes - require authentication but no specific role */}
-      <ProtectedRoutes />
+      {ProtectedRoutes()}
 
       {/* Admin routes - only render if admin role exists in database */}
-      {adminRole && <AdminRoutes adminRoleId={adminRole.id} />}
+      {adminRole && AdminRoutes({ adminRoleId: adminRole.id })}
 
       {/* Tournament Manager routes - only render if organizer role exists */}
-      {organizerRole && (
-        <TournamentManagerRoutes organizerRoleId={organizerRole.id} />
-      )}
+      {organizerRole &&
+        TournamentManagerRoutes({ organizerRoleId: organizerRole.id })}
 
       {/* Chief Referee routes - only render if chief_referee role exists */}
-      {chiefRefereeRole && (
-        <ChiefRefereeRoutes chiefRefereeRoleId={chiefRefereeRole.id} />
-      )}
+      {chiefRefereeRole &&
+        ChiefRefereeRoutes({ chiefRefereeRoleId: chiefRefereeRole.id })}
 
       {/* 404 Not Found */}
       <Route path="*" element={<NotFound />} />
