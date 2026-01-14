@@ -2,6 +2,7 @@ import { useState } from "react";
 import TournamentManagerSidebar from "@/components/custom/TournamentManagerSidebar";
 import TournamentDashboard from "./TournamentDashboard/TournamentDashboard";
 import TournamentSetupWizard from "./TournamentSetupWizard/TournamentSetupWizard";
+import TournamentList from "./TournamentList/TournamentList";
 import DelegationManagement from "./DelegationManagement/DelegationManagement";
 import RefereeAssignment from "./RefereeAssignment/RefereeAssignment";
 import SchedulingMatrix from "./SchedulingMatrix/SchedulingMatrix";
@@ -16,9 +17,11 @@ export default function TournamentManagerPage() {
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <TournamentDashboard />;
+        return <TournamentDashboard onNavigateTo={setActiveTab} />;
       case "setup-wizard":
         return <TournamentSetupWizard />;
+      case "tournament-list":
+        return <TournamentList />;
       case "delegations":
         return <DelegationManagement />;
       case "referees":

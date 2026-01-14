@@ -1,205 +1,194 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
-
-interface Category {
-  id: string;
-  name: string;
-  gender: "male" | "female" | "mixed";
-  ageGroup: string;
-  maxParticipants: number;
-}
-
-const predefinedCategories: Category[] = [
-  {
-    id: "1",
-    name: "Nam đơn",
-    gender: "male",
-    ageGroup: "Tất cả",
-    maxParticipants: 32,
-  },
-  {
-    id: "2",
-    name: "Nữ đơn",
-    gender: "female",
-    ageGroup: "Tất cả",
-    maxParticipants: 32,
-  },
-  {
-    id: "3",
-    name: "Nam đôi",
-    gender: "male",
-    ageGroup: "Tất cả",
-    maxParticipants: 16,
-  },
-  {
-    id: "4",
-    name: "Nữ đôi",
-    gender: "female",
-    ageGroup: "Tất cả",
-    maxParticipants: 16,
-  },
-  {
-    id: "5",
-    name: "Đôi nam nữ",
-    gender: "mixed",
-    ageGroup: "Tất cả",
-    maxParticipants: 16,
-  },
-  {
-    id: "6",
-    name: "Nam đơn U19",
-    gender: "male",
-    ageGroup: "U19",
-    maxParticipants: 16,
-  },
-  {
-    id: "7",
-    name: "Nữ đơn U19",
-    gender: "female",
-    ageGroup: "U19",
-    maxParticipants: 16,
-  },
-  {
-    id: "8",
-    name: "Nam đơn U15",
-    gender: "male",
-    ageGroup: "U15",
-    maxParticipants: 16,
-  },
-  {
-    id: "9",
-    name: "Nữ đơn U15",
-    gender: "female",
-    ageGroup: "U15",
-    maxParticipants: 16,
-  },
-];
+import { Plus, Trash2, Edit2 } from "lucide-react";
+import TournamentContentForm from "./TournamentContentForm";
+import type { TournamentContentFormData } from "@/utils/validation.utils";
 
 interface CategorySettingsProps {
-  selectedCategories: string[];
-  onChange: (categories: string[]) => void;
+  tournamentContents: TournamentContentFormData[];
+  onAdd: (content: TournamentContentFormData) => void;
+  onRemove: (index: number) => void;
+  onUpdate: (index: number, content: TournamentContentFormData) => void;
 }
 
 export default function CategorySettings({
-  selectedCategories,
-  onChange,
+  tournamentContents,
+  onAdd,
+  onRemove,
+  onUpdate,
 }: CategorySettingsProps) {
-  const toggleCategory = (categoryId: string) => {
-    if (selectedCategories.includes(categoryId)) {
-      onChange(selectedCategories.filter((id) => id !== categoryId));
+  const [isAdding, setIsAdding] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  const handleSave = (content: TournamentContentFormData) => {
+    if (editingIndex !== null) {
+      onUpdate(editingIndex, content);
+      setEditingIndex(null);
     } else {
-      onChange([...selectedCategories, categoryId]);
+      onAdd(content);
+      setIsAdding(false);
     }
   };
 
-  const getGenderBadge = (gender: Category["gender"]) => {
+  const handleCancel = () => {
+    setIsAdding(false);
+    setEditingIndex(null);
+  };
+
+  const getTypeBadge = (type: TournamentContentFormData["type"]) => {
     const colors = {
-      male: "bg-blue-100 text-blue-700",
-      female: "bg-pink-100 text-pink-700",
-      mixed: "bg-purple-100 text-purple-700",
+      single: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
+      double: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
+      team: "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",
+    };
+    const labels = {
+      single: "Đơn",
+      double: "Đôi",
+      team: "Đồng đội",
+    };
+    return (
+      <Badge className={colors[type]}>{labels[type]}</Badge>
+    );
+  };
+
+  const getGenderBadge = (gender?: string | null) => {
+    if (!gender) return null;
+    const colors = {
+      male: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
+      female: "bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300",
+      mixed: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
     };
     const labels = {
       male: "Nam",
       female: "Nữ",
       mixed: "Hỗn hợp",
     };
-    return { color: colors[gender], label: labels[gender] };
+    return (
+      <Badge className={colors[gender as keyof typeof colors]}>
+        {labels[gender as keyof typeof labels]}
+      </Badge>
+    );
   };
+
+  if (isAdding || editingIndex !== null) {
+    return (
+      <TournamentContentForm
+        onSave={handleSave}
+        onCancel={handleCancel}
+        initialData={editingIndex !== null ? tournamentContents[editingIndex] : undefined}
+      />
+    );
+  }
 
   return (
     <Card className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">Nội dung thi đấu</h2>
-        <Button variant="outline" size="sm">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-xl font-semibold">Nội dung thi đấu</h2>
+          <p className="text-sm text-muted-foreground">
+            Thêm các nội dung thi đấu cho giải đấu (đơn, đôi, đồng đội)
+          </p>
+        </div>
+        <Button onClick={() => setIsAdding(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Thêm nội dung tùy chỉnh
+          Thêm nội dung
         </Button>
       </div>
 
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {predefinedCategories.map((category) => {
-            const isSelected = selectedCategories.includes(category.id);
-            const genderBadge = getGenderBadge(category.gender);
-
-            return (
-              <label
-                key={category.id}
-                className={`block p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                  isSelected
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50"
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => toggleCategory(category.id)}
-                    className="mt-1 rounded"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold">{category.name}</h3>
-                      <Badge className={genderBadge.color}>
-                        {genderBadge.label}
-                      </Badge>
+      {tournamentContents.length === 0 ? (
+        <div className="text-center py-12 border-2 border-dashed rounded-lg">
+          <p className="text-muted-foreground mb-4">
+            Chưa có nội dung thi đấu nào
+          </p>
+          <Button variant="outline" onClick={() => setIsAdding(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Thêm nội dung đầu tiên
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {tournamentContents.map((content, index) => (
+            <Card key={index} className="p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="font-semibold text-lg">{content.name}</h3>
+                    {getTypeBadge(content.type)}
+                    {getGenderBadge(content.gender)}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                    <div>Số lượng tối đa: <strong>{content.maxEntries}</strong></div>
+                    <div>Số set tối đa: <strong>{content.maxSets}</strong></div>
+                    
+                    {content.type === "team" && (
+                      <>
+                        <div>Số trận đơn: <strong>{content.numberOfSingles ?? 0}</strong></div>
+                        <div>Số trận đôi: <strong>{content.numberOfDoubles ?? 0}</strong></div>
+                      </>
+                    )}
+                    
+                    {(content.minAge || content.maxAge) && (
+                      <div>
+                        Độ tuổi:{" "}
+                        <strong>
+                          {content.minAge ?? "?"} - {content.maxAge ?? "?"}
+                        </strong>
+                      </div>
+                    )}
+                    
+                    {(content.minElo || content.maxElo) && (
+                      <div>
+                        ELO:{" "}
+                        <strong>
+                          {content.minElo ?? "?"} - {content.maxElo ?? "?"}
+                        </strong>
+                      </div>
+                    )}
+                    
+                    <div>
+                      Kiểm tra vợt:{" "}
+                      <strong>{content.racketCheck ? "Có" : "Không"}</strong>
                     </div>
-                    <div className="text-sm text-muted-foreground space-y-1">
-                      <p>Độ tuổi: {category.ageGroup}</p>
-                      <p>Số VĐV tối đa: {category.maxParticipants}</p>
+                    
+                    <div>
+                      Vòng bảng:{" "}
+                      <strong>{content.isGroupStage ? "Có" : "Không"}</strong>
                     </div>
                   </div>
                 </div>
-              </label>
-            );
-          })}
+                
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setEditingIndex(index)}
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onRemove(index)}
+                  >
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))}
         </div>
+      )}
 
-        <div className="p-4 bg-muted rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold">Nội dung đã chọn</h3>
-            <Badge variant="secondary">
-              {selectedCategories.length} nội dung
-            </Badge>
-          </div>
-          {selectedCategories.length > 0 ? (
-            <div className="flex flex-wrap gap-2 mt-3">
-              {selectedCategories.map((id) => {
-                const category = predefinedCategories.find((c) => c.id === id);
-                if (!category) return null;
-                return (
-                  <Badge key={id} variant="outline" className="gap-1">
-                    {category.name}
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        toggleCategory(id);
-                      }}
-                      className="ml-1 hover:text-destructive"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground mt-2">
-              Chưa chọn nội dung thi đấu nào
-            </p>
-          )}
-        </div>
-
-        <div className="p-4 bg-blue-50 rounded-lg text-sm text-blue-700">
-          <p>
-            <strong>Khuyến nghị:</strong> Giải vô địch quốc gia thường bao gồm 5
-            nội dung chính: Nam đơn, Nữ đơn, Nam đôi, Nữ đôi, và Đôi nam nữ.
+      {tournamentContents.length > 0 && (
+        <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+          <p className="text-sm text-blue-800 dark:text-blue-200">
+            <strong>Tổng cộng:</strong> {tournamentContents.length} nội dung thi đấu
           </p>
         </div>
-      </div>
+      )}
     </Card>
   );
 }

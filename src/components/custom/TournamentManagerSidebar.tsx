@@ -13,6 +13,7 @@ import {
   Settings,
   LogOut,
   Menu,
+  List,
 } from "lucide-react";
 import { useState } from "react";
 import ThemeToggle from "./ThemeToggle";
@@ -31,6 +32,7 @@ export default function TournamentManagerSidebar({
   const menuItems = [
     { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
     { id: "setup-wizard", label: "Thiết lập giải đấu", icon: Trophy },
+    { id: "tournament-list", label: "Danh sách giải đấu", icon: List },
     { id: "delegations", label: "Quản lý đoàn", icon: Users },
     { id: "referees", label: "Phân công trọng tài", icon: UserPlus },
     { id: "scheduling", label: "Ma trận lịch thi đấu", icon: Calendar },
