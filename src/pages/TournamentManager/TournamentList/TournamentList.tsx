@@ -28,6 +28,7 @@ import { tournamentService } from "@/services";
 import { showToast } from "@/utils/toast.utils";
 import type { Tournament, TournamentSearchFilters, Gender } from "@/types";
 import TournamentUpdateForm from "../TournamentUpdate/TournamentUpdateForm";
+import TournamentDetail from "../TournamentDetail/TournamentDetail";
 
 export default function TournamentList() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
@@ -35,6 +36,9 @@ export default function TournamentList() {
   const [isLoading, setIsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [editingTournamentId, setEditingTournamentId] = useState<
+    number | null
+  >(null);
+  const [viewingTournamentId, setViewingTournamentId] = useState<
     number | null
   >(null);
 
@@ -107,6 +111,24 @@ export default function TournamentList() {
   const currentPage =
     Math.floor((filters.skip || 0) / (filters.limit || 10)) + 1;
   const totalPages = Math.ceil(total / (filters.limit || 10));
+
+  // Show detail view if viewing
+  if (viewingTournamentId !== null) {
+    return (
+      <TournamentDetail
+        tournamentId={viewingTournamentId}
+        onBack={() => setViewingTournamentId(null)}
+        onEdit={(id) => {
+          setViewingTournamentId(null);
+          setEditingTournamentId(id);
+        }}
+        onDelete={() => {
+          setViewingTournamentId(null);
+          fetchTournaments();
+        }}
+      />
+    );
+  }
 
   // Show edit form if editing
   if (editingTournamentId !== null) {
@@ -391,9 +413,7 @@ export default function TournamentList() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() =>
-                      console.log("View tournament:", tournament.id)
-                    }
+                    onClick={() => setViewingTournamentId(tournament.id)}
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
