@@ -115,19 +115,18 @@ export default function TournamentContentForm({
           <div className="space-y-2">
             <Label>Giới tính</Label>
             <Select
-              value={formData.gender || ""}
+              value={formData.gender || "mixed"}
               onValueChange={(value) =>
-                handleChange("gender", value === "" ? null : (value as Gender))
+                handleChange("gender", value === "mixed" ? null : (value as Gender))
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Tất cả" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tất cả</SelectItem>
                 <SelectItem value="male">Nam</SelectItem>
                 <SelectItem value="female">Nữ</SelectItem>
-                <SelectItem value="mixed">Hỗn hợp</SelectItem>
+                <SelectItem value="mixed">Tất cả</SelectItem>
               </SelectContent>
             </Select>
           </div>
