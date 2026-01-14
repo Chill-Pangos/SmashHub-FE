@@ -27,7 +27,7 @@ export default function ChiefRefereePage() {
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen overflow-hidden bg-background">
       <ChiefRefereeSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       <main className="flex-1 overflow-auto">{renderContent()}</main>
     </div>
