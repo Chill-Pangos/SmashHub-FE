@@ -606,6 +606,24 @@ export interface TournamentContentFormData {
 }
 
 /**
+ * Validate tournament contents count
+ * Backend chỉ cho phép 1 giải đấu có 1 nội dung thi đấu duy nhất
+ */
+export const validateTournamentContentsCount = (
+  contents: unknown[]
+): string | null => {
+  if (!contents || contents.length === 0) {
+    return "Giải đấu phải có ít nhất 1 nội dung thi đấu";
+  }
+
+  if (contents.length > 1) {
+    return "Hiện tại hệ thống chỉ cho phép tạo 1 nội dung thi đấu cho mỗi giải đấu";
+  }
+
+  return null;
+};
+
+/**
  * Validate entire tournament form
  */
 export const validateTournamentForm = (

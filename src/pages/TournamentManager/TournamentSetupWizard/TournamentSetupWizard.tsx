@@ -13,6 +13,7 @@ import { showToast } from "@/utils/toast.utils";
 import {
   validateTournamentForm,
   validateTournamentContentForm,
+  validateTournamentContentsCount,
   type TournamentFormData,
   type TournamentContentFormData,
   type ValidationErrors,
@@ -57,6 +58,14 @@ export default function TournamentSetupWizard() {
   };
 
   const handleAddContent = (content: TournamentContentFormData) => {
+    // Backend chỉ cho phép 1 nội dung thi đấu cho mỗi giải đấu
+    if (tournamentContents.length >= 1) {
+      showToast.error(
+        "Không thể thêm nội dung thi đấu",
+        "Hiện tại hệ thống chỉ cho phép tạo 1 nội dung thi đấu cho mỗi giải đấu"
+      );
+      return;
+    }
     setTournamentContents([...tournamentContents, content]);
   };
 
@@ -92,6 +101,14 @@ export default function TournamentSetupWizard() {
       setValidationErrors(tournamentErrors);
       showToast.error("Vui lòng kiểm tra lại thông tin giải đấu");
       setStep(1);
+      return;
+    }
+
+    // Validate contents count
+    const contentsCountError = validateTournamentContentsCount(tournamentContents);
+    if (contentsCountError) {
+      showToast.error(contentsCountError);
+      setStep(2);
       return;
     }
 
