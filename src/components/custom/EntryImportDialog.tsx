@@ -23,6 +23,16 @@ import type { TournamentContentType } from "@/types/tournament.types";
 
 interface EntryImportDialogProps {
   /**
+   * Dialog open state (controlled)
+   */
+  open?: boolean;
+
+  /**
+   * Callback when open state changes
+   */
+  onOpenChange?: (open: boolean) => void;
+
+  /**
    * Tournament content ID to import entries into
    */
   contentId: number;
@@ -48,12 +58,16 @@ interface EntryImportDialogProps {
  * Allows importing entries from Excel file based on content type
  */
 export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
+  open: controlledOpen,
+  onOpenChange,
   contentId,
   contentType,
   onImportSuccess,
   trigger,
 }) => {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<{
     entries: (
@@ -178,8 +192,7 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
 
       if (result.success) {
         showToast.success(`Import thành công ${result.data.created} entries!`);
-        setOpen(false);
-        handleReset();
+        handleOpenChange(false);
         onImportSuccess?.();
       } else {
         showToast.error("Import thất bại. Vui lòng thử lại.");
@@ -211,7 +224,11 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
     if (!newOpen && !isPreviewLoading && !isImportLoading) {
       handleReset();
     }
-    setOpen(newOpen);
+    if (isControlled) {
+      onOpenChange?.(newOpen);
+    } else {
+      setInternalOpen(newOpen);
+    }
   };
 
   // Back to upload step
@@ -243,7 +260,9 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
             label: "Thành viên",
             render: (value: unknown) => {
               const members = value as Array<{ name: string; email: string }>;
-              return members?.map((m) => `${m.name} (${m.email})`).join(", ") || "-";
+              return (
+                members?.map((m) => `${m.name} (${m.email})`).join(", ") || "-"
+              );
             },
           },
         ];
@@ -305,7 +324,11 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
           <div className="py-4">
             {previewData && (
               <ImportPreview
-                entries={previewData.entries as unknown as Array<Record<string, unknown>>}
+                entries={
+                  previewData.entries as unknown as Array<
+                    Record<string, unknown>
+                  >
+                }
                 errors={previewData.errors}
                 columns={getPreviewColumns()}
               />

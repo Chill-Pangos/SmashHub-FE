@@ -18,6 +18,16 @@ import type { ImportTeamDto } from "@/types/team.types";
 
 interface TeamImportDialogProps {
   /**
+   * Dialog open state (controlled)
+   */
+  open?: boolean;
+
+  /**
+   * Callback when open state changes
+   */
+  onOpenChange?: (open: boolean) => void;
+
+  /**
    * Tournament ID to import teams into
    */
   tournamentId: number;
@@ -38,11 +48,15 @@ interface TeamImportDialogProps {
  * Allows importing teams from Excel file with preview and validation
  */
 export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
+  open: controlledOpen,
+  onOpenChange,
   tournamentId,
   onImportSuccess,
   trigger,
 }) => {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<{
     teams: ImportTeamDto[];
@@ -115,8 +129,7 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
 
       if (result.success) {
         showToast.success(`Import thành công ${result.data.created} teams!`);
-        setOpen(false);
-        handleReset();
+        handleOpenChange(false);
         onImportSuccess?.();
       } else {
         showToast.error("Import thất bại. Vui lòng thử lại.");
@@ -148,7 +161,11 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
     if (!newOpen && !isPreviewLoading && !isImportLoading) {
       handleReset();
     }
-    setOpen(newOpen);
+    if (isControlled) {
+      onOpenChange?.(newOpen);
+    } else {
+      setInternalOpen(newOpen);
+    }
   };
 
   // Back to upload step
