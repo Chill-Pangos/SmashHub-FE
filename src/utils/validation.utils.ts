@@ -109,7 +109,7 @@ export const validatePassword = (password: string): string | null => {
  */
 export const validatePasswordConfirmation = (
   password: string,
-  confirmPassword: string
+  confirmPassword: string,
 ): string | null => {
   if (!confirmPassword || confirmPassword.trim() === "") {
     return "Vui lòng xác nhận mật khẩu";
@@ -183,7 +183,7 @@ export interface ValidationErrors {
 }
 
 export const validateRegisterForm = (
-  data: RegisterFormData
+  data: RegisterFormData,
 ): ValidationErrors => {
   const errors: ValidationErrors = {};
 
@@ -198,7 +198,7 @@ export const validateRegisterForm = (
 
   const confirmPasswordError = validatePasswordConfirmation(
     data.password,
-    data.confirmPassword
+    data.confirmPassword,
   );
   if (confirmPasswordError) errors.confirmPassword = confirmPasswordError;
 
@@ -236,7 +236,7 @@ export interface ChangePasswordFormData {
 }
 
 export const validateChangePasswordForm = (
-  data: ChangePasswordFormData
+  data: ChangePasswordFormData,
 ): ValidationErrors => {
   const errors: ValidationErrors = {};
 
@@ -253,7 +253,7 @@ export const validateChangePasswordForm = (
 
   const confirmPasswordError = validatePasswordConfirmation(
     data.newPassword,
-    data.confirmNewPassword
+    data.confirmNewPassword,
   );
   if (confirmPasswordError) errors.confirmNewPassword = confirmPasswordError;
 
@@ -278,7 +278,7 @@ export interface ResetPasswordFormData {
 }
 
 export const validateResetPasswordForm = (
-  data: ResetPasswordFormData
+  data: ResetPasswordFormData,
 ): ValidationErrors => {
   const errors: ValidationErrors = {};
 
@@ -293,7 +293,7 @@ export const validateResetPasswordForm = (
 
   const confirmPasswordError = validatePasswordConfirmation(
     data.newPassword,
-    data.confirmNewPassword
+    data.confirmNewPassword,
   );
   if (confirmPasswordError) errors.confirmNewPassword = confirmPasswordError;
 
@@ -348,22 +348,61 @@ export const validateTournamentLocation = (location: string): string | null => {
 };
 
 /**
+ * Validate number of tables
+ */
+export const validateNumberOfTables = (
+  numberOfTables?: number | null,
+): string | null => {
+  if (numberOfTables === null || numberOfTables === undefined) {
+    return null; // Optional field
+  }
+
+  if (numberOfTables < 1) {
+    return "Số bàn thi đấu phải ít nhất là 1";
+  }
+
+  if (numberOfTables > 100) {
+    return "Số bàn thi đấu không được quá 100";
+  }
+
+  if (!Number.isInteger(numberOfTables)) {
+    return "Số bàn thi đấu phải là số nguyên";
+  }
+
+  return null;
+};
+
+/**
  * Validate tournament dates
  */
 export const validateTournamentDates = (
   startDate: string,
-  endDate?: string | null
+  endDate: string,
 ): { startDate?: string; endDate?: string } => {
   const errors: { startDate?: string; endDate?: string } = {};
 
   if (!startDate || startDate.trim() === "") {
     errors.startDate = "Ngày bắt đầu không được để trống";
+  }
+
+  if (!endDate || endDate.trim() === "") {
+    errors.endDate = "Ngày kết thúc không được để trống";
+  }
+
+  // If either date is missing, return early
+  if (errors.startDate || errors.endDate) {
     return errors;
   }
 
   const start = new Date(startDate);
   if (isNaN(start.getTime())) {
     errors.startDate = "Ngày bắt đầu không hợp lệ";
+    return errors;
+  }
+
+  const end = new Date(endDate);
+  if (isNaN(end.getTime())) {
+    errors.endDate = "Ngày kết thúc không hợp lệ";
     return errors;
   }
 
@@ -374,13 +413,8 @@ export const validateTournamentDates = (
     errors.startDate = "Ngày bắt đầu không được là quá khứ";
   }
 
-  if (endDate && endDate.trim() !== "") {
-    const end = new Date(endDate);
-    if (isNaN(end.getTime())) {
-      errors.endDate = "Ngày kết thúc không hợp lệ";
-    } else if (end <= start) {
-      errors.endDate = "Ngày kết thúc phải sau ngày bắt đầu";
-    }
+  if (end <= start) {
+    errors.endDate = "Ngày kết thúc phải sau ngày bắt đầu";
   }
 
   return errors;
@@ -450,7 +484,7 @@ export const validateMaxSets = (maxSets: number): string | null => {
  */
 export const validateTeamFormat = (
   numberOfSingles?: number | null,
-  numberOfDoubles?: number | null
+  numberOfDoubles?: number | null,
 ): { numberOfSingles?: string; numberOfDoubles?: string; total?: string } => {
   const errors: {
     numberOfSingles?: string;
@@ -498,7 +532,7 @@ export const validateTeamFormat = (
  */
 export const validateAgeRestrictions = (
   minAge?: number | null,
-  maxAge?: number | null
+  maxAge?: number | null,
 ): { minAge?: string; maxAge?: string } => {
   const errors: { minAge?: string; maxAge?: string } = {};
 
@@ -539,7 +573,7 @@ export const validateAgeRestrictions = (
  */
 export const validateEloRestrictions = (
   minElo?: number | null,
-  maxElo?: number | null
+  maxElo?: number | null,
 ): { minElo?: string; maxElo?: string } => {
   const errors: { minElo?: string; maxElo?: string } = {};
 
@@ -581,9 +615,10 @@ export const validateEloRestrictions = (
 export interface TournamentFormData {
   name: string;
   startDate: string;
-  endDate?: string | null;
+  endDate: string;
   location: string;
   status?: "upcoming" | "ongoing" | "completed";
+  numberOfTables?: number;
 }
 
 /**
@@ -610,7 +645,7 @@ export interface TournamentContentFormData {
  * Backend chỉ cho phép 1 giải đấu có 1 nội dung thi đấu duy nhất
  */
 export const validateTournamentContentsCount = (
-  contents: unknown[]
+  contents: unknown[],
 ): string | null => {
   if (!contents || contents.length === 0) {
     return "Giải đấu phải có ít nhất 1 nội dung thi đấu";
@@ -627,7 +662,7 @@ export const validateTournamentContentsCount = (
  * Validate entire tournament form
  */
 export const validateTournamentForm = (
-  data: TournamentFormData
+  data: TournamentFormData,
 ): ValidationErrors => {
   const errors: ValidationErrors = {};
 
@@ -641,6 +676,9 @@ export const validateTournamentForm = (
   if (dateErrors.startDate) errors.startDate = dateErrors.startDate;
   if (dateErrors.endDate) errors.endDate = dateErrors.endDate;
 
+  const numberOfTablesError = validateNumberOfTables(data.numberOfTables);
+  if (numberOfTablesError) errors.numberOfTables = numberOfTablesError;
+
   return errors;
 };
 
@@ -648,7 +686,7 @@ export const validateTournamentForm = (
  * Validate tournament content form
  */
 export const validateTournamentContentForm = (
-  data: TournamentContentFormData
+  data: TournamentContentFormData,
 ): ValidationErrors => {
   const errors: ValidationErrors = {};
 
@@ -665,7 +703,7 @@ export const validateTournamentContentForm = (
   if (data.type === "team") {
     const teamErrors = validateTeamFormat(
       data.numberOfSingles,
-      data.numberOfDoubles
+      data.numberOfDoubles,
     );
     if (teamErrors.numberOfSingles)
       errors.numberOfSingles = teamErrors.numberOfSingles;
@@ -719,7 +757,7 @@ export const validateTournamentContentForm = (
  * Validate tournament search filters
  */
 export const validateTournamentSearchFilters = (
-  filters: Record<string, unknown>
+  filters: Record<string, unknown>,
 ): ValidationErrors => {
   const errors: ValidationErrors = {};
 
@@ -763,7 +801,7 @@ export const validateTournamentSearchFilters = (
   ) {
     const ageErrors = validateAgeRestrictions(
       filters.minAge as number | null,
-      filters.maxAge as number | null
+      filters.maxAge as number | null,
     );
     if (ageErrors.minAge) errors.minAge = ageErrors.minAge;
     if (ageErrors.maxAge) errors.maxAge = ageErrors.maxAge;
@@ -776,7 +814,7 @@ export const validateTournamentSearchFilters = (
   ) {
     const eloErrors = validateEloRestrictions(
       filters.minElo as number | null,
-      filters.maxElo as number | null
+      filters.maxElo as number | null,
     );
     if (eloErrors.minElo) errors.minElo = eloErrors.minElo;
     if (eloErrors.maxElo) errors.maxElo = eloErrors.maxElo;
@@ -836,7 +874,7 @@ export const validateRoleName = (name: string): string | null => {
  * Validate role description
  */
 export const validateRoleDescription = (
-  description?: string
+  description?: string,
 ): string | null => {
   if (!description || description.trim() === "") {
     return null; // Description is optional

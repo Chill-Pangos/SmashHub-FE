@@ -68,10 +68,10 @@ export default function BasicInfoForm({
           </div>
 
           <div className="space-y-2">
-            <Label>Ngày kết thúc</Label>
+            <Label>Ngày kết thúc *</Label>
             <Input
               type="datetime-local"
-              value={formData.endDate || ""}
+              value={formData.endDate}
               onChange={(e) => onChange("endDate", e.target.value)}
               className={errors.endDate ? "border-red-500" : ""}
             />
@@ -96,6 +96,28 @@ export default function BasicInfoForm({
               <SelectItem value="completed">Đã kết thúc</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Số bàn thi đấu</Label>
+          <Input
+            type="number"
+            min="1"
+            max="100"
+            placeholder="Mặc định: 1"
+            value={formData.numberOfTables || 1}
+            onChange={(e) => {
+              const value = e.target.value ? parseInt(e.target.value) : 1;
+              onChange("numberOfTables", value.toString());
+            }}
+            className={errors.numberOfTables ? "border-red-500" : ""}
+          />
+          {errors.numberOfTables && (
+            <p className="text-sm text-red-500">{errors.numberOfTables}</p>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Số lượng bàn thi đấu có sẵn để chơi đồng thời
+          </p>
         </div>
 
         <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">

@@ -71,9 +71,10 @@ export interface Tournament {
   id: number;
   name: string;
   startDate: string;
-  endDate?: string | null;
+  endDate: string;
   location: string;
   status: TournamentStatus;
+  numberOfTables?: number;
   createdBy: number;
   createdAt: string;
   updatedAt: string;
@@ -86,9 +87,10 @@ export interface Tournament {
 export interface CreateTournamentRequest {
   name: string;
   startDate: string;
+  endDate: string;
   location: string;
-  endDate?: string | null;
   status?: TournamentStatus;
+  numberOfTables?: number;
   contents?: CreateTournamentContentRequest[];
 }
 
@@ -101,6 +103,7 @@ export interface UpdateTournamentRequest {
   endDate?: string | null;
   location?: string;
   status?: TournamentStatus;
+  numberOfTables?: number;
   contents?: CreateTournamentContentRequest[];
 }
 

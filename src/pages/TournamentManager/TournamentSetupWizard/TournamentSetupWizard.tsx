@@ -40,6 +40,7 @@ export default function TournamentSetupWizard() {
     endDate: "",
     location: "",
     status: "upcoming",
+    numberOfTables: 1,
   });
 
   const [tournamentContents, setTournamentContents] = useState<
@@ -150,11 +151,10 @@ export default function TournamentSetupWizard() {
       const requestData: CreateTournamentRequest = {
         name: formData.name,
         startDate: new Date(formData.startDate).toISOString(),
-        endDate: formData.endDate
-          ? new Date(formData.endDate).toISOString()
-          : null,
+        endDate: new Date(formData.endDate).toISOString(),
         location: formData.location,
         status: formData.status || "upcoming",
+        numberOfTables: formData.numberOfTables || 1,
         contents,
       };
 
@@ -181,7 +181,7 @@ export default function TournamentSetupWizard() {
   const canProceed = () => {
     switch (step) {
       case 1:
-        return formData.name && formData.startDate && formData.location;
+        return formData.name && formData.startDate && formData.endDate && formData.location;
       case 2:
         return tournamentContents.length > 0;
       case 3:

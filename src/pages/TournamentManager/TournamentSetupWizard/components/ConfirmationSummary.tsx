@@ -84,18 +84,22 @@ export default function ConfirmationSummary({
                 {formatDate(formData.startDate)}
               </span>
             </div>
-            {formData.endDate && (
-              <div className="grid grid-cols-3 gap-2">
-                <span className="text-muted-foreground">Thời gian kết thúc:</span>
-                <span className="col-span-2">
-                  {formatDate(formData.endDate)}
-                </span>
-              </div>
-            )}
+            <div className="grid grid-cols-3 gap-2">
+              <span className="text-muted-foreground">Thời gian kết thúc:</span>
+              <span className="col-span-2">
+                {formatDate(formData.endDate)}
+              </span>
+            </div>
             <div className="grid grid-cols-3 gap-2">
               <span className="text-muted-foreground">Trạng thái:</span>
               <span className="col-span-2">
                 {getStatusLabel(formData.status || "upcoming")}
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <span className="text-muted-foreground">Số bàn thi đấu:</span>
+              <span className="col-span-2 font-medium">
+                {formData.numberOfTables || 1} bàn
               </span>
             </div>
           </div>
