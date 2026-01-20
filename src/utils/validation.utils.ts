@@ -911,3 +911,495 @@ export const validateRoleForm = (data: RoleFormData): ValidationErrors => {
 
   return errors;
 };
+
+// ==================== Match Set Validation ====================
+
+/**
+ * Validate match set score (Badminton rules)
+ * - Regular game: First to 11 points
+ * - Deuce at 10-10: Must win by 2 points (e.g., 12-10, 13-11, 14-12)
+ * - Cap at 30 points (game ends at 30-29)
+ */
+export const validateMatchSetScore = (
+  score1: number,
+  score2: number,
+): string | null => {
+  // Both scores must be non-negative
+  if (score1 < 0 || score2 < 0) {
+    return "Điểm số không được âm";
+  }
+
+  // At least one player must reach 11 to win
+  const maxScore = Math.max(score1, score2);
+  const minScore = Math.min(score1, score2);
+
+  if (maxScore < 11) {
+    return "Điểm số thắng phải ít nhất là 11";
+  }
+
+  // Check if it's a valid win
+  if (maxScore >= 30) {
+    // Cap rule: game ends at 30 points
+    if (maxScore > 30 || minScore !== 29) {
+      return "Trận đấu kết thúc ở 30-29";
+    }
+  } else if (maxScore >= 11) {
+    // Normal win: must be ahead by at least 2 points, or exactly 11-X where X < 10
+    if (maxScore < 11) {
+      return "Điểm số thắng phải ít nhất là 11";
+    }
+
+    // If score is 11 or above, check deuce rule
+    if (minScore >= 10) {
+      // Deuce: must win by 2
+      if (maxScore - minScore < 2) {
+        return "Sau 10-10, phải thắng cách biệt ít nhất 2 điểm";
+      }
+    }
+  }
+
+  return null;
+};
+
+/**
+ * Validate match set numbers
+ */
+export const validateSetNumbers = (
+  setNumber: number,
+  maxSets: number,
+): string | null => {
+  if (setNumber < 1) {
+    return "Số set phải lớn hơn 0";
+  }
+
+  if (setNumber > maxSets) {
+    return `Số set không được vượt quá ${maxSets}`;
+  }
+
+  return null;
+};
+
+/**
+ * Match set form data interface
+ */
+export interface MatchSetFormData {
+  setNumber: number;
+  score1: number;
+  score2: number;
+  maxSets: number;
+}
+
+/**
+ * Validate match set form
+ */
+export const validateMatchSetForm = (
+  data: MatchSetFormData,
+): ValidationErrors => {
+  const errors: ValidationErrors = {};
+
+  const setNumberError = validateSetNumbers(data.setNumber, data.maxSets);
+  if (setNumberError) errors.setNumber = setNumberError;
+
+  const scoreError = validateMatchSetScore(data.score1, data.score2);
+  if (scoreError) errors.score = scoreError;
+
+  return errors;
+};
+
+// ==================== Schedule Validation ====================
+
+/**
+ * Validate schedule date range
+ */
+export const validateScheduleDateRange = (
+  startDate: string,
+  endDate: string,
+): { startDate?: string; endDate?: string } => {
+  const errors: { startDate?: string; endDate?: string } = {};
+
+  if (!startDate || startDate.trim() === "") {
+    errors.startDate = "Ngày bắt đầu lịch thi đấu không được để trống";
+  }
+
+  if (!endDate || endDate.trim() === "") {
+    errors.endDate = "Ngày kết thúc lịch thi đấu không được để trống";
+  }
+
+  // If either date is missing, return early
+  if (errors.startDate || errors.endDate) {
+    return errors;
+  }
+
+  const start = new Date(startDate);
+  if (isNaN(start.getTime())) {
+    errors.startDate = "Ngày bắt đầu không hợp lệ";
+    return errors;
+  }
+
+  const end = new Date(endDate);
+  if (isNaN(end.getTime())) {
+    errors.endDate = "Ngày kết thúc không hợp lệ";
+    return errors;
+  }
+
+  if (end < start) {
+    errors.endDate = "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu";
+  }
+
+  return errors;
+};
+
+/**
+ * Validate schedule time
+ */
+export const validateScheduleTime = (time: string): string | null => {
+  if (!time || time.trim() === "") {
+    return "Thời gian thi đấu không được để trống";
+  }
+
+  // Validate time format (HH:MM or HH:MM:SS)
+  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/;
+  if (!timeRegex.test(time)) {
+    return "Thời gian không đúng định dạng (HH:MM hoặc HH:MM:SS)";
+  }
+
+  return null;
+};
+
+/**
+ * Validate match duration
+ */
+export const validateMatchDuration = (duration: number): string | null => {
+  if (duration <= 0) {
+    return "Thời lượng trận đấu phải lớn hơn 0";
+  }
+
+  if (duration > 300) {
+    return "Thời lượng trận đấu không được quá 300 phút";
+  }
+
+  if (!Number.isInteger(duration)) {
+    return "Thời lượng trận đấu phải là số nguyên";
+  }
+
+  return null;
+};
+
+/**
+ * Validate number of tables for schedule
+ */
+export const validateScheduleNumberOfTables = (
+  numberOfTables: number,
+): string | null => {
+  if (numberOfTables < 1) {
+    return "Số bàn thi đấu phải ít nhất là 1";
+  }
+
+  if (numberOfTables > 100) {
+    return "Số bàn thi đấu không được quá 100";
+  }
+
+  if (!Number.isInteger(numberOfTables)) {
+    return "Số bàn thi đấu phải là số nguyên";
+  }
+
+  return null;
+};
+
+/**
+ * Schedule form data interface
+ */
+export interface ScheduleFormData {
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  matchDuration: number;
+  numberOfTables: number;
+}
+
+/**
+ * Validate schedule form
+ */
+export const validateScheduleForm = (
+  data: ScheduleFormData,
+): ValidationErrors => {
+  const errors: ValidationErrors = {};
+
+  const dateErrors = validateScheduleDateRange(data.startDate, data.endDate);
+  if (dateErrors.startDate) errors.startDate = dateErrors.startDate;
+  if (dateErrors.endDate) errors.endDate = dateErrors.endDate;
+
+  const timeError = validateScheduleTime(data.startTime);
+  if (timeError) errors.startTime = timeError;
+
+  const durationError = validateMatchDuration(data.matchDuration);
+  if (durationError) errors.matchDuration = durationError;
+
+  const tablesError = validateScheduleNumberOfTables(data.numberOfTables);
+  if (tablesError) errors.numberOfTables = tablesError;
+
+  return errors;
+};
+
+// ==================== Knockout Bracket Validation ====================
+
+/**
+ * Validate bracket position
+ */
+export const validateBracketPosition = (position: number): string | null => {
+  if (position < 1) {
+    return "Vị trí trong nhánh đấu phải lớn hơn 0";
+  }
+
+  if (position > 256) {
+    return "Vị trí trong nhánh đấu không hợp lệ";
+  }
+
+  return null;
+};
+
+/**
+ * Validate round number
+ */
+export const validateRoundNumber = (
+  round: number,
+  maxRounds: number,
+): string | null => {
+  if (round < 1) {
+    return "Vòng đấu phải lớn hơn 0";
+  }
+
+  if (round > maxRounds) {
+    return `Vòng đấu không được vượt quá ${maxRounds}`;
+  }
+
+  return null;
+};
+
+/**
+ * Validate bracket size (must be power of 2)
+ */
+export const validateBracketSize = (size: number): string | null => {
+  if (size < 2) {
+    return "Kích thước nhánh đấu phải ít nhất là 2";
+  }
+
+  if (size > 256) {
+    return "Kích thước nhánh đấu không được quá 256";
+  }
+
+  // Must be power of 2
+  if ((size & (size - 1)) !== 0) {
+    return "Kích thước nhánh đấu phải là lũy thừa của 2 (2, 4, 8, 16, 32, 64, 128, 256)";
+  }
+
+  return null;
+};
+
+/**
+ * Knockout bracket form data interface
+ */
+export interface KnockoutBracketFormData {
+  position: number;
+  round: number;
+  size: number;
+}
+
+/**
+ * Validate knockout bracket form
+ */
+export const validateKnockoutBracketForm = (
+  data: KnockoutBracketFormData,
+): ValidationErrors => {
+  const errors: ValidationErrors = {};
+
+  const positionError = validateBracketPosition(data.position);
+  if (positionError) errors.position = positionError;
+
+  const sizeError = validateBracketSize(data.size);
+  if (sizeError) errors.size = sizeError;
+
+  // Calculate max rounds from size
+  const maxRounds = Math.log2(data.size);
+  const roundError = validateRoundNumber(data.round, maxRounds);
+  if (roundError) errors.round = roundError;
+
+  return errors;
+};
+
+// ==================== Group Standing Validation ====================
+
+/**
+ * Validate group name
+ */
+export const validateGroupName = (name: string): string | null => {
+  if (!name || name.trim() === "") {
+    return "Tên bảng đấu không được để trống";
+  }
+
+  if (name.length > 50) {
+    return "Tên bảng đấu không được quá 50 ký tự";
+  }
+
+  return null;
+};
+
+/**
+ * Validate number of groups
+ */
+export const validateNumberOfGroups = (
+  numberOfGroups: number,
+): string | null => {
+  if (numberOfGroups < 1) {
+    return "Số lượng bảng đấu phải ít nhất là 1";
+  }
+
+  if (numberOfGroups > 32) {
+    return "Số lượng bảng đấu không được quá 32";
+  }
+
+  return null;
+};
+
+/**
+ * Validate teams per group
+ */
+export const validateTeamsPerGroup = (teamsPerGroup: number): string | null => {
+  if (teamsPerGroup < 2) {
+    return "Số đội mỗi bảng phải ít nhất là 2";
+  }
+
+  if (teamsPerGroup > 16) {
+    return "Số đội mỗi bảng không được quá 16";
+  }
+
+  return null;
+};
+
+/**
+ * Validate qualified teams per group
+ */
+export const validateQualifiedTeamsPerGroup = (
+  qualifiedTeams: number,
+  teamsPerGroup: number,
+): string | null => {
+  if (qualifiedTeams < 1) {
+    return "Số đội đi tiếp phải ít nhất là 1";
+  }
+
+  if (qualifiedTeams > teamsPerGroup) {
+    return "Số đội đi tiếp không được nhiều hơn số đội trong bảng";
+  }
+
+  return null;
+};
+
+/**
+ * Group standing form data interface
+ */
+export interface GroupStandingFormData {
+  groupName: string;
+  numberOfGroups: number;
+  teamsPerGroup: number;
+  qualifiedTeamsPerGroup: number;
+}
+
+/**
+ * Validate group standing form
+ */
+export const validateGroupStandingForm = (
+  data: GroupStandingFormData,
+): ValidationErrors => {
+  const errors: ValidationErrors = {};
+
+  const nameError = validateGroupName(data.groupName);
+  if (nameError) errors.groupName = nameError;
+
+  const groupsError = validateNumberOfGroups(data.numberOfGroups);
+  if (groupsError) errors.numberOfGroups = groupsError;
+
+  const teamsError = validateTeamsPerGroup(data.teamsPerGroup);
+  if (teamsError) errors.teamsPerGroup = teamsError;
+
+  const qualifiedError = validateQualifiedTeamsPerGroup(
+    data.qualifiedTeamsPerGroup,
+    data.teamsPerGroup,
+  );
+  if (qualifiedError) errors.qualifiedTeamsPerGroup = qualifiedError;
+
+  return errors;
+};
+
+// ==================== Match Validation ====================
+
+/**
+ * Validate match status transition
+ */
+export const validateMatchStatusTransition = (
+  currentStatus: string,
+  newStatus: string,
+): string | null => {
+  const validTransitions: Record<string, string[]> = {
+    scheduled: ["in_progress", "cancelled"],
+    in_progress: ["completed", "cancelled"],
+    completed: [],
+    cancelled: ["scheduled"],
+  };
+
+  if (!validTransitions[currentStatus]) {
+    return "Trạng thái hiện tại không hợp lệ";
+  }
+
+  if (!validTransitions[currentStatus].includes(newStatus)) {
+    return `Không thể chuyển từ trạng thái "${currentStatus}" sang "${newStatus}"`;
+  }
+
+  return null;
+};
+
+/**
+ * Validate match table number
+ */
+export const validateMatchTableNumber = (
+  tableNumber: number,
+): string | null => {
+  if (tableNumber < 1) {
+    return "Số bàn thi đấu phải lớn hơn 0";
+  }
+
+  if (tableNumber > 100) {
+    return "Số bàn thi đấu không được quá 100";
+  }
+
+  return null;
+};
+
+/**
+ * Match form data interface
+ */
+export interface MatchFormData {
+  tableNumber: number;
+  status?: string;
+  currentStatus?: string;
+}
+
+/**
+ * Validate match form
+ */
+export const validateMatchForm = (data: MatchFormData): ValidationErrors => {
+  const errors: ValidationErrors = {};
+
+  const tableError = validateMatchTableNumber(data.tableNumber);
+  if (tableError) errors.tableNumber = tableError;
+
+  // Validate status transition if both current and new status are provided
+  if (data.currentStatus && data.status) {
+    const transitionError = validateMatchStatusTransition(
+      data.currentStatus,
+      data.status,
+    );
+    if (transitionError) errors.status = transitionError;
+  }
+
+  return errors;
+};

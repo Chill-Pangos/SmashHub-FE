@@ -4,3 +4,8 @@ export * from "./tournament.types";
 export * from "./role.types";
 export * from "./team.types";
 export * from "./entry.types";
+export * from "./groupStanding.types";
+export * from "./knockoutBracket.types";
+export * from "./match.types";
+export * from "./matchSet.types";
+export * from "./schedule.types";
