@@ -5,7 +5,7 @@ import TournamentDashboard from "@/pages/TournamentManager/TournamentDashboard/T
 import TournamentSetupWizard from "@/pages/TournamentManager/TournamentSetupWizard/TournamentSetupWizard";
 import DelegationManagement from "@/pages/TournamentManager/DelegationManagement/DelegationManagement";
 import RefereeAssignment from "@/pages/TournamentManager/RefereeAssignment/RefereeAssignment";
-import SchedulingMatrix from "@/pages/TournamentManager/SchedulingMatrix/SchedulingMatrix";
+import ScheduleGenerator from "@/pages/TournamentManager/SchedulingGenerator/ScheduleGenerator";
 import ResultCorrection from "@/pages/TournamentManager/ResultCorrection/ResultCorrection";
 import ReportsCenter from "@/pages/TournamentManager/ReportsCenter/ReportsCenter";
 import DelegationAccountManagement from "@/pages/TournamentManager/DelegationAccountManagement/DelegationAccountManagement";
@@ -76,7 +76,7 @@ export default function TournamentManagerRoutes({
           path="scheduling"
           element={
             <RoleGuard allowedRoles={[organizerRoleId]}>
-              <SchedulingMatrix />
+              <ScheduleGenerator />
             </RoleGuard>
           }
         />

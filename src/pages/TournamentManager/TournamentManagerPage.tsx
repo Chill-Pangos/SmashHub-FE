@@ -5,7 +5,7 @@ import TournamentSetupWizard from "./TournamentSetupWizard/TournamentSetupWizard
 import TournamentList from "./TournamentList/TournamentList";
 import DelegationManagement from "./DelegationManagement/DelegationManagement";
 import RefereeAssignment from "./RefereeAssignment/RefereeAssignment";
-import SchedulingMatrix from "./SchedulingMatrix/SchedulingMatrix";
+import ScheduleGenerator from "./SchedulingGenerator/ScheduleGenerator";
 import MatchManagement from "./MatchManagement/MatchManagement";
 import ResultCorrection from "./ResultCorrection/ResultCorrection";
 import ReportsCenter from "./ReportsCenter/ReportsCenter";
@@ -27,7 +27,7 @@ export default function TournamentManagerPage() {
       case "referees":
         return <RefereeAssignment />;
       case "scheduling":
-        return <SchedulingMatrix />;
+        return <ScheduleGenerator />;
       case "matches":
         return <MatchManagement />;
       case "results":

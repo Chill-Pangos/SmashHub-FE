@@ -78,7 +78,7 @@ export interface GenerateCompleteScheduleRequest {
   contentId: number;
   startDate: string;
   endDate: string;
-  groupStageEndDate: string;
+  groupStageEndDate?: string;
 }
 
 /**
@@ -157,12 +157,45 @@ export type GenerateGroupStageScheduleResponse = GenerateScheduleResponse;
 /**
  * Generate complete schedule response
  */
-export type GenerateCompleteScheduleResponse = GenerateScheduleResponse;
+export interface GenerateCompleteScheduleResponse {
+  success: boolean;
+  message: string;
+  data: {
+    groupStage: {
+      totalMatches: number;
+      groups: string[];
+      schedules: Schedule[];
+    };
+    knockoutStage: {
+      totalMatches: number;
+      rounds: string[];
+      schedules: Schedule[];
+    };
+  };
+  error?: {
+    code: string;
+    message: string;
+  };
+}
 
 /**
  * Generate knockout only schedule response
  */
-export type GenerateKnockoutOnlyScheduleResponse = GenerateScheduleResponse;
+export interface GenerateKnockoutOnlyScheduleResponse {
+  success: boolean;
+  message: string;
+  data: {
+    totalMatches: number;
+    totalEntries: number;
+    bracketSize: number;
+    rounds: string[];
+    schedules: Schedule[];
+  };
+  error?: {
+    code: string;
+    message: string;
+  };
+}
 
 /**
  * Generate knockout stage schedule response
