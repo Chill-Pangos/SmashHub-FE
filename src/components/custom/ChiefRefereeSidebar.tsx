@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
+import NotificationDropdown from "./NotificationDropdown";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
 
 interface ChiefRefereeSidebarProps {
@@ -74,7 +75,8 @@ export default function ChiefRefereeSidebar({
                     Tổng trọng tài
                   </p>
                 </div>
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 flex items-center gap-1">
+                  <NotificationDropdown />
                   <ThemeToggle />
                 </div>
               </>

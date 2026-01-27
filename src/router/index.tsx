@@ -6,6 +6,7 @@ import ProtectedRoutes from "./ProtectedRoutes";
 import AdminRoutes from "./AdminRoutes";
 import TournamentManagerRoutes from "./TournamentManagerRoutes";
 import ChiefRefereeRoutes from "./ChiefRefereeRoutes";
+import RefereeRoutes from "./RefereeRoutes";
 
 /**
  * AppRouter - Main application router
@@ -44,6 +45,7 @@ export default function AppRouter() {
   const adminRole = getRoleByName("admin");
   const organizerRole = getRoleByName("organizer");
   const chiefRefereeRole = getRoleByName("chief_referee");
+  const refereeRole = getRoleByName("referee");
 
   return (
     <Routes>
@@ -63,6 +65,9 @@ export default function AppRouter() {
       {/* Chief Referee routes - only render if chief_referee role exists */}
       {chiefRefereeRole &&
         ChiefRefereeRoutes({ chiefRefereeRoleId: chiefRefereeRole.id })}
+
+      {/* Referee routes - only render if referee role exists */}
+      {refereeRole && RefereeRoutes({ refereeRoleId: refereeRole.id })}
 
       {/* 404 Not Found */}
       <Route path="*" element={<NotFound />} />

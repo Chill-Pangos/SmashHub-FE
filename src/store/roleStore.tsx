@@ -16,8 +16,8 @@ const ROLE_ROUTES: Record<string, string> = {
   admin: "/admin",
   organizer: "/tournament-manager",
   chief_referee: "/chief-referee",
+  referee: "/referee",
   team_manager: "/",
-  referee: "/",
   coach: "/",
   athlete: "/",
   spectator: "/",
@@ -92,7 +92,7 @@ export const RoleProvider: React.FC<RoleProviderProps> = ({ children }) => {
         role.name !== "admin" &&
         role.name !== "organizer" &&
         role.name !== "chief_referee" &&
-        role.name !== "referee"
+        role.name !== "referee",
     );
   };
 
@@ -108,7 +108,7 @@ export const RoleProvider: React.FC<RoleProviderProps> = ({ children }) => {
 
   const hasAllRoles = (
     userRoles: number[],
-    requiredRoles: number[]
+    requiredRoles: number[],
   ): boolean => {
     return requiredRoles.every((role) => userRoles.includes(role));
   };

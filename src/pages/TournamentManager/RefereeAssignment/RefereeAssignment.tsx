@@ -1,26 +1,140 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Search, UserPlus, Users, CheckCircle, AlertCircle, Star } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefereeList, MatchAssignment, AssignmentMatrix } from "./components";
+import {
+  Search,
+  UserPlus,
+  Users,
+  CheckCircle,
+  AlertCircle,
+  Star,
+} from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  RefereeList,
+  MatchAssignment,
+  AssignmentMatrix,
+  AssignRefereeDialog,
+} from "./components";
+import { tournamentRefereeService, tournamentService } from "@/services";
+import type { Tournament, TournamentReferee } from "@/types";
 
 export default function RefereeAssignment() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterLevel, setFilterLevel] = useState("all");
   const [filterAvailability, setFilterAvailability] = useState("all");
   const [assignmentDialogOpen, setAssignmentDialogOpen] = useState(false);
+  const [assignRefereeDialogOpen, setAssignRefereeDialogOpen] = useState(false);
+
+  // Stats state
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [selectedTournamentId, setSelectedTournamentId] = useState<string>("");
+  const [tournamentReferees, setTournamentReferees] = useState<
+    TournamentReferee[]
+  >([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Stats
+  const totalReferees = tournamentReferees.length;
+  const mainReferees = tournamentReferees.filter(
+    (r) => r.role === "main",
+  ).length;
+  const assistantReferees = tournamentReferees.filter(
+    (r) => r.role === "assistant",
+  ).length;
+
+  useEffect(() => {
+    fetchTournaments();
+  }, []);
+
+  useEffect(() => {
+    if (selectedTournamentId) {
+      fetchTournamentReferees(parseInt(selectedTournamentId));
+    }
+  }, [selectedTournamentId]);
+
+  const fetchTournaments = async () => {
+    try {
+      const list = await tournamentService.getAllTournaments(0, 100);
+      setTournaments(list);
+      if (list.length > 0) {
+        setSelectedTournamentId(list[0].id.toString());
+      }
+    } catch (error) {
+      console.error("Error fetching tournaments:", error);
+    }
+  };
+
+  const fetchTournamentReferees = async (tournamentId: number) => {
+    try {
+      setIsLoading(true);
+      const response = await tournamentRefereeService.getRefereesByTournament(
+        tournamentId,
+        0,
+        100,
+      );
+      setTournamentReferees(response.data || []);
+    } catch (error) {
+      console.error("Error fetching referees:", error);
+      setTournamentReferees([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRefreshData = () => {
+    if (selectedTournamentId) {
+      fetchTournamentReferees(parseInt(selectedTournamentId));
+    }
+  };
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Phân công trọng tài</h1>
-        <Button onClick={() => setAssignmentDialogOpen(true)}>
-          <UserPlus className="mr-2 h-4 w-4" />
-          Phân công trận đấu
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setAssignRefereeDialogOpen(true)}
+          >
+            <Users className="mr-2 h-4 w-4" />
+            Thêm trọng tài vào giải
+          </Button>
+          <Button onClick={() => setAssignmentDialogOpen(true)}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Phân công trận đấu
+          </Button>
+        </div>
       </div>
+
+      {/* Tournament Select */}
+      <Card className="p-4">
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-medium">Giải đấu:</label>
+          <Select
+            value={selectedTournamentId}
+            onValueChange={setSelectedTournamentId}
+          >
+            <SelectTrigger className="w-64">
+              <SelectValue placeholder="Chọn giải đấu" />
+            </SelectTrigger>
+            <SelectContent>
+              {tournaments.map((t) => (
+                <SelectItem key={t.id} value={t.id.toString()}>
+                  {t.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-6">
@@ -30,7 +144,9 @@ export default function RefereeAssignment() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Tổng trọng tài</p>
-              <p className="text-2xl font-bold">8</p>
+              <p className="text-2xl font-bold">
+                {isLoading ? "..." : totalReferees}
+              </p>
             </div>
           </div>
         </Card>
@@ -41,8 +157,10 @@ export default function RefereeAssignment() {
               <CheckCircle className="h-6 w-6 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Sẵn sàng</p>
-              <p className="text-2xl font-bold">5</p>
+              <p className="text-sm text-muted-foreground">Trọng tài chính</p>
+              <p className="text-2xl font-bold">
+                {isLoading ? "..." : mainReferees}
+              </p>
             </div>
           </div>
         </Card>
@@ -53,8 +171,10 @@ export default function RefereeAssignment() {
               <AlertCircle className="h-6 w-6 text-orange-600" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Đang bận</p>
-              <p className="text-2xl font-bold">2</p>
+              <p className="text-sm text-muted-foreground">Trọng tài phụ</p>
+              <p className="text-2xl font-bold">
+                {isLoading ? "..." : assistantReferees}
+              </p>
             </div>
           </div>
         </Card>
@@ -96,7 +216,10 @@ export default function RefereeAssignment() {
                   <SelectItem value="regional">Khu vực</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={filterAvailability} onValueChange={setFilterAvailability}>
+              <Select
+                value={filterAvailability}
+                onValueChange={setFilterAvailability}
+              >
                 <SelectTrigger className="w-full md:w-48">
                   <SelectValue />
                 </SelectTrigger>
@@ -118,9 +241,15 @@ export default function RefereeAssignment() {
         </div>
       </div>
 
-      <MatchAssignment 
+      <MatchAssignment
         open={assignmentDialogOpen}
         onOpenChange={setAssignmentDialogOpen}
+      />
+
+      <AssignRefereeDialog
+        open={assignRefereeDialogOpen}
+        onOpenChange={setAssignRefereeDialogOpen}
+        onAssigned={handleRefreshData}
       />
     </div>
   );

@@ -29,6 +29,8 @@ export interface Match {
   winnerEntryId?: number | null;
   status: MatchStatus;
   resultStatus?: MatchResultStatus;
+  setsWonA?: number;
+  setsWonB?: number;
   umpire?: number | null;
   assistantUmpire?: number | null;
   coachAId?: number | null;
