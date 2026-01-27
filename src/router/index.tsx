@@ -7,6 +7,10 @@ import AdminRoutes from "./AdminRoutes";
 import TournamentManagerRoutes from "./TournamentManagerRoutes";
 import ChiefRefereeRoutes from "./ChiefRefereeRoutes";
 import RefereeRoutes from "./RefereeRoutes";
+import TeamManagerRoutes from "./TeamManagerRoutes";
+import CoachRoutes from "./CoachRoutes";
+import AthleteRoutes from "./AthleteRoutes";
+import SpectatorRoutes from "./SpectatorRoutes";
 
 /**
  * AppRouter - Main application router
@@ -46,6 +50,9 @@ export default function AppRouter() {
   const organizerRole = getRoleByName("organizer");
   const chiefRefereeRole = getRoleByName("chief_referee");
   const refereeRole = getRoleByName("referee");
+  const teamManagerRole = getRoleByName("team_manager");
+  const coachRole = getRoleByName("coach");
+  const athleteRole = getRoleByName("athlete");
 
   return (
     <Routes>
@@ -68,6 +75,19 @@ export default function AppRouter() {
 
       {/* Referee routes - only render if referee role exists */}
       {refereeRole && RefereeRoutes({ refereeRoleId: refereeRole.id })}
+
+      {/* Team Manager routes - only render if team_manager role exists */}
+      {teamManagerRole &&
+        TeamManagerRoutes({ teamManagerRoleId: teamManagerRole.id })}
+
+      {/* Coach routes - only render if coach role exists */}
+      {coachRole && CoachRoutes({ coachRoleId: coachRole.id })}
+
+      {/* Athlete routes - only render if athlete role exists */}
+      {athleteRole && AthleteRoutes({ athleteRoleId: athleteRole.id })}
+
+      {/* Spectator routes - accessible to any authenticated user */}
+      {SpectatorRoutes()}
 
       {/* 404 Not Found */}
       <Route path="*" element={<NotFound />} />
