@@ -9,10 +9,15 @@ import type {
   GetMatchesByScheduleResponse,
   GetMatchesByStatusResponse,
   DeleteMatchResponse,
-  StartMatchRequest,
   StartMatchResponse,
-  FinalizeMatchRequest,
   FinalizeMatchResponse,
+  GetPendingMatchesResponse,
+  GetPendingMatchWithEloResponse,
+  PreviewEloChangesResponse,
+  ApproveMatchRequest,
+  ApproveMatchResponse,
+  RejectMatchRequest,
+  RejectMatchResponse,
   MatchStatus,
 } from "@/types/match.types";
 
@@ -184,45 +189,157 @@ class MatchService {
   }
 
   /**
-   * Start match
-   * POST /api/matches/start
+   * Get pending matches (waiting for approval)
+   * GET /api/matches/pending
    *
-   * @param data Request with matchId
-   * @returns Promise with updated match
+   * @param skip Number of records to skip
+   * @param limit Maximum number of records to return
+   * @returns Promise with pending matches
+   *
+   * @description Chief Referee uses this to get matches waiting for approval
    *
    * @example
-   * const match = await matchService.startMatch({ matchId: 1 });
+   * const pendingMatches = await matchService.getPendingMatches(0, 20);
    */
-  async startMatch(data: StartMatchRequest): Promise<StartMatchResponse> {
-    const response = await axiosInstance.post<StartMatchResponse>(
-      `${this.baseURL}/start`,
-      data,
+  async getPendingMatches(
+    skip: number = 0,
+    limit: number = 10,
+  ): Promise<GetPendingMatchesResponse> {
+    const response = await axiosInstance.get<GetPendingMatchesResponse>(
+      `${this.baseURL}/pending`,
+      { params: { skip, limit } },
     );
+    return response.data;
+  }
 
+  /**
+   * Start match
+   * POST /api/matches/:id/start
+   *
+   * @param id Match ID
+   * @returns Promise with updated match (status: in_progress, referees assigned)
+   *
+   * @description Referee uses this to start a match. System auto-assigns available referees.
+   *
+   * @example
+   * const match = await matchService.startMatch(1);
+   */
+  async startMatch(id: number): Promise<StartMatchResponse> {
+    const response = await axiosInstance.post<StartMatchResponse>(
+      `${this.baseURL}/${id}/start`,
+    );
     return response.data;
   }
 
   /**
    * Finalize match
-   * POST /api/matches/finalize
+   * POST /api/matches/:id/finalize
    *
-   * @param data Request with matchId and winnerEntryId
-   * @returns Promise with updated match
+   * @param id Match ID
+   * @returns Promise with completed match
+   *
+   * @description Referee uses this to finalize a match after all sets are completed.
+   * The system will calculate the winner based on sets won and update standings/brackets.
    *
    * @example
-   * const match = await matchService.finalizeMatch({
-   *   matchId: 1,
-   *   winnerEntryId: 5
+   * const match = await matchService.finalizeMatch(1);
+   */
+  async finalizeMatch(id: number): Promise<FinalizeMatchResponse> {
+    const response = await axiosInstance.post<FinalizeMatchResponse>(
+      `${this.baseURL}/${id}/finalize`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Get pending match with ELO preview
+   * GET /api/matches/:id/pending-with-elo
+   *
+   * @param id Match ID
+   * @returns Promise with match details and ELO preview
+   *
+   * @description Chief Referee uses this to review ELO changes before approving.
+   *
+   * @example
+   * const result = await matchService.getPendingMatchWithElo(15);
+   * console.log(result.eloPreview.changes);
+   */
+  async getPendingMatchWithElo(
+    id: number,
+  ): Promise<GetPendingMatchWithEloResponse> {
+    const response = await axiosInstance.get<GetPendingMatchWithEloResponse>(
+      `${this.baseURL}/${id}/pending-with-elo`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Preview ELO changes for a match
+   * GET /api/matches/:id/elo-preview
+   *
+   * @param id Match ID
+   * @returns Promise with ELO preview
+   *
+   * @example
+   * const preview = await matchService.previewEloChanges(15);
+   * console.log(preview.changes);
+   */
+  async previewEloChanges(id: number): Promise<PreviewEloChangesResponse> {
+    const response = await axiosInstance.get<PreviewEloChangesResponse>(
+      `${this.baseURL}/${id}/elo-preview`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Approve match result
+   * POST /api/matches/:id/approve
+   *
+   * @param id Match ID
+   * @param data Optional review notes
+   * @returns Promise with approval result
+   *
+   * @description Chief Referee only. Approves match result and updates ELO.
+   *
+   * @example
+   * const result = await matchService.approveMatch(15, {
+   *   reviewNotes: "Result verified via video"
    * });
    */
-  async finalizeMatch(
-    data: FinalizeMatchRequest,
-  ): Promise<FinalizeMatchResponse> {
-    const response = await axiosInstance.post<FinalizeMatchResponse>(
-      `${this.baseURL}/finalize`,
+  async approveMatch(
+    id: number,
+    data?: ApproveMatchRequest,
+  ): Promise<ApproveMatchResponse> {
+    const response = await axiosInstance.post<ApproveMatchResponse>(
+      `${this.baseURL}/${id}/approve`,
+      data || {},
+    );
+    return response.data;
+  }
+
+  /**
+   * Reject match result
+   * POST /api/matches/:id/reject
+   *
+   * @param id Match ID
+   * @param data Rejection reason (required)
+   * @returns Promise with rejection result
+   *
+   * @description Chief Referee only. Rejects match result, resets status to in_progress.
+   *
+   * @example
+   * const result = await matchService.rejectMatch(15, {
+   *   reviewNotes: "Score mismatch in set 2, please verify"
+   * });
+   */
+  async rejectMatch(
+    id: number,
+    data: RejectMatchRequest,
+  ): Promise<RejectMatchResponse> {
+    const response = await axiosInstance.post<RejectMatchResponse>(
+      `${this.baseURL}/${id}/reject`,
       data,
     );
-
     return response.data;
   }
 }

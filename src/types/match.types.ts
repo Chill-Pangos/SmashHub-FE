@@ -11,6 +11,11 @@ export type MatchStatus =
   | "completed"
   | "cancelled";
 
+/**
+ * Match result status enum (for approval workflow)
+ */
+export type MatchResultStatus = "pending" | "approved" | "rejected";
+
 // ==================== Match ====================
 
 /**
@@ -23,12 +28,28 @@ export interface Match {
   entryBId: number;
   winnerEntryId?: number | null;
   status: MatchStatus;
+  resultStatus?: MatchResultStatus;
   umpire?: number | null;
   assistantUmpire?: number | null;
   coachAId?: number | null;
   coachBId?: number | null;
+  isConfirmedByWinner?: boolean;
+  reviewNotes?: string | null;
   createdAt: string;
   updatedAt: string;
+  // Nested relations (when populated)
+  entryA?: MatchEntry;
+  entryB?: MatchEntry;
+}
+
+/**
+ * Match entry with team info (nested)
+ */
+export interface MatchEntry {
+  id: number;
+  team?: {
+    name: string;
+  };
 }
 
 // ==================== Request Types ====================
@@ -70,11 +91,24 @@ export interface StartMatchRequest {
 }
 
 /**
- * Finalize match request
+ * Finalize match request (no body needed, matchId is in URL)
  */
 export interface FinalizeMatchRequest {
   matchId: number;
-  winnerEntryId: number;
+}
+
+/**
+ * Approve match result request
+ */
+export interface ApproveMatchRequest {
+  reviewNotes?: string;
+}
+
+/**
+ * Reject match result request
+ */
+export interface RejectMatchRequest {
+  reviewNotes: string;
 }
 
 // ==================== Response Types ====================
@@ -123,3 +157,82 @@ export type StartMatchResponse = ApiResponse<Match>;
  * Finalize match response
  */
 export type FinalizeMatchResponse = ApiResponse<Match>;
+
+/**
+ * Get pending matches response
+ */
+export type GetPendingMatchesResponse = ApiResponse<Match[]>;
+
+/**
+ * ELO change for a player
+ */
+export interface EloChange {
+  userId: number;
+  username?: string;
+  currentElo: number;
+  expectedElo: number;
+  change: number;
+}
+
+/**
+ * ELO preview entry info
+ */
+export interface EloPreviewEntry {
+  averageElo: number;
+  expectedScore: number;
+  actualScore: number;
+}
+
+/**
+ * ELO preview response
+ */
+export interface EloPreview {
+  entryA: EloPreviewEntry;
+  entryB: EloPreviewEntry;
+  marginMultiplier: number;
+  changes: EloChange[];
+}
+
+/**
+ * Get pending match with ELO preview response
+ */
+export interface GetPendingMatchWithEloResponse {
+  match: Match;
+  eloPreview: EloPreview;
+}
+
+/**
+ * Preview ELO changes response
+ */
+export type PreviewEloChangesResponse = EloPreview;
+
+/**
+ * Approve match result response
+ */
+export interface ApproveMatchResponse {
+  success: boolean;
+  message: string;
+  data: {
+    id: number;
+    status: MatchStatus;
+    resultStatus: MatchResultStatus;
+    winnerEntryId: number;
+    reviewNotes?: string;
+    eloUpdated: boolean;
+  };
+}
+
+/**
+ * Reject match result response
+ */
+export interface RejectMatchResponse {
+  success: boolean;
+  message: string;
+  data: {
+    id: number;
+    status: MatchStatus;
+    resultStatus: MatchResultStatus;
+    winnerEntryId: null;
+    reviewNotes: string;
+  };
+}

@@ -9,3 +9,5 @@ export * from "./knockoutBracket.types";
 export * from "./match.types";
 export * from "./matchSet.types";
 export * from "./schedule.types";
+export * from "./tournamentReferee.types";
+export * from "./notification.types";

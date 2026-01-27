@@ -10,3 +10,5 @@ export { default as knockoutBracketService } from "./knockoutBracket.service";
 export { default as matchService } from "./match.service";
 export { default as matchSetService } from "./matchSet.service";
 export { default as scheduleService } from "./schedule.service";
+export { default as tournamentRefereeService } from "./tournamentReferee.service";
+export { default as notificationService } from "./notification.service";
