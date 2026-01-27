@@ -16,6 +16,8 @@ import {
   Trophy,
   ChevronRight,
   FileSpreadsheet,
+  MapPin,
+  Calendar,
 } from "lucide-react";
 import TeamImportDialog from "@/components/custom/TeamImportDialog";
 import EntryImportDialog from "@/components/custom/EntryImportDialog";
@@ -183,17 +185,22 @@ export default function DelegationManagement() {
                 </Badge>
               </div>
               <div className="text-sm text-muted-foreground">
-                <div>📍 Địa điểm: {selectedTournament.location}</div>
-                <div>
-                  📅 Thời gian:{" "}
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  Địa điểm: {selectedTournament.location}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  Thời gian:{" "}
                   {new Date(selectedTournament.startDate).toLocaleDateString(
                     "vi-VN",
                   )}
                   {selectedTournament.endDate &&
                     ` - ${new Date(selectedTournament.endDate).toLocaleDateString("vi-VN")}`}
                 </div>
-                <div>
-                  🏆 Số nội dung thi đấu:{" "}
+                <div className="flex items-center gap-1">
+                  <Trophy className="h-3 w-3" />
+                  Số nội dung thi đấu:{" "}
                   {selectedTournament.contents?.length || 0}
                 </div>
               </div>

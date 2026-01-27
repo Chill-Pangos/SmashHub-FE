@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Radio, RefreshCw } from "lucide-react";
+import { Radio, RefreshCw, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { matchService } from "@/services";
 import { showToast } from "@/utils";
@@ -101,7 +101,11 @@ export default function LiveMatches() {
                   <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
                     <span className="font-medium">Entry {match.entryAId}</span>
                     <span className="text-2xl font-bold text-primary">
-                      {match.winnerEntryId === match.entryAId ? "🏆" : "-"}
+                      {match.winnerEntryId === match.entryAId ? (
+                        <Trophy className="h-5 w-5 text-yellow-500" />
+                      ) : (
+                        "-"
+                      )}
                     </span>
                   </div>
 
@@ -113,7 +117,11 @@ export default function LiveMatches() {
                   <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
                     <span className="font-medium">Entry {match.entryBId}</span>
                     <span className="text-2xl font-bold text-primary">
-                      {match.winnerEntryId === match.entryBId ? "🏆" : "-"}
+                      {match.winnerEntryId === match.entryBId ? (
+                        <Trophy className="h-5 w-5 text-yellow-500" />
+                      ) : (
+                        "-"
+                      )}
                     </span>
                   </div>
 
