@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Lock, Mail, Trophy, User, Loader2, UserCog } from "lucide-react";
 import { useAuthOperations } from "@/hooks";
+import { useRole } from "@/store";
 import {
   validateRegisterForm,
   hasValidationErrors,
@@ -32,15 +33,30 @@ import {
 const SignUp = () => {
   const navigate = useNavigate();
   const { register, loading, error: authError } = useAuthOperations();
+  const { isLoading: rolesLoading, getRegistrationRoles } = useRole();
   const [formData, setFormData] = useState<RegisterFormData>({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
-    role: "spectator",
+    role: undefined, // Will be set when user selects
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  // Get roles available for registration (excludes admin, organizer, etc.)
+  const registrationRoles = getRegistrationRoles();
+
+  // Helper function to get Vietnamese role name
+  const getRoleDisplayName = (roleName: string): string => {
+    const roleNameMap: Record<string, string> = {
+      spectator: "Người xem",
+      athlete: "Vận động viên",
+      coach: "Huấn luyện viên",
+      team_manager: "Trưởng đoàn",
+    };
+    return roleNameMap[roleName] || roleName;
+  };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -93,6 +109,13 @@ const SignUp = () => {
       showToast.error(
         "Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật"
       );
+      return;
+    }
+
+    // Check if role is selected
+    if (!formData.role) {
+      showToast.error("Vui lòng chọn loại tài khoản");
+      setErrors((prev) => ({ ...prev, role: "Vui lòng chọn loại tài khoản" }));
       return;
     }
 
@@ -260,49 +283,64 @@ const SignUp = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="role" className="text-card-foreground">
-                  Loại tài khoản
+                  Loại tài khoản <span className="text-red-500">*</span>
                 </Label>
                 <Select
                   value={formData.role}
-                  onValueChange={(value) =>
+                  onValueChange={(value) => {
                     setFormData((prev) => ({
                       ...prev,
-                      role: value as "spectator" | "player" | "organizer",
-                    }))
-                  }
-                  disabled={loading}
+                      role: value as
+                        | "spectator"
+                        | "athlete"
+                        | "coach"
+                        | "team_manager",
+                    }));
+                    // Clear error when user selects role
+                    if (errors.role) {
+                      setErrors((prev) => {
+                        const newErrors = { ...prev };
+                        delete newErrors.role;
+                        return newErrors;
+                      });
+                    }
+                  }}
+                  disabled={loading || rolesLoading}
                 >
                   <SelectTrigger className="w-full bg-input border-border text-foreground">
                     <div className="flex items-center gap-2">
                       <UserCog className="h-4 w-4 text-muted-foreground" />
-                      <SelectValue placeholder="Chọn loại tài khoản" />
+                      <SelectValue placeholder="Chọn loại tài khoản của bạn" />
                     </div>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="spectator">
-                      <div className="flex flex-col">
-                        <span className="font-medium">Khán giả</span>
-                        <span className="text-xs text-muted-foreground">
-                          Xem và theo dõi các trận đấu
+                    {rolesLoading ? (
+                      <div className="flex items-center justify-center py-4">
+                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                        <span className="ml-2 text-sm text-muted-foreground">
+                          Đang tải...
                         </span>
                       </div>
-                    </SelectItem>
-                    <SelectItem value="player">
-                      <div className="flex flex-col">
-                        <span className="font-medium">Vận động viên</span>
-                        <span className="text-xs text-muted-foreground">
-                          Tham gia thi đấu
-                        </span>
+                    ) : registrationRoles.length > 0 ? (
+                      registrationRoles.map((role) => (
+                        <SelectItem key={role.id} value={role.name}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">
+                              {getRoleDisplayName(role.name)}
+                            </span>
+                            {role.description && (
+                              <span className="text-xs text-muted-foreground">
+                                {role.description}
+                              </span>
+                            )}
+                          </div>
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <div className="py-4 text-center text-sm text-muted-foreground">
+                        Không có vai trò khả dụng
                       </div>
-                    </SelectItem>
-                    <SelectItem value="organizer">
-                      <div className="flex flex-col">
-                        <span className="font-medium">Ban tổ chức</span>
-                        <span className="text-xs text-muted-foreground">
-                          Tổ chức và quản lý giải đấu
-                        </span>
-                      </div>
-                    </SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
                 {errors.role && (

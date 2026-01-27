@@ -11,7 +11,9 @@ import {
   Menu,
 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
+import { useAuthOperations } from "@/hooks/useAuthOperations";
 
 interface SidebarProps {
   activeTab: string;
@@ -23,6 +25,13 @@ export default function AdminSidebar({
   setActiveTab,
 }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const navigate = useNavigate();
+  const { logout } = useAuthOperations();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/signin");
+  };
 
   const menuItems = [
     { id: "overview", label: "Tổng quan hệ thống", icon: BarChart3 },
@@ -33,36 +42,45 @@ export default function AdminSidebar({
 
   return (
     <>
-      {/* Mobile Toggle */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-primary text-primary-foreground"
-      >
-        <Menu size={20} />
-      </button>
-
       {/* Sidebar */}
       <aside
         className={`${
-          isOpen ? "w-64" : "w-0"
-        } transition-all duration-300 border-r border-border bg-card overflow-hidden md:w-64 md:overflow-visible`}
+          isOpen ? "w-64" : "w-16"
+        } transition-all duration-300 border-r border-border bg-card flex flex-col h-full`}
       >
-        <div className="p-6 border-b border-border">
+        <div className="p-4 border-b border-border flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <Trophy className="text-primary-foreground" size={24} />
-            </div>
-            <div>
-              <h1 className="font-bold text-lg text-card-foreground">Admin</h1>
-              <p className="text-xs text-muted-foreground">Quản trị hệ thống</p>
-            </div>
-            <div>
-              <ThemeToggle />
-            </div>
+            {/* Toggle Button */}
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 rounded-lg hover:bg-accent transition-colors flex-shrink-0"
+              title={isOpen ? "Thu gọn" : "Mở rộng"}
+            >
+              <Menu size={20} />
+            </button>
+
+            {isOpen && (
+              <>
+                <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
+                  <Trophy className="text-primary-foreground" size={24} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h1 className="font-bold text-lg text-card-foreground truncate">
+                    Admin
+                  </h1>
+                  <p className="text-xs text-muted-foreground truncate">
+                    Quản trị hệ thống
+                  </p>
+                </div>
+                <div className="flex-shrink-0">
+                  <ThemeToggle />
+                </div>
+              </>
+            )}
           </div>
         </div>
 
-        <nav className="p-4 space-y-2">
+        <nav className="p-2 space-y-2 flex-1 overflow-y-auto">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -70,27 +88,39 @@ export default function AdminSidebar({
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
                   isActive
                     ? "bg-primary text-primary-foreground font-medium"
                     : "text-card-foreground hover:bg-accent"
-                }`}
+                } ${!isOpen && "justify-center"}`}
+                title={!isOpen ? item.label : undefined}
               >
-                <Icon size={20} />
-                <span>{item.label}</span>
+                <Icon size={20} className="flex-shrink-0" />
+                {isOpen && <span className="truncate">{item.label}</span>}
               </button>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-border mt-auto space-y-2">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-card-foreground hover:bg-accent transition-colors">
-            <Settings size={20} />
-            <span>Cài đặt</span>
+        <div className="p-2 border-t border-border flex-shrink-0 space-y-2">
+          <button
+            className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-card-foreground hover:bg-accent transition-colors ${
+              !isOpen && "justify-center"
+            }`}
+            title={!isOpen ? "Cài đặt" : undefined}
+          >
+            <Settings size={20} className="flex-shrink-0" />
+            {isOpen && <span>Cài đặt</span>}
           </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors">
-            <LogOut size={20} />
-            <span>Đăng xuất</span>
+          <button
+            onClick={handleLogout}
+            className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors ${
+              !isOpen && "justify-center"
+            }`}
+            title={!isOpen ? "Đăng xuất" : undefined}
+          >
+            <LogOut size={20} className="flex-shrink-0" />
+            {isOpen && <span>Đăng xuất</span>}
           </button>
         </div>
       </aside>

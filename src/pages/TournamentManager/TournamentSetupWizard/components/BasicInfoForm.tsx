@@ -8,24 +8,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { TournamentFormData, ValidationErrors } from "@/utils/validation.utils";
+import type { TournamentStatus } from "@/types";
 
 interface BasicInfoFormProps {
-  formData: {
-    name: string;
-    startDate: string;
-    endDate: string;
-    venue: string;
-    address: string;
-    description: string;
-    type: string;
-    level: string;
-  };
-  onChange: (field: string, value: string) => void;
+  formData: TournamentFormData;
+  onChange: (field: keyof TournamentFormData, value: string) => void;
+  errors?: ValidationErrors;
 }
 
 export default function BasicInfoForm({
   formData,
   onChange,
+  errors = {},
 }: BasicInfoFormProps) {
   return (
     <Card className="p-6">
@@ -38,101 +33,97 @@ export default function BasicInfoForm({
             placeholder="VD: Giải vô địch Quốc gia 2024"
             value={formData.name}
             onChange={(e) => onChange("name", e.target.value)}
+            className={errors.name ? "border-red-500" : ""}
           />
+          {errors.name && (
+            <p className="text-sm text-red-500">{errors.name}</p>
+          )}
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Loại giải *</Label>
-            <Select
-              value={formData.type}
-              onValueChange={(value) => onChange("type", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn loại giải" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="championship">Giải vô địch</SelectItem>
-                <SelectItem value="open">Giải mở rộng</SelectItem>
-                <SelectItem value="club">Giải các CLB</SelectItem>
-                <SelectItem value="youth">Giải trẻ</SelectItem>
-                <SelectItem value="veterans">Giải người cao tuổi</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Cấp độ *</Label>
-            <Select
-              value={formData.level}
-              onValueChange={(value) => onChange("level", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn cấp độ" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="international">Quốc tế</SelectItem>
-                <SelectItem value="national">Quốc gia</SelectItem>
-                <SelectItem value="regional">Khu vực</SelectItem>
-                <SelectItem value="provincial">Tỉnh/Thành phố</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="space-y-2">
+          <Label>Địa điểm tổ chức *</Label>
+          <Input
+            placeholder="VD: Sân vận động Quốc gia Mỹ Đình"
+            value={formData.location}
+            onChange={(e) => onChange("location", e.target.value)}
+            className={errors.location ? "border-red-500" : ""}
+          />
+          {errors.location && (
+            <p className="text-sm text-red-500">{errors.location}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Ngày bắt đầu *</Label>
             <Input
-              type="date"
+              type="datetime-local"
               value={formData.startDate}
               onChange={(e) => onChange("startDate", e.target.value)}
+              className={errors.startDate ? "border-red-500" : ""}
             />
+            {errors.startDate && (
+              <p className="text-sm text-red-500">{errors.startDate}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label>Ngày kết thúc *</Label>
             <Input
-              type="date"
+              type="datetime-local"
               value={formData.endDate}
               onChange={(e) => onChange("endDate", e.target.value)}
+              className={errors.endDate ? "border-red-500" : ""}
             />
+            {errors.endDate && (
+              <p className="text-sm text-red-500">{errors.endDate}</p>
+            )}
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label>Địa điểm tổ chức *</Label>
-          <Input
-            placeholder="VD: Cung thể thao Quần Vợt"
-            value={formData.venue}
-            onChange={(e) => onChange("venue", e.target.value)}
-          />
+          <Label>Trạng thái</Label>
+          <Select
+            value={formData.status}
+            onValueChange={(value) => onChange("status", value as TournamentStatus)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Chọn trạng thái" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="upcoming">Sắp diễn ra</SelectItem>
+              <SelectItem value="ongoing">Đang diễn ra</SelectItem>
+              <SelectItem value="completed">Đã kết thúc</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">
-          <Label>Địa chỉ chi tiết</Label>
+          <Label>Số bàn thi đấu</Label>
           <Input
-            placeholder="VD: Số 291 Láng Hạ, Đống Đa, Hà Nội"
-            value={formData.address}
-            onChange={(e) => onChange("address", e.target.value)}
+            type="number"
+            min="1"
+            max="100"
+            placeholder="Mặc định: 1"
+            value={formData.numberOfTables || 1}
+            onChange={(e) => {
+              const value = e.target.value ? parseInt(e.target.value) : 1;
+              onChange("numberOfTables", value.toString());
+            }}
+            className={errors.numberOfTables ? "border-red-500" : ""}
           />
+          {errors.numberOfTables && (
+            <p className="text-sm text-red-500">{errors.numberOfTables}</p>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Số lượng bàn thi đấu có sẵn để chơi đồng thời
+          </p>
         </div>
 
-        <div className="space-y-2">
-          <Label>Mô tả giải đấu</Label>
-          <textarea
-            placeholder="Nhập mô tả về giải đấu..."
-            value={formData.description}
-            onChange={(e) => onChange("description", e.target.value)}
-            rows={4}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-          />
-        </div>
-
-        <div className="p-4 bg-blue-50 rounded-lg text-sm text-blue-700">
-          <p>
-            <strong>Lưu ý:</strong> Các trường đánh dấu (*) là bắt buộc. Vui
-            lòng điền đầy đủ thông tin trước khi chuyển sang bước tiếp theo.
+        <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+          <p className="text-sm text-blue-800 dark:text-blue-200">
+            <strong>Lưu ý:</strong> Các trường có dấu (*) là bắt buộc. Bạn sẽ thiết lập
+            các nội dung thi đấu (đơn/đôi/đồng đội) ở bước tiếp theo.
           </p>
         </div>
       </div>

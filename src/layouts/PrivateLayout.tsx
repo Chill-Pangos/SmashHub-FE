@@ -1,9 +1,13 @@
 import { Outlet, Navigate } from "react-router-dom";
 import { useAuth } from "@/store/useAuth";
+import { useNotificationConnection } from "@/hooks";
 import { Loader2 } from "lucide-react";
 
 export default function PrivateLayout() {
   const { isAuthenticated, isLoading } = useAuth();
+
+  // Auto-connect to notification service when authenticated
+  useNotificationConnection();
 
   // Show loading spinner while checking authentication
   if (isLoading) {

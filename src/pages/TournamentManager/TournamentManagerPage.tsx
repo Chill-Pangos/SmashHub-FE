@@ -2,9 +2,10 @@ import { useState } from "react";
 import TournamentManagerSidebar from "@/components/custom/TournamentManagerSidebar";
 import TournamentDashboard from "./TournamentDashboard/TournamentDashboard";
 import TournamentSetupWizard from "./TournamentSetupWizard/TournamentSetupWizard";
+import TournamentList from "./TournamentList/TournamentList";
 import DelegationManagement from "./DelegationManagement/DelegationManagement";
 import RefereeAssignment from "./RefereeAssignment/RefereeAssignment";
-import SchedulingMatrix from "./SchedulingMatrix/SchedulingMatrix";
+import ScheduleGenerator from "./SchedulingGenerator/ScheduleGenerator";
 import MatchManagement from "./MatchManagement/MatchManagement";
 import ResultCorrection from "./ResultCorrection/ResultCorrection";
 import ReportsCenter from "./ReportsCenter/ReportsCenter";
@@ -16,15 +17,17 @@ export default function TournamentManagerPage() {
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <TournamentDashboard />;
+        return <TournamentDashboard onNavigateTo={setActiveTab} />;
       case "setup-wizard":
         return <TournamentSetupWizard />;
+      case "tournament-list":
+        return <TournamentList />;
       case "delegations":
         return <DelegationManagement />;
       case "referees":
         return <RefereeAssignment />;
       case "scheduling":
-        return <SchedulingMatrix />;
+        return <ScheduleGenerator />;
       case "matches":
         return <MatchManagement />;
       case "results":
@@ -39,7 +42,7 @@ export default function TournamentManagerPage() {
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen overflow-hidden bg-background">
       <TournamentManagerSidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}

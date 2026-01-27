@@ -3,6 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trophy, Users, Flag, Calendar } from "lucide-react";
 import { RecentTournaments, QuickActions, ActivityChart } from "./components";
 
+interface TournamentDashboardProps {
+  onNavigateTo?: (tab: string) => void;
+}
+
 const statsData = [
   {
     title: "Tổng giải đấu",
@@ -38,9 +42,15 @@ const statsData = [
   },
 ];
 
-export default function TournamentDashboard() {
+export default function TournamentDashboard({
+  onNavigateTo,
+}: TournamentDashboardProps) {
   const handleQuickAction = (action: string) => {
-    console.log("Quick action:", action);
+    if (onNavigateTo && action === "create-tournament") {
+      onNavigateTo("setup-wizard");
+    } else {
+      console.log("Quick action:", action);
+    }
   };
 
   return (
@@ -88,7 +98,13 @@ export default function TournamentDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <RecentTournaments />
+          <RecentTournaments
+            onEditTournament={(id) => {
+              console.log("Edit tournament from dashboard:", id);
+              onNavigateTo?.("tournament-list");
+            }}
+            onNavigateToList={() => onNavigateTo?.("tournament-list")}
+          />
         </div>
         <div className="lg:col-span-1">
           <ActivityChart />
