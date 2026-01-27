@@ -1,211 +1,321 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Star, Calendar, MapPin } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  MoreHorizontal,
+  Shield,
+  ShieldCheck,
+  UserMinus,
+  ToggleLeft,
+  ToggleRight,
+  Loader2,
+} from "lucide-react";
+import { tournamentRefereeService } from "@/services";
+import { showToast } from "@/utils/toast.utils";
+import type { TournamentReferee } from "@/types";
 
-interface Referee {
-  id: string;
-  name: string;
-  level: "international" | "national" | "regional";
-  experience: number;
-  assignedMatches: number;
-  availability: "available" | "busy" | "unavailable";
-  rating: number;
-  specialties: string[];
+interface RefereeListProps {
+  referees: TournamentReferee[];
+  isLoading: boolean;
+  onRefresh: () => void;
+  searchQuery?: string;
 }
 
-const mockReferees: Referee[] = [
-  {
-    id: "1",
-    name: "Trần Văn Tuấn",
-    level: "international",
-    experience: 12,
-    assignedMatches: 8,
-    availability: "available",
-    rating: 4.8,
-    specialties: ["Nam đơn", "Nam đôi"],
-  },
-  {
-    id: "2",
-    name: "Nguyễn Thị Lan",
-    level: "international",
-    experience: 10,
-    assignedMatches: 7,
-    availability: "busy",
-    rating: 4.7,
-    specialties: ["Nữ đơn", "Nữ đôi"],
-  },
-  {
-    id: "3",
-    name: "Lê Hoàng Nam",
-    level: "national",
-    experience: 8,
-    assignedMatches: 6,
-    availability: "available",
-    rating: 4.5,
-    specialties: ["Nam đơn", "Đôi nam nữ"],
-  },
-  {
-    id: "4",
-    name: "Phạm Thị Hương",
-    level: "national",
-    experience: 7,
-    assignedMatches: 5,
-    availability: "available",
-    rating: 4.4,
-    specialties: ["Nữ đơn", "Nữ đôi"],
-  },
-  {
-    id: "5",
-    name: "Hoàng Văn Minh",
-    level: "regional",
-    experience: 5,
-    assignedMatches: 4,
-    availability: "unavailable",
-    rating: 4.2,
-    specialties: ["Nam đôi", "Đôi nam nữ"],
-  },
-  {
-    id: "6",
-    name: "Võ Thị Mai",
-    level: "regional",
-    experience: 4,
-    assignedMatches: 3,
-    availability: "available",
-    rating: 4.0,
-    specialties: ["Nữ đơn"],
-  },
-  {
-    id: "7",
-    name: "Đặng Quốc Huy",
-    level: "national",
-    experience: 9,
-    assignedMatches: 6,
-    availability: "busy",
-    rating: 4.6,
-    specialties: ["Nam đơn", "Nam đôi", "Đôi nam nữ"],
-  },
-  {
-    id: "8",
-    name: "Bùi Thị Thu",
-    level: "regional",
-    experience: 3,
-    assignedMatches: 2,
-    availability: "available",
-    rating: 3.9,
-    specialties: ["Nữ đôi"],
-  },
-];
+export default function RefereeList({
+  referees,
+  isLoading,
+  onRefresh,
+  searchQuery = "",
+}: RefereeListProps) {
+  const [isUpdating, setIsUpdating] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedReferee, setSelectedReferee] =
+    useState<TournamentReferee | null>(null);
 
-const getLevelLabel = (level: Referee["level"]) => {
-  const labels = {
-    international: "Quốc tế",
-    national: "Quốc gia",
-    regional: "Khu vực",
+  // Filter referees by search query
+  const filteredReferees = referees.filter((ref) => {
+    if (!searchQuery) return true;
+    const name = ref.referee?.fullName || ref.referee?.username || "";
+    return name.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  const handleToggleRole = async (referee: TournamentReferee) => {
+    try {
+      setIsUpdating(referee.id);
+      const newRole = referee.role === "main" ? "assistant" : "main";
+      await tournamentRefereeService.updateTournamentReferee(referee.id, {
+        role: newRole,
+      });
+      showToast.success(
+        "Thành công",
+        `Đã cập nhật vai trò thành ${newRole === "main" ? "Trọng tài chính" : "Trợ lý"}`,
+      );
+      onRefresh();
+    } catch (error) {
+      console.error("Error updating role:", error);
+      showToast.error("Lỗi", "Không thể cập nhật vai trò");
+    } finally {
+      setIsUpdating(null);
+    }
   };
-  return labels[level];
-};
 
-const getLevelColor = (level: Referee["level"]) => {
-  const colors = {
-    international: "bg-purple-100 text-purple-700",
-    national: "bg-blue-100 text-blue-700",
-    regional: "bg-green-100 text-green-700",
+  const handleToggleAvailability = async (referee: TournamentReferee) => {
+    try {
+      setIsUpdating(referee.id);
+      await tournamentRefereeService.updateAvailability(referee.id, {
+        isAvailable: !referee.isAvailable,
+      });
+      showToast.success(
+        "Thành công",
+        `Đã cập nhật trạng thái thành ${!referee.isAvailable ? "Sẵn sàng" : "Không khả dụng"}`,
+      );
+      onRefresh();
+    } catch (error) {
+      console.error("Error updating availability:", error);
+      showToast.error("Lỗi", "Không thể cập nhật trạng thái");
+    } finally {
+      setIsUpdating(null);
+    }
   };
-  return colors[level];
-};
 
-const getAvailabilityColor = (availability: Referee["availability"]) => {
-  const colors = {
-    available: "bg-green-100 text-green-700",
-    busy: "bg-orange-100 text-orange-700",
-    unavailable: "bg-red-100 text-red-700",
+  const handleDeleteClick = (referee: TournamentReferee) => {
+    setSelectedReferee(referee);
+    setDeleteDialogOpen(true);
   };
-  return colors[availability];
-};
 
-const getAvailabilityLabel = (availability: Referee["availability"]) => {
-  const labels = {
-    available: "Sẵn sàng",
-    busy: "Đang bận",
-    unavailable: "Không khả dụng",
+  const handleConfirmDelete = async () => {
+    if (!selectedReferee) return;
+
+    try {
+      setIsUpdating(selectedReferee.id);
+      await tournamentRefereeService.deleteTournamentReferee(
+        selectedReferee.id,
+      );
+      showToast.success("Thành công", "Đã xóa trọng tài khỏi giải đấu");
+      onRefresh();
+    } catch (error) {
+      console.error("Error deleting referee:", error);
+      showToast.error("Lỗi", "Không thể xóa trọng tài");
+    } finally {
+      setIsUpdating(null);
+      setDeleteDialogOpen(false);
+      setSelectedReferee(null);
+    }
   };
-  return labels[availability];
-};
 
-export default function RefereeList() {
+  const getRoleBadge = (role: string) => {
+    if (role === "main") {
+      return (
+        <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+          <ShieldCheck className="h-3 w-3 mr-1" />
+          Trọng tài chính
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="secondary">
+        <Shield className="h-3 w-3 mr-1" />
+        Trợ lý
+      </Badge>
+    );
+  };
+
+  const getAvailabilityBadge = (isAvailable: boolean) => {
+    if (isAvailable) {
+      return (
+        <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+          Sẵn sàng
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="outline" className="text-gray-500">
+        Không khả dụng
+      </Badge>
+    );
+  };
+
+  const getInitials = (name?: string) => {
+    if (!name) return "??";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  };
+
+  if (isLoading) {
+    return (
+      <Card className="p-8">
+        <div className="flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <span className="ml-2 text-muted-foreground">
+            Đang tải danh sách trọng tài...
+          </span>
+        </div>
+      </Card>
+    );
+  }
+
+  if (filteredReferees.length === 0) {
+    return (
+      <Card className="p-8">
+        <div className="text-center text-muted-foreground">
+          {searchQuery
+            ? "Không tìm thấy trọng tài phù hợp"
+            : "Chưa có trọng tài nào được phân công vào giải đấu này"}
+        </div>
+      </Card>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {mockReferees.map((referee) => (
-        <Card
-          key={referee.id}
-          className="p-4 hover:shadow-lg transition-shadow"
-        >
-          <div className="flex items-start gap-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage
-                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${referee.name}`}
-              />
-              <AvatarFallback>{referee.name.charAt(0)}</AvatarFallback>
-            </Avatar>
+    <>
+      <Card className="p-6">
+        <h2 className="text-xl font-semibold mb-4">
+          Danh sách trọng tài ({filteredReferees.length})
+        </h2>
 
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2 mb-2">
+        <div className="space-y-3">
+          {filteredReferees.map((referee) => (
+            <div
+              key={referee.id}
+              className="flex items-center justify-between p-4 border rounded-lg hover:border-primary/50 transition-colors"
+            >
+              <div className="flex items-center gap-4">
+                <Avatar className="h-12 w-12">
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {getInitials(
+                      referee.referee?.fullName || referee.referee?.username,
+                    )}
+                  </AvatarFallback>
+                </Avatar>
+
                 <div>
-                  <h3 className="font-semibold text-lg">{referee.name}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge className={getLevelColor(referee.level)}>
-                      {getLevelLabel(referee.level)}
-                    </Badge>
-                    <Badge
-                      className={getAvailabilityColor(referee.availability)}
-                    >
-                      {getAvailabilityLabel(referee.availability)}
-                    </Badge>
+                  <div className="font-medium">
+                    {referee.referee?.fullName ||
+                      referee.referee?.username ||
+                      `Referee #${referee.refereeId}`}
                   </div>
-                </div>
-                <div className="flex items-center gap-1 text-yellow-500">
-                  <Star className="h-4 w-4 fill-current" />
-                  <span className="font-semibold">{referee.rating}</span>
-                </div>
-              </div>
-
-              <div className="space-y-2 text-sm text-muted-foreground mb-3">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <span>{referee.experience} năm kinh nghiệm</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  <span>{referee.assignedMatches} trận đã phân công</span>
+                  {referee.referee?.email && (
+                    <div className="text-sm text-muted-foreground">
+                      {referee.referee.email}
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-1 mb-3">
-                {referee.specialties.map((specialty) => (
-                  <Badge key={specialty} variant="outline" className="text-xs">
-                    {specialty}
-                  </Badge>
-                ))}
-              </div>
+              <div className="flex items-center gap-3">
+                {getRoleBadge(referee.role)}
+                {getAvailabilityBadge(referee.isAvailable)}
 
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  className="flex-1"
-                  disabled={referee.availability === "unavailable"}
-                >
-                  Phân công
-                </Button>
-                <Button size="sm" variant="outline" className="flex-1">
-                  Xem lịch
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      disabled={isUpdating === referee.id}
+                    >
+                      {isUpdating === referee.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <MoreHorizontal className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleToggleRole(referee)}>
+                      {referee.role === "main" ? (
+                        <>
+                          <Shield className="h-4 w-4 mr-2" />
+                          Chuyển thành Trợ lý
+                        </>
+                      ) : (
+                        <>
+                          <ShieldCheck className="h-4 w-4 mr-2" />
+                          Chuyển thành Trọng tài chính
+                        </>
+                      )}
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                      onClick={() => handleToggleAvailability(referee)}
+                    >
+                      {referee.isAvailable ? (
+                        <>
+                          <ToggleLeft className="h-4 w-4 mr-2" />
+                          Đánh dấu không khả dụng
+                        </>
+                      ) : (
+                        <>
+                          <ToggleRight className="h-4 w-4 mr-2" />
+                          Đánh dấu sẵn sàng
+                        </>
+                      )}
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onClick={() => handleDeleteClick(referee)}
+                    >
+                      <UserMinus className="h-4 w-4 mr-2" />
+                      Xóa khỏi giải đấu
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
-          </div>
-        </Card>
-      ))}
-    </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xóa trọng tài</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa{" "}
+              <strong>
+                {selectedReferee?.referee?.fullName ||
+                  selectedReferee?.referee?.username}
+              </strong>{" "}
+              khỏi giải đấu này? Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
