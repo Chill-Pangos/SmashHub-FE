@@ -6,8 +6,8 @@ import {
   Calendar,
   UserPlus,
   CalendarCheck,
-  Edit,
-  FileText,
+  // Edit, // COMMENTED OUT: Menu item hidden
+  // FileText, // COMMENTED OUT: Menu item hidden
   Key,
   LayoutDashboard,
   Settings,
@@ -59,7 +59,7 @@ export default function TournamentManagerSidebar({
     setExpandedGroups((prev) =>
       prev.includes(groupId)
         ? prev.filter((id) => id !== groupId)
-        : [...prev, groupId]
+        : [...prev, groupId],
     );
   };
 
@@ -90,14 +90,16 @@ export default function TournamentManagerSidebar({
       items: [
         { id: "scheduling", label: "Ma trận lịch thi đấu", icon: Calendar },
         { id: "matches", label: "Quản lý trận đấu", icon: CalendarCheck },
-        { id: "results", label: "Điều chỉnh kết quả", icon: Edit },
+        // COMMENTED OUT: Uses mock data, no result correction API
+        // { id: "results", label: "Điều chỉnh kết quả", icon: Edit },
       ],
     },
   ];
 
   const singleItems = [
     { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
-    { id: "reports", label: "Trung tâm báo cáo", icon: FileText },
+    // COMMENTED OUT: Uses mock data, no reports/export API
+    // { id: "reports", label: "Trung tâm báo cáo", icon: FileText },
   ];
 
   return (
@@ -125,8 +127,12 @@ export default function TournamentManagerSidebar({
                   <Trophy className="text-primary-foreground" size={24} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h1 className="font-bold text-lg text-card-foreground truncate">QLGĐ</h1>
-                  <p className="text-xs text-muted-foreground truncate">Quản lý giải đấu</p>
+                  <h1 className="font-bold text-lg text-card-foreground truncate">
+                    QLGĐ
+                  </h1>
+                  <p className="text-xs text-muted-foreground truncate">
+                    Quản lý giải đấu
+                  </p>
                 </div>
                 <div className="flex-shrink-0">
                   <ThemeToggle />
@@ -153,65 +159,70 @@ export default function TournamentManagerSidebar({
                 title={!isOpen ? item.label : undefined}
               >
                 <Icon size={20} className="flex-shrink-0" />
-                {isOpen && <span className="text-sm truncate">{item.label}</span>}
+                {isOpen && (
+                  <span className="text-sm truncate">{item.label}</span>
+                )}
               </button>
             );
           })}
 
           {/* Grouped menu items */}
-          {isOpen && menuGroups.map((group) => {
-            const GroupIcon = group.icon;
-            const isExpanded = expandedGroups.includes(group.id);
-            const hasActiveItem = group.items.some(
-              (item) => item.id === activeTab
-            );
+          {isOpen &&
+            menuGroups.map((group) => {
+              const GroupIcon = group.icon;
+              const isExpanded = expandedGroups.includes(group.id);
+              const hasActiveItem = group.items.some(
+                (item) => item.id === activeTab,
+              );
 
-            return (
-              <div key={group.id} className="space-y-1">
-                <button
-                  onClick={() => toggleGroup(group.id)}
-                  className={`w-full flex items-center justify-between px-3 py-3 rounded-lg transition-colors ${
-                    hasActiveItem
-                      ? "bg-accent text-accent-foreground"
-                      : "text-card-foreground hover:bg-accent"
-                  }`}
-                >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <GroupIcon size={20} className="flex-shrink-0" />
-                    <span className="text-sm font-medium truncate">{group.label}</span>
-                  </div>
-                  {isExpanded ? (
-                    <ChevronDown size={16} className="flex-shrink-0" />
-                  ) : (
-                    <ChevronRight size={16} className="flex-shrink-0" />
+              return (
+                <div key={group.id} className="space-y-1">
+                  <button
+                    onClick={() => toggleGroup(group.id)}
+                    className={`w-full flex items-center justify-between px-3 py-3 rounded-lg transition-colors ${
+                      hasActiveItem
+                        ? "bg-accent text-accent-foreground"
+                        : "text-card-foreground hover:bg-accent"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <GroupIcon size={20} className="flex-shrink-0" />
+                      <span className="text-sm font-medium truncate">
+                        {group.label}
+                      </span>
+                    </div>
+                    {isExpanded ? (
+                      <ChevronDown size={16} className="flex-shrink-0" />
+                    ) : (
+                      <ChevronRight size={16} className="flex-shrink-0" />
+                    )}
+                  </button>
+
+                  {isExpanded && (
+                    <div className="ml-6 space-y-1">
+                      {group.items.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = activeTab === item.id;
+                        return (
+                          <button
+                            key={item.id}
+                            onClick={() => setActiveTab(item.id)}
+                            className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-sm ${
+                              isActive
+                                ? "bg-primary text-primary-foreground font-medium"
+                                : "text-muted-foreground hover:text-card-foreground hover:bg-accent"
+                            }`}
+                          >
+                            <Icon size={18} />
+                            <span>{item.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   )}
-                </button>
-
-                {isExpanded && (
-                  <div className="ml-6 space-y-1">
-                    {group.items.map((item) => {
-                      const Icon = item.icon;
-                      const isActive = activeTab === item.id;
-                      return (
-                        <button
-                          key={item.id}
-                          onClick={() => setActiveTab(item.id)}
-                          className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-sm ${
-                            isActive
-                              ? "bg-primary text-primary-foreground font-medium"
-                              : "text-muted-foreground hover:text-card-foreground hover:bg-accent"
-                          }`}
-                        >
-                          <Icon size={18} />
-                          <span>{item.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                </div>
+              );
+            })}
         </nav>
 
         <div className="p-2 border-t border-border flex-shrink-0 space-y-2">

@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import SystemDashboard from "./SystemDashboard/SystemDashboard";
-import UserManagement from "./UserManagement/UserManagement";
-import RBACSettings from "./RBACSettings/RBACSettings";
-import SystemLogs from "./SystemLogs/SystemLogs";
+// import UserManagement from "./UserManagement/UserManagement"; // COMMENTED OUT: Uses mock data
+// import RBACSettings from "./RBACSettings/RBACSettings"; // COMMENTED OUT: Uses mock data
+// import SystemLogs from "./SystemLogs/SystemLogs"; // COMMENTED OUT: Uses mock data
 import AdminSidebar from "@/components/custom/AdminSidebar";
 
 export default function AdminPage() {
@@ -14,12 +14,13 @@ export default function AdminPage() {
     switch (activeTab) {
       case "overview":
         return <SystemDashboard />;
-      case "users":
-        return <UserManagement />;
-      case "rbac":
-        return <RBACSettings />;
-      case "logs":
-        return <SystemLogs />;
+      // COMMENTED OUT: These screens use mock data, no API available
+      // case "users":
+      //   return <UserManagement />;
+      // case "rbac":
+      //   return <RBACSettings />;
+      // case "logs":
+      //   return <SystemLogs />;
       default:
         return <SystemDashboard />;
     }

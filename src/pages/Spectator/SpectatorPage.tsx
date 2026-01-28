@@ -4,7 +4,7 @@ import SpectatorDashboard from "./SpectatorDashboard/SpectatorDashboard";
 import SpectatorTournaments from "./SpectatorTournaments/SpectatorTournaments";
 import SpectatorSchedule from "./SpectatorSchedule/SpectatorSchedule";
 import LiveMatches from "./LiveMatches/LiveMatches";
-import Rankings from "./Rankings/Rankings";
+// import Rankings from "./Rankings/Rankings"; // COMMENTED OUT: Uses mock data
 
 export default function SpectatorPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -19,8 +19,9 @@ export default function SpectatorPage() {
         return <SpectatorSchedule />;
       case "live-matches":
         return <LiveMatches />;
-      case "rankings":
-        return <Rankings />;
+      // COMMENTED OUT: Uses mock data, no ranking/leaderboard API available
+      // case "rankings":
+      //   return <Rankings />;
       default:
         return <SpectatorDashboard />;
     }

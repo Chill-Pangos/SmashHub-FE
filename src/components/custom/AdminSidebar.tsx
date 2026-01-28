@@ -2,9 +2,9 @@
 
 import {
   Trophy,
-  Users,
-  Calendar,
-  Award,
+  // Users, // COMMENTED OUT: Menu item hidden
+  // Calendar, // COMMENTED OUT: Menu item hidden
+  // Award, // COMMENTED OUT: Menu item hidden
   BarChart3,
   Settings,
   LogOut,
@@ -35,9 +35,10 @@ export default function AdminSidebar({
 
   const menuItems = [
     { id: "overview", label: "Tổng quan hệ thống", icon: BarChart3 },
-    { id: "users", label: "Quản lý người dùng", icon: Users },
-    { id: "rbac", label: "Cài đặt phân quyền", icon: Award },
-    { id: "logs", label: "Nhật ký hệ thống", icon: Calendar },
+    // COMMENTED OUT: These features use mock data, no API available
+    // { id: "users", label: "Quản lý người dùng", icon: Users },
+    // { id: "rbac", label: "Cài đặt phân quyền", icon: Award },
+    // { id: "logs", label: "Nhật ký hệ thống", icon: Calendar },
   ];
 
   return (

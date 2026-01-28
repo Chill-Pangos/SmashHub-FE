@@ -5,7 +5,7 @@ import AthleteProfile from "./AthleteProfile/AthleteProfile";
 import AthleteTournaments from "./AthleteTournaments/AthleteTournaments";
 import AthleteSchedule from "./AthleteSchedule/AthleteSchedule";
 import MatchHistory from "./MatchHistory/MatchHistory";
-import EloStats from "./EloStats/EloStats";
+// import EloStats from "./EloStats/EloStats"; // COMMENTED OUT: Uses mock data
 
 export default function AthletePage() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -22,8 +22,9 @@ export default function AthletePage() {
         return <AthleteSchedule />;
       case "match-history":
         return <MatchHistory />;
-      case "elo-stats":
-        return <EloStats />;
+      // COMMENTED OUT: Uses mock data, no ELO statistics API available
+      // case "elo-stats":
+      //   return <EloStats />;
       default:
         return <AthleteDashboard onNavigateTo={setActiveTab} />;
     }

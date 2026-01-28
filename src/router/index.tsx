@@ -5,7 +5,7 @@ import PublicRoutes from "./PublicRoutes";
 import ProtectedRoutes from "./ProtectedRoutes";
 import AdminRoutes from "./AdminRoutes";
 import TournamentManagerRoutes from "./TournamentManagerRoutes";
-import ChiefRefereeRoutes from "./ChiefRefereeRoutes";
+import ChiefRefereeRoutes from "./ChiefRefereeRoutes"; // RE-ENABLED: MatchSupervision uses React Query
 import RefereeRoutes from "./RefereeRoutes";
 import TeamManagerRoutes from "./TeamManagerRoutes";
 import CoachRoutes from "./CoachRoutes";
@@ -48,7 +48,7 @@ export default function AppRouter() {
   // Returns Role object with { id, name, description } or undefined if not found
   const adminRole = getRoleByName("admin");
   const organizerRole = getRoleByName("organizer");
-  const chiefRefereeRole = getRoleByName("chief_referee");
+  const chiefRefereeRole = getRoleByName("chief_referee"); // RE-ENABLED: MatchSupervision uses React Query
   const refereeRole = getRoleByName("referee");
   const teamManagerRole = getRoleByName("team_manager");
   const coachRole = getRoleByName("coach");
@@ -69,7 +69,8 @@ export default function AppRouter() {
       {organizerRole &&
         TournamentManagerRoutes({ organizerRoleId: organizerRole.id })}
 
-      {/* Chief Referee routes - only render if chief_referee role exists */}
+      {/* Chief Referee routes - RE-ENABLED: MatchSupervision uses React Query */}
+      {/* Note: dashboard/complaint/dispute/decision tabs are hidden (mock data) */}
       {chiefRefereeRole &&
         ChiefRefereeRoutes({ chiefRefereeRoleId: chiefRefereeRole.id })}
 

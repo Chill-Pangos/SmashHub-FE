@@ -7,7 +7,7 @@ import ForgotPassword from "@/pages/Auth/ForgotPassword/ForgotPassword";
 import VerifyOtp from "@/pages/Auth/VerifyOtp/VerifyOtp";
 import ResetPassword from "@/pages/Auth/ResetPassword/ResetPassword";
 import EmailVerification from "@/pages/Auth/EmailVerification/EmailVerification";
-import Rankings from "@/pages/Rankings/Rankings";
+// import Rankings from "@/pages/Rankings/Rankings"; // COMMENTED OUT: Uses mock data
 import MasterScoreboard from "@/pages/Public/MasterScoreboard/MasterScoreboard";
 
 /**
@@ -25,7 +25,8 @@ export default function PublicRoutes() {
         <Route path="/verify-otp" element={<VerifyOtp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/verify-email" element={<EmailVerification />} />
-        <Route path="/rankings" element={<Rankings />} />
+        {/* COMMENTED OUT: Uses mock data, no ranking/leaderboard API available */}
+        {/* <Route path="/rankings" element={<Rankings />} /> */}
         <Route path="/scoreboard" element={<MasterScoreboard />} />
       </Route>
     </>
