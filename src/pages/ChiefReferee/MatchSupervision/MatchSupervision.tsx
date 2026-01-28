@@ -1,8 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LiveMatches, IncidentReport, PendingMatchReview } from "./components";
-import { Eye, ClipboardCheck, AlertTriangle } from "lucide-react";
+import {
+  LiveMatches,
+  IncidentReport,
+  PendingMatchReview,
+  ScheduledMatches,
+} from "./components";
+import { Eye, ClipboardCheck, AlertTriangle, Clock, Video } from "lucide-react";
 
 const mockLiveMatches = [
   {
@@ -41,7 +46,7 @@ const mockLiveMatches = [
 ];
 
 export default function MatchSupervision() {
-  const [activeTab, setActiveTab] = useState("live");
+  const [activeTab, setActiveTab] = useState("scheduled");
 
   return (
     <div className="space-y-6">
@@ -49,17 +54,21 @@ export default function MatchSupervision() {
         <div>
           <h2 className="text-2xl font-bold">Giám sát trận đấu</h2>
           <p className="text-sm text-muted-foreground">
-            Theo dõi và duyệt kết quả trận đấu
+            Bắt đầu trận đấu, theo dõi và duyệt kết quả
           </p>
         </div>
         <Button>
-          <span className="mr-2">📹</span>
+          <Video className="mr-2 h-4 w-4" />
           Xem Camera
         </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full max-w-md grid-cols-3">
+        <TabsList className="grid w-full max-w-2xl grid-cols-4">
+          <TabsTrigger value="scheduled" className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            Chờ bắt đầu
+          </TabsTrigger>
           <TabsTrigger value="live" className="flex items-center gap-2">
             <Eye className="h-4 w-4" />
             Đang diễn ra
@@ -73,6 +82,10 @@ export default function MatchSupervision() {
             Sự cố
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="scheduled" className="space-y-6 mt-6">
+          <ScheduledMatches />
+        </TabsContent>
 
         <TabsContent value="live" className="space-y-6 mt-6">
           <LiveMatches matches={mockLiveMatches} />

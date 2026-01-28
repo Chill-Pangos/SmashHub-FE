@@ -1,4 +1,10 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -23,7 +29,9 @@ export default function LiveMatches({ matches }: LiveMatchesProps) {
     <Card>
       <CardHeader>
         <CardTitle>Trận đấu đang diễn ra</CardTitle>
-        <CardDescription>{matches.length} trận đang được giám sát</CardDescription>
+        <CardDescription>
+          {matches.length} trận đang được giám sát
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -34,11 +42,15 @@ export default function LiveMatches({ matches }: LiveMatchesProps) {
                   <div className="flex items-center gap-2">
                     <Badge variant="default">{match.court}</Badge>
                     <Badge variant="outline">{match.status}</Badge>
-                    <span className="text-xs text-muted-foreground">⏱️ {match.time}</span>
+                    <span className="text-xs text-muted-foreground">
+                      ⏱️ {match.time}
+                    </span>
                   </div>
                   <h3 className="font-semibold">{match.match}</h3>
                 </div>
-                <Button size="sm" variant="outline">Chi tiết</Button>
+                <Button size="sm" variant="outline">
+                  Chi tiết
+                </Button>
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-sm">
