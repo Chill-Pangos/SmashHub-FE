@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -11,60 +11,57 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Users, Search } from "lucide-react";
-import { teamMemberService } from "@/services";
 import { useAuth } from "@/store/useAuth";
-import { showToast } from "@/utils";
+import { useTeamsByUser, queryKeys } from "@/hooks/queries";
+import { useQueries } from "@tanstack/react-query";
 import type { TeamMember } from "@/types";
 
 export default function CoachAthletes() {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const [athletes, setAthletes] = useState<TeamMember[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchAthletes = useCallback(async () => {
-    if (!user?.id) return;
+  // Fetch teams where user is coach
+  const { data: teamsData = [], isLoading: isLoadingTeams } = useTeamsByUser(
+    user?.id ?? 0,
+    0,
+    50,
+    { enabled: !!user?.id },
+  );
 
-    try {
-      setIsLoading(true);
+  const coachTeams = useMemo(
+    () => teamsData.filter((tm) => tm.role === "coach"),
+    [teamsData],
+  );
 
-      // Fetch teams where user is coach
-      const teamsResponse = await teamMemberService.getTeamsByUserId(
-        user.id,
-        0,
-        50,
-      );
-      const coachTeams = teamsResponse.filter((tm) => tm.role === "coach");
+  // Fetch athletes from each team using useQueries
+  const teamIds = useMemo(
+    () => coachTeams.map((t) => t.team?.id).filter((id): id is number => !!id),
+    [coachTeams],
+  );
 
-      // Fetch athletes from each team
-      let allAthletes: TeamMember[] = [];
-      for (const team of coachTeams) {
-        if (team.team?.id) {
-          try {
-            const members = await teamMemberService.getMembersByTeamId(
-              team.team.id,
-              0,
-              100,
-            );
-            const teamAthletes = members.filter((m) => m.role === "athlete");
-            allAthletes = [...allAthletes, ...teamAthletes];
-          } catch {
-            // Ignore error
-          }
-        }
+  const athleteQueries = useQueries({
+    queries: teamIds.map((teamId) => ({
+      queryKey: queryKeys.teamMembers.byTeam(teamId),
+      queryFn: async () => {
+        const { teamMemberService } = await import("@/services");
+        return teamMemberService.getMembersByTeamId(teamId, 0, 100);
+      },
+      enabled: teamId > 0,
+    })),
+  });
+
+  const athletes = useMemo(() => {
+    const allAthletes: TeamMember[] = [];
+    athleteQueries.forEach((query) => {
+      if (query.data) {
+        const teamAthletes = query.data.filter((m) => m.role === "athlete");
+        allAthletes.push(...teamAthletes);
       }
-      setAthletes(allAthletes);
-    } catch (error) {
-      console.error("Error fetching athletes:", error);
-      showToast.error("Không thể tải danh sách vận động viên");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user?.id]);
+    });
+    return allAthletes;
+  }, [athleteQueries]);
 
-  useEffect(() => {
-    fetchAthletes();
-  }, [fetchAthletes]);
+  const isLoading = isLoadingTeams || athleteQueries.some((q) => q.isLoading);
 
   const filteredAthletes = athletes.filter((athlete) => {
     if (!searchQuery) return true;

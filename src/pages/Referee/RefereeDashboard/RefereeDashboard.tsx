@@ -1,8 +1,13 @@
-import { useState, useEffect, useCallback } from "react";
+import { useMemo } from "react";
 import { showToast } from "@/utils/toast.utils";
-import { matchService, matchSetService } from "@/services";
 import type { Match, MatchSet } from "@/types";
 import { RefereeStats, ActiveMatch, UpcomingMatches } from "./components";
+import {
+  useMatchesByStatus,
+  useMatchSetsByMatch,
+  useCreateMatchSetWithScore,
+  useFinalizeMatch,
+} from "@/hooks/queries";
 
 interface UpcomingMatch {
   match: Match;
@@ -12,169 +17,133 @@ interface UpcomingMatch {
 }
 
 export default function RefereeDashboard() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [upcomingMatches, setUpcomingMatches] = useState<UpcomingMatch[]>([]);
-  const [activeMatch, setActiveMatch] = useState<Match | null>(null);
-  const [matchSets, setMatchSets] = useState<MatchSet[]>([]);
-  const [isAddingScore, setIsAddingScore] = useState(false);
-  const [isFinalizing, setIsFinalizing] = useState(false);
+  // Fetch matches by status using React Query
+  const { data: scheduledResponse, isLoading: isLoadingScheduled } =
+    useMatchesByStatus("scheduled", 0, 50);
 
-  // Stats
-  const [stats, setStats] = useState({
-    totalMatches: 0,
-    completedMatches: 0,
-    pendingMatches: 0,
-    upcomingMatches: 0,
-  });
+  const { data: inProgressResponse, isLoading: isLoadingInProgress } =
+    useMatchesByStatus("in_progress", 0, 50);
 
-  // Fetch matches assigned to this referee
-  const fetchMatches = useCallback(async () => {
-    try {
-      setIsLoading(true);
+  const { data: completedResponse, isLoading: isLoadingCompleted } =
+    useMatchesByStatus("completed", 0, 50);
 
-      // Get scheduled matches (upcoming)
-      const scheduledResponse = await matchService.getMatchesByStatus(
-        "scheduled",
-        0,
-        50,
-      );
-      const scheduledMatches = Array.isArray(scheduledResponse)
-        ? scheduledResponse
-        : scheduledResponse.data || [];
+  // Extract matches from responses
+  const scheduledMatches = useMemo(() => {
+    if (!scheduledResponse) return [];
+    return Array.isArray(scheduledResponse)
+      ? scheduledResponse
+      : scheduledResponse.data || [];
+  }, [scheduledResponse]);
 
-      // Get in_progress matches (active)
-      const inProgressResponse = await matchService.getMatchesByStatus(
-        "in_progress",
-        0,
-        50,
-      );
-      const inProgressMatches = Array.isArray(inProgressResponse)
-        ? inProgressResponse
-        : inProgressResponse.data || [];
+  const inProgressMatches = useMemo(() => {
+    if (!inProgressResponse) return [];
+    return Array.isArray(inProgressResponse)
+      ? inProgressResponse
+      : inProgressResponse.data || [];
+  }, [inProgressResponse]);
 
-      // Get completed matches
-      const completedResponse = await matchService.getMatchesByStatus(
-        "completed",
-        0,
-        50,
-      );
-      const completedMatches = Array.isArray(completedResponse)
-        ? completedResponse
-        : completedResponse.data || [];
+  const completedMatches = useMemo(() => {
+    if (!completedResponse) return [];
+    return Array.isArray(completedResponse)
+      ? completedResponse
+      : completedResponse.data || [];
+  }, [completedResponse]);
 
-      // Set upcoming matches
-      setUpcomingMatches(
-        scheduledMatches.map((match: Match) => ({
-          match,
-          entryAName: `Entry ${match.entryAId}`,
-          entryBName: `Entry ${match.entryBId}`,
-        })),
-      );
+  // Derive active match (first in_progress match)
+  const activeMatch: Match | null = inProgressMatches[0] || null;
 
-      // Set active match (first in_progress match)
-      if (inProgressMatches.length > 0) {
-        const active = inProgressMatches[0];
-        setActiveMatch(active);
+  // Fetch match sets for active match
+  const { data: matchSetsResponse } = useMatchSetsByMatch(
+    activeMatch?.id || 0,
+    0,
+    10,
+    { enabled: !!activeMatch },
+  );
 
-        // Fetch match sets for active match
-        try {
-          const setsResponse = await matchSetService.getMatchSetsByMatch(
-            active.id,
-            0,
-            10,
-          );
-          const sets = Array.isArray(setsResponse)
-            ? setsResponse
-            : setsResponse.data || [];
-          setMatchSets(sets);
-        } catch {
-          setMatchSets([]);
-        }
-      } else {
-        setActiveMatch(null);
-        setMatchSets([]);
-      }
+  const matchSets: MatchSet[] = useMemo(() => {
+    if (!matchSetsResponse) return [];
+    return Array.isArray(matchSetsResponse)
+      ? matchSetsResponse
+      : matchSetsResponse.data || [];
+  }, [matchSetsResponse]);
 
-      // Calculate stats
-      setStats({
-        totalMatches:
-          scheduledMatches.length +
-          inProgressMatches.length +
-          completedMatches.length,
-        completedMatches: completedMatches.length,
-        pendingMatches: completedMatches.filter(
-          (m: Match) => m.resultStatus === "pending",
-        ).length,
-        upcomingMatches: scheduledMatches.length,
-      });
-    } catch (error) {
-      console.error("Error fetching matches:", error);
-      showToast.error("Lỗi", "Không thể tải danh sách trận đấu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  // Derive upcoming matches
+  const upcomingMatches: UpcomingMatch[] = useMemo(() => {
+    return scheduledMatches.map((match: Match) => ({
+      match,
+      entryAName: `Entry ${match.entryAId}`,
+      entryBName: `Entry ${match.entryBId}`,
+    }));
+  }, [scheduledMatches]);
 
-  useEffect(() => {
-    fetchMatches();
-  }, [fetchMatches]);
+  // Calculate stats
+  const stats = useMemo(
+    () => ({
+      totalMatches:
+        scheduledMatches.length +
+        inProgressMatches.length +
+        completedMatches.length,
+      completedMatches: completedMatches.length,
+      pendingMatches: completedMatches.filter(
+        (m: Match) => m.resultStatus === "pending",
+      ).length,
+      upcomingMatches: scheduledMatches.length,
+    }),
+    [scheduledMatches, inProgressMatches, completedMatches],
+  );
+
+  const isLoading =
+    isLoadingScheduled || isLoadingInProgress || isLoadingCompleted;
+
+  // Mutations
+  const createMatchSetWithScore = useCreateMatchSetWithScore();
+  const finalizeMatchMutation = useFinalizeMatch();
 
   // Add score for a set
   const handleAddScore = async (entryAScore: number, entryBScore: number) => {
     if (!activeMatch) return;
 
-    try {
-      setIsAddingScore(true);
-
-      const response = await matchSetService.createMatchSetWithScore({
+    createMatchSetWithScore.mutate(
+      {
         matchId: activeMatch.id,
         entryAScore,
         entryBScore,
-      });
-
-      const newSet: MatchSet =
-        "data" in response && response.data
-          ? response.data
-          : (response as unknown as MatchSet);
-      setMatchSets((prev) => [...prev, newSet]);
-
-      showToast.success(
-        "Thành công",
-        `Đã ghi nhận điểm Set ${newSet.setNumber}`,
-      );
-    } catch (error) {
-      console.error("Error adding score:", error);
-      showToast.error("Lỗi", "Không thể ghi nhận điểm");
-    } finally {
-      setIsAddingScore(false);
-    }
+      },
+      {
+        onSuccess: (response) => {
+          const newSet: MatchSet =
+            "data" in response && response.data
+              ? response.data
+              : (response as unknown as MatchSet);
+          showToast.success(
+            "Thành công",
+            `Đã ghi nhận điểm Set ${newSet.setNumber}`,
+          );
+        },
+        onError: (error) => {
+          console.error("Error adding score:", error);
+          showToast.error("Lỗi", "Không thể ghi nhận điểm");
+        },
+      },
+    );
   };
 
   // Finalize match
   const handleFinalizeMatch = async () => {
     if (!activeMatch) return;
 
-    try {
-      setIsFinalizing(true);
-
-      await matchService.finalizeMatch(activeMatch.id);
-
-      setActiveMatch(null);
-      setMatchSets([]);
-
-      showToast.success(
-        "Thành công",
-        "Trận đấu đã kết thúc và đang chờ Tổng trọng tài phê duyệt",
-      );
-
-      // Refresh matches
-      fetchMatches();
-    } catch (error) {
-      console.error("Error finalizing match:", error);
-      showToast.error("Lỗi", "Không thể kết thúc trận đấu");
-    } finally {
-      setIsFinalizing(false);
-    }
+    finalizeMatchMutation.mutate(activeMatch.id, {
+      onSuccess: () => {
+        showToast.success(
+          "Thành công",
+          "Trận đấu đã kết thúc và đang chờ Tổng trọng tài phê duyệt",
+        );
+      },
+      onError: (error) => {
+        console.error("Error finalizing match:", error);
+        showToast.error("Lỗi", "Không thể kết thúc trận đấu");
+      },
+    });
   };
 
   return (
@@ -199,8 +168,8 @@ export default function RefereeDashboard() {
           maxSets={3}
           onAddScore={handleAddScore}
           onFinalize={handleFinalizeMatch}
-          isAddingScore={isAddingScore}
-          isFinalizing={isFinalizing}
+          isAddingScore={createMatchSetWithScore.isPending}
+          isFinalizing={finalizeMatchMutation.isPending}
         />
 
         <UpcomingMatches matches={upcomingMatches} isLoading={isLoading} />

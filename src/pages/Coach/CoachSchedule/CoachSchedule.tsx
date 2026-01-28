@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -9,56 +9,35 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Calendar, Clock, MapPin } from "lucide-react";
-import { tournamentService, matchService, scheduleService } from "@/services";
-import { showToast } from "@/utils";
-import type { Tournament, Match, Schedule } from "@/types";
+import { useTournaments, useMatches, useSchedules } from "@/hooks/queries";
 
 export default function CoachSchedule() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [selectedTournamentId, setSelectedTournamentId] = useState<
     number | null
   >(null);
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
 
-  const fetchTournaments = useCallback(async () => {
-    try {
-      const response = await tournamentService.getAllTournaments(0, 50);
-      setTournaments(response);
-    } catch (error) {
-      console.error("Error fetching tournaments:", error);
-    }
-  }, []);
+  // Fetch tournaments
+  const { data: tournaments = [] } = useTournaments(0, 50);
 
-  const fetchMatches = useCallback(async () => {
-    try {
-      setIsLoading(true);
+  // Fetch schedules
+  const { data: schedulesResponse } = useSchedules(0, 100);
+  const schedules = useMemo(
+    () =>
+      schedulesResponse?.success && schedulesResponse?.data
+        ? schedulesResponse.data
+        : [],
+    [schedulesResponse],
+  );
 
-      // Fetch schedules
-      const schedulesResponse = await scheduleService.getAllSchedules(0, 100);
-      if (schedulesResponse.success && schedulesResponse.data) {
-        setSchedules(schedulesResponse.data);
-      }
-
-      // Fetch matches
-      const matchesResponse = await matchService.getAllMatches(0, 100);
-      const matchesArray = Array.isArray(matchesResponse)
+  // Fetch matches
+  const { data: matchesResponse, isLoading } = useMatches(0, 100);
+  const matches = useMemo(
+    () =>
+      Array.isArray(matchesResponse)
         ? matchesResponse
-        : matchesResponse.data || [];
-      setMatches(matchesArray);
-    } catch (error) {
-      console.error("Error fetching matches:", error);
-      showToast.error("Không thể tải lịch thi đấu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTournaments();
-    fetchMatches();
-  }, [fetchTournaments, fetchMatches]);
+        : matchesResponse?.data || [],
+    [matchesResponse],
+  );
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "outline"> = {

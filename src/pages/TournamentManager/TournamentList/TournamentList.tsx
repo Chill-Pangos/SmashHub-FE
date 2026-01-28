@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,22 +24,19 @@ import {
   RefreshCw,
   ArrowLeft,
 } from "lucide-react";
-import { tournamentService } from "@/services";
+import { useSearchTournaments, useDeleteTournament } from "@/hooks";
 import { showToast } from "@/utils/toast.utils";
 import type { Tournament, TournamentSearchFilters, Gender } from "@/types";
 import TournamentUpdateForm from "../TournamentUpdate/TournamentUpdateForm";
 import TournamentDetail from "../TournamentDetail/TournamentDetail";
 
 export default function TournamentList() {
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
-  const [total, setTotal] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [editingTournamentId, setEditingTournamentId] = useState<number | null>(
-    null
+    null,
   );
   const [viewingTournamentId, setViewingTournamentId] = useState<number | null>(
-    null
+    null,
   );
 
   const [filters, setFilters] = useState<TournamentSearchFilters>({
@@ -47,32 +44,25 @@ export default function TournamentList() {
     limit: 10,
   });
 
-  const fetchTournaments = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await tournamentService.searchTournaments(filters);
-      setTournaments(response.tournaments);
-      setTotal(response.total);
-    } catch (error) {
-      console.error("Error fetching tournaments:", error);
-      showToast.error("Không thể tải danh sách giải đấu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [filters]);
+  // React Query hooks
+  const {
+    data: searchResult,
+    isLoading,
+    refetch,
+  } = useSearchTournaments(filters);
 
-  useEffect(() => {
-    fetchTournaments();
-  }, [fetchTournaments]);
+  const deleteMutation = useDeleteTournament();
+
+  // Extract data from query result
+  const tournaments = searchResult?.tournaments ?? [];
+  const total = searchResult?.total ?? 0;
 
   const handleSearch = () => {
     setFilters({ ...filters, skip: 0 }); // Reset to first page
-    fetchTournaments();
   };
 
   const handleResetFilters = () => {
     setFilters({ skip: 0, limit: 10 });
-    fetchTournaments();
   };
 
   const handleDelete = async (id: number) => {
@@ -80,17 +70,18 @@ export default function TournamentList() {
       return;
     }
 
-    try {
-      await tournamentService.deleteTournament(id);
-      showToast.success("Đã xóa giải đấu");
-      fetchTournaments();
-    } catch (error) {
-      console.error("Error deleting tournament:", error);
-      showToast.error(
-        "Không thể xóa giải đấu",
-        error instanceof Error ? error.message : "Vui lòng thử lại"
-      );
-    }
+    deleteMutation.mutate(id, {
+      onSuccess: () => {
+        showToast.success("Đã xóa giải đấu");
+      },
+      onError: (error) => {
+        console.error("Error deleting tournament:", error);
+        showToast.error(
+          "Không thể xóa giải đấu",
+          error instanceof Error ? error.message : "Vui lòng thử lại",
+        );
+      },
+    });
   };
 
   const formatDate = (dateStr: string) => {
@@ -124,7 +115,7 @@ export default function TournamentList() {
         }}
         onDelete={() => {
           setViewingTournamentId(null);
-          fetchTournaments();
+          // React Query sẽ tự động refetch sau khi invalidate
         }}
       />
     );
@@ -147,7 +138,7 @@ export default function TournamentList() {
           onSuccess={(tournament) => {
             showToast.success(`Đã cập nhật giải "${tournament.name}"`);
             setEditingTournamentId(null);
-            fetchTournaments();
+            // React Query sẽ tự động refetch sau khi invalidate
           }}
           onCancel={() => setEditingTournamentId(null)}
         />
@@ -164,8 +155,10 @@ export default function TournamentList() {
             Quản lý tất cả các giải đấu ({total} giải)
           </p>
         </div>
-        <Button onClick={handleResetFilters}>
-          <RefreshCw className="mr-2 h-4 w-4" />
+        <Button onClick={() => refetch()} disabled={isLoading}>
+          <RefreshCw
+            className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+          />
           Làm mới
         </Button>
       </div>
@@ -432,8 +425,13 @@ export default function TournamentList() {
                     variant="ghost"
                     size="icon"
                     onClick={() => handleDelete(tournament.id)}
+                    disabled={deleteMutation.isPending}
                   >
-                    <Trash2 className="h-4 w-4 text-red-500" />
+                    {deleteMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    )}
                   </Button>
                 </div>
               </div>

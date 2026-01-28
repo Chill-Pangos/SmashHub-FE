@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Trophy,
@@ -8,11 +8,10 @@ import {
   ChevronRight,
   Award,
 } from "lucide-react";
-import { teamMemberService, matchService } from "@/services";
 import { useAuth } from "@/store/useAuth";
-import { showToast } from "@/utils";
 import type { TeamMember, Match } from "@/types";
 import { StatsCard, QuickActions, UpcomingMatches } from "./components";
+import { useTeamsByUser, useMatchesByStatus } from "@/hooks/queries";
 
 interface AthleteDashboardProps {
   onNavigateTo?: (tab: string) => void;
@@ -22,82 +21,56 @@ export default function AthleteDashboard({
   onNavigateTo,
 }: AthleteDashboardProps) {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const [myTeams, setMyTeams] = useState<TeamMember[]>([]);
-  const [upcomingMatches, setUpcomingMatches] = useState<Match[]>([]);
 
-  // Stats
-  const [stats, setStats] = useState({
-    currentElo: 1500,
-    totalMatches: 0,
-    wins: 0,
-    losses: 0,
-    winRate: 0,
-  });
+  // Fetch teams where user is athlete
+  const { data: teamsData, isLoading: teamsLoading } = useTeamsByUser(
+    user?.id ?? 0,
+    0,
+    50,
+    { enabled: !!user?.id },
+  );
 
-  const fetchData = useCallback(async () => {
-    if (!user?.id) return;
+  // Fetch scheduled matches
+  const { data: scheduledData, isLoading: scheduledLoading } =
+    useMatchesByStatus("scheduled", 0, 10);
 
-    try {
-      setIsLoading(true);
+  // Fetch completed matches
+  const { data: completedData, isLoading: completedLoading } =
+    useMatchesByStatus("completed", 0, 10);
 
-      // Fetch teams where user is athlete
-      const teamsResponse = await teamMemberService.getTeamsByUserId(
-        user.id,
-        0,
-        50,
-      );
-      const athleteTeams = teamsResponse.filter((tm) => tm.role === "athlete");
-      setMyTeams(athleteTeams);
+  // Derived state
+  const myTeams = useMemo(() => {
+    const teams = teamsData || [];
+    return teams.filter((tm: TeamMember) => tm.role === "athlete");
+  }, [teamsData]);
 
-      // Fetch scheduled matches
-      const scheduledResponse = await matchService.getMatchesByStatus(
-        "scheduled",
-        0,
-        10,
-      );
-      const scheduled = Array.isArray(scheduledResponse)
-        ? scheduledResponse
-        : scheduledResponse.data || [];
-      setUpcomingMatches(scheduled);
+  const upcomingMatches = useMemo(() => {
+    return Array.isArray(scheduledData)
+      ? scheduledData
+      : scheduledData?.data || [];
+  }, [scheduledData]);
 
-      // Fetch completed matches
-      const completedResponse = await matchService.getMatchesByStatus(
-        "completed",
-        0,
-        10,
-      );
-      const completed = Array.isArray(completedResponse)
-        ? completedResponse
-        : completedResponse.data || [];
+  const stats = useMemo(() => {
+    const completed: Match[] = Array.isArray(completedData)
+      ? completedData
+      : completedData?.data || [];
 
-      // Calculate stats
-      const totalMatches = completed.length;
-      const wins = completed.filter(
-        (m: Match) => m.winnerEntryId !== null,
-      ).length;
-      const losses = totalMatches - wins;
-      const winRate =
-        totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0;
+    const totalMatches = completed.length;
+    const wins = completed.filter((m) => m.winnerEntryId !== null).length;
+    const losses = totalMatches - wins;
+    const winRate =
+      totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0;
 
-      setStats({
-        currentElo: 1500, // Default ELO, should be fetched from user profile API
-        totalMatches,
-        wins,
-        losses,
-        winRate,
-      });
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-      showToast.error("Không thể tải dữ liệu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user]);
+    return {
+      currentElo: 1500, // Default ELO, should be fetched from user profile API
+      totalMatches,
+      wins,
+      losses,
+      winRate,
+    };
+  }, [completedData]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const isLoading = teamsLoading || scheduledLoading || completedLoading;
 
   if (isLoading) {
     return (

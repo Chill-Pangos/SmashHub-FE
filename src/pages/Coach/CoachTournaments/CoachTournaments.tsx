@@ -1,31 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Calendar, MapPin } from "lucide-react";
-import { tournamentService } from "@/services";
-import { showToast } from "@/utils";
-import type { Tournament } from "@/types";
+import { useTournaments } from "@/hooks/queries";
 
 export default function CoachTournaments() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
-
-  const fetchTournaments = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await tournamentService.getAllTournaments(0, 50);
-      setTournaments(response);
-    } catch (error) {
-      console.error("Error fetching tournaments:", error);
-      showToast.error("Không thể tải danh sách giải đấu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTournaments();
-  }, [fetchTournaments]);
+  const { data: tournaments = [], isLoading } = useTournaments(0, 50);
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "outline"> = {

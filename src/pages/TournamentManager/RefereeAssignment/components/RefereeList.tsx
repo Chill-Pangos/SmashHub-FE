@@ -29,7 +29,11 @@ import {
   ToggleRight,
   Loader2,
 } from "lucide-react";
-import { tournamentRefereeService } from "@/services";
+import {
+  useUpdateTournamentReferee,
+  useUpdateRefereeAvailability,
+  useDeleteTournamentReferee,
+} from "@/hooks/queries";
 import { showToast } from "@/utils/toast.utils";
 import type { TournamentReferee } from "@/types";
 
@@ -46,10 +50,25 @@ export default function RefereeList({
   onRefresh,
   searchQuery = "",
 }: RefereeListProps) {
-  const [isUpdating, setIsUpdating] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedReferee, setSelectedReferee] =
     useState<TournamentReferee | null>(null);
+
+  // React Query mutations
+  const updateRefereeMutation = useUpdateTournamentReferee();
+  const updateAvailabilityMutation = useUpdateRefereeAvailability();
+  const deleteRefereeMutation = useDeleteTournamentReferee();
+
+  // Track which referee is being updated
+  const [updatingRefereeId, setUpdatingRefereeId] = useState<number | null>(
+    null,
+  );
+
+  // Derived loading state
+  const isUpdating =
+    updateRefereeMutation.isPending ||
+    updateAvailabilityMutation.isPending ||
+    deleteRefereeMutation.isPending;
 
   // Filter referees by search query
   const filteredReferees = referees.filter((ref) => {
@@ -58,43 +77,49 @@ export default function RefereeList({
     return name.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
-  const handleToggleRole = async (referee: TournamentReferee) => {
-    try {
-      setIsUpdating(referee.id);
-      const newRole = referee.role === "main" ? "assistant" : "main";
-      await tournamentRefereeService.updateTournamentReferee(referee.id, {
-        role: newRole,
-      });
-      showToast.success(
-        "Thành công",
-        `Đã cập nhật vai trò thành ${newRole === "main" ? "Trọng tài chính" : "Trợ lý"}`,
-      );
-      onRefresh();
-    } catch (error) {
-      console.error("Error updating role:", error);
-      showToast.error("Lỗi", "Không thể cập nhật vai trò");
-    } finally {
-      setIsUpdating(null);
-    }
+  const handleToggleRole = (referee: TournamentReferee) => {
+    setUpdatingRefereeId(referee.id);
+    const newRole = referee.role === "main" ? "assistant" : "main";
+    updateRefereeMutation.mutate(
+      { id: referee.id, data: { role: newRole } },
+      {
+        onSuccess: () => {
+          showToast.success(
+            "Thành công",
+            `Đã cập nhật vai trò thành ${newRole === "main" ? "Trọng tài chính" : "Trợ lý"}`,
+          );
+          onRefresh();
+          setUpdatingRefereeId(null);
+        },
+        onError: (error) => {
+          console.error("Error updating role:", error);
+          showToast.error("Lỗi", "Không thể cập nhật vai trò");
+          setUpdatingRefereeId(null);
+        },
+      },
+    );
   };
 
-  const handleToggleAvailability = async (referee: TournamentReferee) => {
-    try {
-      setIsUpdating(referee.id);
-      await tournamentRefereeService.updateAvailability(referee.id, {
-        isAvailable: !referee.isAvailable,
-      });
-      showToast.success(
-        "Thành công",
-        `Đã cập nhật trạng thái thành ${!referee.isAvailable ? "Sẵn sàng" : "Không khả dụng"}`,
-      );
-      onRefresh();
-    } catch (error) {
-      console.error("Error updating availability:", error);
-      showToast.error("Lỗi", "Không thể cập nhật trạng thái");
-    } finally {
-      setIsUpdating(null);
-    }
+  const handleToggleAvailability = (referee: TournamentReferee) => {
+    setUpdatingRefereeId(referee.id);
+    updateAvailabilityMutation.mutate(
+      { id: referee.id, data: { isAvailable: !referee.isAvailable } },
+      {
+        onSuccess: () => {
+          showToast.success(
+            "Thành công",
+            `Đã cập nhật trạng thái thành ${!referee.isAvailable ? "Sẵn sàng" : "Không khả dụng"}`,
+          );
+          onRefresh();
+          setUpdatingRefereeId(null);
+        },
+        onError: (error) => {
+          console.error("Error updating availability:", error);
+          showToast.error("Lỗi", "Không thể cập nhật trạng thái");
+          setUpdatingRefereeId(null);
+        },
+      },
+    );
   };
 
   const handleDeleteClick = (referee: TournamentReferee) => {
@@ -102,24 +127,26 @@ export default function RefereeList({
     setDeleteDialogOpen(true);
   };
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = () => {
     if (!selectedReferee) return;
 
-    try {
-      setIsUpdating(selectedReferee.id);
-      await tournamentRefereeService.deleteTournamentReferee(
-        selectedReferee.id,
-      );
-      showToast.success("Thành công", "Đã xóa trọng tài khỏi giải đấu");
-      onRefresh();
-    } catch (error) {
-      console.error("Error deleting referee:", error);
-      showToast.error("Lỗi", "Không thể xóa trọng tài");
-    } finally {
-      setIsUpdating(null);
-      setDeleteDialogOpen(false);
-      setSelectedReferee(null);
-    }
+    setUpdatingRefereeId(selectedReferee.id);
+    deleteRefereeMutation.mutate(selectedReferee.id, {
+      onSuccess: () => {
+        showToast.success("Thành công", "Đã xóa trọng tài khỏi giải đấu");
+        onRefresh();
+        setDeleteDialogOpen(false);
+        setSelectedReferee(null);
+        setUpdatingRefereeId(null);
+      },
+      onError: (error) => {
+        console.error("Error deleting referee:", error);
+        showToast.error("Lỗi", "Không thể xóa trọng tài");
+        setDeleteDialogOpen(false);
+        setSelectedReferee(null);
+        setUpdatingRefereeId(null);
+      },
+    });
   };
 
   const getRoleBadge = (role: string) => {
@@ -234,9 +261,9 @@ export default function RefereeList({
                     <Button
                       variant="ghost"
                       size="icon"
-                      disabled={isUpdating === referee.id}
+                      disabled={isUpdating && updatingRefereeId === referee.id}
                     >
-                      {isUpdating === referee.id ? (
+                      {isUpdating && updatingRefereeId === referee.id ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         <MoreHorizontal className="h-4 w-4" />

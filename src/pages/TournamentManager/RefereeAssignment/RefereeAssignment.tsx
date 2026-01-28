@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -19,20 +19,35 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RefereeList, AssignRefereeDialog } from "./components";
-import { tournamentRefereeService, tournamentService } from "@/services";
-import type { Tournament, TournamentReferee } from "@/types";
+import { useTournaments, useRefereesByTournament } from "@/hooks/queries";
 
 export default function RefereeAssignment() {
   const [searchQuery, setSearchQuery] = useState("");
   const [assignRefereeDialogOpen, setAssignRefereeDialogOpen] = useState(false);
-
-  // Data state
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [selectedTournamentId, setSelectedTournamentId] = useState<string>("");
-  const [tournamentReferees, setTournamentReferees] = useState<
-    TournamentReferee[]
-  >([]);
-  const [isLoading, setIsLoading] = useState(false);
+
+  // React Query hooks
+  const { data: tournaments = [] } = useTournaments(0, 100);
+
+  const tournamentIdNumber = selectedTournamentId
+    ? parseInt(selectedTournamentId)
+    : 0;
+  const {
+    data: refereesResponse,
+    isLoading,
+    refetch: refetchReferees,
+  } = useRefereesByTournament(tournamentIdNumber, 0, 100, {
+    enabled: tournamentIdNumber > 0,
+  });
+
+  const tournamentReferees = refereesResponse?.data || [];
+
+  // Auto-select first tournament when loaded
+  useMemo(() => {
+    if (tournaments.length > 0 && !selectedTournamentId) {
+      setSelectedTournamentId(tournaments[0].id.toString());
+    }
+  }, [tournaments, selectedTournamentId]);
 
   // Stats
   const totalReferees = tournamentReferees.length;
@@ -47,50 +62,11 @@ export default function RefereeAssignment() {
   ).length;
   const unavailableReferees = totalReferees - availableReferees;
 
-  const fetchTournamentReferees = useCallback(async (tournamentId: number) => {
-    try {
-      setIsLoading(true);
-      const response = await tournamentRefereeService.getRefereesByTournament(
-        tournamentId,
-        0,
-        100,
-      );
-      setTournamentReferees(response.data || []);
-    } catch (error) {
-      console.error("Error fetching referees:", error);
-      setTournamentReferees([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const fetchTournaments = useCallback(async () => {
-    try {
-      const list = await tournamentService.getAllTournaments(0, 100);
-      setTournaments(list);
-      if (list.length > 0) {
-        setSelectedTournamentId(list[0].id.toString());
-      }
-    } catch (error) {
-      console.error("Error fetching tournaments:", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTournaments();
-  }, [fetchTournaments]);
-
-  useEffect(() => {
-    if (selectedTournamentId) {
-      fetchTournamentReferees(parseInt(selectedTournamentId));
-    }
-  }, [selectedTournamentId, fetchTournamentReferees]);
-
   const handleRefreshData = useCallback(() => {
     if (selectedTournamentId) {
-      fetchTournamentReferees(parseInt(selectedTournamentId));
+      refetchReferees();
     }
-  }, [selectedTournamentId, fetchTournamentReferees]);
+  }, [selectedTournamentId, refetchReferees]);
 
   const selectedTournament = tournaments.find(
     (t) => t.id.toString() === selectedTournamentId,

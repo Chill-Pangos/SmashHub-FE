@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,64 +18,42 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { teamMemberService } from "@/services";
 import { useAuth } from "@/store/useAuth";
-import { showToast } from "@/utils";
+import { useTeamsByUser, useMembersByTeam } from "@/hooks/queries";
 import type { TeamMember } from "@/types";
 
 export default function MyTeam() {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const [myTeams, setMyTeams] = useState<TeamMember[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<TeamMember | null>(null);
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchMyTeams = useCallback(async () => {
-    if (!user?.id) return;
+  // Fetch teams that the user manages
+  const { data: allTeams = [], isLoading: isLoadingTeams } = useTeamsByUser(
+    user?.id ?? 0,
+    0,
+    50,
+    { enabled: !!user?.id },
+  );
 
-    try {
-      setIsLoading(true);
-      const response = await teamMemberService.getTeamsByUserId(user.id, 0, 50);
-      const managerTeams = response.filter((tm) => tm.role === "team_manager");
-      setMyTeams(managerTeams);
+  // Filter to only teams where user is team_manager
+  const myTeams = allTeams.filter((tm) => tm.role === "team_manager");
 
-      if (managerTeams.length > 0 && !selectedTeam) {
-        setSelectedTeam(managerTeams[0]);
-      }
-    } catch (error) {
-      console.error("Error fetching teams:", error);
-      showToast.error("Không thể tải danh sách đoàn");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user?.id, selectedTeam]);
-
-  const fetchTeamMembers = useCallback(async () => {
-    if (!selectedTeam?.team?.id) return;
-
-    try {
-      const response = await teamMemberService.getMembersByTeamId(
-        selectedTeam.team.id,
-        0,
-        100,
-      );
-      setTeamMembers(response);
-    } catch (error) {
-      console.error("Error fetching team members:", error);
-      showToast.error("Không thể tải danh sách thành viên");
-    }
-  }, [selectedTeam?.team?.id]);
-
+  // Auto-select first team when teams are loaded
   useEffect(() => {
-    fetchMyTeams();
-  }, [fetchMyTeams]);
-
-  useEffect(() => {
-    if (selectedTeam) {
-      fetchTeamMembers();
+    if (myTeams.length > 0 && !selectedTeam) {
+      setSelectedTeam(myTeams[0]);
     }
-  }, [selectedTeam, fetchTeamMembers]);
+  }, [myTeams, selectedTeam]);
+
+  // Fetch members for selected team
+  const { data: teamMembers = [] } = useMembersByTeam(
+    selectedTeam?.team?.id ?? 0,
+    0,
+    100,
+    { enabled: !!selectedTeam?.team?.id },
+  );
+
+  const isLoading = isLoadingTeams;
 
   const getRoleBadge = (role: string) => {
     const variants: Record<string, "default" | "secondary" | "outline"> = {

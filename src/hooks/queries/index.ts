@@ -11,3 +11,4 @@ export * from "./useGroupStandingQueries";
 export * from "./useKnockoutBracketQueries";
 export * from "./useTournamentRefereeQueries";
 export * from "./useAuthQueries";
+export * from "./useRoleQueries";

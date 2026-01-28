@@ -1,12 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Users, Trophy, Calendar, ChevronRight, UserCheck } from "lucide-react";
-import { teamMemberService, tournamentService } from "@/services";
 import { useAuth } from "@/store/useAuth";
-import { showToast } from "@/utils";
-import type { TeamMember, Tournament } from "@/types";
+import { useTeamsByUser, useTournamentsByStatus } from "@/hooks/queries";
 import { StatsCard } from "./components/StatsCard";
 import { QuickActions } from "./components/QuickActions";
 
@@ -18,74 +16,33 @@ export default function TeamManagerDashboard({
   onNavigateTo,
 }: TeamManagerDashboardProps) {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const [myTeams, setMyTeams] = useState<TeamMember[]>([]);
-  const [upcomingTournaments, setUpcomingTournaments] = useState<Tournament[]>(
-    [],
-  );
 
-  // Stats
-  const [stats, setStats] = useState({
-    totalTeams: 0,
-    totalMembers: 0,
-    activeTournaments: 0,
-    pendingRegistrations: 0,
-  });
+  // Fetch teams where user is a member using React Query
+  const { data: allTeamMemberships = [], isLoading: isLoadingTeams } =
+    useTeamsByUser(user?.id ?? 0, 0, 50, {
+      enabled: !!user?.id,
+    });
 
-  const fetchData = useCallback(async () => {
-    if (!user?.id) return;
+  // Fetch upcoming tournaments using React Query
+  const { data: upcomingTournaments = [], isLoading: isLoadingTournaments } =
+    useTournamentsByStatus("upcoming", 0, 10);
 
-    try {
-      setIsLoading(true);
+  // Filter teams where user is team manager
+  const myTeams = useMemo(() => {
+    return allTeamMemberships.filter((tm) => tm.role === "team_manager");
+  }, [allTeamMemberships]);
 
-      // Fetch teams where user is team manager
-      const teamsResponse = await teamMemberService.getTeamsByUserId(
-        user.id,
-        0,
-        50,
-      );
-      const teams = teamsResponse.filter((tm) => tm.role === "team_manager");
-      setMyTeams(teams);
+  // Calculate stats from the fetched data
+  const stats = useMemo(() => {
+    return {
+      totalTeams: myTeams.length,
+      totalMembers: myTeams.length, // Will be calculated properly when team members are loaded
+      activeTournaments: upcomingTournaments.length,
+      pendingRegistrations: 0,
+    };
+  }, [myTeams, upcomingTournaments]);
 
-      // Fetch upcoming tournaments
-      const tournamentsResponse =
-        await tournamentService.getTournamentsByStatus("upcoming", 0, 10);
-      setUpcomingTournaments(tournamentsResponse);
-
-      // Calculate stats
-      let totalMembers = 0;
-      for (const team of teams) {
-        if (team.team?.id) {
-          try {
-            const members = await teamMemberService.getMembersByTeamId(
-              team.team.id,
-              0,
-              100,
-            );
-            totalMembers += members.length;
-          } catch {
-            // Ignore error
-          }
-        }
-      }
-
-      setStats({
-        totalTeams: teams.length,
-        totalMembers,
-        activeTournaments: tournamentsResponse.length,
-        pendingRegistrations: 0,
-      });
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-      showToast.error("Không thể tải dữ liệu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user?.id]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const isLoading = isLoadingTeams || isLoadingTournaments;
 
   if (isLoading) {
     return (

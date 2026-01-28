@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, Save, X } from "lucide-react";
-import { tournamentService } from "@/services";
+import { useTournament, useUpdateTournament } from "@/hooks/queries";
 import { showToast } from "@/utils/toast.utils";
 import {
   validateTournamentForm,
@@ -35,8 +35,6 @@ export default function TournamentUpdateForm({
   onSuccess,
   onCancel,
 }: TournamentUpdateFormProps) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<TournamentFormData>({
     name: "",
     startDate: "",
@@ -45,21 +43,16 @@ export default function TournamentUpdateForm({
     status: "upcoming",
   });
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
-    {}
+    {},
   );
 
+  // React Query hooks
+  const { data: tournament, isLoading } = useTournament(tournamentId);
+  const updateMutation = useUpdateTournament();
+
+  // Populate form when tournament data is loaded
   useEffect(() => {
-    fetchTournament();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tournamentId]);
-
-  const fetchTournament = async () => {
-    try {
-      setIsLoading(true);
-      const tournament = await tournamentService.getTournamentById(
-        tournamentId
-      );
-
+    if (tournament) {
       // Format dates for datetime-local input
       const startDate = new Date(tournament.startDate)
         .toISOString()
@@ -75,16 +68,8 @@ export default function TournamentUpdateForm({
         location: tournament.location,
         status: tournament.status,
       });
-    } catch (error) {
-      console.error("Error fetching tournament:", error);
-      showToast.error(
-        "Không thể tải thông tin giải đấu",
-        error instanceof Error ? error.message : "Vui lòng thử lại"
-      );
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [tournament]);
 
   const handleChange = (field: keyof TournamentFormData, value: string) => {
     setFormData({ ...formData, [field]: value });
@@ -96,7 +81,7 @@ export default function TournamentUpdateForm({
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     // Validate
     const errors = validateTournamentForm(formData);
     if (Object.keys(errors).length > 0) {
@@ -105,36 +90,35 @@ export default function TournamentUpdateForm({
       return;
     }
 
-    try {
-      setIsSaving(true);
+    const updateData: UpdateTournamentRequest = {
+      name: formData.name,
+      startDate: new Date(formData.startDate).toISOString(),
+      endDate: formData.endDate
+        ? new Date(formData.endDate).toISOString()
+        : null,
+      location: formData.location,
+      status: formData.status,
+    };
 
-      const updateData: UpdateTournamentRequest = {
-        name: formData.name,
-        startDate: new Date(formData.startDate).toISOString(),
-        endDate: formData.endDate
-          ? new Date(formData.endDate).toISOString()
-          : null,
-        location: formData.location,
-        status: formData.status,
-      };
-
-      const updatedTournament = await tournamentService.updateTournament(
-        tournamentId,
-        updateData
-      );
-
-      showToast.success("Cập nhật giải đấu thành công!");
-      onSuccess?.(updatedTournament);
-    } catch (error) {
-      console.error("Error updating tournament:", error);
-      showToast.error(
-        "Không thể cập nhật giải đấu",
-        error instanceof Error ? error.message : "Vui lòng thử lại"
-      );
-    } finally {
-      setIsSaving(false);
-    }
+    updateMutation.mutate(
+      { id: tournamentId, data: updateData },
+      {
+        onSuccess: (updatedTournament) => {
+          showToast.success("Cập nhật giải đấu thành công!");
+          onSuccess?.(updatedTournament);
+        },
+        onError: (error) => {
+          console.error("Error updating tournament:", error);
+          showToast.error(
+            "Không thể cập nhật giải đấu",
+            error instanceof Error ? error.message : "Vui lòng thử lại",
+          );
+        },
+      },
+    );
   };
+
+  const isSaving = updateMutation.isPending;
 
   if (isLoading) {
     return (

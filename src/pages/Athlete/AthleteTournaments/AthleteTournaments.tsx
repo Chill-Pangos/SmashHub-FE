@@ -1,59 +1,59 @@
-import { useState, useEffect, useCallback } from "react";
+import { useMemo } from "react";
+import { useQueries } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Calendar, MapPin, Users } from "lucide-react";
-import { tournamentService, teamMemberService } from "@/services";
 import { useAuth } from "@/store/useAuth";
-import { showToast } from "@/utils";
 import type { Tournament, TeamMember } from "@/types";
+import { useTeamsByUser, queryKeys } from "@/hooks/queries";
 
 export default function AthleteTournaments() {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
 
-  const fetchData = useCallback(async () => {
-    if (!user?.id) return;
+  // Fetch teams where user is athlete
+  const { data: teamsData, isLoading: teamsLoading } = useTeamsByUser(
+    user?.id ?? 0,
+    0,
+    50,
+    { enabled: !!user?.id },
+  );
 
-    try {
-      setIsLoading(true);
+  // Get unique tournament IDs from teams
+  const tournamentIds = useMemo(() => {
+    const teams = teamsData || [];
+    const athleteTeams = teams.filter(
+      (tm: TeamMember) => tm.role === "athlete",
+    );
+    return [
+      ...new Set(
+        athleteTeams
+          .map((tm: TeamMember) => tm.team?.tournamentId)
+          .filter(Boolean),
+      ),
+    ] as number[];
+  }, [teamsData]);
 
-      // Fetch teams where user is athlete
-      const teamsResponse = await teamMemberService.getTeamsByUserId(
-        user.id,
-        0,
-        50,
-      );
-      const athleteTeams = teamsResponse.filter(
-        (tm: TeamMember) => tm.role === "athlete",
-      );
+  // Fetch tournament details using individual useTournament hooks wrapped in useQueries
+  // Since we need dynamic queries, we use the queryKey pattern directly
+  const tournamentQueries = useQueries({
+    queries: tournamentIds.map((id) => ({
+      queryKey: queryKeys.tournaments.detail(id),
+      queryFn: async () => {
+        const { tournamentService } = await import("@/services");
+        return tournamentService.getTournamentById(id);
+      },
+      enabled: id > 0,
+    })),
+  });
 
-      // Get unique tournament IDs from teams
-      const tournamentIds = [
-        ...new Set(
-          athleteTeams
-            .map((tm: TeamMember) => tm.team?.tournamentId)
-            .filter(Boolean),
-        ),
-      ] as number[];
+  const tournaments = useMemo(() => {
+    return tournamentQueries
+      .filter((query) => query.isSuccess && query.data)
+      .map((query) => query.data as Tournament);
+  }, [tournamentQueries]);
 
-      // Fetch tournament details
-      const tournamentPromises = tournamentIds.map((id) =>
-        tournamentService.getTournamentById(id),
-      );
-      const tournamentResults = await Promise.all(tournamentPromises);
-      setTournaments(tournamentResults);
-    } catch (error) {
-      console.error("Error fetching tournaments:", error);
-      showToast.error("Không thể tải danh sách giải đấu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user?.id]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const isLoading =
+    teamsLoading || tournamentQueries.some((query) => query.isLoading);
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "outline"> = {

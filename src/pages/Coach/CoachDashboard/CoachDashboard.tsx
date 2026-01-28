@@ -1,11 +1,15 @@
-import { useState, useEffect, useCallback } from "react";
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, Trophy, Calendar, ChevronRight } from "lucide-react";
-import { teamMemberService, tournamentService } from "@/services";
 import { useAuth } from "@/store/useAuth";
-import { showToast } from "@/utils";
-import type { TeamMember, Tournament } from "@/types";
+import {
+  useTeamsByUser,
+  useTournamentsByStatus,
+  queryKeys,
+} from "@/hooks/queries";
+import { useQueries } from "@tanstack/react-query";
+import type { TeamMember } from "@/types";
 import { StatsCard, QuickActions } from "./components";
 
 interface CoachDashboardProps {
@@ -14,77 +18,66 @@ interface CoachDashboardProps {
 
 export default function CoachDashboard({ onNavigateTo }: CoachDashboardProps) {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const [, setMyTeams] = useState<TeamMember[]>([]);
-  const [athletes, setAthletes] = useState<TeamMember[]>([]);
-  const [upcomingTournaments, setUpcomingTournaments] = useState<Tournament[]>(
-    [],
+
+  // Fetch teams where user is coach
+  const { data: teamsData = [], isLoading: isLoadingTeams } = useTeamsByUser(
+    user?.id ?? 0,
+    0,
+    50,
+    { enabled: !!user?.id },
   );
 
-  // Stats
-  const [stats, setStats] = useState({
-    totalAthletes: 0,
-    totalTeams: 0,
-    activeTournaments: 0,
-    upcomingMatches: 0,
+  const coachTeams = useMemo(
+    () => teamsData.filter((tm) => tm.role === "coach"),
+    [teamsData],
+  );
+
+  // Fetch athletes from each team using useQueries
+  const teamIds = useMemo(
+    () => coachTeams.map((t) => t.team?.id).filter((id): id is number => !!id),
+    [coachTeams],
+  );
+
+  const athleteQueries = useQueries({
+    queries: teamIds.map((teamId) => ({
+      queryKey: queryKeys.teamMembers.byTeam(teamId),
+      queryFn: async () => {
+        const { teamMemberService } = await import("@/services");
+        return teamMemberService.getMembersByTeamId(teamId, 0, 100);
+      },
+      enabled: teamId > 0,
+    })),
   });
 
-  const fetchData = useCallback(async () => {
-    if (!user?.id) return;
-
-    try {
-      setIsLoading(true);
-
-      // Fetch teams where user is coach
-      const teamsResponse = await teamMemberService.getTeamsByUserId(
-        user.id,
-        0,
-        50,
-      );
-      const coachTeams = teamsResponse.filter((tm) => tm.role === "coach");
-      setMyTeams(coachTeams);
-
-      // Fetch athletes from each team
-      let allAthletes: TeamMember[] = [];
-      for (const team of coachTeams) {
-        if (team.team?.id) {
-          try {
-            const members = await teamMemberService.getMembersByTeamId(
-              team.team.id,
-              0,
-              100,
-            );
-            const teamAthletes = members.filter((m) => m.role === "athlete");
-            allAthletes = [...allAthletes, ...teamAthletes];
-          } catch {
-            // Ignore error
-          }
-        }
+  const athletes = useMemo(() => {
+    const allAthletes: TeamMember[] = [];
+    athleteQueries.forEach((query) => {
+      if (query.data) {
+        const teamAthletes = query.data.filter((m) => m.role === "athlete");
+        allAthletes.push(...teamAthletes);
       }
-      setAthletes(allAthletes);
+    });
+    return allAthletes;
+  }, [athleteQueries]);
 
-      // Fetch upcoming tournaments
-      const tournamentsResponse =
-        await tournamentService.getTournamentsByStatus("upcoming", 0, 10);
-      setUpcomingTournaments(tournamentsResponse);
+  const isLoadingAthletes = athleteQueries.some((q) => q.isLoading);
 
-      setStats({
-        totalAthletes: allAthletes.length,
-        totalTeams: coachTeams.length,
-        activeTournaments: tournamentsResponse.length,
-        upcomingMatches: 0,
-      });
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-      showToast.error("Không thể tải dữ liệu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user?.id]);
+  // Fetch upcoming tournaments
+  const { data: upcomingTournaments = [], isLoading: isLoadingTournaments } =
+    useTournamentsByStatus("upcoming", 0, 10);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const isLoading = isLoadingTeams || isLoadingAthletes || isLoadingTournaments;
+
+  // Stats computed from query data
+  const stats = useMemo(
+    () => ({
+      totalAthletes: athletes.length,
+      totalTeams: coachTeams.length,
+      activeTournaments: upcomingTournaments.length,
+      upcomingMatches: 0,
+    }),
+    [athletes.length, coachTeams.length, upcomingTournaments.length],
+  );
 
   if (isLoading) {
     return (

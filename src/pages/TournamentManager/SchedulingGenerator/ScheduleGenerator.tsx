@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { scheduleService } from "@/services";
+import {
+  useGenerateCompleteSchedule,
+  useGenerateKnockoutOnlySchedule,
+} from "@/hooks/queries";
 import { showToast } from "@/utils/toast.utils";
 import type {
   GenerateCompleteScheduleResponse,
   GenerateKnockoutOnlyScheduleResponse,
-  GenerateCompleteScheduleRequest,
-  GenerateKnockoutOnlyScheduleRequest,
 } from "@/types";
 import { ScheduleForm, LoadingAnimation, ResultDisplay } from "./components";
 
@@ -23,7 +24,6 @@ export default function ScheduleGenerator() {
   const [contentId, setContentId] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
-  const [isGenerating, setIsGenerating] = useState(false);
   const [generationType, setGenerationType] = useState<
     "complete" | "knockout-only" | null
   >(null);
@@ -31,7 +31,14 @@ export default function ScheduleGenerator() {
     CompleteScheduleData | KnockoutScheduleData | null
   >(null);
 
-  const handleGenerateComplete = async () => {
+  // React Query mutations
+  const generateCompleteMutation = useGenerateCompleteSchedule();
+  const generateKnockoutMutation = useGenerateKnockoutOnlySchedule();
+
+  const isGenerating =
+    generateCompleteMutation.isPending || generateKnockoutMutation.isPending;
+
+  const handleGenerateComplete = () => {
     if (!contentId || isNaN(Number(contentId))) {
       showToast.error("Vui lòng nhập Content ID hợp lệ");
       return;
@@ -42,46 +49,41 @@ export default function ScheduleGenerator() {
       return;
     }
 
-    setIsGenerating(true);
     setGenerationType("complete");
     setResult(null);
 
-    try {
-      const requestData: GenerateCompleteScheduleRequest = {
-        contentId: Number(contentId),
-        startDate,
-        endDate,
-      };
-
-      const response =
-        await scheduleService.generateCompleteSchedule(requestData);
-
-      if (response.success) {
-        setResult(response.data);
-        showToast.success(
-          "Tạo lịch thi đấu hoàn chỉnh thành công!",
-          `Đã tạo ${response.data.groupStage.totalMatches + response.data.knockoutStage.totalMatches} trận đấu`,
-        );
-      } else if (response.error) {
-        throw new Error(response.error.message || "Có lỗi xảy ra");
-      }
-    } catch (error: unknown) {
-      const err = error as {
-        response?: { data?: { message?: string } };
-        message?: string;
-      };
-      showToast.error(
-        "Không thể tạo lịch",
-        err.response?.data?.message || err.message || "Vui lòng thử lại",
-      );
-      setResult(null);
-    } finally {
-      setIsGenerating(false);
-      setGenerationType(null);
-    }
+    generateCompleteMutation.mutate(
+      { contentId: Number(contentId), startDate, endDate },
+      {
+        onSuccess: (response) => {
+          if (response.success) {
+            setResult(response.data);
+            showToast.success(
+              "Tạo lịch thi đấu hoàn chỉnh thành công!",
+              `Đã tạo ${response.data.groupStage.totalMatches + response.data.knockoutStage.totalMatches} trận đấu`,
+            );
+          } else if (response.error) {
+            throw new Error(response.error.message || "Có lỗi xảy ra");
+          }
+          setGenerationType(null);
+        },
+        onError: (error: unknown) => {
+          const err = error as {
+            response?: { data?: { message?: string } };
+            message?: string;
+          };
+          showToast.error(
+            "Không thể tạo lịch",
+            err.response?.data?.message || err.message || "Vui lòng thử lại",
+          );
+          setResult(null);
+          setGenerationType(null);
+        },
+      },
+    );
   };
 
-  const handleGenerateKnockoutOnly = async () => {
+  const handleGenerateKnockoutOnly = () => {
     if (!contentId || isNaN(Number(contentId))) {
       showToast.error("Vui lòng nhập Content ID hợp lệ");
       return;
@@ -92,43 +94,38 @@ export default function ScheduleGenerator() {
       return;
     }
 
-    setIsGenerating(true);
     setGenerationType("knockout-only");
     setResult(null);
 
-    try {
-      const requestData: GenerateKnockoutOnlyScheduleRequest = {
-        contentId: Number(contentId),
-        startDate,
-        endDate,
-      };
-
-      const response =
-        await scheduleService.generateKnockoutOnlySchedule(requestData);
-
-      if (response.success) {
-        setResult(response.data);
-        showToast.success(
-          "Tạo lịch knockout thành công!",
-          `Đã tạo ${response.data.totalMatches} trận đấu`,
-        );
-      } else if (response.error) {
-        throw new Error(response.error.message || "Có lỗi xảy ra");
-      }
-    } catch (error: unknown) {
-      const err = error as {
-        response?: { data?: { message?: string } };
-        message?: string;
-      };
-      showToast.error(
-        "Không thể tạo lịch",
-        err.response?.data?.message || err.message || "Vui lòng thử lại",
-      );
-      setResult(null);
-    } finally {
-      setIsGenerating(false);
-      setGenerationType(null);
-    }
+    generateKnockoutMutation.mutate(
+      { contentId: Number(contentId), startDate, endDate },
+      {
+        onSuccess: (response) => {
+          if (response.success) {
+            setResult(response.data);
+            showToast.success(
+              "Tạo lịch knockout thành công!",
+              `Đã tạo ${response.data.totalMatches} trận đấu`,
+            );
+          } else if (response.error) {
+            throw new Error(response.error.message || "Có lỗi xảy ra");
+          }
+          setGenerationType(null);
+        },
+        onError: (error: unknown) => {
+          const err = error as {
+            response?: { data?: { message?: string } };
+            message?: string;
+          };
+          showToast.error(
+            "Không thể tạo lịch",
+            err.response?.data?.message || err.message || "Vui lòng thử lại",
+          );
+          setResult(null);
+          setGenerationType(null);
+        },
+      },
+    );
   };
 
   const handleCreateNew = () => {

@@ -12,7 +12,14 @@ import {
 } from "@/components/ui/dialog";
 import ExcelFileUpload from "@/components/custom/ExcelFileUpload";
 import ImportPreview from "@/components/custom/ImportPreview";
-import { entryService } from "@/services";
+import {
+  usePreviewImportSingleEntries,
+  usePreviewImportDoubleEntries,
+  usePreviewImportTeamEntries,
+  useConfirmImportSingleEntries,
+  useConfirmImportDoubleEntries,
+  useConfirmImportTeamEntries,
+} from "@/hooks/queries";
 import { showToast } from "@/utils/toast.utils";
 import type {
   ImportSingleEntryDto,
@@ -77,11 +84,30 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
     )[];
     errors: Array<{ row: number; field: string; message: string }>;
   } | null>(null);
-  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
-  const [isImportLoading, setIsImportLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState<"upload" | "preview">(
     "upload",
   );
+
+  // React Query mutations for preview
+  const previewSingleMutation = usePreviewImportSingleEntries();
+  const previewDoubleMutation = usePreviewImportDoubleEntries();
+  const previewTeamMutation = usePreviewImportTeamEntries();
+
+  // React Query mutations for confirm
+  const confirmSingleMutation = useConfirmImportSingleEntries();
+  const confirmDoubleMutation = useConfirmImportDoubleEntries();
+  const confirmTeamMutation = useConfirmImportTeamEntries();
+
+  // Derive loading states from mutations
+  const isPreviewLoading =
+    previewSingleMutation.isPending ||
+    previewDoubleMutation.isPending ||
+    previewTeamMutation.isPending;
+
+  const isImportLoading =
+    confirmSingleMutation.isPending ||
+    confirmDoubleMutation.isPending ||
+    confirmTeamMutation.isPending;
 
   // Get template type based on content type
   const getTemplateType = (): "single" | "double" | "team" => {
@@ -102,47 +128,25 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
   };
 
   // Preview import
-  const handlePreview = async () => {
+  const handlePreview = () => {
     if (!selectedFile) {
       showToast.error("Vui lòng chọn file để preview");
       return;
     }
 
-    setIsPreviewLoading(true);
-
-    try {
-      let result;
-
-      switch (contentType) {
-        case "single":
-          result = await entryService.previewImportSingleEntries(
-            selectedFile,
-            contentId,
-          );
-          break;
-        case "double":
-          result = await entryService.previewImportDoubleEntries(
-            selectedFile,
-            contentId,
-          );
-          break;
-        case "team":
-          result = await entryService.previewImportTeamEntries(
-            selectedFile,
-            contentId,
-          );
-          break;
-        default:
-          throw new Error("Invalid content type");
-      }
-
+    const handlePreviewSuccess = (result: {
+      success: boolean;
+      data: typeof previewData;
+    }) => {
       if (result.success) {
         setPreviewData(result.data);
         setCurrentStep("preview");
       } else {
         showToast.error("Không thể preview file. Vui lòng thử lại.");
       }
-    } catch (error: unknown) {
+    };
+
+    const handlePreviewError = (error: unknown) => {
       console.error("Preview error:", error);
       const errorMessage =
         error instanceof Error && "response" in error
@@ -150,46 +154,41 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
             (error as any).response?.data?.message
           : "Có lỗi xảy ra khi preview file. Vui lòng thử lại.";
       showToast.error(errorMessage);
-    } finally {
-      setIsPreviewLoading(false);
+    };
+
+    switch (contentType) {
+      case "single":
+        previewSingleMutation.mutate(
+          { file: selectedFile, contentId },
+          { onSuccess: handlePreviewSuccess, onError: handlePreviewError },
+        );
+        break;
+      case "double":
+        previewDoubleMutation.mutate(
+          { file: selectedFile, contentId },
+          { onSuccess: handlePreviewSuccess, onError: handlePreviewError },
+        );
+        break;
+      case "team":
+        previewTeamMutation.mutate(
+          { file: selectedFile, contentId },
+          { onSuccess: handlePreviewSuccess, onError: handlePreviewError },
+        );
+        break;
     }
   };
 
   // Confirm import
-  const handleConfirmImport = async () => {
+  const handleConfirmImport = () => {
     if (!previewData || previewData.errors.length > 0) {
       showToast.error("Vui lòng sửa các lỗi trước khi import");
       return;
     }
 
-    setIsImportLoading(true);
-
-    try {
-      let result;
-
-      switch (contentType) {
-        case "single":
-          result = await entryService.confirmImportSingleEntries({
-            contentId,
-            entries: previewData.entries as ImportSingleEntryDto[],
-          });
-          break;
-        case "double":
-          result = await entryService.confirmImportDoubleEntries({
-            contentId,
-            entries: previewData.entries as ImportDoubleEntryDto[],
-          });
-          break;
-        case "team":
-          result = await entryService.confirmImportTeamEntries({
-            contentId,
-            entries: previewData.entries as ImportTeamEntryDto[],
-          });
-          break;
-        default:
-          throw new Error("Invalid content type");
-      }
-
+    const handleConfirmSuccess = (result: {
+      success: boolean;
+      data: { created: number };
+    }) => {
       if (result.success) {
         showToast.success(`Import thành công ${result.data.created} entries!`);
         handleOpenChange(false);
@@ -197,7 +196,9 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
       } else {
         showToast.error("Import thất bại. Vui lòng thử lại.");
       }
-    } catch (error: unknown) {
+    };
+
+    const handleConfirmError = (error: unknown) => {
       console.error("Import error:", error);
       const errorMessage =
         error instanceof Error && "response" in error
@@ -205,8 +206,27 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
             (error as any).response?.data?.message
           : "Có lỗi xảy ra khi import. Vui lòng thử lại.";
       showToast.error(errorMessage);
-    } finally {
-      setIsImportLoading(false);
+    };
+
+    switch (contentType) {
+      case "single":
+        confirmSingleMutation.mutate(
+          { contentId, entries: previewData.entries as ImportSingleEntryDto[] },
+          { onSuccess: handleConfirmSuccess, onError: handleConfirmError },
+        );
+        break;
+      case "double":
+        confirmDoubleMutation.mutate(
+          { contentId, entries: previewData.entries as ImportDoubleEntryDto[] },
+          { onSuccess: handleConfirmSuccess, onError: handleConfirmError },
+        );
+        break;
+      case "team":
+        confirmTeamMutation.mutate(
+          { contentId, entries: previewData.entries as ImportTeamEntryDto[] },
+          { onSuccess: handleConfirmSuccess, onError: handleConfirmError },
+        );
+        break;
     }
   };
 
@@ -215,8 +235,12 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
     setSelectedFile(null);
     setPreviewData(null);
     setCurrentStep("upload");
-    setIsPreviewLoading(false);
-    setIsImportLoading(false);
+    previewSingleMutation.reset();
+    previewDoubleMutation.reset();
+    previewTeamMutation.reset();
+    confirmSingleMutation.reset();
+    confirmDoubleMutation.reset();
+    confirmTeamMutation.reset();
   };
 
   // Handle dialog close

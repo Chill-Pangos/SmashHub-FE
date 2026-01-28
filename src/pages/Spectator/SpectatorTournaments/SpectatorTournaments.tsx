@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -10,38 +10,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Trophy, Calendar, MapPin, Search } from "lucide-react";
-import { tournamentService } from "@/services";
-import { showToast } from "@/utils";
-import type { Tournament } from "@/types";
+import { useTournaments } from "@/hooks/queries";
 
 export default function SpectatorTournaments() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
-  const [filteredTournaments, setFilteredTournaments] = useState<Tournament[]>(
-    [],
-  );
+  const { data: tournaments = [], isLoading } = useTournaments(0, 100);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  const fetchTournaments = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await tournamentService.getAllTournaments(0, 100);
-      setTournaments(response);
-      setFilteredTournaments(response);
-    } catch (error) {
-      console.error("Error fetching tournaments:", error);
-      showToast.error("Không thể tải danh sách giải đấu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTournaments();
-  }, [fetchTournaments]);
-
-  useEffect(() => {
+  const filteredTournaments = useMemo(() => {
     let filtered = tournaments;
 
     // Filter by status
@@ -58,7 +34,7 @@ export default function SpectatorTournaments() {
       );
     }
 
-    setFilteredTournaments(filtered);
+    return filtered;
   }, [tournaments, statusFilter, searchQuery]);
 
   const getStatusBadge = (status: string) => {

@@ -1,36 +1,17 @@
-import { useState, useEffect } from "react";
-import { showToast } from "@/utils/toast.utils";
-import { matchService } from "@/services";
+import { useMemo } from "react";
 import type { Match } from "@/types";
 import { MatchHistoryList } from "./components";
+import { useMatchesByStatus } from "@/hooks/queries";
 
 export default function MatchHistory() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [matches, setMatches] = useState<Match[]>([]);
+  // Fetch completed matches using React Query
+  const { data: response, isLoading } = useMatchesByStatus("completed", 0, 50);
 
-  useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        setIsLoading(true);
-        const response = await matchService.getMatchesByStatus(
-          "completed",
-          0,
-          50,
-        );
-        const completedMatches = Array.isArray(response)
-          ? response
-          : response.data || [];
-        setMatches(completedMatches);
-      } catch (error) {
-        console.error("Error fetching match history:", error);
-        showToast.error("Lỗi", "Không thể tải lịch sử trận đấu");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchHistory();
-  }, []);
+  // Extract matches from response
+  const matches: Match[] = useMemo(() => {
+    if (!response) return [];
+    return Array.isArray(response) ? response : response.data || [];
+  }, [response]);
 
   return (
     <div className="p-6 space-y-6">
