@@ -9,7 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
-  TrendingUp,
+  // TrendingUp, // COMMENTED OUT: Menu item hidden
   Play,
 } from "lucide-react";
 import { useState } from "react";
@@ -44,11 +44,12 @@ const menuItems = [
     label: "Trận đấu trực tiếp",
     icon: Play,
   },
-  {
-    id: "rankings",
-    label: "Bảng xếp hạng",
-    icon: TrendingUp,
-  },
+  // COMMENTED OUT: Uses mock data, no ranking/leaderboard API
+  // {
+  //   id: "rankings",
+  //   label: "Bảng xếp hạng",
+  //   icon: TrendingUp,
+  // },
 ];
 
 export default function SpectatorSidebar({

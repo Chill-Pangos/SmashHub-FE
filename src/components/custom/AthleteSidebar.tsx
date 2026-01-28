@@ -10,7 +10,7 @@ import {
   ChevronRight,
   User,
   History,
-  TrendingUp,
+  // TrendingUp, // COMMENTED OUT: Menu item hidden
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -49,11 +49,12 @@ const menuItems = [
     label: "Lịch sử thi đấu",
     icon: History,
   },
-  {
-    id: "elo-stats",
-    label: "Thống kê ELO",
-    icon: TrendingUp,
-  },
+  // COMMENTED OUT: Uses mock data, no ELO statistics API
+  // {
+  //   id: "elo-stats",
+  //   label: "Thống kê ELO",
+  //   icon: TrendingUp,
+  // },
 ];
 
 export default function AthleteSidebar({

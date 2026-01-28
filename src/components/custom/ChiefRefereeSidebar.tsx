@@ -1,16 +1,7 @@
 "use client";
 
-import {
-  LayoutDashboard,
-  AlertCircle,
-  FileCheck,
-  Monitor,
-  ScrollText,
-  Shield,
-  Settings,
-  LogOut,
-  Menu,
-} from "lucide-react";
+// Note: LayoutDashboard, AlertCircle, FileCheck, ScrollText removed (menu items hidden)
+import { Monitor, Shield, Settings, LogOut, Menu } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
@@ -36,11 +27,12 @@ export default function ChiefRefereeSidebar({
   };
 
   const menuItems = [
-    { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
-    { id: "complaint-board", label: "Theo dõi khiếu nại", icon: AlertCircle },
-    { id: "dispute-resolution", label: "Xử lý chi tiết", icon: FileCheck },
+    // COMMENTED OUT: These features use mock data, no API available
+    // { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
+    // { id: "complaint-board", label: "Theo dõi khiếu nại", icon: AlertCircle },
+    // { id: "dispute-resolution", label: "Xử lý chi tiết", icon: FileCheck },
     { id: "match-supervision", label: "Giám sát trận đấu", icon: Monitor },
-    { id: "decision-log", label: "Nhật ký quyết định", icon: ScrollText },
+    // { id: "decision-log", label: "Nhật ký quyết định", icon: ScrollText },
   ];
 
   return (

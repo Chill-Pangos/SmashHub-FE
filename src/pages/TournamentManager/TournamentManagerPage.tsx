@@ -7,8 +7,8 @@ import DelegationManagement from "./DelegationManagement/DelegationManagement";
 import RefereeAssignment from "./RefereeAssignment/RefereeAssignment";
 import ScheduleGenerator from "./SchedulingGenerator/ScheduleGenerator";
 import MatchManagement from "./MatchManagement/MatchManagement";
-import ResultCorrection from "./ResultCorrection/ResultCorrection";
-import ReportsCenter from "./ReportsCenter/ReportsCenter";
+// import ResultCorrection from "./ResultCorrection/ResultCorrection"; // COMMENTED OUT: Uses mock data
+// import ReportsCenter from "./ReportsCenter/ReportsCenter"; // COMMENTED OUT: Uses mock data
 import DelegationAccountManagement from "./DelegationAccountManagement/DelegationAccountManagement";
 
 export default function TournamentManagerPage() {
@@ -30,10 +30,11 @@ export default function TournamentManagerPage() {
         return <ScheduleGenerator />;
       case "matches":
         return <MatchManagement />;
-      case "results":
-        return <ResultCorrection />;
-      case "reports":
-        return <ReportsCenter />;
+      // COMMENTED OUT: These features use mock data, no API available
+      // case "results":
+      //   return <ResultCorrection />;
+      // case "reports":
+      //   return <ReportsCenter />;
       case "accounts":
         return <DelegationAccountManagement />;
       default:
