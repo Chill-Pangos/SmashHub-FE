@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +12,7 @@ import {
   Loader2,
   Trophy,
 } from "lucide-react";
-import { tournamentService } from "@/services";
+import { useTournament, useDeleteTournament } from "@/hooks/queries";
 import { showToast } from "@/utils/toast.utils";
 import type { Tournament, TournamentContent } from "@/types";
 
@@ -29,45 +29,39 @@ export default function TournamentDetail({
   onEdit,
   onDelete,
 }: TournamentDetailProps) {
-  const [tournament, setTournament] = useState<Tournament | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // React Query hooks
+  const { data: tournament, isLoading, error } = useTournament(tournamentId);
 
-  const fetchTournament = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const data = await tournamentService.getTournamentById(tournamentId);
-      setTournament(data);
-    } catch (error) {
-      console.error("Error fetching tournament:", error);
+  const deleteMutation = useDeleteTournament();
+
+  // Show error toast when query fails
+  useEffect(() => {
+    if (error) {
       showToast.error(
         "Không thể tải thông tin giải đấu",
-        error instanceof Error ? error.message : "Vui lòng thử lại"
+        error instanceof Error ? error.message : "Vui lòng thử lại",
       );
-    } finally {
-      setIsLoading(false);
     }
-  }, [tournamentId]);
+  }, [error]);
 
-  useEffect(() => {
-    fetchTournament();
-  }, [fetchTournament]);
-
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!confirm("Bạn có chắc chắn muốn xóa giải đấu này?")) {
       return;
     }
 
-    try {
-      await tournamentService.deleteTournament(tournamentId);
-      showToast.success("Đã xóa giải đấu");
-      onDelete?.(tournamentId);
-    } catch (error) {
-      console.error("Error deleting tournament:", error);
-      showToast.error(
-        "Không thể xóa giải đấu",
-        error instanceof Error ? error.message : "Vui lòng thử lại"
-      );
-    }
+    deleteMutation.mutate(tournamentId, {
+      onSuccess: () => {
+        showToast.success("Đã xóa giải đấu");
+        onDelete?.(tournamentId);
+      },
+      onError: (error) => {
+        console.error("Error deleting tournament:", error);
+        showToast.error(
+          "Không thể xóa giải đấu",
+          error instanceof Error ? error.message : "Vui lòng thử lại",
+        );
+      },
+    });
   };
 
   const formatDate = (dateStr: string) => {

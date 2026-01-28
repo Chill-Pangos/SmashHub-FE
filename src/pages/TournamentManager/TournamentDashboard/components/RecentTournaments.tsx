@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Users, Eye, Edit, Loader2 } from "lucide-react";
-import { tournamentService } from "@/services";
-import { showToast } from "@/utils/toast.utils";
+import { useTournaments } from "@/hooks/queries";
 import type { Tournament } from "@/types";
 
 const getStatusBadge = (status: Tournament["status"]) => {
@@ -27,28 +25,8 @@ export default function RecentTournaments({
   onEditTournament,
   onNavigateToList,
 }: RecentTournamentsProps) {
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    fetchTournaments();
-  }, []);
-
-  const fetchTournaments = async () => {
-    try {
-      setIsLoading(true);
-      const data = await tournamentService.getAllTournaments(0, 5);
-      setTournaments(data);
-    } catch (error) {
-      console.error("Error fetching tournaments:", error);
-      showToast.error(
-        "Không thể tải danh sách giải đấu",
-        error instanceof Error ? error.message : "Vui lòng thử lại"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // React Query hook - fetch 5 most recent tournaments
+  const { data: tournaments = [], isLoading, refetch } = useTournaments(0, 5);
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("vi-VN");
@@ -74,7 +52,7 @@ export default function RecentTournaments({
               Xem tất cả
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={fetchTournaments}>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
             Làm mới
           </Button>
         </div>
@@ -102,7 +80,8 @@ export default function RecentTournaments({
                       <Calendar className="h-4 w-4" />
                       <span>
                         {formatDate(tournament.startDate)}
-                        {tournament.endDate && ` - ${formatDate(tournament.endDate)}`}
+                        {tournament.endDate &&
+                          ` - ${formatDate(tournament.endDate)}`}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
@@ -112,17 +91,21 @@ export default function RecentTournaments({
                     {tournament.contents && tournament.contents.length > 0 && (
                       <div className="flex items-center gap-1">
                         <Users className="h-4 w-4" />
-                        <span>{tournament.contents.length} nội dung thi đấu</span>
+                        <span>
+                          {tournament.contents.length} nội dung thi đấu
+                        </span>
                       </div>
                     )}
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => console.log("View tournament:", tournament.id)}
+                    onClick={() =>
+                      console.log("View tournament:", tournament.id)
+                    }
                   >
                     <Eye className="h-4 w-4" />
                   </Button>

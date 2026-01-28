@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -10,35 +10,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { History, Trophy, Calendar } from "lucide-react";
-import { matchService } from "@/services";
-import { showToast } from "@/utils";
 import type { Match } from "@/types";
+import { useMatchesByStatus } from "@/hooks/queries";
 
 export default function MatchHistory() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [completedMatches, setCompletedMatches] = useState<Match[]>([]);
+  // Fetch completed matches
+  const { data, isLoading } = useMatchesByStatus("completed", 0, 100);
 
-  const fetchMatches = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await matchService.getMatchesByStatus(
-        "completed",
-        0,
-        100,
-      );
-      const matches = Array.isArray(response) ? response : response.data || [];
-      setCompletedMatches(matches);
-    } catch (error) {
-      console.error("Error fetching matches:", error);
-      showToast.error("Không thể tải lịch sử thi đấu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchMatches();
-  }, [fetchMatches]);
+  const completedMatches: Match[] = useMemo(() => {
+    return Array.isArray(data) ? data : data?.data || [];
+  }, [data]);
 
   if (isLoading) {
     return (

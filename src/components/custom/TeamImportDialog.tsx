@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import ExcelFileUpload from "@/components/custom/ExcelFileUpload";
 import ImportPreview from "@/components/custom/ImportPreview";
-import { teamService } from "@/services";
+import { usePreviewImportTeams, useConfirmImportTeams } from "@/hooks/queries";
 import { showToast } from "@/utils/toast.utils";
 import type { ImportTeamDto } from "@/types/team.types";
 
@@ -62,11 +62,16 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
     teams: ImportTeamDto[];
     errors: Array<{ row: number; field: string; message: string }>;
   } | null>(null);
-  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
-  const [isImportLoading, setIsImportLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState<"upload" | "preview">(
     "upload",
   );
+
+  // React Query mutations
+  const previewMutation = usePreviewImportTeams();
+  const confirmMutation = useConfirmImportTeams();
+
+  const isPreviewLoading = previewMutation.isPending;
+  const isImportLoading = confirmMutation.isPending;
 
   // Handle file selection
   const handleFileSelected = (file: File) => {
@@ -82,69 +87,68 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
   };
 
   // Preview import
-  const handlePreview = async () => {
+  const handlePreview = () => {
     if (!selectedFile) {
       showToast.error("Vui lòng chọn file để preview");
       return;
     }
 
-    setIsPreviewLoading(true);
-
-    try {
-      const result = await teamService.previewImportTeams(selectedFile);
-
-      if (result.success) {
-        setPreviewData(result.data);
-        setCurrentStep("preview");
-      } else {
-        showToast.error("Không thể preview file. Vui lòng thử lại.");
-      }
-    } catch (error: unknown) {
-      console.error("Preview error:", error);
-      const errorMessage =
-        error instanceof Error && "response" in error
-          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (error as any).response?.data?.message
-          : "Có lỗi xảy ra khi preview file. Vui lòng thử lại.";
-      showToast.error(errorMessage);
-    } finally {
-      setIsPreviewLoading(false);
-    }
+    previewMutation.mutate(selectedFile, {
+      onSuccess: (result) => {
+        if (result.success) {
+          setPreviewData(result.data);
+          setCurrentStep("preview");
+        } else {
+          showToast.error("Không thể preview file. Vui lòng thử lại.");
+        }
+      },
+      onError: (error: unknown) => {
+        console.error("Preview error:", error);
+        const errorMessage =
+          error instanceof Error && "response" in error
+            ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (error as any).response?.data?.message
+            : "Có lỗi xảy ra khi preview file. Vui lòng thử lại.";
+        showToast.error(errorMessage);
+      },
+    });
   };
 
   // Confirm import
-  const handleConfirmImport = async () => {
+  const handleConfirmImport = () => {
     if (!previewData || previewData.errors.length > 0) {
       showToast.error("Vui lòng sửa các lỗi trước khi import");
       return;
     }
 
-    setIsImportLoading(true);
-
-    try {
-      const result = await teamService.confirmImportTeams({
+    confirmMutation.mutate(
+      {
         tournamentId,
         teams: previewData.teams,
-      });
-
-      if (result.success) {
-        showToast.success(`Import thành công ${result.data.created} teams!`);
-        handleOpenChange(false);
-        onImportSuccess?.();
-      } else {
-        showToast.error("Import thất bại. Vui lòng thử lại.");
-      }
-    } catch (error: unknown) {
-      console.error("Import error:", error);
-      const errorMessage =
-        error instanceof Error && "response" in error
-          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (error as any).response?.data?.message
-          : "Có lỗi xảy ra khi import. Vui lòng thử lại.";
-      showToast.error(errorMessage);
-    } finally {
-      setIsImportLoading(false);
-    }
+      },
+      {
+        onSuccess: (result) => {
+          if (result.success) {
+            showToast.success(
+              `Import thành công ${result.data.created} teams!`,
+            );
+            handleOpenChange(false);
+            onImportSuccess?.();
+          } else {
+            showToast.error("Import thất bại. Vui lòng thử lại.");
+          }
+        },
+        onError: (error: unknown) => {
+          console.error("Import error:", error);
+          const errorMessage =
+            error instanceof Error && "response" in error
+              ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (error as any).response?.data?.message
+              : "Có lỗi xảy ra khi import. Vui lòng thử lại.";
+          showToast.error(errorMessage);
+        },
+      },
+    );
   };
 
   // Reset state
@@ -152,8 +156,8 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
     setSelectedFile(null);
     setPreviewData(null);
     setCurrentStep("upload");
-    setIsPreviewLoading(false);
-    setIsImportLoading(false);
+    previewMutation.reset();
+    confirmMutation.reset();
   };
 
   // Handle dialog close

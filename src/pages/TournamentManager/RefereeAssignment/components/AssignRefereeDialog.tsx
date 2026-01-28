@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -19,21 +19,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Users, UserPlus } from "lucide-react";
+import { Search, Users, UserPlus, Loader2 } from "lucide-react";
 import { showToast } from "@/utils/toast.utils";
 import {
-  tournamentRefereeService,
-  tournamentService,
-  roleService,
-} from "@/services";
-import type { Tournament, TournamentReferee } from "@/types";
-
-interface User {
-  id: number;
-  username: string;
-  fullName?: string;
-  email?: string;
-}
+  useTournaments,
+  useRefereesByTournament,
+  useAvailableReferees,
+  useAssignReferees,
+} from "@/hooks/queries";
 
 interface AssignRefereeDialogProps {
   open: boolean;
@@ -46,102 +39,59 @@ export default function AssignRefereeDialog({
   onOpenChange,
   onAssigned,
 }: AssignRefereeDialogProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isAssigning, setIsAssigning] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTournamentId, setSelectedTournamentId] = useState<string>("");
   const [selectedRefereeIds, setSelectedRefereeIds] = useState<number[]>([]);
 
-  // Data
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
-  const [referees, setReferees] = useState<User[]>([]);
-  const [assignedReferees, setAssignedReferees] = useState<TournamentReferee[]>(
-    [],
+  // React Query hooks
+  const { data: tournaments = [] } = useTournaments(0, 100);
+
+  const tournamentIdNumber = selectedTournamentId
+    ? parseInt(selectedTournamentId)
+    : 0;
+
+  // Fetch already assigned referees for the tournament
+  const { data: assignedRefereesResponse } = useRefereesByTournament(
+    tournamentIdNumber,
+    0,
+    100,
+    { enabled: tournamentIdNumber > 0 },
   );
 
-  const fetchData = useCallback(async () => {
-    try {
-      setIsLoading(true);
+  const assignedReferees = useMemo(
+    () => assignedRefereesResponse?.data || [],
+    [assignedRefereesResponse],
+  );
 
-      // Fetch tournaments
-      const tournamentsResponse = await tournamentService.getAllTournaments(
-        0,
-        100,
-      );
-      const tournamentsList = Array.isArray(tournamentsResponse)
-        ? tournamentsResponse
-        : (tournamentsResponse as { data?: Tournament[] }).data || [];
-      setTournaments(tournamentsList);
+  // Get already assigned referee IDs to exclude from available list
+  const excludeRefereeIds = useMemo(
+    () => assignedReferees.map((r) => r.refereeId),
+    [assignedReferees],
+  );
 
-      // Fetch users with referee role
-      // Note: This is a placeholder - you might need to implement a user service
-      // For now, we'll use mock data or fetch from role service
-      try {
-        const rolesResponse = await roleService.getAllRoles(0, 100);
-        const roles = Array.isArray(rolesResponse)
-          ? rolesResponse
-          : (rolesResponse as { data?: { name: string }[] }).data || [];
-        const refereeRole = roles.find(
-          (r: { name: string }) => r.name === "referee",
-        );
+  // Fetch available referees for the tournament (excluding already assigned ones)
+  const { data: availableRefereesResponse, isLoading: isLoadingReferees } =
+    useAvailableReferees(tournamentIdNumber, excludeRefereeIds, {
+      enabled: tournamentIdNumber > 0 && open,
+    });
 
-        if (refereeRole) {
-          // Placeholder: In real app, fetch users with this role
-          // For now, set empty array - users should be fetched from user service
-          setReferees([]);
-        }
-      } catch {
-        // Mock referees for demonstration
-        setReferees([
-          { id: 1, username: "referee1", fullName: "Trần Văn Tuấn" },
-          { id: 2, username: "referee2", fullName: "Nguyễn Thị Lan" },
-          { id: 3, username: "referee3", fullName: "Lê Hoàng Nam" },
-          { id: 4, username: "referee4", fullName: "Phạm Thị Hương" },
-          { id: 5, username: "referee5", fullName: "Hoàng Văn Minh" },
-        ]);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      showToast.error("Lỗi", "Không thể tải dữ liệu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  // Transform available referees data for display
+  const availableReferees = useMemo(() => {
+    const referees = availableRefereesResponse?.data || [];
+    return referees.map((tr) => ({
+      id: tr.refereeId,
+      username: tr.referee?.username || `user_${tr.refereeId}`,
+      fullName: tr.referee?.fullName,
+      email: tr.referee?.email,
+    }));
+  }, [availableRefereesResponse]);
 
-  // Fetch tournaments and referees
+  const assignMutation = useAssignReferees();
+
+  // Clear selected referees when tournament changes
   useEffect(() => {
-    if (open) {
-      fetchData();
-    }
-  }, [open, fetchData]);
-
-  // Fetch assigned referees when tournament changes
-  useEffect(() => {
-    if (selectedTournamentId) {
-      fetchAssignedReferees(parseInt(selectedTournamentId));
-    }
+    setSelectedRefereeIds([]);
   }, [selectedTournamentId]);
-
-  const fetchAssignedReferees = async (tournamentId: number) => {
-    try {
-      const response = await tournamentRefereeService.getRefereesByTournament(
-        tournamentId,
-        0,
-        100,
-      );
-      const assigned = response.data || [];
-      setAssignedReferees(assigned);
-
-      // Clear selected referees that are already assigned
-      setSelectedRefereeIds((prev) =>
-        prev.filter(
-          (id) => !assigned.some((a: TournamentReferee) => a.refereeId === id),
-        ),
-      );
-    } catch (error) {
-      console.error("Error fetching assigned referees:", error);
-    }
-  };
 
   const handleToggleReferee = (refereeId: number) => {
     setSelectedRefereeIds((prev) =>
@@ -151,47 +101,44 @@ export default function AssignRefereeDialog({
     );
   };
 
-  const handleAssign = async () => {
+  const handleAssign = () => {
     if (!selectedTournamentId || selectedRefereeIds.length === 0) {
       showToast.error("Lỗi", "Vui lòng chọn giải đấu và ít nhất một trọng tài");
       return;
     }
 
-    try {
-      setIsAssigning(true);
-
-      await tournamentRefereeService.assignReferees({
+    assignMutation.mutate(
+      {
         tournamentId: parseInt(selectedTournamentId),
         refereeIds: selectedRefereeIds,
-      });
-
-      showToast.success(
-        "Thành công",
-        `Đã phân công ${selectedRefereeIds.length} trọng tài vào giải đấu`,
-      );
-
-      setSelectedRefereeIds([]);
-      onOpenChange(false);
-      onAssigned?.();
-    } catch (error) {
-      console.error("Error assigning referees:", error);
-      showToast.error("Lỗi", "Không thể phân công trọng tài");
-    } finally {
-      setIsAssigning(false);
-    }
+      },
+      {
+        onSuccess: () => {
+          showToast.success(
+            "Thành công",
+            `Đã phân công ${selectedRefereeIds.length} trọng tài vào giải đấu`,
+          );
+          setSelectedRefereeIds([]);
+          onOpenChange(false);
+          onAssigned?.();
+        },
+        onError: (error) => {
+          console.error("Error assigning referees:", error);
+          showToast.error("Lỗi", "Không thể phân công trọng tài");
+        },
+      },
+    );
   };
 
-  // Filter referees
-  const filteredReferees = referees.filter((referee) => {
+  const isAssigning = assignMutation.isPending;
+
+  // Filter referees by search query
+  const filteredReferees = availableReferees.filter((referee) => {
+    if (!searchQuery) return true;
     const matchesSearch =
       referee.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       referee.username.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const notAlreadyAssigned = !assignedReferees.some(
-      (a) => a.refereeId === referee.id,
-    );
-
-    return matchesSearch && notAlreadyAssigned;
+    return matchesSearch;
   });
 
   return (
@@ -267,16 +214,26 @@ export default function AssignRefereeDialog({
           <div className="space-y-2">
             <label className="text-sm font-medium">
               Chọn trọng tài ({selectedRefereeIds.length} đã chọn)
+              {availableRefereesResponse?.availableCount !== undefined && (
+                <span className="text-muted-foreground ml-2">
+                  - {availableRefereesResponse.availableCount} trọng tài sẵn
+                  sàng
+                </span>
+              )}
             </label>
             <ScrollArea className="h-64 border rounded-lg">
-              {isLoading ? (
+              {!selectedTournamentId ? (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  Vui lòng chọn giải đấu để xem danh sách trọng tài
+                </div>
+              ) : isLoadingReferees ? (
                 <div className="flex items-center justify-center h-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : filteredReferees.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-muted-foreground">
-                  {referees.length === 0
-                    ? "Không có trọng tài nào"
+                  {availableReferees.length === 0
+                    ? "Không có trọng tài sẵn sàng"
                     : "Không tìm thấy trọng tài phù hợp"}
                 </div>
               ) : (

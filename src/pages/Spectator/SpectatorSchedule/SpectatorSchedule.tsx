@@ -1,45 +1,21 @@
-import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, MapPin } from "lucide-react";
-import { matchService, scheduleService } from "@/services";
-import { showToast } from "@/utils";
-import type { Match, Schedule } from "@/types";
+import { useSchedules, useMatchesByStatus } from "@/hooks/queries";
+import type { Match } from "@/types";
 
 export default function SpectatorSchedule() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [scheduledMatches, setScheduledMatches] = useState<Match[]>([]);
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  // React Query hooks
+  const { data: schedulesResponse, isLoading: isLoadingSchedules } =
+    useSchedules(0, 100);
+  const { data: matchesResponse, isLoading: isLoadingMatches } =
+    useMatchesByStatus("scheduled", 0, 100);
 
-  const fetchMatches = useCallback(async () => {
-    try {
-      setIsLoading(true);
-
-      // Fetch schedules
-      const schedulesResponse = await scheduleService.getAllSchedules(0, 100);
-      if (schedulesResponse.success && schedulesResponse.data) {
-        setSchedules(schedulesResponse.data);
-      }
-
-      // Fetch matches
-      const response = await matchService.getMatchesByStatus(
-        "scheduled",
-        0,
-        100,
-      );
-      const matches = Array.isArray(response) ? response : response.data || [];
-      setScheduledMatches(matches);
-    } catch (error) {
-      console.error("Error fetching matches:", error);
-      showToast.error("Không thể tải lịch thi đấu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchMatches();
-  }, [fetchMatches]);
+  const schedules = schedulesResponse?.data || [];
+  const scheduledMatches = Array.isArray(matchesResponse)
+    ? matchesResponse
+    : matchesResponse?.data || [];
+  const isLoading = isLoadingSchedules || isLoadingMatches;
 
   const groupMatchesByDate = (matches: Match[]) => {
     const grouped: Record<string, Match[]> = {};

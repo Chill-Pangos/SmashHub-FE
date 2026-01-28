@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -42,7 +42,12 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { showToast } from "@/utils/toast.utils";
-import { matchService } from "@/services";
+import {
+  usePendingMatches,
+  usePendingMatchWithElo,
+  useApproveMatch,
+  useRejectMatch,
+} from "@/hooks/queries";
 import type { Match, EloPreview, EloChange } from "@/types";
 
 interface PendingMatchWithElo {
@@ -51,15 +56,9 @@ interface PendingMatchWithElo {
 }
 
 export default function PendingMatchReview() {
-  const [pendingMatches, setPendingMatches] = useState<Match[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isActionLoading, setIsActionLoading] = useState(false);
-
-  // Selected match for review
-  const [selectedMatch, setSelectedMatch] =
-    useState<PendingMatchWithElo | null>(null);
+  // Selected match for ELO preview
+  const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
   const [eloDialogOpen, setEloDialogOpen] = useState(false);
-  const [isLoadingElo, setIsLoadingElo] = useState(false);
 
   // Approve/Reject dialogs
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
@@ -67,44 +66,49 @@ export default function PendingMatchReview() {
   const [reviewNotes, setReviewNotes] = useState("");
   const [matchToAction, setMatchToAction] = useState<Match | null>(null);
 
-  const fetchPendingMatches = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await matchService.getPendingMatches(0, 50);
-      const matches = Array.isArray(response) ? response : response.data || [];
-      setPendingMatches(matches);
-    } catch (error) {
-      console.error("Error fetching pending matches:", error);
-      showToast.error("Lỗi", "Không thể tải danh sách trận đấu chờ duyệt");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  // Fetch pending matches using React Query
+  const {
+    data: pendingMatchesResponse,
+    isLoading,
+    refetch: refetchPendingMatches,
+  } = usePendingMatches(0, 50);
 
-  useEffect(() => {
-    fetchPendingMatches();
-  }, [fetchPendingMatches]);
+  const pendingMatches = Array.isArray(pendingMatchesResponse)
+    ? pendingMatchesResponse
+    : pendingMatchesResponse?.data || [];
 
-  const handleViewEloPreview = async (match: Match) => {
-    try {
-      setIsLoadingElo(true);
-      setEloDialogOpen(true);
+  // Fetch ELO preview for selected match
+  const { data: eloPreviewData, isLoading: isLoadingElo } =
+    usePendingMatchWithElo(selectedMatchId ?? 0, {
+      enabled: selectedMatchId !== null && eloDialogOpen,
+    });
 
-      const response = await matchService.getPendingMatchWithElo(match.id);
-      setSelectedMatch({
-        match: response.match || match,
-        eloPreview: response.eloPreview,
-      });
-    } catch (error) {
-      console.error("Error fetching ELO preview:", error);
-      setSelectedMatch({ match, eloPreview: undefined });
-      showToast.warning(
-        "Cảnh báo",
-        "Không thể tải dự đoán ELO cho trận đấu này",
-      );
-    } finally {
-      setIsLoadingElo(false);
-    }
+  // Build selected match with ELO data
+  const selectedMatch: PendingMatchWithElo | null =
+    selectedMatchId && eloPreviewData
+      ? {
+          match:
+            eloPreviewData.match ||
+            pendingMatches.find((m: Match) => m.id === selectedMatchId),
+          eloPreview: eloPreviewData.eloPreview,
+        }
+      : selectedMatchId
+        ? {
+            match: pendingMatches.find((m: Match) => m.id === selectedMatchId),
+            eloPreview: undefined,
+          }
+        : null;
+
+  // Mutations
+  const approveMatchMutation = useApproveMatch();
+  const rejectMatchMutation = useRejectMatch();
+
+  const isActionLoading =
+    approveMatchMutation.isPending || rejectMatchMutation.isPending;
+
+  const handleViewEloPreview = (match: Match) => {
+    setSelectedMatchId(match.id);
+    setEloDialogOpen(true);
   };
 
   const handleApproveClick = (match: Match) => {
@@ -122,23 +126,24 @@ export default function PendingMatchReview() {
   const handleConfirmApprove = async () => {
     if (!matchToAction) return;
 
-    try {
-      setIsActionLoading(true);
-      await matchService.approveMatch(matchToAction.id, {
-        reviewNotes: reviewNotes || undefined,
-      });
-
-      showToast.success("Thành công", "Đã phê duyệt kết quả trận đấu");
-
-      setApproveDialogOpen(false);
-      setEloDialogOpen(false);
-      fetchPendingMatches();
-    } catch (error) {
-      console.error("Error approving match:", error);
-      showToast.error("Lỗi", "Không thể phê duyệt trận đấu");
-    } finally {
-      setIsActionLoading(false);
-    }
+    approveMatchMutation.mutate(
+      {
+        id: matchToAction.id,
+        data: reviewNotes ? { reviewNotes } : undefined,
+      },
+      {
+        onSuccess: () => {
+          showToast.success("Thành công", "Đã phê duyệt kết quả trận đấu");
+          setApproveDialogOpen(false);
+          setEloDialogOpen(false);
+          setSelectedMatchId(null);
+        },
+        onError: (error) => {
+          console.error("Error approving match:", error);
+          showToast.error("Lỗi", "Không thể phê duyệt trận đấu");
+        },
+      },
+    );
   };
 
   const handleConfirmReject = async () => {
@@ -149,23 +154,24 @@ export default function PendingMatchReview() {
       return;
     }
 
-    try {
-      setIsActionLoading(true);
-      await matchService.rejectMatch(matchToAction.id, {
-        reviewNotes: reviewNotes,
-      });
-
-      showToast.success("Thành công", "Đã từ chối kết quả trận đấu");
-
-      setRejectDialogOpen(false);
-      setEloDialogOpen(false);
-      fetchPendingMatches();
-    } catch (error) {
-      console.error("Error rejecting match:", error);
-      showToast.error("Lỗi", "Không thể từ chối trận đấu");
-    } finally {
-      setIsActionLoading(false);
-    }
+    rejectMatchMutation.mutate(
+      {
+        id: matchToAction.id,
+        data: { reviewNotes },
+      },
+      {
+        onSuccess: () => {
+          showToast.success("Thành công", "Đã từ chối kết quả trận đấu");
+          setRejectDialogOpen(false);
+          setEloDialogOpen(false);
+          setSelectedMatchId(null);
+        },
+        onError: (error) => {
+          console.error("Error rejecting match:", error);
+          showToast.error("Lỗi", "Không thể từ chối trận đấu");
+        },
+      },
+    );
   };
 
   const renderEloChange = (change: EloChange) => {
@@ -221,7 +227,7 @@ export default function PendingMatchReview() {
         </div>
         <Button
           variant="outline"
-          onClick={fetchPendingMatches}
+          onClick={() => refetchPendingMatches()}
           disabled={isLoading}
         >
           <RefreshCw

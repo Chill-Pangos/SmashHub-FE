@@ -1,52 +1,32 @@
-import { useState, useEffect, useCallback } from "react";
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock } from "lucide-react";
-import { matchService } from "@/services";
-import { showToast } from "@/utils";
 import type { Match } from "@/types";
+import { useMatchesByStatus } from "@/hooks/queries";
 
 export default function AthleteSchedule() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [scheduledMatches, setScheduledMatches] = useState<Match[]>([]);
-  const [inProgressMatches, setInProgressMatches] = useState<Match[]>([]);
+  // Fetch scheduled matches
+  const { data: scheduledData, isLoading: scheduledLoading } =
+    useMatchesByStatus("scheduled", 0, 50);
 
-  const fetchMatches = useCallback(async () => {
-    try {
-      setIsLoading(true);
+  // Fetch in_progress matches
+  const { data: inProgressData, isLoading: inProgressLoading } =
+    useMatchesByStatus("in_progress", 0, 50);
 
-      // Fetch scheduled matches
-      const scheduledResponse = await matchService.getMatchesByStatus(
-        "scheduled",
-        0,
-        50,
-      );
-      const scheduled = Array.isArray(scheduledResponse)
-        ? scheduledResponse
-        : scheduledResponse.data || [];
-      setScheduledMatches(scheduled);
+  const scheduledMatches: Match[] = useMemo(() => {
+    return Array.isArray(scheduledData)
+      ? scheduledData
+      : scheduledData?.data || [];
+  }, [scheduledData]);
 
-      // Fetch in_progress matches
-      const inProgressResponse = await matchService.getMatchesByStatus(
-        "in_progress",
-        0,
-        50,
-      );
-      const inProgress = Array.isArray(inProgressResponse)
-        ? inProgressResponse
-        : inProgressResponse.data || [];
-      setInProgressMatches(inProgress);
-    } catch (error) {
-      console.error("Error fetching matches:", error);
-      showToast.error("Không thể tải lịch thi đấu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const inProgressMatches: Match[] = useMemo(() => {
+    return Array.isArray(inProgressData)
+      ? inProgressData
+      : inProgressData?.data || [];
+  }, [inProgressData]);
 
-  useEffect(() => {
-    fetchMatches();
-  }, [fetchMatches]);
+  const isLoading = scheduledLoading || inProgressLoading;
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "outline"> = {

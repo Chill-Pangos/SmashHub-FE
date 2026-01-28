@@ -8,7 +8,7 @@ import {
   DelegationSelection,
   ConfirmationSummary,
 } from "./components";
-import { tournamentService } from "@/services";
+import { useCreateTournament } from "@/hooks/queries";
 import { showToast } from "@/utils/toast.utils";
 import {
   validateTournamentForm,
@@ -26,13 +26,16 @@ import type {
 
 export default function TournamentSetupWizard() {
   const [step, setStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdTournament, setCreatedTournament] = useState<Tournament | null>(
-    null
+    null,
   );
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
-    {}
+    {},
   );
+
+  // React Query mutation
+  const createTournamentMutation = useCreateTournament();
+  const isSubmitting = createTournamentMutation.isPending;
 
   const [formData, setFormData] = useState<TournamentFormData>({
     name: "",
@@ -63,7 +66,7 @@ export default function TournamentSetupWizard() {
     if (tournamentContents.length >= 1) {
       showToast.error(
         "Không thể thêm nội dung thi đấu",
-        "Hiện tại hệ thống chỉ cho phép tạo 1 nội dung thi đấu cho mỗi giải đấu"
+        "Hiện tại hệ thống chỉ cho phép tạo 1 nội dung thi đấu cho mỗi giải đấu",
       );
       return;
     }
@@ -76,7 +79,7 @@ export default function TournamentSetupWizard() {
 
   const handleUpdateContent = (
     index: number,
-    content: TournamentContentFormData
+    content: TournamentContentFormData,
   ) => {
     const updated = [...tournamentContents];
     updated[index] = content;
@@ -95,7 +98,7 @@ export default function TournamentSetupWizard() {
     return true;
   };
 
-  const handleCreateTournament = async () => {
+  const handleCreateTournament = () => {
     // Final validation before submission
     const tournamentErrors = validateTournamentForm(formData);
     if (Object.keys(tournamentErrors).length > 0) {
@@ -106,7 +109,8 @@ export default function TournamentSetupWizard() {
     }
 
     // Validate contents count
-    const contentsCountError = validateTournamentContentsCount(tournamentContents);
+    const contentsCountError =
+      validateTournamentContentsCount(tournamentContents);
     if (contentsCountError) {
       showToast.error(contentsCountError);
       setStep(2);
@@ -115,10 +119,10 @@ export default function TournamentSetupWizard() {
 
     // Validate all contents
     const contentErrors = tournamentContents.map((content) =>
-      validateTournamentContentForm(content)
+      validateTournamentContentForm(content),
     );
     const hasContentErrors = contentErrors.some(
-      (errors) => Object.keys(errors).length > 0
+      (errors) => Object.keys(errors).length > 0,
     );
     if (hasContentErrors) {
       showToast.error("Vui lòng kiểm tra lại thông tin nội dung thi đấu");
@@ -126,62 +130,64 @@ export default function TournamentSetupWizard() {
       return;
     }
 
-    try {
-      setIsSubmitting(true);
+    // Prepare request data
+    const contents: CreateTournamentContentRequest[] = tournamentContents.map(
+      (content) => ({
+        name: content.name,
+        type: content.type,
+        maxEntries: content.maxEntries,
+        maxSets: content.maxSets,
+        racketCheck: content.racketCheck,
+        numberOfSingles: content.numberOfSingles,
+        numberOfDoubles: content.numberOfDoubles,
+        minAge: content.minAge,
+        maxAge: content.maxAge,
+        minElo: content.minElo,
+        maxElo: content.maxElo,
+        gender: content.gender,
+        isGroupStage: content.isGroupStage,
+      }),
+    );
 
-      // Prepare request data
-      const contents: CreateTournamentContentRequest[] = tournamentContents.map(
-        (content) => ({
-          name: content.name,
-          type: content.type,
-          maxEntries: content.maxEntries,
-          maxSets: content.maxSets,
-          racketCheck: content.racketCheck,
-          numberOfSingles: content.numberOfSingles,
-          numberOfDoubles: content.numberOfDoubles,
-          minAge: content.minAge,
-          maxAge: content.maxAge,
-          minElo: content.minElo,
-          maxElo: content.maxElo,
-          gender: content.gender,
-          isGroupStage: content.isGroupStage,
-        })
-      );
+    const requestData: CreateTournamentRequest = {
+      name: formData.name,
+      startDate: new Date(formData.startDate).toISOString(),
+      endDate: new Date(formData.endDate).toISOString(),
+      location: formData.location,
+      status: formData.status || "upcoming",
+      numberOfTables: formData.numberOfTables || 1,
+      contents,
+    };
 
-      const requestData: CreateTournamentRequest = {
-        name: formData.name,
-        startDate: new Date(formData.startDate).toISOString(),
-        endDate: new Date(formData.endDate).toISOString(),
-        location: formData.location,
-        status: formData.status || "upcoming",
-        numberOfTables: formData.numberOfTables || 1,
-        contents,
-      };
-
-      const response = await tournamentService.createTournament(requestData);
-
-      if (response.success && response.data) {
-        setCreatedTournament(response.data);
-        showToast.success("Tạo giải đấu thành công!", response.message);
-        setStep(5); // Move to success step
-      } else {
-        showToast.error("Không thể tạo giải đấu", "Vui lòng thử lại");
-      }
-    } catch (error) {
-      console.error("Error creating tournament:", error);
-      showToast.error(
-        "Đã có lỗi xảy ra khi tạo giải đấu",
-        error instanceof Error ? error.message : "Vui lòng thử lại"
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
+    createTournamentMutation.mutate(requestData, {
+      onSuccess: (response) => {
+        if (response.success && response.data) {
+          setCreatedTournament(response.data);
+          showToast.success("Tạo giải đấu thành công!", response.message);
+          setStep(5); // Move to success step
+        } else {
+          showToast.error("Không thể tạo giải đấu", "Vui lòng thử lại");
+        }
+      },
+      onError: (error) => {
+        console.error("Error creating tournament:", error);
+        showToast.error(
+          "Đã có lỗi xảy ra khi tạo giải đấu",
+          error instanceof Error ? error.message : "Vui lòng thử lại",
+        );
+      },
+    });
   };
 
   const canProceed = () => {
     switch (step) {
       case 1:
-        return formData.name && formData.startDate && formData.endDate && formData.location;
+        return (
+          formData.name &&
+          formData.startDate &&
+          formData.endDate &&
+          formData.location
+        );
       case 2:
         return tournamentContents.length > 0;
       case 3:

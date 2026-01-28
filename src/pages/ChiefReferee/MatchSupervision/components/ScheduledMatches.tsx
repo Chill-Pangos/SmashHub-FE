@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -9,7 +9,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, MapPin, Play, RefreshCw, Users } from "lucide-react";
-import { matchService, scheduleService } from "@/services";
+import {
+  useMatchesByStatus,
+  useStartMatch,
+  useSchedules,
+} from "@/hooks/queries";
 import { showToast } from "@/utils/toast.utils";
 import type { Match, Schedule } from "@/types";
 
@@ -19,76 +23,62 @@ interface ScheduledMatchWithSchedule {
 }
 
 export default function ScheduledMatches() {
-  const [matches, setMatches] = useState<ScheduledMatchWithSchedule[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [startingMatchId, setStartingMatchId] = useState<number | null>(null);
 
-  const fetchScheduledMatches = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await matchService.getMatchesByStatus(
-        "scheduled",
-        0,
-        50,
-      );
-      const matchList = Array.isArray(response)
-        ? response
-        : response.data || [];
+  // Fetch scheduled matches using React Query
+  const {
+    data: matchesResponse,
+    isLoading,
+    refetch: refetchMatches,
+  } = useMatchesByStatus("scheduled", 0, 50);
 
-      // Fetch schedules for each match
-      const matchesWithSchedules: ScheduledMatchWithSchedule[] =
-        await Promise.all(
-          matchList.map(async (match: Match) => {
-            try {
-              const scheduleResponse = await scheduleService.getScheduleById(
-                match.scheduleId,
-              );
-              // Handle both ApiResponse wrapper and direct Schedule response
-              let schedule: Schedule | undefined;
-              if (scheduleResponse && typeof scheduleResponse === "object") {
-                if ("data" in scheduleResponse && scheduleResponse.data) {
-                  schedule = scheduleResponse.data as Schedule;
-                } else if ("contentId" in scheduleResponse) {
-                  // Direct Schedule object (has contentId which is required field)
-                  schedule = scheduleResponse as unknown as Schedule;
-                }
-              }
-              return { match, schedule };
-            } catch {
-              return { match, schedule: undefined };
-            }
-          }),
-        );
+  // Fetch all schedules to map to matches
+  const { data: schedulesResponse } = useSchedules(0, 100);
 
-      setMatches(matchesWithSchedules);
-    } catch (error) {
-      console.error("Error fetching scheduled matches:", error);
-      showToast.error("Lỗi", "Không thể tải danh sách trận đấu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  // Process matches with their schedules
+  const matches = useMemo<ScheduledMatchWithSchedule[]>(() => {
+    const matchList = Array.isArray(matchesResponse)
+      ? matchesResponse
+      : matchesResponse?.data || [];
 
-  useEffect(() => {
-    fetchScheduledMatches();
-  }, [fetchScheduledMatches]);
+    const scheduleList = Array.isArray(schedulesResponse)
+      ? schedulesResponse
+      : schedulesResponse?.data || [];
+
+    // Create a map of schedules by ID for quick lookup
+    const scheduleMap = new Map<number, Schedule>();
+    scheduleList.forEach((schedule: Schedule) => {
+      scheduleMap.set(schedule.id, schedule);
+    });
+
+    return matchList.map((match: Match) => ({
+      match,
+      schedule: scheduleMap.get(match.scheduleId),
+    }));
+  }, [matchesResponse, schedulesResponse]);
+
+  // Start match mutation
+  const startMatchMutation = useStartMatch();
 
   /**
    * Start a match - Chief Referee only
    * This changes the match status from "scheduled" to "in_progress"
    */
   const handleStartMatch = async (matchId: number) => {
-    try {
-      setStartingMatchId(matchId);
-      await matchService.startMatch(matchId);
-      showToast.success("Thành công", "Đã bắt đầu trận đấu");
-      fetchScheduledMatches();
-    } catch (error) {
-      console.error("Error starting match:", error);
-      showToast.error("Lỗi", "Không thể bắt đầu trận đấu");
-    } finally {
-      setStartingMatchId(null);
-    }
+    setStartingMatchId(matchId);
+    startMatchMutation.mutate(matchId, {
+      onSuccess: () => {
+        showToast.success("Thành công", "Đã bắt đầu trận đấu");
+        refetchMatches();
+      },
+      onError: (error) => {
+        console.error("Error starting match:", error);
+        showToast.error("Lỗi", "Không thể bắt đầu trận đấu");
+      },
+      onSettled: () => {
+        setStartingMatchId(null);
+      },
+    });
   };
 
   if (isLoading) {
@@ -122,7 +112,7 @@ export default function ScheduledMatches() {
               {matches.length} trận đang chờ bắt đầu
             </CardDescription>
           </div>
-          <Button variant="outline" size="sm" onClick={fetchScheduledMatches}>
+          <Button variant="outline" size="sm" onClick={() => refetchMatches()}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Làm mới
           </Button>

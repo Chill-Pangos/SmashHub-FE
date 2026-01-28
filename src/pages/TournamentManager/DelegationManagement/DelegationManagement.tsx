@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -21,64 +21,30 @@ import {
 } from "lucide-react";
 import TeamImportDialog from "@/components/custom/TeamImportDialog";
 import EntryImportDialog from "@/components/custom/EntryImportDialog";
-import { tournamentService } from "@/services";
-import type { Tournament } from "@/types";
+import { useTournaments, useTournament } from "@/hooks/queries";
+
 import { showToast } from "@/utils";
 
 export default function DelegationManagement() {
   const [activeStep, setActiveStep] = useState<"teams" | "entries">("teams");
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [selectedTournamentId, setSelectedTournamentId] = useState<
     number | null
   >(null);
-  const [selectedTournament, setSelectedTournament] =
-    useState<Tournament | null>(null);
   const [selectedContentId, setSelectedContentId] = useState<number | null>(
     null,
   );
   const [teamImportOpen, setTeamImportOpen] = useState(false);
   const [entryImportOpen, setEntryImportOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  // Load tournaments on mount
-  useEffect(() => {
-    loadTournaments();
-  }, []);
+  // React Query hooks
+  const { data: tournaments = [], isLoading: isLoadingTournaments } =
+    useTournaments(0, 100);
+  const { data: selectedTournament, isLoading: isLoadingDetails } =
+    useTournament(selectedTournamentId || 0, {
+      enabled: !!selectedTournamentId,
+    });
 
-  // Load tournament details when selected
-  useEffect(() => {
-    if (selectedTournamentId) {
-      loadTournamentDetails(selectedTournamentId);
-    } else {
-      setSelectedTournament(null);
-    }
-  }, [selectedTournamentId]);
-
-  const loadTournaments = async () => {
-    try {
-      setLoading(true);
-      const data = await tournamentService.getAllTournaments(0, 100);
-      setTournaments(data);
-    } catch (error) {
-      showToast.error("Không thể tải danh sách giải đấu");
-      console.error("Error loading tournaments:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadTournamentDetails = async (tournamentId: number) => {
-    try {
-      setLoading(true);
-      const data = await tournamentService.getTournamentById(tournamentId);
-      setSelectedTournament(data);
-    } catch (error) {
-      showToast.error("Không thể tải thông tin giải đấu");
-      console.error("Error loading tournament details:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loading = isLoadingTournaments || isLoadingDetails;
 
   const handleDownloadTeamTemplate = () => {
     const link = document.createElement("a");

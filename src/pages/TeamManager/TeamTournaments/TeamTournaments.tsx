@@ -1,45 +1,32 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Calendar, MapPin, Users } from "lucide-react";
-import { tournamentService } from "@/services";
-import { showToast } from "@/utils";
-import type { Tournament } from "@/types";
+import { useTournaments, useTournamentsByStatus } from "@/hooks/queries";
+import type { TournamentStatus } from "@/types";
 
 export default function TeamTournaments() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [filter, setFilter] = useState<
     "all" | "upcoming" | "ongoing" | "completed"
   >("all");
 
-  const fetchTournaments = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      let response: Tournament[];
+  // React Query hooks - conditionally fetch based on filter
+  const allTournamentsQuery = useTournaments(0, 50);
+  const statusTournamentsQuery = useTournamentsByStatus(
+    filter as TournamentStatus,
+    0,
+    50,
+    { enabled: filter !== "all" },
+  );
 
-      if (filter === "all") {
-        response = await tournamentService.getAllTournaments(0, 50);
-      } else {
-        response = await tournamentService.getTournamentsByStatus(
-          filter,
-          0,
-          50,
-        );
-      }
-
-      setTournaments(response);
-    } catch (error) {
-      console.error("Error fetching tournaments:", error);
-      showToast.error("Không thể tải danh sách giải đấu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [filter]);
-
-  useEffect(() => {
-    fetchTournaments();
-  }, [fetchTournaments]);
+  const isLoading =
+    filter === "all"
+      ? allTournamentsQuery.isLoading
+      : statusTournamentsQuery.isLoading;
+  const tournaments =
+    filter === "all"
+      ? allTournamentsQuery.data || []
+      : statusTournamentsQuery.data || [];
 
   const getStatusBadge = (status: string) => {
     const variants: Record<

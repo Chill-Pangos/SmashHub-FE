@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,89 +20,55 @@ import {
   MapPin,
   Calendar,
 } from "lucide-react";
-import { teamMemberService, tournamentService } from "@/services";
 import { useAuth } from "@/store/useAuth";
 import { showToast } from "@/utils";
-import type { TeamMember, Tournament, TournamentContent } from "@/types";
+import type { TeamMember, TournamentContent } from "@/types";
 import EntryImportDialog from "@/components/custom/EntryImportDialog";
 import TeamImportDialog from "@/components/custom/TeamImportDialog";
+import {
+  useTeamsByUser,
+  useTournamentsByStatus,
+  useTournament,
+} from "@/hooks/queries";
 
 export default function TeamRegistration() {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
+
+  // Local UI state
   const [activeStep, setActiveStep] = useState<"team" | "entries">("team");
-  const [myTeams, setMyTeams] = useState<TeamMember[]>([]);
   const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [selectedTournamentId, setSelectedTournamentId] = useState<
     number | null
   >(null);
-  const [selectedTournament, setSelectedTournament] =
-    useState<Tournament | null>(null);
   const [selectedContent, setSelectedContent] =
     useState<TournamentContent | null>(null);
   const [entryDialogOpen, setEntryDialogOpen] = useState(false);
   const [teamImportOpen, setTeamImportOpen] = useState(false);
   const [teamImported, setTeamImported] = useState(false);
 
-  // Fetch teams where user is team_manager
-  const fetchMyTeams = useCallback(async () => {
-    if (!user?.id) return;
+  // React Query hooks for data fetching
+  const {
+    data: teamsData,
+    isLoading: isTeamsLoading,
+    refetch: refetchTeams,
+  } = useTeamsByUser(user?.id || 0, 0, 50, {
+    enabled: !!user?.id,
+  });
 
-    try {
-      const response = await teamMemberService.getTeamsByUserId(user.id, 0, 50);
-      const managerTeams = response.filter((tm) => tm.role === "team_manager");
-      setMyTeams(managerTeams);
+  const { data: tournaments = [], isLoading: isTournamentsLoading } =
+    useTournamentsByStatus("upcoming", 0, 50);
 
-      if (managerTeams.length > 0) {
-        setSelectedTeamId(managerTeams[0].team?.id || null);
-      }
-    } catch (error) {
-      console.error("Error fetching teams:", error);
-      showToast.error("Không thể tải danh sách đoàn");
-    }
-  }, [user?.id]);
+  const { data: selectedTournament, refetch: refetchTournament } =
+    useTournament(selectedTournamentId || 0, {
+      enabled: !!selectedTournamentId,
+    });
 
-  // Fetch tournaments
-  const fetchTournaments = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await tournamentService.getTournamentsByStatus(
-        "upcoming",
-        0,
-        50,
-      );
-      setTournaments(response);
-    } catch (error) {
-      console.error("Error fetching tournaments:", error);
-      showToast.error("Không thể tải danh sách giải đấu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  // Filter teams where user is team_manager
+  const myTeams: TeamMember[] =
+    teamsData?.filter((tm) => tm.role === "team_manager") || [];
 
-  // Fetch tournament details
-  const fetchTournamentDetails = useCallback(async (id: number) => {
-    try {
-      const tournament = await tournamentService.getTournamentById(id);
-      setSelectedTournament(tournament);
-    } catch (error) {
-      console.error("Error fetching tournament:", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchMyTeams();
-    fetchTournaments();
-  }, [fetchMyTeams, fetchTournaments]);
-
-  useEffect(() => {
-    if (selectedTournamentId) {
-      fetchTournamentDetails(selectedTournamentId);
-    } else {
-      setSelectedTournament(null);
-    }
-  }, [selectedTournamentId, fetchTournamentDetails]);
+  // Derive loading state from React Query
+  const isLoading = isTeamsLoading || isTournamentsLoading;
 
   const handleOpenEntryDialog = (content: TournamentContent) => {
     setSelectedContent(content);
@@ -113,8 +79,8 @@ export default function TeamRegistration() {
     setTeamImportOpen(false);
     setTeamImported(true);
     showToast.success("Import thành công", "Đã import danh sách đoàn thể thao");
-    // Refresh teams
-    fetchMyTeams();
+    // Refresh teams using React Query
+    refetchTeams();
     // Move to next step
     setActiveStep("entries");
   };
@@ -122,10 +88,8 @@ export default function TeamRegistration() {
   const handleEntryImportSuccess = () => {
     setEntryDialogOpen(false);
     showToast.success("Đăng ký thành công", "Đã đăng ký nội dung thi đấu");
-    // Refresh data
-    if (selectedTournamentId) {
-      fetchTournamentDetails(selectedTournamentId);
-    }
+    // Refresh tournament data using React Query
+    refetchTournament();
   };
 
   const handleDownloadTeamTemplate = () => {

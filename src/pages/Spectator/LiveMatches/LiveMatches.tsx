@@ -1,41 +1,33 @@
-import { useState, useEffect, useCallback } from "react";
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Radio, RefreshCw, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { matchService } from "@/services";
-import { showToast } from "@/utils";
+import { useMatchesByStatus } from "@/hooks/queries";
 import type { Match } from "@/types";
 
 export default function LiveMatches() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [liveMatches, setLiveMatches] = useState<Match[]>([]);
+  // Fetch live matches using React Query with auto-refetch every 30 seconds
+  const {
+    data: liveMatchesData,
+    isLoading,
+    refetch,
+    isFetching,
+  } = useMatchesByStatus("in_progress", 0, 50, {
+    refetchInterval: 30000, // Auto refresh every 30 seconds
+  } as { enabled?: boolean; refetchInterval?: number });
 
-  const fetchLiveMatches = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await matchService.getMatchesByStatus(
-        "in_progress",
-        0,
-        50,
-      );
-      const matches = Array.isArray(response) ? response : response.data || [];
-      setLiveMatches(matches);
-    } catch (error) {
-      console.error("Error fetching live matches:", error);
-      showToast.error("Không thể tải trận đấu trực tiếp");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  // Derive live matches from query data
+  const liveMatches = useMemo(() => {
+    if (!liveMatchesData) return [];
+    return Array.isArray(liveMatchesData)
+      ? liveMatchesData
+      : (liveMatchesData as { data?: Match[] }).data || [];
+  }, [liveMatchesData]);
 
-  useEffect(() => {
-    fetchLiveMatches();
-
-    // Auto refresh every 30 seconds
-    const interval = setInterval(fetchLiveMatches, 30000);
-    return () => clearInterval(interval);
-  }, [fetchLiveMatches]);
+  const handleRefresh = () => {
+    refetch();
+  };
 
   if (isLoading) {
     return (
@@ -61,8 +53,10 @@ export default function LiveMatches() {
             Theo dõi các trận đấu đang diễn ra
           </p>
         </div>
-        <Button variant="outline" onClick={fetchLiveMatches}>
-          <RefreshCw className="h-4 w-4 mr-2" />
+        <Button variant="outline" onClick={handleRefresh} disabled={isFetching}>
+          <RefreshCw
+            className={`h-4 w-4 mr-2 ${isFetching ? "animate-spin" : ""}`}
+          />
           Làm mới
         </Button>
       </div>

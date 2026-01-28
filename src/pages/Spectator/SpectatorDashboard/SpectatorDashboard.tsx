@@ -1,52 +1,35 @@
-import { useState, useEffect, useCallback } from "react";
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Calendar, Radio, Users } from "lucide-react";
-import { tournamentService, matchService } from "@/services";
-import { showToast } from "@/utils";
-import type { Tournament, Match } from "@/types";
+import { useTournamentsByStatus, useMatchesByStatus } from "@/hooks/queries";
+import type { Match } from "@/types";
 
 export default function SpectatorDashboard() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
-  const [liveMatches, setLiveMatches] = useState<Match[]>([]);
+  // Fetch ongoing tournaments using React Query
+  const { data: tournamentsData, isLoading: isTournamentsLoading } =
+    useTournamentsByStatus("ongoing", 0, 10);
 
-  const fetchData = useCallback(async () => {
-    try {
-      setIsLoading(true);
+  // Fetch live matches using React Query
+  const { data: liveMatchesData, isLoading: isMatchesLoading } =
+    useMatchesByStatus("in_progress", 0, 10);
 
-      // Fetch ongoing tournaments
-      const tournamentResponse = await tournamentService.getAllTournaments(
-        0,
-        10,
-      );
-      setTournaments(
-        tournamentResponse
-          .filter((t: Tournament) => t.status === "ongoing")
-          .slice(0, 5),
-      );
+  // Derive tournaments from query data
+  const tournaments = useMemo(() => {
+    if (!tournamentsData) return [];
+    const data = Array.isArray(tournamentsData) ? tournamentsData : [];
+    return data.slice(0, 5);
+  }, [tournamentsData]);
 
-      // Fetch live matches
-      const liveMatchesResponse = await matchService.getMatchesByStatus(
-        "in_progress",
-        0,
-        10,
-      );
-      const matches = Array.isArray(liveMatchesResponse)
-        ? liveMatchesResponse
-        : liveMatchesResponse.data || [];
-      setLiveMatches(matches);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      showToast.error("Không thể tải dữ liệu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  // Derive live matches from query data
+  const liveMatches = useMemo(() => {
+    if (!liveMatchesData) return [];
+    return Array.isArray(liveMatchesData)
+      ? liveMatchesData
+      : (liveMatchesData as { data?: Match[] }).data || [];
+  }, [liveMatchesData]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const isLoading = isTournamentsLoading || isMatchesLoading;
 
   if (isLoading) {
     return (

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -9,61 +9,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Calendar, Clock, MapPin } from "lucide-react";
-import { scheduleService, tournamentService, matchService } from "@/services";
-import { showToast } from "@/utils";
-import type { Tournament, Schedule, Match } from "@/types";
+import { useTournaments, useSchedules, useMatches } from "@/hooks/queries";
 
 export default function TeamSchedule() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [selectedTournamentId, setSelectedTournamentId] = useState<
     number | null
   >(null);
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [matches, setMatches] = useState<Match[]>([]);
 
-  const fetchTournaments = useCallback(async () => {
-    try {
-      const response = await tournamentService.getAllTournaments(0, 50);
-      setTournaments(response);
-    } catch (error) {
-      console.error("Error fetching tournaments:", error);
-    }
-  }, []);
+  // React Query hooks
+  const tournamentsQuery = useTournaments(0, 50);
+  const schedulesQuery = useSchedules(0, 100);
+  const matchesQuery = useMatches(0, 100);
 
-  const fetchSchedules = useCallback(async () => {
-    if (!selectedTournamentId) return;
+  // Derived data
+  const tournaments = tournamentsQuery.data || [];
+  const schedules = schedulesQuery.data?.success
+    ? schedulesQuery.data.data || []
+    : [];
+  const matches = Array.isArray(matchesQuery.data)
+    ? matchesQuery.data
+    : matchesQuery.data?.data || [];
 
-    try {
-      setIsLoading(true);
-      const response = await scheduleService.getAllSchedules(0, 100);
-      if (response.success && response.data) {
-        setSchedules(response.data);
-      }
-
-      // Fetch matches
-      const matchesResponse = await matchService.getAllMatches(0, 100);
-      const matchesArray = Array.isArray(matchesResponse)
-        ? matchesResponse
-        : matchesResponse.data || [];
-      setMatches(matchesArray);
-    } catch (error) {
-      console.error("Error fetching schedules:", error);
-      showToast.error("Không thể tải lịch thi đấu");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [selectedTournamentId]);
-
-  useEffect(() => {
-    fetchTournaments();
-  }, [fetchTournaments]);
-
-  useEffect(() => {
-    if (selectedTournamentId) {
-      fetchSchedules();
-    }
-  }, [selectedTournamentId, fetchSchedules]);
+  // Loading states
+  const isInitialLoading = tournamentsQuery.isLoading;
+  const isScheduleLoading = schedulesQuery.isLoading || matchesQuery.isLoading;
 
   const getStatusBadge = (status: string) => {
     const variants: Record<
@@ -87,7 +56,7 @@ export default function TeamSchedule() {
     );
   };
 
-  if (isLoading && !selectedTournamentId) {
+  if (isInitialLoading) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
@@ -147,7 +116,7 @@ export default function TeamSchedule() {
             <CardTitle>Lịch trận đấu</CardTitle>
           </CardHeader>
           <CardContent>
-            {isLoading ? (
+            {isScheduleLoading ? (
               <div className="flex justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
