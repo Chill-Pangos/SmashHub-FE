@@ -119,30 +119,6 @@ export default function RefereeDashboard() {
     fetchMatches();
   }, [fetchMatches]);
 
-  // Start a match
-  const handleStartMatch = async (matchId: number) => {
-    try {
-      const response = await matchService.startMatch(matchId);
-      const startedMatch =
-        "data" in response && response.data
-          ? response.data
-          : (response as unknown as Match);
-
-      setActiveMatch(startedMatch);
-      setMatchSets([]);
-
-      // Remove from upcoming
-      setUpcomingMatches((prev) =>
-        prev.filter((um) => um.match.id !== matchId),
-      );
-
-      showToast.success("Thành công", "Trận đấu đã bắt đầu");
-    } catch (error) {
-      console.error("Error starting match:", error);
-      showToast.error("Lỗi", "Không thể bắt đầu trận đấu");
-    }
-  };
-
   // Add score for a set
   const handleAddScore = async (entryAScore: number, entryBScore: number) => {
     if (!activeMatch) return;
@@ -227,11 +203,7 @@ export default function RefereeDashboard() {
           isFinalizing={isFinalizing}
         />
 
-        <UpcomingMatches
-          matches={upcomingMatches}
-          onStartMatch={handleStartMatch}
-          isLoading={isLoading}
-        />
+        <UpcomingMatches matches={upcomingMatches} isLoading={isLoading} />
       </div>
     </div>
   );

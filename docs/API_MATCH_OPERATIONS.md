@@ -208,6 +208,7 @@ GET /api/matches/pending
 Lấy danh sách các trận đấu đang **chờ phê duyệt kết quả** (`resultStatus = 'pending'`).
 
 **Use case:**
+
 - Trưởng ban trọng tài (Chief Referee) xem danh sách trận cần duyệt
 - Dashboard quản lý kết quả trận đấu
 - Theo dõi trận đấu đã finalize nhưng chưa được approve
@@ -441,11 +442,13 @@ POST /api/matches/{id}/start
 ### **Description**
 
 Bắt đầu một trận đấu:
+
 - Tự động tìm và assign **2 trọng tài** (umpire + assistant umpire) còn trống
 - Thay đổi status từ `scheduled` → `in_progress`
 - Chỉ start được khi match đang ở trạng thái `scheduled`
 
 **Use case:**
+
 - Khi trận đấu sắp bắt đầu, gọi API này để chuẩn bị
 - Hệ thống tự động phân công trọng tài không bị trùng lịch
 - Frontend có thể hiển thị thông tin trọng tài được assign
@@ -525,6 +528,7 @@ GET /api/matches/{id}/pending-with-elo
 Lấy thông tin chi tiết trận đấu đang pending **kèm theo preview thay đổi ELO** cho tất cả players.
 
 **Use case:**
+
 - Chief Referee xem chi tiết trận đấu trước khi approve
 - Kiểm tra điểm ELO sẽ thay đổi như thế nào
 - Đảm bảo kết quả hợp lý trước khi phê duyệt
@@ -639,6 +643,7 @@ Tổng kết và kết thúc trận đấu:
    - Liên kết winner vào `nextBracketId`
 
 **⚠️ Điều kiện:**
+
 - Match phải đang ở trạng thái `in_progress`
 - Phải có đủ sets đã hoàn thành
 - Phải có người thắng rõ ràng (không hòa)
@@ -677,6 +682,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Kết quả:**
+
 - ✅ Entry A (ID: 10) thắng 2-0
 - ✅ Group standings đã được update
 - ✅ Match status = completed
@@ -699,6 +705,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Kết quả:**
+
 - ✅ Entry B (ID: 7) thắng 2-1
 - ✅ Knockout bracket đã được update với winner
 - ✅ Nếu đối thủ vòng sau đã có, match tiếp theo sẽ được tạo tự động
@@ -773,9 +780,9 @@ POST /api/matches/{id}/approve
 
 ### **Request Body**
 
-| Field         | Type   | Required | Description                       |
-| ------------- | ------ | -------- | --------------------------------- |
-| `reviewNotes` | string | No       | Ghi chú từ trưởng ban trọng tài   |
+| Field         | Type   | Required | Description                     |
+| ------------- | ------ | -------- | ------------------------------- |
+| `reviewNotes` | string | No       | Ghi chú từ trưởng ban trọng tài |
 
 ### **Request Example**
 
@@ -836,6 +843,7 @@ POST /api/matches/{id}/reject
 4. **Không update** standings/brackets/ELO
 
 **Use case:**
+
 - Kết quả không chính xác
 - Cần kiểm tra lại video
 - Có khiếu nại từ đội thi đấu
@@ -848,9 +856,9 @@ POST /api/matches/{id}/reject
 
 ### **Request Body**
 
-| Field         | Type   | Required | Description                          |
-| ------------- | ------ | -------- | ------------------------------------ |
-| `reviewNotes` | string | **Yes**  | Lý do từ chối (bắt buộc phải có)     |
+| Field         | Type   | Required | Description                      |
+| ------------- | ------ | -------- | -------------------------------- |
+| `reviewNotes` | string | **Yes**  | Lý do từ chối (bắt buộc phải có) |
 
 ### **Request Example**
 
@@ -905,6 +913,7 @@ GET /api/matches/{id}/elo-preview
 Preview thay đổi điểm ELO cho tất cả players **trước khi** match được approve.
 
 **Thông tin trả về:**
+
 - ELO trung bình của mỗi entry
 - Expected score dựa trên ELO
 - Actual score (thắng/thua)
@@ -1228,6 +1237,7 @@ POST /api/matches/1/reject
 ```
 
 **Result Status Flow:**
+
 - `null` → Match chưa finalize
 - `pending` → Chờ Chief Referee approve
 - `approved` → Đã được approve, ELO đã cập nhật

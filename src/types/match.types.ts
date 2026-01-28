@@ -87,6 +87,7 @@ export interface UpdateMatchRequest {
 
 /**
  * Start match request
+ * @description Used by Chief Referee only to start a scheduled match
  */
 export interface StartMatchRequest {
   matchId: number;
@@ -94,6 +95,7 @@ export interface StartMatchRequest {
 
 /**
  * Finalize match request (no body needed, matchId is in URL)
+ * @description Used by Referee to finalize a match after all sets are completed
  */
 export interface FinalizeMatchRequest {
   matchId: number;
@@ -101,6 +103,7 @@ export interface FinalizeMatchRequest {
 
 /**
  * Approve match result request
+ * @description Used by Chief Referee to approve a pending match result
  */
 export interface ApproveMatchRequest {
   reviewNotes?: string;
@@ -108,6 +111,7 @@ export interface ApproveMatchRequest {
 
 /**
  * Reject match result request
+ * @description Used by Chief Referee to reject a pending match result
  */
 export interface RejectMatchRequest {
   reviewNotes: string;

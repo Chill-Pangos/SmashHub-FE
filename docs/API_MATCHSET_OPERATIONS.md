@@ -312,6 +312,7 @@ POST /api/match-sets/score
 🎯 **API KHUYẾN KHÍCH SỬ DỤNG** - Tạo match set mới với điểm tổng kết và **tự động validate** theo quy tắc cầu lông:
 
 **Quy tắc validate:**
+
 1. **Phải có người thắng** - không thể hòa
 2. **Đạt 11 điểm trước thắng** nếu đối phương < 10
 3. **Từ 10-10 phải hơn 2 điểm** (ví dụ: 12-10, 13-11, 14-12...)
@@ -319,6 +320,7 @@ POST /api/match-sets/score
 5. Điểm không được âm
 
 **Lợi ích:**
+
 - ✅ Không cần truyền `setNumber` - tự động tính
 - ✅ Validate điểm theo luật cầu lông
 - ✅ Đảm bảo kết quả hợp lệ

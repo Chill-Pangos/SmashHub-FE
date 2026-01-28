@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Clock, MapPin, Users, Play } from "lucide-react";
+import { Clock, MapPin, Users } from "lucide-react";
 import type { Match, Schedule } from "@/types";
 
 interface UpcomingMatch {
@@ -14,13 +13,11 @@ interface UpcomingMatch {
 
 interface UpcomingMatchesProps {
   matches: UpcomingMatch[];
-  onStartMatch: (matchId: number) => void;
   isLoading?: boolean;
 }
 
 export default function UpcomingMatches({
   matches,
-  onStartMatch,
   isLoading,
 }: UpcomingMatchesProps) {
   if (isLoading) {
@@ -107,13 +104,10 @@ export default function UpcomingMatches({
                     </div>
                   )}
                 </div>
-                <Button
-                  onClick={() => onStartMatch(match.id)}
-                  disabled={match.status !== "scheduled"}
-                >
-                  <Play className="mr-2 h-4 w-4" />
-                  Bắt đầu
-                </Button>
+                <Badge variant="secondary">
+                  <Clock className="mr-1 h-3 w-3" />
+                  Chờ Tổng trọng tài bắt đầu
+                </Badge>
               </div>
             </div>
           ),
