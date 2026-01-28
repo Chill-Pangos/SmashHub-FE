@@ -19,22 +19,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Users, UserPlus } from "lucide-react";
+import { Search, Users, UserPlus, Loader2 } from "lucide-react";
 import { showToast } from "@/utils/toast.utils";
 import {
   useTournaments,
   useRefereesByTournament,
+  useAvailableReferees,
   useAssignReferees,
-  useRoles,
 } from "@/hooks/queries";
-import type { TournamentReferee } from "@/types";
-
-interface User {
-  id: number;
-  username: string;
-  fullName?: string;
-  email?: string;
-}
 
 interface AssignRefereeDialogProps {
   open: boolean;
@@ -52,40 +44,13 @@ export default function AssignRefereeDialog({
   const [selectedRefereeIds, setSelectedRefereeIds] = useState<number[]>([]);
 
   // React Query hooks
-  const { data: tournaments = [], isLoading: isLoadingTournaments } =
-    useTournaments(0, 100);
-
-  // Fetch roles to find referee role and get users with that role
-  const { data: rolesData, isLoading: isLoadingRoles } = useRoles(0, 100, {
-    enabled: open,
-  });
-
-  // Mock referees data (in real app, you'd fetch users by role)
-  const referees = useMemo<User[]>(() => {
-    const roles = Array.isArray(rolesData)
-      ? rolesData
-      : (rolesData as { data?: { name: string }[] } | undefined)?.data || [];
-    const refereeRole = roles.find(
-      (r: { name: string }) => r.name === "referee",
-    );
-
-    if (refereeRole) {
-      // In real implementation, fetch users with referee role
-      return [];
-    }
-    // Mock referees for demonstration
-    return [
-      { id: 1, username: "referee1", fullName: "Trần Văn Tuấn" },
-      { id: 2, username: "referee2", fullName: "Nguyễn Thị Lan" },
-      { id: 3, username: "referee3", fullName: "Lê Hoàng Nam" },
-      { id: 4, username: "referee4", fullName: "Phạm Thị Hương" },
-      { id: 5, username: "referee5", fullName: "Hoàng Văn Minh" },
-    ];
-  }, [rolesData]);
+  const { data: tournaments = [] } = useTournaments(0, 100);
 
   const tournamentIdNumber = selectedTournamentId
     ? parseInt(selectedTournamentId)
     : 0;
+
+  // Fetch already assigned referees for the tournament
   const { data: assignedRefereesResponse } = useRefereesByTournament(
     tournamentIdNumber,
     0,
@@ -97,21 +62,36 @@ export default function AssignRefereeDialog({
     () => assignedRefereesResponse?.data || [],
     [assignedRefereesResponse],
   );
+
+  // Get already assigned referee IDs to exclude from available list
+  const excludeRefereeIds = useMemo(
+    () => assignedReferees.map((r) => r.refereeId),
+    [assignedReferees],
+  );
+
+  // Fetch available referees for the tournament (excluding already assigned ones)
+  const { data: availableRefereesResponse, isLoading: isLoadingReferees } =
+    useAvailableReferees(tournamentIdNumber, excludeRefereeIds, {
+      enabled: tournamentIdNumber > 0 && open,
+    });
+
+  // Transform available referees data for display
+  const availableReferees = useMemo(() => {
+    const referees = availableRefereesResponse?.data || [];
+    return referees.map((tr) => ({
+      id: tr.refereeId,
+      username: tr.referee?.username || `user_${tr.refereeId}`,
+      fullName: tr.referee?.fullName,
+      email: tr.referee?.email,
+    }));
+  }, [availableRefereesResponse]);
+
   const assignMutation = useAssignReferees();
 
-  // Clear selected referees that are already assigned when tournament changes
+  // Clear selected referees when tournament changes
   useEffect(() => {
-    if (assignedReferees.length > 0) {
-      setSelectedRefereeIds((prev) =>
-        prev.filter(
-          (id) =>
-            !assignedReferees.some(
-              (a: TournamentReferee) => a.refereeId === id,
-            ),
-        ),
-      );
-    }
-  }, [assignedReferees]);
+    setSelectedRefereeIds([]);
+  }, [selectedTournamentId]);
 
   const handleToggleReferee = (refereeId: number) => {
     setSelectedRefereeIds((prev) =>
@@ -150,20 +130,15 @@ export default function AssignRefereeDialog({
     );
   };
 
-  const isLoading = isLoadingTournaments || isLoadingRoles;
   const isAssigning = assignMutation.isPending;
 
-  // Filter referees
-  const filteredReferees = referees.filter((referee) => {
+  // Filter referees by search query
+  const filteredReferees = availableReferees.filter((referee) => {
+    if (!searchQuery) return true;
     const matchesSearch =
       referee.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       referee.username.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const notAlreadyAssigned = !assignedReferees.some(
-      (a) => a.refereeId === referee.id,
-    );
-
-    return matchesSearch && notAlreadyAssigned;
+    return matchesSearch;
   });
 
   return (
@@ -239,16 +214,26 @@ export default function AssignRefereeDialog({
           <div className="space-y-2">
             <label className="text-sm font-medium">
               Chọn trọng tài ({selectedRefereeIds.length} đã chọn)
+              {availableRefereesResponse?.availableCount !== undefined && (
+                <span className="text-muted-foreground ml-2">
+                  - {availableRefereesResponse.availableCount} trọng tài sẵn
+                  sàng
+                </span>
+              )}
             </label>
             <ScrollArea className="h-64 border rounded-lg">
-              {isLoading ? (
+              {!selectedTournamentId ? (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  Vui lòng chọn giải đấu để xem danh sách trọng tài
+                </div>
+              ) : isLoadingReferees ? (
                 <div className="flex items-center justify-center h-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : filteredReferees.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-muted-foreground">
-                  {referees.length === 0
-                    ? "Không có trọng tài nào"
+                  {availableReferees.length === 0
+                    ? "Không có trọng tài sẵn sàng"
                     : "Không tìm thấy trọng tài phù hợp"}
                 </div>
               ) : (
