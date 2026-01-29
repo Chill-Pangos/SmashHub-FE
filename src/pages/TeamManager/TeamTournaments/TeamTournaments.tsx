@@ -3,12 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Calendar, MapPin, Users } from "lucide-react";
 import { useTournaments, useTournamentsByStatus } from "@/hooks/queries";
-import type { TournamentStatus } from "@/types";
+import type { Tournament, TournamentStatus } from "@/types";
+import TournamentDetailViewer from "@/components/custom/TournamentDetailViewer";
 
 export default function TeamTournaments() {
   const [filter, setFilter] = useState<
     "all" | "upcoming" | "ongoing" | "completed"
   >("all");
+  const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null);
 
   // React Query hooks - conditionally fetch based on filter
   const allTournamentsQuery = useTournaments(0, 50);
@@ -61,6 +63,18 @@ export default function TeamTournaments() {
     );
   }
 
+  // Show tournament detail view if selected
+  if (selectedTournament) {
+    return (
+      <div className="p-6">
+        <TournamentDetailViewer
+          tournament={selectedTournament}
+          onBack={() => setSelectedTournament(null)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -106,7 +120,8 @@ export default function TeamTournaments() {
           {tournaments.map((tournament) => (
             <Card
               key={tournament.id}
-              className="hover:shadow-md transition-shadow"
+              className="hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => setSelectedTournament(tournament)}
             >
               <CardHeader>
                 <div className="flex justify-between items-start">

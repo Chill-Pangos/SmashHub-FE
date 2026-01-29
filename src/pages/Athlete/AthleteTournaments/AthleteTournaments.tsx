@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,9 +6,11 @@ import { Trophy, Calendar, MapPin, Users } from "lucide-react";
 import { useAuth } from "@/store/useAuth";
 import type { Tournament, TeamMember } from "@/types";
 import { useTeamsByUser, queryKeys } from "@/hooks/queries";
+import TournamentDetailViewer from "@/components/custom/TournamentDetailViewer";
 
 export default function AthleteTournaments() {
   const { user } = useAuth();
+  const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null);
 
   // Fetch teams where user is athlete
   const { data: teamsData, isLoading: teamsLoading } = useTeamsByUser(
@@ -85,6 +87,18 @@ export default function AthleteTournaments() {
     );
   }
 
+  // Show tournament detail view if selected
+  if (selectedTournament) {
+    return (
+      <div className="p-6">
+        <TournamentDetailViewer
+          tournament={selectedTournament}
+          onBack={() => setSelectedTournament(null)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -113,7 +127,8 @@ export default function AthleteTournaments() {
           {tournaments.map((tournament) => (
             <Card
               key={tournament.id}
-              className="hover:shadow-md transition-shadow"
+              className="hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => setSelectedTournament(tournament)}
             >
               <CardHeader>
                 <div className="flex justify-between items-start">

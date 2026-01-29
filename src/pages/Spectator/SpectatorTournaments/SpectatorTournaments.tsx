@@ -11,11 +11,15 @@ import {
 } from "@/components/ui/select";
 import { Trophy, Calendar, MapPin, Search } from "lucide-react";
 import { useTournaments } from "@/hooks/queries";
+import TournamentDetailViewer from "@/components/custom/TournamentDetailViewer";
+import type { Tournament } from "@/types";
 
 export default function SpectatorTournaments() {
   const { data: tournaments = [], isLoading } = useTournaments(0, 100);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [selectedTournament, setSelectedTournament] =
+    useState<Tournament | null>(null);
 
   const filteredTournaments = useMemo(() => {
     let filtered = tournaments;
@@ -63,6 +67,18 @@ export default function SpectatorTournaments() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Đang tải...</p>
         </div>
+      </div>
+    );
+  }
+
+  // Show tournament detail view if selected
+  if (selectedTournament) {
+    return (
+      <div className="p-6">
+        <TournamentDetailViewer
+          tournament={selectedTournament}
+          onBack={() => setSelectedTournament(null)}
+        />
       </div>
     );
   }
@@ -124,6 +140,7 @@ export default function SpectatorTournaments() {
             <Card
               key={tournament.id}
               className="hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => setSelectedTournament(tournament)}
             >
               <CardHeader>
                 <div className="flex justify-between items-start">
