@@ -37,7 +37,10 @@ export default function TournamentDetailViewer({
 
   // Use fetched tournament if available, otherwise use initial
   const tournament = fetchedTournament || initialTournament;
-  const contents = tournament.contents || [];
+  const contents = useMemo(
+    () => tournament.contents || [],
+    [tournament.contents]
+  );
 
   const [selectedContentId, setSelectedContentId] = useState<number | null>(
     null,
