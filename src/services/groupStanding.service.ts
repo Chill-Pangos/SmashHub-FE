@@ -129,7 +129,7 @@ class GroupStandingService {
 
   /**
    * Get group standings by content ID
-   * GET /api/group-standings/content/:contentId
+   * GET /api/group-standings/:contentId
    *
    * @param contentId Tournament content ID
    * @returns Promise with group standings
@@ -141,7 +141,7 @@ class GroupStandingService {
     contentId: number,
   ): Promise<GetStandingsByContentResponse> {
     const response = await axiosInstance.get<GetStandingsByContentResponse>(
-      `${this.baseURL}/content/${contentId}`,
+      `${this.baseURL}/${contentId}`,
     );
 
     return response.data;

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,9 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Trophy, Calendar, Info } from "lucide-react";
+import { ArrowLeft, Trophy, Calendar, Info, AlertCircle } from "lucide-react";
 import TournamentBracketViewer from "@/components/custom/TournamentBracketViewer";
 import TournamentScheduleViewer from "@/components/custom/TournamentScheduleViewer";
+import { useTournament } from "@/hooks/queries";
 import type { Tournament } from "@/types";
 
 interface TournamentDetailViewerProps {
@@ -22,23 +23,37 @@ interface TournamentDetailViewerProps {
 
 /**
  * Shared component để xem chi tiết tournament với bracket và schedule
- * Dùng chung cho Spectator, Athlete, Coach, TeamManager
+ * Dùng chung cho Spectator, Athlete, Coach, TeamManager, Public
  */
 export default function TournamentDetailViewer({
-  tournament,
+  tournament: initialTournament,
   onBack,
 }: TournamentDetailViewerProps) {
   const [activeTab, setActiveTab] = useState("info");
+
+  // Fetch full tournament details to get contents
+  const { data: fetchedTournament, isLoading: isLoadingDetails } =
+    useTournament(initialTournament.id, { enabled: initialTournament.id > 0 });
+
+  // Use fetched tournament if available, otherwise use initial
+  const tournament = fetchedTournament || initialTournament;
+  const contents = tournament.contents || [];
+
   const [selectedContentId, setSelectedContentId] = useState<number | null>(
-    tournament.contents && tournament.contents.length > 0 && tournament.contents[0].id
-      ? tournament.contents[0].id
-      : null
+    null,
   );
 
+  // Update selectedContentId when contents are loaded
+  useEffect(() => {
+    if (contents.length > 0 && contents[0].id && selectedContentId === null) {
+      setSelectedContentId(contents[0].id);
+    }
+  }, [contents, selectedContentId]);
+
   const selectedContent = useMemo(() => {
-    if (!selectedContentId || !tournament.contents) return null;
-    return tournament.contents.find((c) => c.id === selectedContentId);
-  }, [selectedContentId, tournament.contents]);
+    if (!selectedContentId || !contents.length) return null;
+    return contents.find((c) => c.id === selectedContentId);
+  }, [selectedContentId, contents]);
 
   const hasGroupStage = selectedContent?.isGroupStage ?? true;
 
@@ -82,11 +97,45 @@ export default function TournamentDetailViewer({
         </div>
       </div>
 
+      {/* Loading state for contents */}
+      {isLoadingDetails && (
+        <Card>
+          <CardContent className="py-6">
+            <div className="flex items-center justify-center gap-3">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+              <span className="text-muted-foreground">
+                Đang tải nội dung thi đấu...
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* No contents message */}
+      {!isLoadingDetails && contents.length === 0 && (
+        <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+          <CardContent className="py-6">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              <div>
+                <p className="font-medium text-amber-800 dark:text-amber-200">
+                  Chưa có nội dung thi đấu
+                </p>
+                <p className="text-sm text-amber-600 dark:text-amber-400">
+                  Giải đấu này chưa được thiết lập các nội dung thi đấu. Vui
+                  lòng quay lại sau.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Content Selector */}
-      {tournament.contents && tournament.contents.length > 0 && (
+      {!isLoadingDetails && contents.length > 0 && (
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <span className="text-sm font-medium">Nội dung thi đấu:</span>
               <Select
                 value={selectedContentId?.toString() || ""}
@@ -96,12 +145,17 @@ export default function TournamentDetailViewer({
                   <SelectValue placeholder="Chọn nội dung" />
                 </SelectTrigger>
                 <SelectContent>
-                  {tournament.contents.filter(c => c.id !== undefined).map((content) => (
-                    <SelectItem key={content.id} value={content.id!.toString()}>
-                      {content.name || content.type}
-                      {content.gender && ` - ${content.gender}`}
-                    </SelectItem>
-                  ))}
+                  {contents
+                    .filter((c) => c.id !== undefined)
+                    .map((content) => (
+                      <SelectItem
+                        key={content.id}
+                        value={content.id!.toString()}
+                      >
+                        {content.name || content.type}
+                        {content.gender && ` - ${content.gender}`}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
               {selectedContent && (
@@ -153,7 +207,7 @@ export default function TournamentDetailViewer({
                     {new Date(tournament.startDate).toLocaleDateString("vi-VN")}
                     {tournament.endDate &&
                       ` - ${new Date(tournament.endDate).toLocaleDateString(
-                        "vi-VN"
+                        "vi-VN",
                       )}`}
                   </p>
                 </div>
@@ -163,44 +217,54 @@ export default function TournamentDetailViewer({
                   </h4>
                   {getStatusBadge(tournament.status)}
                 </div>
-                {tournament.contents && (
+                {contents.length > 0 && (
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">
                       Số nội dung
                     </h4>
-                    <p>{tournament.contents.length} nội dung thi đấu</p>
+                    <p>{contents.length} nội dung thi đấu</p>
                   </div>
                 )}
               </div>
 
               {/* Content list */}
-              {tournament.contents && tournament.contents.length > 0 && (
+              {contents.length > 0 && (
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground mb-2">
                     Các nội dung thi đấu
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {tournament.contents.filter(c => c.id !== undefined).map((content) => (
-                      <Badge
-                        key={content.id}
-                        variant={
-                          content.id === selectedContentId
-                            ? "default"
-                            : "outline"
-                        }
-                        className="cursor-pointer"
-                        onClick={() => {
-                          if (content.id !== undefined) {
-                            setSelectedContentId(content.id);
-                            setActiveTab("bracket");
+                    {contents
+                      .filter((c) => c.id !== undefined)
+                      .map((content) => (
+                        <Badge
+                          key={content.id}
+                          variant={
+                            content.id === selectedContentId
+                              ? "default"
+                              : "outline"
                           }
-                        }}
-                      >
-                        {content.name || content.type}
-                        {content.gender && ` - ${content.gender}`}
-                      </Badge>
-                    ))}
+                          className="cursor-pointer"
+                          onClick={() => {
+                            if (content.id !== undefined) {
+                              setSelectedContentId(content.id);
+                              setActiveTab("bracket");
+                            }
+                          }}
+                        >
+                          {content.name || content.type}
+                          {content.gender && ` - ${content.gender}`}
+                        </Badge>
+                      ))}
                   </div>
+                </div>
+              )}
+
+              {/* Loading contents in Info tab */}
+              {isLoadingDetails && (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  <span className="text-sm">Đang tải nội dung...</span>
                 </div>
               )}
             </CardContent>
@@ -209,11 +273,32 @@ export default function TournamentDetailViewer({
 
         {/* Bracket Tab */}
         <TabsContent value="bracket" className="mt-4">
-          {selectedContentId ? (
+          {isLoadingDetails ? (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <div className="flex items-center justify-center gap-3">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                  <span className="text-muted-foreground">Đang tải...</span>
+                </div>
+              </CardContent>
+            </Card>
+          ) : selectedContentId ? (
             <TournamentBracketViewer
               contentId={selectedContentId}
               hasGroupStage={hasGroupStage}
             />
+          ) : contents.length === 0 ? (
+            <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+              <CardContent className="py-8 text-center">
+                <AlertCircle className="h-8 w-8 mx-auto mb-3 text-amber-600 dark:text-amber-400" />
+                <p className="font-medium text-amber-800 dark:text-amber-200">
+                  Chưa có nội dung thi đấu
+                </p>
+                <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
+                  Giải đấu này chưa được thiết lập nội dung thi đấu
+                </p>
+              </CardContent>
+            </Card>
           ) : (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
@@ -225,8 +310,29 @@ export default function TournamentDetailViewer({
 
         {/* Schedule Tab */}
         <TabsContent value="schedule" className="mt-4">
-          {selectedContentId ? (
+          {isLoadingDetails ? (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <div className="flex items-center justify-center gap-3">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                  <span className="text-muted-foreground">Đang tải...</span>
+                </div>
+              </CardContent>
+            </Card>
+          ) : selectedContentId ? (
             <TournamentScheduleViewer contentId={selectedContentId} />
+          ) : contents.length === 0 ? (
+            <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+              <CardContent className="py-8 text-center">
+                <AlertCircle className="h-8 w-8 mx-auto mb-3 text-amber-600 dark:text-amber-400" />
+                <p className="font-medium text-amber-800 dark:text-amber-200">
+                  Chưa có nội dung thi đấu
+                </p>
+                <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
+                  Giải đấu này chưa được thiết lập nội dung thi đấu
+                </p>
+              </CardContent>
+            </Card>
           ) : (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">

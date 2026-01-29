@@ -42,7 +42,7 @@ export default function TournamentScheduleViewer({
 
   // Group schedules by date
   const schedulesByDate = useMemo(() => {
-    const schedules = schedulesData?.data || [];
+    const schedules = schedulesData?.data?.schedules || [];
     const grouped: Record<string, Schedule[]> = {};
 
     schedules.forEach((schedule) => {

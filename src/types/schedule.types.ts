@@ -217,6 +217,16 @@ export interface GenerateKnockoutOnlyScheduleResponse {
 export type GenerateKnockoutStageScheduleResponse = GenerateScheduleResponse;
 
 /**
+ * Get schedules by content response data
+ */
+export interface GetSchedulesByContentData {
+  schedules: Schedule[];
+  count: number;
+  skip: number;
+  limit: number;
+}
+
+/**
  * Get schedules by content response
  */
-export type GetSchedulesByContentResponse = ApiResponse<Schedule[]>;
+export type GetSchedulesByContentResponse = ApiResponse<GetSchedulesByContentData>;
