@@ -3,6 +3,7 @@ import { scheduleService } from "@/services";
 import { queryKeys } from "./queryKeys";
 import type {
   Schedule,
+  ScheduleStage,
   CreateScheduleRequest,
   UpdateScheduleRequest,
   GenerateScheduleRequest,
@@ -33,6 +34,33 @@ export const useSchedule = (id: number, options?: { enabled?: boolean }) => {
     queryKey: queryKeys.schedules.detail(id),
     queryFn: () => scheduleService.getScheduleById(id),
     enabled: (options?.enabled ?? true) && id > 0,
+  });
+};
+
+/**
+ * Hook để lấy schedules theo content ID
+ */
+export const useSchedulesByContent = (
+  contentId: number,
+  options?: {
+    stage?: ScheduleStage;
+    skip?: number;
+    limit?: number;
+    enabled?: boolean;
+  },
+) => {
+  return useQuery({
+    queryKey: [
+      ...queryKeys.schedules.byContent(contentId),
+      { stage: options?.stage, skip: options?.skip, limit: options?.limit },
+    ],
+    queryFn: () =>
+      scheduleService.getSchedulesByContent(contentId, {
+        stage: options?.stage,
+        skip: options?.skip,
+        limit: options?.limit,
+      }),
+    enabled: (options?.enabled ?? true) && contentId > 0,
   });
 };
 

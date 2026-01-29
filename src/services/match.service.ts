@@ -19,6 +19,8 @@ import type {
   RejectMatchRequest,
   RejectMatchResponse,
   MatchStatus,
+  GetAthleteUpcomingMatchesResponse,
+  GetAthleteMatchHistoryResponse,
 } from "@/types/match.types";
 
 /**
@@ -339,6 +341,59 @@ class MatchService {
     const response = await axiosInstance.post<RejectMatchResponse>(
       `${this.baseURL}/${id}/reject`,
       data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Get upcoming matches for an athlete
+   * GET /api/matches/athlete/:userId/upcoming
+   *
+   * @param userId Athlete's user ID
+   * @param skip Number of records to skip
+   * @param limit Maximum number of records to return
+   * @returns Promise with upcoming matches
+   *
+   * @description Get matches with status 'scheduled' or 'in_progress' for the athlete
+   *
+   * @example
+   * const result = await matchService.getAthleteUpcomingMatches(10, 0, 10);
+   */
+  async getAthleteUpcomingMatches(
+    userId: number,
+    skip: number = 0,
+    limit: number = 10,
+  ): Promise<GetAthleteUpcomingMatchesResponse> {
+    const response =
+      await axiosInstance.get<GetAthleteUpcomingMatchesResponse>(
+        `${this.baseURL}/athlete/${userId}/upcoming`,
+        { params: { skip, limit } },
+      );
+    return response.data;
+  }
+
+  /**
+   * Get match history for an athlete
+   * GET /api/matches/athlete/:userId/history
+   *
+   * @param userId Athlete's user ID
+   * @param skip Number of records to skip
+   * @param limit Maximum number of records to return
+   * @returns Promise with completed matches
+   *
+   * @description Get completed matches that the athlete has participated in
+   *
+   * @example
+   * const result = await matchService.getAthleteMatchHistory(10, 0, 10);
+   */
+  async getAthleteMatchHistory(
+    userId: number,
+    skip: number = 0,
+    limit: number = 10,
+  ): Promise<GetAthleteMatchHistoryResponse> {
+    const response = await axiosInstance.get<GetAthleteMatchHistoryResponse>(
+      `${this.baseURL}/athlete/${userId}/history`,
+      { params: { skip, limit } },
     );
     return response.data;
   }

@@ -3,6 +3,17 @@ import type { ApiResponse } from "./auth.types";
 // ==================== Group Standing ====================
 
 /**
+ * Entry info nested in GroupStanding
+ */
+export interface GroupStandingEntry {
+  id: number;
+  team?: {
+    id?: number;
+    name: string;
+  };
+}
+
+/**
  * Group Standing interface
  */
 export interface GroupStanding {
@@ -10,16 +21,18 @@ export interface GroupStanding {
   contentId: number;
   entryId: number;
   groupName: string;
-  position: number;
+  position: number | null;
   matchesPlayed: number;
   matchesWon: number;
   matchesLost: number;
   setsWon: number;
   setsLost: number;
-  pointsWon: number;
-  pointsLost: number;
-  points: number;
-  isQualified: boolean;
+  setsDiff: number;
+  pointsWon?: number;
+  pointsLost?: number;
+  points?: number;
+  isQualified?: boolean;
+  entry?: GroupStandingEntry;
   createdAt: string;
   updatedAt: string;
 }

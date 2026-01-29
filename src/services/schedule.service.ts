@@ -6,6 +6,7 @@ import type {
   UpdateScheduleResponse,
   GetScheduleResponse,
   GetSchedulesResponse,
+  GetSchedulesByContentResponse,
   DeleteScheduleResponse,
   GenerateScheduleRequest,
   GenerateScheduleResponse,
@@ -19,6 +20,7 @@ import type {
   GenerateKnockoutOnlyScheduleResponse,
   GenerateKnockoutStageScheduleRequest,
   GenerateKnockoutStageScheduleResponse,
+  ScheduleStage,
 } from "@/types/schedule.types";
 
 /**
@@ -286,6 +288,36 @@ class ScheduleService {
         `${this.baseURL}/generate-knockout-stage`,
         data,
       );
+    return response.data;
+  }
+
+  /**
+   * Get schedules by content ID
+   * GET /api/schedules/content/:contentId
+   *
+   * @param contentId Tournament content ID
+   * @param options Query options for filtering and pagination
+   * @returns Promise with schedules for the content
+   *
+   * @example
+   * const schedules = await scheduleService.getSchedulesByContent(1, {
+   *   stage: "knockout",
+   *   skip: 0,
+   *   limit: 20
+   * });
+   */
+  async getSchedulesByContent(
+    contentId: number,
+    options?: {
+      stage?: ScheduleStage;
+      skip?: number;
+      limit?: number;
+    },
+  ): Promise<GetSchedulesByContentResponse> {
+    const response = await axiosInstance.get<GetSchedulesByContentResponse>(
+      `${this.baseURL}/content/${contentId}`,
+      { params: options },
+    );
     return response.data;
   }
 }

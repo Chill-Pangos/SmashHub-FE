@@ -242,3 +242,38 @@ export interface RejectMatchResponse {
     reviewNotes: string;
   };
 }
+
+// ==================== Athlete Match Types ====================
+
+/**
+ * Match with schedule info (for athlete views)
+ */
+export interface MatchWithSchedule extends Match {
+  schedule?: {
+    scheduledAt: string;
+    stage: "group" | "knockout";
+    groupName?: string | null;
+    knockoutRound?: string | null;
+    tableNumber?: number;
+  };
+}
+
+/**
+ * Get athlete upcoming matches response
+ */
+export interface GetAthleteUpcomingMatchesResponse {
+  matches: MatchWithSchedule[];
+  count: number;
+  skip: number;
+  limit: number;
+}
+
+/**
+ * Get athlete match history response
+ */
+export interface GetAthleteMatchHistoryResponse {
+  matches: MatchWithSchedule[];
+  count: number;
+  skip: number;
+  limit: number;
+}

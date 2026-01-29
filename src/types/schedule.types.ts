@@ -1,4 +1,12 @@
 import type { ApiResponse } from "./auth.types";
+import type { Match } from "./match.types";
+
+// ==================== Enums ====================
+
+/**
+ * Schedule stage enum
+ */
+export type ScheduleStage = "group" | "knockout";
 
 // ==================== Schedule ====================
 
@@ -8,9 +16,15 @@ import type { ApiResponse } from "./auth.types";
 export interface Schedule {
   id: number;
   contentId: number;
-  matchTime: string;
+  roundNumber?: number;
+  groupName?: string | null;
+  stage?: ScheduleStage;
+  knockoutRound?: string | null;
   tableNumber: number;
+  scheduledAt?: string;
+  matchTime?: string; // Legacy field
   matchId?: number | null;
+  match?: Match | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -201,3 +215,8 @@ export interface GenerateKnockoutOnlyScheduleResponse {
  * Generate knockout stage schedule response
  */
 export type GenerateKnockoutStageScheduleResponse = GenerateScheduleResponse;
+
+/**
+ * Get schedules by content response
+ */
+export type GetSchedulesByContentResponse = ApiResponse<Schedule[]>;
