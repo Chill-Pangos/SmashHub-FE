@@ -1,4 +1,6 @@
 import type { ApiResponse } from "./auth.types";
+import type { TournamentContent } from "./tournament.types";
+import type { MatchSet } from "./matchSet.types";
 
 // ==================== Enums ====================
 
@@ -42,6 +44,8 @@ export interface Match {
   // Nested relations (when populated)
   entryA?: MatchEntry;
   entryB?: MatchEntry;
+  schedule?: MatchSchedule;
+  matchSets?: MatchSet[];
 }
 
 /**
@@ -52,6 +56,23 @@ export interface MatchEntry {
   team?: {
     name: string;
   };
+}
+
+/**
+ * Match schedule info (nested)
+ */
+export interface MatchSchedule {
+  id: number;
+  contentId: number;
+  roundNumber: number;
+  groupName?: string | null;
+  stage: "group" | "knockout";
+  knockoutRound?: string | null;
+  tableNumber?: number;
+  scheduledAt: string;
+  createdAt: string;
+  updatedAt: string;
+  tournamentContent?: TournamentContent;
 }
 
 // ==================== Request Types ====================
@@ -167,7 +188,10 @@ export type FinalizeMatchResponse = ApiResponse<Match>;
 /**
  * Get pending matches response
  */
-export type GetPendingMatchesResponse = ApiResponse<Match[]>;
+export interface GetPendingMatchesResponse {
+  matches: Match[];
+  count: number;
+}
 
 /**
  * ELO change for a player
@@ -246,23 +270,10 @@ export interface RejectMatchResponse {
 // ==================== Athlete Match Types ====================
 
 /**
- * Match with schedule info (for athlete views)
- */
-export interface MatchWithSchedule extends Match {
-  schedule?: {
-    scheduledAt: string;
-    stage: "group" | "knockout";
-    groupName?: string | null;
-    knockoutRound?: string | null;
-    tableNumber?: number;
-  };
-}
-
-/**
  * Get athlete upcoming matches response
  */
 export interface GetAthleteUpcomingMatchesResponse {
-  matches: MatchWithSchedule[];
+  matches: Match[];
   count: number;
   skip: number;
   limit: number;
@@ -272,7 +283,7 @@ export interface GetAthleteUpcomingMatchesResponse {
  * Get athlete match history response
  */
 export interface GetAthleteMatchHistoryResponse {
-  matches: MatchWithSchedule[];
+  matches: Match[];
   count: number;
   skip: number;
   limit: number;

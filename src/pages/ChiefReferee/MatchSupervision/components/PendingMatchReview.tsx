@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useMemo } from "react";
+import type { AxiosError } from "axios";
 import {
   Card,
   CardContent,
@@ -73,15 +75,52 @@ export default function PendingMatchReview() {
     refetch: refetchPendingMatches,
   } = usePendingMatches(0, 50);
 
-  const pendingMatches = Array.isArray(pendingMatchesResponse)
-    ? pendingMatchesResponse
-    : pendingMatchesResponse?.data || [];
+  const pendingMatches = useMemo(
+    () => pendingMatchesResponse?.matches || [],
+    [pendingMatchesResponse?.matches],
+  );
+
+  // Debug: Log API response to check data structure
+  React.useEffect(() => {
+    if (pendingMatchesResponse) {
+      console.log("[PendingMatchReview] API Response:", pendingMatchesResponse);
+      console.log("[PendingMatchReview] Pending matches:", pendingMatches);
+      console.log("[PendingMatchReview] Count:", pendingMatchesResponse.count);
+
+      // Check resultStatus for each match
+      pendingMatches.forEach((match: Match) => {
+        console.log(
+          `[Match ${match.id}] status: ${match.status}, resultStatus: ${match.resultStatus}`,
+        );
+      });
+    }
+  }, [pendingMatchesResponse, pendingMatches]);
 
   // Fetch ELO preview for selected match
-  const { data: eloPreviewData, isLoading: isLoadingElo } =
-    usePendingMatchWithElo(selectedMatchId ?? 0, {
-      enabled: selectedMatchId !== null && eloDialogOpen,
-    });
+  const {
+    data: eloPreviewData,
+    isLoading: isLoadingElo,
+    error: eloError,
+  } = usePendingMatchWithElo(selectedMatchId ?? 0, {
+    enabled: selectedMatchId !== null && eloDialogOpen,
+  });
+
+  // Debug ELO fetch
+  React.useEffect(() => {
+    if (selectedMatchId && eloDialogOpen) {
+      console.log(
+        "[PendingMatchReview] Fetching ELO for match ID:",
+        selectedMatchId,
+      );
+      console.log("[PendingMatchReview] isLoadingElo:", isLoadingElo);
+      if (eloError) {
+        console.error("[PendingMatchReview] ELO fetch error:", eloError);
+      }
+      if (eloPreviewData) {
+        console.log("[PendingMatchReview] ELO data received:", eloPreviewData);
+      }
+    }
+  }, [selectedMatchId, eloDialogOpen, isLoadingElo, eloError, eloPreviewData]);
 
   // Build selected match with ELO data
   const selectedMatch: PendingMatchWithElo | null =
@@ -89,12 +128,12 @@ export default function PendingMatchReview() {
       ? {
           match:
             eloPreviewData.match ||
-            pendingMatches.find((m: Match) => m.id === selectedMatchId),
+            pendingMatches.find((m: Match) => m.id === selectedMatchId)!,
           eloPreview: eloPreviewData.eloPreview,
         }
       : selectedMatchId
         ? {
-            match: pendingMatches.find((m: Match) => m.id === selectedMatchId),
+            match: pendingMatches.find((m: Match) => m.id === selectedMatchId)!,
             eloPreview: undefined,
           }
         : null;
@@ -286,6 +325,13 @@ export default function PendingMatchReview() {
           <CardDescription>
             Click vào "Xem ELO" để xem dự đoán thay đổi điểm ELO trước khi phê
             duyệt
+            {/* Debug info */}
+            {pendingMatchesResponse && (
+              <div className="mt-2 text-xs">
+                📊 API Response: {pendingMatchesResponse.count} matches total,{" "}
+                {pendingMatches.length} loaded
+              </div>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -300,38 +346,136 @@ export default function PendingMatchReview() {
             </div>
           ) : (
             <ScrollArea className="h-[400px]">
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {pendingMatches.map((match) => (
                   <div
                     key={match.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50"
+                    className="p-4 border rounded-lg hover:bg-accent/50 space-y-3"
                   >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
+                    {/* Header - Match ID and Tournament Content */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
                         <Badge variant="outline">#{match.id}</Badge>
-                        <span className="font-medium">
-                          {match.entryA?.team?.name ||
-                            `Entry ${match.entryAId}`}{" "}
-                          vs{" "}
-                          {match.entryB?.team?.name ||
-                            `Entry ${match.entryBId}`}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>
-                          Set: {match.setsWonA || 0} - {match.setsWonB || 0}
-                        </span>
-                        {match.winnerEntryId && (
-                          <Badge className="bg-green-100 text-green-700">
-                            Thắng:{" "}
-                            {match.winnerEntryId === match.entryAId ? "A" : "B"}
+                        {match.schedule?.tournamentContent && (
+                          <Badge variant="secondary">
+                            {match.schedule.tournamentContent.name}
                           </Badge>
                         )}
-                        <Badge variant="secondary">{match.resultStatus}</Badge>
+                        {match.schedule?.stage === "group" &&
+                          match.schedule.groupName && (
+                            <Badge variant="outline">
+                              {match.schedule.groupName}
+                            </Badge>
+                          )}
+                        {match.schedule?.stage === "knockout" &&
+                          match.schedule.knockoutRound && (
+                            <Badge variant="outline">
+                              {match.schedule.knockoutRound}
+                            </Badge>
+                          )}
+                      </div>
+                      <Badge className="bg-yellow-100 text-yellow-800">
+                        Chờ duyệt
+                      </Badge>
+                    </div>
+
+                    {/* Match Details */}
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Entry A */}
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Entry A</p>
+                        <p className="font-semibold">
+                          {match.entryA?.team?.name ||
+                            `Entry ${match.entryAId}`}
+                        </p>
+                        {match.winnerEntryId === match.entryAId && (
+                          <Badge className="bg-green-100 text-green-700">
+                            Thắng
+                          </Badge>
+                        )}
+                      </div>
+
+                      {/* Entry B */}
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Entry B</p>
+                        <p className="font-semibold">
+                          {match.entryB?.team?.name ||
+                            `Entry ${match.entryBId}`}
+                        </p>
+                        {match.winnerEntryId === match.entryBId && (
+                          <Badge className="bg-green-100 text-green-700">
+                            Thắng
+                          </Badge>
+                        )}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    {/* Match Sets Detail */}
+                    {match.matchSets && match.matchSets.length > 0 && (
+                      <div className="bg-muted/50 rounded-lg p-3">
+                        <p className="text-xs font-medium text-muted-foreground mb-2">
+                          Chi tiết từng set
+                        </p>
+                        <div className="flex gap-2">
+                          {match.matchSets.map((set) => (
+                            <div
+                              key={set.id}
+                              className="flex-1 bg-background rounded px-2 py-1 text-center"
+                            >
+                              <p className="text-xs text-muted-foreground">
+                                Set {set.setNumber}
+                              </p>
+                              <p className="font-semibold">
+                                {set.entryAScore} - {set.entryBScore}
+                              </p>
+                            </div>
+                          ))}
+                          <div className="flex-1 bg-primary/10 rounded px-2 py-1 text-center">
+                            <p className="text-xs text-muted-foreground">
+                              Tổng
+                            </p>
+                            <p className="font-bold text-primary">
+                              {match.setsWonA || 0} - {match.setsWonB || 0}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Additional Info */}
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      {/* Schedule Info */}
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">
+                          Thông tin lịch
+                        </p>
+                        {match.schedule?.scheduledAt && (
+                          <p className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {new Date(
+                              match.schedule.scheduledAt,
+                            ).toLocaleString("vi-VN")}
+                          </p>
+                        )}
+                        {match.schedule?.tableNumber && (
+                          <p>Bàn {match.schedule.tableNumber}</p>
+                        )}
+                      </div>
+
+                      {/* Referee Info */}
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">
+                          Trọng tài
+                        </p>
+                        {match.umpire && <p>Chính: User #{match.umpire}</p>}
+                        {match.assistantUmpire && (
+                          <p>Phụ: User #{match.assistantUmpire}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t">
                       <Button
                         size="sm"
                         variant="outline"
@@ -383,18 +527,80 @@ export default function PendingMatchReview() {
           ) : selectedMatch ? (
             <div className="space-y-4">
               {/* Match Info */}
-              <div className="p-3 bg-muted rounded-lg">
-                <p className="font-medium text-center">
-                  {selectedMatch.match.entryA?.team?.name ||
-                    `Entry ${selectedMatch.match.entryAId}`}{" "}
-                  <span className="text-lg font-bold">
-                    {selectedMatch.match.setsWonA} -{" "}
-                    {selectedMatch.match.setsWonB}
-                  </span>{" "}
-                  {selectedMatch.match.entryB?.team?.name ||
-                    `Entry ${selectedMatch.match.entryBId}`}
-                </p>
+              <div className="space-y-2">
+                <div className="p-3 bg-muted rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge variant="outline">#{selectedMatch.match.id}</Badge>
+                    {selectedMatch.match.schedule?.tournamentContent && (
+                      <Badge variant="secondary">
+                        {selectedMatch.match.schedule.tournamentContent.name}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="font-medium text-center text-lg">
+                    {selectedMatch.match.entryA?.team?.name ||
+                      `Entry ${selectedMatch.match.entryAId}`}{" "}
+                    <span className="text-xl font-bold text-primary mx-2">
+                      {selectedMatch.match.setsWonA} -{" "}
+                      {selectedMatch.match.setsWonB}
+                    </span>{" "}
+                    {selectedMatch.match.entryB?.team?.name ||
+                      `Entry ${selectedMatch.match.entryBId}`}
+                  </p>
+                </div>
+
+                {/* Match Sets Detail */}
+                {selectedMatch.match.matchSets &&
+                  selectedMatch.match.matchSets.length > 0 && (
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <p className="text-xs font-medium text-muted-foreground mb-2">
+                        Chi tiết điểm từng set
+                      </p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {selectedMatch.match.matchSets.map((set) => (
+                          <div
+                            key={set.id}
+                            className="bg-background rounded p-2 text-center"
+                          >
+                            <p className="text-xs text-muted-foreground">
+                              Set {set.setNumber}
+                            </p>
+                            <p className="font-semibold">
+                              {set.entryAScore} - {set.entryBScore}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                {/* Schedule and Referee Info */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {selectedMatch.match.schedule?.scheduledAt && (
+                    <div className="bg-muted/50 rounded p-2">
+                      <p className="text-muted-foreground">Thời gian</p>
+                      <p className="font-medium">
+                        {new Date(
+                          selectedMatch.match.schedule.scheduledAt,
+                        ).toLocaleString("vi-VN")}
+                      </p>
+                    </div>
+                  )}
+                  {selectedMatch.match.umpire && (
+                    <div className="bg-muted/50 rounded p-2">
+                      <p className="text-muted-foreground">Trọng tài</p>
+                      <p className="font-medium">
+                        Chính: #{selectedMatch.match.umpire}
+                        {selectedMatch.match.assistantUmpire && (
+                          <> | Phụ: #{selectedMatch.match.assistantUmpire}</>
+                        )}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
+
+              <Separator />
 
               {selectedMatch.eloPreview ? (
                 <>
@@ -457,7 +663,26 @@ export default function PendingMatchReview() {
                 </>
               ) : (
                 <div className="text-center py-4 text-muted-foreground">
-                  Không thể tải dự đoán ELO cho trận đấu này
+                  <AlertCircle className="h-12 w-12 mx-auto mb-4 text-red-500 opacity-50" />
+                  <p className="font-medium text-red-600 mb-2">
+                    Không thể tải dự đoán ELO
+                  </p>
+                  {eloError && (
+                    <div className="text-xs bg-red-50 border border-red-200 rounded p-3 mt-2">
+                      <p className="font-medium mb-1">Chi tiết lỗi:</p>
+                      <p className="text-left">
+                        {(eloError as AxiosError<{ message?: string }>)
+                          ?.response?.data?.message ||
+                          eloError.message ||
+                          "Vui lòng kiểm tra xem trận đấu có đang ở trạng thái chờ duyệt không"}
+                      </p>
+                      {(eloError as AxiosError)?.response?.status && (
+                        <p className="text-left mt-1">
+                          Mã lỗi: {(eloError as AxiosError)?.response?.status}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

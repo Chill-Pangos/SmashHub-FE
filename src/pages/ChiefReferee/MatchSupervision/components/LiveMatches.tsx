@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -8,14 +7,9 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Play, Users } from "lucide-react";
-import { useMatchesByStatus, useSchedules } from "@/hooks/queries";
-import type { Match, Schedule } from "@/types";
-
-interface LiveMatchWithDetails {
-  match: Match;
-  schedule?: Schedule;
-}
+import { RefreshCw, Play, Users, UserCheck } from "lucide-react";
+import { useMatchesByStatus } from "@/hooks/queries";
+import type { Match } from "@/types";
 
 export default function LiveMatches() {
   // Fetch in_progress matches using React Query
@@ -25,33 +19,23 @@ export default function LiveMatches() {
     refetch: refetchMatches,
   } = useMatchesByStatus("in_progress", 0, 50);
 
-  // Fetch all schedules to map to matches
-  const { data: schedulesResponse } = useSchedules(0, 100);
+  const matches: Match[] = Array.isArray(matchesResponse)
+    ? matchesResponse
+    : matchesResponse?.data || [];
 
-  // Process matches with their schedules
-  const matches = useMemo<LiveMatchWithDetails[]>(() => {
-    const matchList = Array.isArray(matchesResponse)
-      ? matchesResponse
-      : matchesResponse?.data || [];
-
-    const scheduleList = Array.isArray(schedulesResponse)
-      ? schedulesResponse
-      : schedulesResponse?.data || [];
-
-    // Create a map of schedules by ID for quick lookup
-    const scheduleMap = new Map<number, Schedule>();
-    scheduleList.forEach((schedule: Schedule) => {
-      scheduleMap.set(schedule.id, schedule);
-    });
-
-    return matchList.map((match: Match) => ({
-      match,
-      schedule: scheduleMap.get(match.scheduleId),
-    }));
-  }, [matchesResponse, schedulesResponse]);
-
-  // Helper to format score from sets
+  // Helper to calculate and format score from matchSets
   const formatScore = (match: Match): string => {
+    // Try to calculate from matchSets if available
+    if (match.matchSets && match.matchSets.length > 0) {
+      let setsA = 0;
+      let setsB = 0;
+      match.matchSets.forEach((set) => {
+        if (set.entryAScore > set.entryBScore) setsA++;
+        else if (set.entryBScore > set.entryAScore) setsB++;
+      });
+      return `${setsA} - ${setsB}`;
+    }
+    // Fallback to setsWonA/B if matchSets not available
     const setsA = match.setsWonA ?? 0;
     const setsB = match.setsWonB ?? 0;
     return `${setsA} - ${setsB}`;
@@ -99,11 +83,11 @@ export default function LiveMatches() {
           </div>
         ) : (
           <div className="space-y-4">
-            {matches.map(({ match, schedule }) => (
+            {matches.map((match) => (
               <div key={match.id} className="p-4 border rounded-lg space-y-3">
                 <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
+                  <div className="space-y-1 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <Badge variant="default">Trận #{match.id}</Badge>
                       <Badge
                         variant="secondary"
@@ -111,20 +95,33 @@ export default function LiveMatches() {
                       >
                         Đang thi đấu
                       </Badge>
-                      {schedule && schedule.matchTime && (
-                        <span className="text-xs text-muted-foreground">
-                          📅{" "}
-                          {new Date(schedule.matchTime).toLocaleDateString(
-                            "vi-VN",
-                          )}
-                        </span>
+                      {match.schedule?.tournamentContent && (
+                        <Badge
+                          variant="secondary"
+                          className="bg-blue-100 text-blue-800"
+                        >
+                          {match.schedule.tournamentContent.name}
+                        </Badge>
                       )}
+                      {match.schedule?.stage === "group" &&
+                        match.schedule.groupName && (
+                          <Badge variant="outline">
+                            {match.schedule.groupName}
+                          </Badge>
+                        )}
+                      {match.schedule?.stage === "knockout" &&
+                        match.schedule.knockoutRound && (
+                          <Badge variant="outline">
+                            {match.schedule.knockoutRound}
+                          </Badge>
+                        )}
                     </div>
-                    {schedule && (
+                    {match.schedule && (
                       <h3 className="font-semibold text-sm text-muted-foreground">
-                        {schedule.tableNumber && `Bàn ${schedule.tableNumber}`}
-                        {schedule.matchTime &&
-                          ` • ${new Date(schedule.matchTime).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}`}
+                        {match.schedule.tableNumber &&
+                          `Bàn ${match.schedule.tableNumber}`}
+                        {match.schedule.scheduledAt &&
+                          ` • ${new Date(match.schedule.scheduledAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}`}
                       </h3>
                     )}
                   </div>
@@ -138,26 +135,36 @@ export default function LiveMatches() {
                     <p className="text-muted-foreground">Entry A</p>
                     <p className="font-medium flex items-center gap-1">
                       <Users className="h-3 w-3" />
-                      Entry #{match.entryAId}
+                      {match.entryA?.team?.name || `Entry #${match.entryAId}`}
                     </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Entry B</p>
                     <p className="font-medium flex items-center gap-1">
                       <Users className="h-3 w-3" />
-                      Entry #{match.entryBId}
+                      {match.entryB?.team?.name || `Entry #${match.entryBId}`}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Trọng tài</p>
-                    <p className="text-sm font-medium">
-                      {match.umpire
-                        ? `User #${match.umpire}`
-                        : "Chưa phân công"}
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <UserCheck className="h-3 w-3" />
+                      Trọng tài
                     </p>
+                    <div className="flex flex-col gap-0.5">
+                      <p className="text-sm font-medium">
+                        {match.umpire
+                          ? `Chính: #${match.umpire}`
+                          : "Chính: Chưa phân công"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {match.assistantUmpire
+                          ? `Phụ: #${match.assistantUmpire}`
+                          : "Phụ: Chưa phân công"}
+                      </p>
+                    </div>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">

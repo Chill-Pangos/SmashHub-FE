@@ -1,14 +1,19 @@
-import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
+import axios, {
+  type AxiosError,
+  type AxiosInstance,
+  type InternalAxiosRequestConfig,
+} from "axios";
 
 // Base URL configuration
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 // Create axios instance
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
+    Accept: "application/json",
   },
 });
 
@@ -33,17 +38,17 @@ const processQueue = (error: Error | null, token: string | null = null) => {
 // Request interceptor - Add access token to headers
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const accessToken = localStorage.getItem('accessToken');
-    
+    const accessToken = localStorage.getItem("accessToken");
+
     if (accessToken && config.headers) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
-    
+
     return config;
   },
   (error: AxiosError) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor - Handle token refresh
@@ -52,7 +57,9 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
 
     // If error is not 401 or no config, reject immediately
     if (!error.response || error.response.status !== 401 || !originalRequest) {
@@ -62,10 +69,10 @@ axiosInstance.interceptors.response.use(
     // If request already retried, logout user
     if (originalRequest._retry) {
       // Clear tokens and redirect to login
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-      window.location.href = '/signin';
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+      window.location.href = "/signin";
       return Promise.reject(error);
     }
 
@@ -89,14 +96,14 @@ axiosInstance.interceptors.response.use(
     originalRequest._retry = true;
     isRefreshing = true;
 
-    const refreshToken = localStorage.getItem('refreshToken');
+    const refreshToken = localStorage.getItem("refreshToken");
 
     if (!refreshToken) {
       // No refresh token, logout user
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-      window.location.href = '/signin';
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+      window.location.href = "/signin";
       return Promise.reject(error);
     }
 
@@ -106,11 +113,12 @@ axiosInstance.interceptors.response.use(
         refreshToken,
       });
 
-      const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.data;
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+        response.data.data;
 
       // Save new tokens
-      localStorage.setItem('accessToken', newAccessToken);
-      localStorage.setItem('refreshToken', newRefreshToken);
+      localStorage.setItem("accessToken", newAccessToken);
+      localStorage.setItem("refreshToken", newRefreshToken);
 
       // Update authorization header
       if (originalRequest.headers) {
@@ -125,15 +133,15 @@ axiosInstance.interceptors.response.use(
     } catch (refreshError) {
       // Refresh failed, logout user
       processQueue(refreshError as Error, null);
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-      window.location.href = '/signin';
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+      window.location.href = "/signin";
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
     }
-  }
+  },
 );
 
 export default axiosInstance;
