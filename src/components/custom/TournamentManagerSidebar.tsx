@@ -86,7 +86,7 @@ export default function TournamentManagerSidebar({
     },
     {
       id: "management",
-      label: t("tournamentManager.delegationManagement"),
+      label: t("tournamentManager.delegationManagement.title"),
       icon: Folder,
       items: [
         { id: "delegations", label: t("team.delegations"), icon: Users },
@@ -97,7 +97,7 @@ export default function TournamentManagerSidebar({
         },
         {
           id: "accounts",
-          label: t("tournamentManager.delegationAccounts"),
+          label: t("tournamentManager.delegationAccounts.title"),
           icon: Key,
         },
       ],
@@ -114,7 +114,7 @@ export default function TournamentManagerSidebar({
         },
         {
           id: "matches",
-          label: t("tournamentManager.matchManagement"),
+          label: t("tournamentManager.matchManagement.title"),
           icon: CalendarCheck,
         },
       ],

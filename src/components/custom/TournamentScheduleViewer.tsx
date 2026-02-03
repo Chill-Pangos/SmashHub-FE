@@ -15,7 +15,7 @@ import { format } from "date-fns";
 import { vi, enUS } from "date-fns/locale";
 import type { Schedule, ScheduleStage } from "@/types";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useLanguage } from "@/store/useLanguage";
+import i18n from "@/locales/i18n";
 
 interface TournamentScheduleViewerProps {
   contentId: number;
@@ -33,8 +33,7 @@ export default function TournamentScheduleViewer({
   limit = 50,
 }: TournamentScheduleViewerProps) {
   const { t } = useTranslation();
-  const { language } = useLanguage();
-  const dateLocale = language === "vi" ? vi : enUS;
+  const dateLocale = i18n.language === "vi" ? vi : enUS;
   const {
     data: schedulesData,
     isLoading,

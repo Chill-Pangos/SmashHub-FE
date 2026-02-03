@@ -900,6 +900,7 @@ export default {
 
   // Messages
   message: {
+    welcomeBack: "Welcome back",
     confirmDelete: "Are you sure you want to delete?",
     confirmCancel: "Are you sure you want to cancel?",
     unsavedChanges: "You have unsaved changes. Do you want to continue?",

@@ -146,14 +146,12 @@ export default function TeamSchedule() {
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
                           <span>
-                            {schedules.find((s) => s.id === match.scheduleId)
-                              ?.matchTime
-                              ? new Date(
-                                  schedules.find(
-                                    (s) => s.id === match.scheduleId,
-                                  )!.matchTime,
-                                ).toLocaleString("vi-VN")
-                              : t("teamManager.notDetermined")}
+                            {(() => {
+                              const schedule = schedules.find((s) => s.id === match.scheduleId);
+                              return schedule?.matchTime
+                                ? new Date(schedule.matchTime).toLocaleString("vi-VN")
+                                : t("teamManager.notDetermined");
+                            })()}
                           </span>
                         </div>
                         <div className="flex items-center gap-1">

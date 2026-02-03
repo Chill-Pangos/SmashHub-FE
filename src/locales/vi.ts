@@ -1051,6 +1051,7 @@ export default {
 
   // Messages
   message: {
+    welcomeBack: "Chào mừng trở lại",
     confirmDelete: "Bạn có chắc chắn muốn xóa?",
     confirmCancel: "Bạn có chắc chắn muốn hủy?",
     unsavedChanges: "Bạn có thay đổi chưa lưu. Bạn có muốn tiếp tục?",
