@@ -5,6 +5,7 @@ import {
   StepIndicator,
   BasicInfoForm,
   CategorySettings,
+  ChiefRefereeSelection,
   DelegationSelection,
   ConfirmationSummary,
 } from "./components";
@@ -32,6 +33,9 @@ export default function TournamentSetupWizard() {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
     {},
   );
+  const [selectedChiefRefereeId, setSelectedChiefRefereeId] = useState<
+    number | null
+  >(null);
 
   // React Query mutation
   const createTournamentMutation = useCreateTournament();
@@ -164,7 +168,8 @@ export default function TournamentSetupWizard() {
         if (response.success && response.data) {
           setCreatedTournament(response.data);
           showToast.success("Tạo giải đấu thành công!", response.message);
-          setStep(5); // Move to success step
+          // Move to Chief Referee selection step
+          setStep(3);
         } else {
           showToast.error("Không thể tạo giải đấu", "Vui lòng thử lại");
         }
@@ -191,8 +196,10 @@ export default function TournamentSetupWizard() {
       case 2:
         return tournamentContents.length > 0;
       case 3:
-        return selectedDelegations.length >= 0; // Optional
+        return selectedChiefRefereeId !== null;
       case 4:
+        return selectedDelegations.length >= 0; // Optional
+      case 5:
         return true;
       default:
         return false;
@@ -205,6 +212,7 @@ export default function TournamentSetupWizard() {
     }
 
     if (step === 4) {
+      // Create tournament first, then go to chief referee selection
       handleCreateTournament();
     } else {
       setStep(step + 1);
@@ -233,13 +241,20 @@ export default function TournamentSetupWizard() {
             onUpdate={handleUpdateContent}
           />
         )}
-        {step === 3 && (
+        {step === 3 && createdTournament && (
+          <ChiefRefereeSelection
+            tournamentId={createdTournament.id}
+            selectedRefereeId={selectedChiefRefereeId}
+            onSelect={setSelectedChiefRefereeId}
+          />
+        )}
+        {step === 4 && (
           <DelegationSelection
             selectedDelegations={selectedDelegations}
             onChange={setSelectedDelegations}
           />
         )}
-        {step === 4 && (
+        {step === 5 && (
           <div className="space-y-6">
             <ConfirmationSummary
               formData={formData}
@@ -248,7 +263,7 @@ export default function TournamentSetupWizard() {
             />
           </div>
         )}
-        {step === 5 && (
+        {step === 6 && (
           <div className="text-center py-12">
             <div className="mb-4">
               <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
@@ -294,6 +309,7 @@ export default function TournamentSetupWizard() {
                   setSelectedDelegations([]);
                   setCreatedTournament(null);
                   setValidationErrors({});
+                  setSelectedChiefRefereeId(null);
                 }}
               >
                 Tạo giải đấu mới
@@ -310,7 +326,7 @@ export default function TournamentSetupWizard() {
         )}
       </div>
 
-      {step < 5 && (
+      {step < 6 && (
         <div className="flex justify-between">
           <Button
             variant="outline"
@@ -322,8 +338,8 @@ export default function TournamentSetupWizard() {
           </Button>
           <Button onClick={handleNext} disabled={!canProceed() || isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {step === 4 ? "Hoàn tất" : "Tiếp theo"}
-            {!isSubmitting && step < 4 && (
+            {step === 4 ? "Tạo giải đấu" : step === 5 ? "Hoàn tất" : "Tiếp theo"}
+            {!isSubmitting && step < 5 && (
               <ArrowRight className="ml-2 h-4 w-4" />
             )}
           </Button>

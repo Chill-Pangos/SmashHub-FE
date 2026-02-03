@@ -154,6 +154,8 @@ export const queryKeys = {
         "tournament",
         tournamentId,
       ] as const,
+    availableChiefReferees: () =>
+      [...queryKeys.tournamentReferees.all, "availableChiefReferees"] as const,
   },
 
   // ==================== Role Keys ====================
@@ -173,6 +175,18 @@ export const queryKeys = {
     all: ["auth"] as const,
     profile: () => [...queryKeys.auth.all, "profile"] as const,
     user: () => [...queryKeys.auth.all, "user"] as const,
+  },
+
+  // ==================== User Keys ====================
+  users: {
+    all: ["users"] as const,
+    lists: () => [...queryKeys.users.all, "list"] as const,
+    list: (filters?: { skip?: number; limit?: number }) =>
+      [...queryKeys.users.lists(), filters] as const,
+    details: () => [...queryKeys.users.all, "detail"] as const,
+    detail: (id: number) => [...queryKeys.users.details(), id] as const,
+    search: (filters?: { query?: string; skip?: number; limit?: number }) =>
+      [...queryKeys.users.all, "search", filters] as const,
   },
 
   // ==================== Notification Keys ====================

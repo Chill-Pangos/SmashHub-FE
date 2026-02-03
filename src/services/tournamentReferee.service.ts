@@ -7,6 +7,7 @@ import type {
   GetAllTournamentRefereesResponse,
   GetRefereesByTournamentResponse,
   GetAvailableRefereesResponse,
+  GetAvailableChiefRefereesResponse,
   GetTournamentRefereeResponse,
   UpdateTournamentRefereeRequest,
   UpdateTournamentRefereeResponse,
@@ -21,6 +22,25 @@ import type {
  */
 class TournamentRefereeService {
   private readonly baseURL = "/tournament-referees";
+
+  /**
+   * Get available chief referees
+   * GET /api/tournament-referees/available-chief-referees
+   *
+   * @returns Promise with available chief referees list
+   *
+   * @description Tournament organizer uses this to get a list of available chief referees
+   * to assign to a tournament during tournament creation.
+   *
+   * @example
+   * const chiefReferees = await tournamentRefereeService.getAvailableChiefReferees();
+   */
+  async getAvailableChiefReferees(): Promise<GetAvailableChiefRefereesResponse> {
+    const response = await axiosInstance.get<GetAvailableChiefRefereesResponse>(
+      `${this.baseURL}/available-chief-referees`,
+    );
+    return response.data;
+  }
 
   /**
    * Create tournament referee

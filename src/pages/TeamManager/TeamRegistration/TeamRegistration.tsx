@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Upload,
   Users,
@@ -19,12 +20,15 @@ import {
   CheckCircle,
   MapPin,
   Calendar,
+  Plus,
 } from "lucide-react";
 import { useAuth } from "@/store/useAuth";
 import { showToast } from "@/utils";
 import type { TeamMember, TournamentContent } from "@/types";
 import EntryImportDialog from "@/components/custom/EntryImportDialog";
 import TeamImportDialog from "@/components/custom/TeamImportDialog";
+import ManualTeamRegistration from "./components/ManualTeamRegistration";
+import ManualEntryRegistration from "./components/ManualEntryRegistration";
 import {
   useTeamsByUser,
   useTournamentsByStatus,
@@ -271,8 +275,7 @@ export default function TeamRegistration() {
                   Đăng ký danh sách đoàn thể thao
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Import file Excel chứa danh sách các thành viên trong đoàn
-                  (VĐV, HLV) tham gia giải đấu
+                  Chọn cách để đăng ký đoàn: Import file Excel hoặc tạo thủ công
                 </p>
               </div>
 
@@ -288,57 +291,93 @@ export default function TeamRegistration() {
                   <div className="space-y-1">
                     {myTeams.map((tm) => (
                       <div
-                        key={tm.team?.id}
+                        key={tm.id}
                         className="text-sm text-green-700 dark:text-green-300"
                       >
-                        • {tm.team?.name}
+                        • {tm.team?.name || `Đoàn #${tm.teamId}`}
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="outline"
-                  onClick={handleDownloadTeamTemplate}
-                  className="flex-1"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Tải file mẫu đăng ký danh sách
-                </Button>
-                <Button
-                  onClick={() => setTeamImportOpen(true)}
-                  className="flex-1"
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  Import danh sách đoàn
-                </Button>
-              </div>
+              {/* Tabs for Import vs Manual */}
+              <Tabs defaultValue="import" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger
+                    value="import"
+                    className="flex items-center gap-2"
+                  >
+                    <Upload className="h-4 w-4" />
+                    Import Excel
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="manual"
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Tạo thủ công
+                  </TabsTrigger>
+                </TabsList>
 
-              <div className="p-4 border border-dashed rounded-lg space-y-2">
-                <div className="flex items-start gap-2">
-                  <FileSpreadsheet className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div className="text-sm text-muted-foreground space-y-1">
-                    <p className="font-medium text-foreground">
-                      Hướng dẫn sử dụng:
-                    </p>
-                    <ol className="list-decimal list-inside space-y-1 ml-2">
-                      <li>Tải file mẫu Excel "DangKyDanhSach.xlsx"</li>
-                      <li>
-                        Điền thông tin các thành viên trong đoàn theo định dạng
-                      </li>
-                      <li>
-                        Mỗi đoàn cần có ít nhất 1 trưởng đoàn (team_manager)
-                      </li>
-                      <li>Các vai trò: team_manager, coach, athlete</li>
-                      <li>
-                        Upload file và kiểm tra preview trước khi xác nhận
-                      </li>
-                    </ol>
+                {/* Import Tab */}
+                <TabsContent value="import" className="space-y-4 mt-4">
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={handleDownloadTeamTemplate}
+                      className="flex-1"
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Tải file mẫu đăng ký danh sách
+                    </Button>
+                    <Button
+                      onClick={() => setTeamImportOpen(true)}
+                      className="flex-1"
+                    >
+                      <Upload className="mr-2 h-4 w-4" />
+                      Import danh sách đoàn
+                    </Button>
                   </div>
-                </div>
-              </div>
+
+                  <div className="p-4 border border-dashed rounded-lg space-y-2">
+                    <div className="flex items-start gap-2">
+                      <FileSpreadsheet className="h-5 w-5 text-muted-foreground mt-0.5" />
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        <p className="font-medium text-foreground">
+                          Hướng dẫn sử dụng:
+                        </p>
+                        <ol className="list-decimal list-inside space-y-1 ml-2">
+                          <li>Tải file mẫu Excel "DangKyDanhSach.xlsx"</li>
+                          <li>
+                            Điền thông tin các thành viên trong đoàn theo định
+                            dạng
+                          </li>
+                          <li>
+                            Mỗi đoàn cần có ít nhất 1 trưởng đoàn (team_manager)
+                          </li>
+                          <li>Các vai trò: team_manager, coach, athlete</li>
+                          <li>
+                            Upload file và kiểm tra preview trước khi xác nhận
+                          </li>
+                        </ol>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Manual Tab */}
+                <TabsContent value="manual" className="mt-4">
+                  <ManualTeamRegistration
+                    tournamentId={selectedTournamentId}
+                    onSuccess={() => {
+                      setTeamImported(true);
+                      refetchTeams();
+                      setActiveStep("entries");
+                    }}
+                  />
+                </TabsContent>
+              </Tabs>
 
               {(teamImported || myTeams.length > 0) && (
                 <Button
@@ -360,8 +399,7 @@ export default function TeamRegistration() {
                   Đăng ký nội dung thi đấu
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Chọn đoàn và nội dung thi đấu, sau đó import danh sách vận
-                  động viên đăng ký
+                  Chọn cách để đăng ký: Import file Excel hoặc chọn thủ công
                 </p>
               </div>
 
@@ -381,84 +419,121 @@ export default function TeamRegistration() {
                   </SelectTrigger>
                   <SelectContent>
                     {myTeams.map((tm) => (
-                      <SelectItem
-                        key={tm.team?.id}
-                        value={tm.team?.id?.toString() || ""}
-                      >
-                        {tm.team?.name}
+                      <SelectItem key={tm.id} value={tm.teamId.toString()}>
+                        {tm.team?.name || `Đoàn #${tm.teamId}`}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* Tournament Contents */}
-              {selectedTournament?.contents &&
-              selectedTournament.contents.length > 0 ? (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {selectedTournament.contents.map((content) => (
-                    <Card key={content.id} className="border">
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <h4 className="font-medium">{content.name}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              Tối đa {content.maxEntries} entries
-                            </p>
-                          </div>
-                          {getContentTypeBadge(content.type)}
-                        </div>
-                        <div className="space-y-2 text-sm text-muted-foreground mb-4">
-                          {content.gender && (
-                            <p>
-                              Giới tính:{" "}
-                              {content.gender === "male"
-                                ? "Nam"
-                                : content.gender === "female"
-                                  ? "Nữ"
-                                  : "Hỗn hợp"}
-                            </p>
-                          )}
-                          {content.minAge && content.maxAge && (
-                            <p>
-                              Độ tuổi: {content.minAge} - {content.maxAge}
-                            </p>
-                          )}
-                          {content.minElo && content.maxElo && (
-                            <p>
-                              ELO: {content.minElo} - {content.maxElo}
-                            </p>
-                          )}
-                        </div>
-                        <div className="space-y-2">
-                          <Button
-                            variant="outline"
-                            className="w-full"
-                            onClick={() =>
-                              handleDownloadEntryTemplate(content.type)
-                            }
-                          >
-                            <Download className="h-4 w-4 mr-2" />
-                            Tải file mẫu
-                          </Button>
-                          <Button
-                            className="w-full"
-                            onClick={() => handleOpenEntryDialog(content)}
-                            disabled={!selectedTeamId}
-                          >
-                            <Upload className="h-4 w-4 mr-2" />
-                            Import đăng ký
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Trophy className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                  <p>Giải đấu này chưa có nội dung thi đấu</p>
-                </div>
+              {selectedTeamId && (
+                <Tabs defaultValue="import" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger
+                      value="import"
+                      className="flex items-center gap-2"
+                    >
+                      <Upload className="h-4 w-4" />
+                      Import Excel
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="manual"
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Chọn thủ công
+                    </TabsTrigger>
+                  </TabsList>
+
+                  {/* Import Tab */}
+                  <TabsContent value="import" className="space-y-4 mt-4">
+                    {/* Tournament Contents Grid */}
+                    {selectedTournament?.contents &&
+                    selectedTournament.contents.length > 0 ? (
+                      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        {selectedTournament.contents.map((content) => (
+                          <Card key={content.id} className="border">
+                            <CardContent className="p-4">
+                              <div className="flex justify-between items-start mb-3">
+                                <div>
+                                  <h4 className="font-medium">
+                                    {content.name}
+                                  </h4>
+                                  <p className="text-sm text-muted-foreground">
+                                    Tối đa {content.maxEntries} entries
+                                  </p>
+                                </div>
+                                {getContentTypeBadge(content.type)}
+                              </div>
+                              <div className="space-y-2 text-sm text-muted-foreground mb-4">
+                                {content.gender && (
+                                  <p>
+                                    Giới tính:{" "}
+                                    {content.gender === "male"
+                                      ? "Nam"
+                                      : content.gender === "female"
+                                        ? "Nữ"
+                                        : "Hỗn hợp"}
+                                  </p>
+                                )}
+                                {content.minAge && content.maxAge && (
+                                  <p>
+                                    Độ tuổi: {content.minAge} - {content.maxAge}
+                                  </p>
+                                )}
+                                {content.minElo && content.maxElo && (
+                                  <p>
+                                    ELO: {content.minElo} - {content.maxElo}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="space-y-2">
+                                <Button
+                                  variant="outline"
+                                  className="w-full"
+                                  onClick={() =>
+                                    handleDownloadEntryTemplate(content.type)
+                                  }
+                                >
+                                  <Download className="h-4 w-4 mr-2" />
+                                  Tải file mẫu
+                                </Button>
+                                <Button
+                                  className="w-full"
+                                  onClick={() => handleOpenEntryDialog(content)}
+                                >
+                                  <Upload className="h-4 w-4 mr-2" />
+                                  Import đăng ký
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Trophy className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                        <p>Giải đấu này chưa có nội dung thi đấu</p>
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  {/* Manual Tab */}
+                  <TabsContent value="manual" className="mt-4">
+                    <ManualEntryRegistration
+                      selectedTeamId={selectedTeamId}
+                      selectedTournament={selectedTournament}
+                      onSuccess={() => {
+                        refetchTournament();
+                        showToast.success(
+                          "Thành công",
+                          "Đã đăng ký nội dung thi đấu",
+                        );
+                      }}
+                    />
+                  </TabsContent>
+                </Tabs>
               )}
             </Card>
           )}

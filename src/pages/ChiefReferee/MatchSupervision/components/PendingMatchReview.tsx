@@ -325,13 +325,7 @@ export default function PendingMatchReview() {
           <CardDescription>
             Click vào "Xem ELO" để xem dự đoán thay đổi điểm ELO trước khi phê
             duyệt
-            {/* Debug info */}
-            {pendingMatchesResponse && (
-              <div className="mt-2 text-xs">
-                📊 API Response: {pendingMatchesResponse.count} matches total,{" "}
-                {pendingMatches.length} loaded
-              </div>
-            )}
+           
           </CardDescription>
         </CardHeader>
         <CardContent>

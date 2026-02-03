@@ -17,10 +17,10 @@ const ROLE_ROUTES: Record<string, string> = {
   organizer: "/tournament-manager",
   chief_referee: "/chief-referee",
   referee: "/referee",
-  team_manager: "/",
-  coach: "/",
-  athlete: "/",
-  spectator: "/",
+  team_manager: "/team-manager",
+  coach: "/coach",
+  athlete: "/athlete",
+  spectator: "/spectator",
 };
 
 // Priority mapping by role name (higher = more important)
