@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Download, Eye } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Report {
   id: string;
@@ -72,27 +73,29 @@ const mockReports: Report[] = [
   },
 ];
 
-const getReportTypeLabel = (type: Report["type"]) => {
-  const labels = {
-    tournament: "Giải đấu",
-    delegation: "Đoàn",
-    match: "Trận đấu",
-    statistics: "Thống kê",
-  };
-  return labels[type];
-};
-
-const getReportTypeColor = (type: Report["type"]) => {
-  const colors = {
-    tournament: "bg-blue-100 text-blue-700",
-    delegation: "bg-green-100 text-green-700",
-    match: "bg-purple-100 text-purple-700",
-    statistics: "bg-orange-100 text-orange-700",
-  };
-  return colors[type];
-};
-
 export default function ReportList() {
+  const { t } = useTranslation();
+
+  const getReportTypeLabel = (type: Report["type"]) => {
+    const labels = {
+      tournament: t("tournamentManager.reportsCenter.tournament"),
+      delegation: t("tournamentManager.reportsCenter.delegation"),
+      match: t("tournamentManager.reportsCenter.match"),
+      statistics: t("tournamentManager.reportsCenter.statistics"),
+    };
+    return labels[type];
+  };
+
+  const getReportTypeColor = (type: Report["type"]) => {
+    const colors = {
+      tournament: "bg-blue-100 text-blue-700",
+      delegation: "bg-green-100 text-green-700",
+      match: "bg-purple-100 text-purple-700",
+      statistics: "bg-orange-100 text-orange-700",
+    };
+    return colors[type];
+  };
+
   return (
     <div className="space-y-4">
       {mockReports.map((report) => (
@@ -120,7 +123,9 @@ export default function ReportList() {
                       report.status === "generated" ? "default" : "secondary"
                     }
                   >
-                    {report.status === "generated" ? "Đã tạo" : "Đang xử lý"}
+                    {report.status === "generated"
+                      ? t("tournamentManager.reportsCenter.generated")
+                      : t("tournamentManager.reportsCenter.pending")}
                   </Badge>
                 </div>
               </div>
@@ -128,21 +133,23 @@ export default function ReportList() {
               <div className="flex items-center justify-between mt-4">
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <span>
-                    Ngày tạo:{" "}
+                    {t("tournamentManager.reportsCenter.createdDate")}:{" "}
                     {new Date(report.date).toLocaleDateString("vi-VN")}
                   </span>
-                  <span>Kích thước: {report.size}</span>
+                  <span>
+                    {t("tournamentManager.reportsCenter.size")}: {report.size}
+                  </span>
                 </div>
 
                 {report.status === "generated" && (
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm">
                       <Eye className="mr-2 h-4 w-4" />
-                      Xem trước
+                      {t("tournamentManager.reportsCenter.preview")}
                     </Button>
                     <Button size="sm">
                       <Download className="mr-2 h-4 w-4" />
-                      Tải xuống
+                      {t("tournamentManager.reportsCenter.download")}
                     </Button>
                   </div>
                 )}

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock } from "lucide-react";
@@ -6,6 +7,8 @@ import type { Match } from "@/types";
 import { useMatchesByStatus } from "@/hooks/queries";
 
 export default function AthleteSchedule() {
+  const { t } = useTranslation();
+
   // Fetch scheduled matches
   const { data: scheduledData, isLoading: scheduledLoading } =
     useMatchesByStatus("scheduled", 0, 50);
@@ -35,9 +38,9 @@ export default function AthleteSchedule() {
       completed: "secondary",
     };
     const labels: Record<string, string> = {
-      scheduled: "Chưa bắt đầu",
-      in_progress: "Đang diễn ra",
-      completed: "Đã kết thúc",
+      scheduled: t("athlete.notStarted"),
+      in_progress: t("tournament.ongoing"),
+      completed: t("tournament.completed"),
     };
 
     return (
@@ -52,7 +55,7 @@ export default function AthleteSchedule() {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -62,9 +65,9 @@ export default function AthleteSchedule() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Lịch thi đấu</h1>
+        <h1 className="text-3xl font-bold">{t("schedule.schedule")}</h1>
         <p className="text-muted-foreground mt-1">
-          Xem lịch các trận đấu của bạn
+          {t("athlete.viewYourMatchSchedule")}
         </p>
       </div>
 
@@ -74,7 +77,7 @@ export default function AthleteSchedule() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-orange-600">
               <Clock className="h-5 w-5" />
-              Trận đang diễn ra
+              {t("athlete.matchInProgress")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -105,13 +108,13 @@ export default function AthleteSchedule() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            Trận đấu sắp tới
+            {t("match.upcomingMatches")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {scheduledMatches.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
-              Không có trận đấu nào được lên lịch
+              {t("athlete.noMatchesScheduled")}
             </p>
           ) : (
             <div className="space-y-4">

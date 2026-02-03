@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Trophy,
@@ -20,6 +21,7 @@ interface AthleteDashboardProps {
 export default function AthleteDashboard({
   onNavigateTo,
 }: AthleteDashboardProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
 
   // Fetch teams where user is athlete
@@ -77,7 +79,7 @@ export default function AthleteDashboard({
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -88,9 +90,11 @@ export default function AthleteDashboard({
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Xin chào, {user?.username}!</h1>
+          <h1 className="text-3xl font-bold">
+            {t("home.welcomeBack", { name: user?.username })}
+          </h1>
           <p className="text-muted-foreground mt-1">
-            Theo dõi thành tích và lịch thi đấu của bạn
+            {t("athlete.trackPerformanceAndSchedule")}
           </p>
         </div>
       </div>
@@ -98,28 +102,28 @@ export default function AthleteDashboard({
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
-          title="ELO hiện tại"
+          title={t("athlete.currentElo")}
           value={stats.currentElo}
           icon={TrendingUp}
-          description="Điểm xếp hạng"
+          description={t("athlete.rankingPoints")}
         />
         <StatsCard
-          title="Tổng trận đấu"
+          title={t("athlete.totalMatches")}
           value={stats.totalMatches}
           icon={Target}
-          description="Đã thi đấu"
+          description={t("athlete.played")}
         />
         <StatsCard
-          title="Thắng/Thua"
+          title={t("athlete.winLoss")}
           value={`${stats.wins}/${stats.losses}`}
           icon={Award}
-          description={`Tỷ lệ thắng: ${stats.winRate}%`}
+          description={`${t("athlete.winRate")}: ${stats.winRate}%`}
         />
         <StatsCard
-          title="Trận sắp tới"
+          title={t("match.upcomingMatches")}
           value={upcomingMatches.length}
           icon={Calendar}
-          description="Chờ thi đấu"
+          description={t("athlete.awaitingMatch")}
         />
       </div>
 
@@ -136,13 +140,13 @@ export default function AthleteDashboard({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Trophy className="h-5 w-5" />
-              Đoàn của tôi
+              {t("athlete.myDelegation")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {myTeams.length === 0 ? (
               <p className="text-muted-foreground text-center py-4">
-                Bạn chưa thuộc đoàn nào
+                {t("athlete.noDelegation")}
               </p>
             ) : (
               <div className="space-y-3">
@@ -153,10 +157,11 @@ export default function AthleteDashboard({
                   >
                     <div>
                       <p className="font-medium">
-                        {teamMember.team?.name || "Đoàn chưa xác định"}
+                        {teamMember.team?.name ||
+                          t("athlete.undefinedDelegation")}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Vận động viên
+                        {t("athlete.athlete")}
                       </p>
                     </div>
                     <ChevronRight className="h-5 w-5 text-muted-foreground" />

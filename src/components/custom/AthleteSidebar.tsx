@@ -17,53 +17,50 @@ import { useNavigate } from "react-router-dom";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
 import NotificationDropdown from "./NotificationDropdown";
 import ThemeToggle from "./ThemeToggle";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface AthleteSidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
 
-const menuItems = [
-  {
-    id: "dashboard",
-    label: "Tổng quan",
-    icon: LayoutDashboard,
-  },
-  {
-    id: "profile",
-    label: "Hồ sơ cá nhân",
-    icon: User,
-  },
-  {
-    id: "tournaments",
-    label: "Giải đấu của tôi",
-    icon: Trophy,
-  },
-  {
-    id: "schedule",
-    label: "Lịch thi đấu",
-    icon: Calendar,
-  },
-  {
-    id: "match-history",
-    label: "Lịch sử thi đấu",
-    icon: History,
-  },
-  // COMMENTED OUT: Uses mock data, no ELO statistics API
-  // {
-  //   id: "elo-stats",
-  //   label: "Thống kê ELO",
-  //   icon: TrendingUp,
-  // },
-];
-
 export default function AthleteSidebar({
   activeTab,
   setActiveTab,
 }: AthleteSidebarProps) {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
   const { logout } = useAuthOperations();
   const navigate = useNavigate();
+
+  const menuItems = [
+    {
+      id: "dashboard",
+      label: t("nav.dashboard"),
+      icon: LayoutDashboard,
+    },
+    {
+      id: "profile",
+      label: t("athlete.athleteProfile"),
+      icon: User,
+    },
+    {
+      id: "tournaments",
+      label: t("tournament.tournaments"),
+      icon: Trophy,
+    },
+    {
+      id: "schedule",
+      label: t("schedule.schedule"),
+      icon: Calendar,
+    },
+    {
+      id: "match-history",
+      label: t("match.matchHistory"),
+      icon: History,
+    },
+  ];
 
   const handleLogout = async () => {
     await logout();
@@ -82,11 +79,12 @@ export default function AthleteSidebar({
         {!collapsed && (
           <div className="flex items-center gap-2">
             <User className="h-6 w-6 text-primary" />
-            <span className="font-semibold">Vận động viên</span>
+            <span className="font-semibold">{t("athlete.athlete")}</span>
           </div>
         )}
         <div className="flex items-center gap-1">
           <NotificationDropdown />
+          <LanguageSwitcher />
           <Button
             variant="ghost"
             size="icon"
@@ -133,7 +131,7 @@ export default function AthleteSidebar({
           onClick={handleLogout}
         >
           <LogOut className={cn("h-5 w-5", !collapsed && "mr-2")} />
-          {!collapsed && <span>Đăng xuất</span>}
+          {!collapsed && <span>{t("auth.signOut")}</span>}
         </Button>
       </div>
     </div>

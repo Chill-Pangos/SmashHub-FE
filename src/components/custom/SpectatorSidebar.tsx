@@ -17,48 +17,45 @@ import { useNavigate } from "react-router-dom";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
 import NotificationDropdown from "./NotificationDropdown";
 import ThemeToggle from "./ThemeToggle";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface SpectatorSidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
 
-const menuItems = [
-  {
-    id: "dashboard",
-    label: "Tổng quan",
-    icon: LayoutDashboard,
-  },
-  {
-    id: "tournaments",
-    label: "Giải đấu",
-    icon: Trophy,
-  },
-  {
-    id: "schedule",
-    label: "Lịch thi đấu",
-    icon: Calendar,
-  },
-  {
-    id: "live-matches",
-    label: "Trận đấu trực tiếp",
-    icon: Play,
-  },
-  // COMMENTED OUT: Uses mock data, no ranking/leaderboard API
-  // {
-  //   id: "rankings",
-  //   label: "Bảng xếp hạng",
-  //   icon: TrendingUp,
-  // },
-];
-
 export default function SpectatorSidebar({
   activeTab,
   onTabChange,
 }: SpectatorSidebarProps) {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
   const { logout } = useAuthOperations();
   const navigate = useNavigate();
+
+  const menuItems = [
+    {
+      id: "dashboard",
+      label: t("nav.dashboard"),
+      icon: LayoutDashboard,
+    },
+    {
+      id: "tournaments",
+      label: t("tournament.tournaments"),
+      icon: Trophy,
+    },
+    {
+      id: "schedule",
+      label: t("schedule.schedule"),
+      icon: Calendar,
+    },
+    {
+      id: "live-matches",
+      label: t("match.liveMatches"),
+      icon: Play,
+    },
+  ];
 
   const handleLogout = async () => {
     await logout();
@@ -77,11 +74,12 @@ export default function SpectatorSidebar({
         {!collapsed && (
           <div className="flex items-center gap-2">
             <Eye className="h-6 w-6 text-primary" />
-            <span className="font-semibold">Khán giả</span>
+            <span className="font-semibold">{t("spectator.spectator")}</span>
           </div>
         )}
         <div className="flex items-center gap-1">
           <NotificationDropdown />
+          <LanguageSwitcher />
           <Button
             variant="ghost"
             size="icon"
@@ -128,7 +126,7 @@ export default function SpectatorSidebar({
           onClick={handleLogout}
         >
           <LogOut className={cn("h-5 w-5", !collapsed && "mr-2")} />
-          {!collapsed && <span>Đăng xuất</span>}
+          {!collapsed && <span>{t("auth.signOut")}</span>}
         </Button>
       </div>
     </div>

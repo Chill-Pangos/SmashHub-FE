@@ -8,6 +8,7 @@ import {
   useCreateMatchSetWithScore,
   useFinalizeMatch,
 } from "@/hooks/queries";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface UpcomingMatch {
   match: Match;
@@ -17,6 +18,8 @@ interface UpcomingMatch {
 }
 
 export default function RefereeDashboard() {
+  const { t } = useTranslation();
+
   // Fetch matches by status using React Query
   const { data: scheduledResponse, isLoading: isLoadingScheduled } =
     useMatchesByStatus("scheduled", 0, 50);
@@ -116,13 +119,13 @@ export default function RefereeDashboard() {
               ? response.data
               : (response as unknown as MatchSet);
           showToast.success(
-            "Thành công",
-            `Đã ghi nhận điểm Set ${newSet.setNumber}`,
+            t("common.success"),
+            t("referee.scoreRecorded", { setNumber: newSet.setNumber }),
           );
         },
         onError: (error) => {
           console.error("Error adding score:", error);
-          showToast.error("Lỗi", "Không thể ghi nhận điểm");
+          showToast.error(t("common.error"), t("referee.cannotRecordScore"));
         },
       },
     );
@@ -135,13 +138,13 @@ export default function RefereeDashboard() {
     finalizeMatchMutation.mutate(activeMatch.id, {
       onSuccess: () => {
         showToast.success(
-          "Thành công",
-          "Trận đấu đã kết thúc và đang chờ Tổng trọng tài phê duyệt",
+          t("common.success"),
+          t("referee.matchEndedAwaitingApproval"),
         );
       },
       onError: (error) => {
         console.error("Error finalizing match:", error);
-        showToast.error("Lỗi", "Không thể kết thúc trận đấu");
+        showToast.error(t("common.error"), t("referee.cannotEndMatch"));
       },
     });
   };
@@ -150,9 +153,11 @@ export default function RefereeDashboard() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Bảng điều khiển trọng tài</h1>
+          <h1 className="text-3xl font-bold">
+            {t("referee.refereeDashboard")}
+          </h1>
           <p className="text-muted-foreground">
-            Quản lý và điều khiển các trận đấu được phân công
+            {t("referee.manageAssignedMatches")}
           </p>
         </div>
       </div>

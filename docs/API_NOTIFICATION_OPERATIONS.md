@@ -126,7 +126,7 @@ Gửi notification đến user(s) hoặc room. Hỗ trợ các mode:
   "broadcast": true,
   "type": "tournament_start",
   "title": "Giải đấu bắt đầu",
-  "message": "Giải vô địch cầu lông toàn quốc 2024 chính thức bắt đầu!"
+  "message": "Giải vô địch bóng bàn toàn quốc 2024 chính thức bắt đầu!"
 }
 ```
 

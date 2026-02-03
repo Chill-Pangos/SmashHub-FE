@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { useQueries } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,8 +10,10 @@ import { useTeamsByUser, queryKeys } from "@/hooks/queries";
 import TournamentDetailViewer from "@/components/custom/TournamentDetailViewer";
 
 export default function AthleteTournaments() {
+  const { t } = useTranslation();
   const { user } = useAuth();
-  const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null);
+  const [selectedTournament, setSelectedTournament] =
+    useState<Tournament | null>(null);
 
   // Fetch teams where user is athlete
   const { data: teamsData, isLoading: teamsLoading } = useTeamsByUser(
@@ -64,9 +67,9 @@ export default function AthleteTournaments() {
       completed: "secondary",
     };
     const labels: Record<string, string> = {
-      upcoming: "Sắp diễn ra",
-      ongoing: "Đang diễn ra",
-      completed: "Đã kết thúc",
+      upcoming: t("tournament.upcoming"),
+      ongoing: t("tournament.ongoing"),
+      completed: t("tournament.completed"),
     };
 
     return (
@@ -81,7 +84,7 @@ export default function AthleteTournaments() {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -103,9 +106,9 @@ export default function AthleteTournaments() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Giải đấu của tôi</h1>
+        <h1 className="text-3xl font-bold">{t("athlete.myTournaments")}</h1>
         <p className="text-muted-foreground mt-1">
-          Các giải đấu bạn đang tham gia
+          {t("athlete.tournamentsParticipating")}
         </p>
       </div>
 
@@ -115,10 +118,10 @@ export default function AthleteTournaments() {
           <CardContent className="py-12 text-center">
             <Trophy className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium mb-2">
-              Bạn chưa tham gia giải đấu nào
+              {t("athlete.noTournamentsJoined")}
             </h3>
             <p className="text-muted-foreground">
-              Liên hệ trưởng đoàn để đăng ký tham gia giải đấu
+              {t("athlete.contactDelegationToJoin")}
             </p>
           </CardContent>
         </Card>
@@ -162,7 +165,10 @@ export default function AthleteTournaments() {
                   {tournament.contents && tournament.contents.length > 0 && (
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Users className="h-4 w-4" />
-                      <span>{tournament.contents.length} nội dung thi đấu</span>
+                      <span>
+                        {tournament.contents.length}{" "}
+                        {t("athlete.eventContents")}
+                      </span>
                     </div>
                   )}
                 </div>

@@ -2,9 +2,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import { useSchedules, useMatchesByStatus } from "@/hooks/queries";
+import { useTranslation } from "@/hooks/useTranslation";
 import type { Match } from "@/types";
 
 export default function SpectatorSchedule() {
+  const { t } = useTranslation();
+
   // React Query hooks
   const { data: schedulesResponse, isLoading: isLoadingSchedules } =
     useSchedules(0, 100);
@@ -23,7 +26,7 @@ export default function SpectatorSchedule() {
       const schedule = schedules.find((s) => s.id === match.scheduleId);
       const date = schedule?.matchTime
         ? new Date(schedule.matchTime).toLocaleDateString("vi-VN")
-        : "Chưa xác định";
+        : t("schedule.notDetermined");
       if (!grouped[date]) {
         grouped[date] = [];
       }
@@ -37,7 +40,7 @@ export default function SpectatorSchedule() {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -49,9 +52,9 @@ export default function SpectatorSchedule() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Lịch thi đấu</h1>
+        <h1 className="text-3xl font-bold">{t("schedule.schedule")}</h1>
         <p className="text-muted-foreground mt-1">
-          Xem lịch các trận đấu sắp diễn ra
+          {t("spectator.viewUpcomingMatches")}
         </p>
       </div>
 
@@ -61,10 +64,10 @@ export default function SpectatorSchedule() {
           <CardContent className="py-12 text-center">
             <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium mb-2">
-              Chưa có trận đấu nào được lên lịch
+              {t("spectator.noMatchesScheduled")}
             </h3>
             <p className="text-muted-foreground">
-              Các trận đấu sẽ được cập nhật khi giải đấu diễn ra
+              {t("spectator.matchesWillUpdate")}
             </p>
           </CardContent>
         </Card>
@@ -103,16 +106,19 @@ export default function SpectatorSchedule() {
                                     hour: "2-digit",
                                     minute: "2-digit",
                                   })
-                                : "Chưa xác định"}
+                                : t("schedule.notDetermined")}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
                             <MapPin className="h-4 w-4" />
-                            <span>Bàn {schedule?.tableNumber || "N/A"}</span>
+                            <span>
+                              {t("schedule.table")}{" "}
+                              {schedule?.tableNumber || "N/A"}
+                            </span>
                           </div>
                         </div>
                       </div>
-                      <Badge variant="outline">Chưa bắt đầu</Badge>
+                      <Badge variant="outline">{t("athlete.notStarted")}</Badge>
                     </div>
                   );
                 })}

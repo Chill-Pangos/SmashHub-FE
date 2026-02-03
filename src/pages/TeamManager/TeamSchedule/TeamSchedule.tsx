@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -12,6 +13,7 @@ import { Calendar, Clock, MapPin } from "lucide-react";
 import { useTournaments, useSchedules, useMatches } from "@/hooks/queries";
 
 export default function TeamSchedule() {
+  const { t } = useTranslation();
   const [selectedTournamentId, setSelectedTournamentId] = useState<
     number | null
   >(null);
@@ -44,9 +46,9 @@ export default function TeamSchedule() {
       completed: "secondary",
     };
     const labels: Record<string, string> = {
-      scheduled: "Chưa bắt đầu",
-      in_progress: "Đang diễn ra",
-      completed: "Đã kết thúc",
+      scheduled: t("match.scheduled"),
+      in_progress: t("match.inProgress"),
+      completed: t("match.finished"),
     };
 
     return (
@@ -61,7 +63,7 @@ export default function TeamSchedule() {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -71,9 +73,9 @@ export default function TeamSchedule() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Lịch thi đấu</h1>
+        <h1 className="text-3xl font-bold">{t("schedule.schedule")}</h1>
         <p className="text-muted-foreground mt-1">
-          Xem lịch thi đấu của các giải đấu
+          {t("teamManager.viewScheduleDescription")}
         </p>
       </div>
 
@@ -82,7 +84,7 @@ export default function TeamSchedule() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            Chọn giải đấu
+            {t("teamManager.selectTournament")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -93,7 +95,9 @@ export default function TeamSchedule() {
             }
           >
             <SelectTrigger className="w-full md:w-96">
-              <SelectValue placeholder="-- Chọn giải đấu --" />
+              <SelectValue
+                placeholder={t("teamManager.selectTournamentPlaceholder")}
+              />
             </SelectTrigger>
             <SelectContent>
               {tournaments.map((tournament) => (
@@ -113,7 +117,7 @@ export default function TeamSchedule() {
       {selectedTournamentId && (
         <Card>
           <CardHeader>
-            <CardTitle>Lịch trận đấu</CardTitle>
+            <CardTitle>{t("match.matchSchedule")}</CardTitle>
           </CardHeader>
           <CardContent>
             {isScheduleLoading ? (
@@ -122,7 +126,7 @@ export default function TeamSchedule() {
               </div>
             ) : matches.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
-                Chưa có lịch thi đấu nào
+                {t("teamManager.noScheduleYet")}
               </p>
             ) : (
               <div className="space-y-4">
@@ -149,13 +153,13 @@ export default function TeamSchedule() {
                                     (s) => s.id === match.scheduleId,
                                   )!.matchTime,
                                 ).toLocaleString("vi-VN")
-                              : "Chưa xác định"}
+                              : t("teamManager.notDetermined")}
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
                           <MapPin className="h-4 w-4" />
                           <span>
-                            Bàn{" "}
+                            {t("teamManager.table")}{" "}
                             {schedules.find((s) => s.id === match.scheduleId)
                               ?.tableNumber || "N/A"}
                           </span>
@@ -164,7 +168,7 @@ export default function TeamSchedule() {
                     </div>
                     {match.winnerEntryId && (
                       <Badge variant="default">
-                        Thắng: Entry {match.winnerEntryId}
+                        {t("match.winner")}: Entry {match.winnerEntryId}
                       </Badge>
                     )}
                   </div>

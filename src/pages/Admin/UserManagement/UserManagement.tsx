@@ -6,8 +6,10 @@ import { Search, Plus, Download, Upload } from "lucide-react";
 import UserTable, { type User } from "./components/UserTable";
 import UserDialog from "./components/UserDialog";
 import UserFilters from "./components/UserFilters";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function UserManagement() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -33,19 +35,19 @@ export default function UserManagement() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Quản lý người dùng</h1>
+        <h1 className="text-3xl font-bold">{t("admin.userManagement")}</h1>
         <div className="flex items-center gap-2">
           <Button variant="outline">
             <Download className="mr-2 h-4 w-4" />
-            Xuất Excel
+            {t("admin.exportExcel")}
           </Button>
           <Button variant="outline">
             <Upload className="mr-2 h-4 w-4" />
-            Nhập Excel
+            {t("admin.importExcel")}
           </Button>
           <Button onClick={handleCreate}>
             <Plus className="mr-2 h-4 w-4" />
-            Thêm người dùng
+            {t("admin.addUser")}
           </Button>
         </div>
       </div>
@@ -57,7 +59,7 @@ export default function UserManagement() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Tìm kiếm theo tên, email, vai trò..."
+              placeholder={t("admin.searchUsers")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"

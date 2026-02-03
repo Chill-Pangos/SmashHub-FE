@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -36,6 +37,7 @@ import {
 } from "@/hooks/queries";
 
 export default function TeamRegistration() {
+  const { t } = useTranslation();
   const { user } = useAuth();
 
   // Local UI state
@@ -131,9 +133,9 @@ export default function TeamRegistration() {
       team: "outline",
     };
     const labels: Record<string, string> = {
-      single: "Đơn",
-      double: "Đôi",
-      team: "Đội",
+      single: t("teamManager.single"),
+      double: t("teamManager.double"),
+      team: t("team.team"),
     };
 
     return (
@@ -148,7 +150,7 @@ export default function TeamRegistration() {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -158,9 +160,11 @@ export default function TeamRegistration() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Đăng ký tham gia giải đấu</h1>
+        <h1 className="text-3xl font-bold">
+          {t("teamManager.registerForTournament")}
+        </h1>
         <p className="text-muted-foreground mt-1">
-          Đăng ký danh sách đoàn thể thao và nội dung thi đấu
+          {t("teamManager.registerDelegationAndContents")}
         </p>
       </div>
 
@@ -169,7 +173,7 @@ export default function TeamRegistration() {
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium mb-2 block">
-              Chọn giải đấu
+              {t("teamManager.selectTournament")}
             </label>
             <Select
               value={selectedTournamentId?.toString() || ""}
@@ -178,7 +182,9 @@ export default function TeamRegistration() {
               }
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="-- Chọn giải đấu --" />
+                <SelectValue
+                  placeholder={t("teamManager.selectTournamentPlaceholder")}
+                />
               </SelectTrigger>
               <SelectContent>
                 {tournaments.map((tournament) => (
@@ -198,7 +204,9 @@ export default function TeamRegistration() {
           {selectedTournament && (
             <div className="p-4 bg-muted/50 rounded-lg space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Thông tin giải đấu:</span>
+                <span className="text-sm font-medium">
+                  {t("tournament.tournamentInfo")}:
+                </span>
                 <Badge
                   variant={
                     selectedTournament.status === "upcoming"
@@ -209,20 +217,20 @@ export default function TeamRegistration() {
                   }
                 >
                   {selectedTournament.status === "upcoming"
-                    ? "Sắp diễn ra"
+                    ? t("tournament.upcoming")
                     : selectedTournament.status === "ongoing"
-                      ? "Đang diễn ra"
-                      : "Đã kết thúc"}
+                      ? t("tournament.ongoing")
+                      : t("tournament.completed")}
                 </Badge>
               </div>
               <div className="text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <MapPin className="h-3 w-3" />
-                  Địa điểm: {selectedTournament.location}
+                  {t("tournament.location")}: {selectedTournament.location}
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  Thời gian:{" "}
+                  {t("teamManager.time")}:{" "}
                   {new Date(selectedTournament.startDate).toLocaleDateString(
                     "vi-VN",
                   )}
@@ -231,7 +239,7 @@ export default function TeamRegistration() {
                 </div>
                 <div className="flex items-center gap-1">
                   <Trophy className="h-3 w-3" />
-                  Số nội dung thi đấu:{" "}
+                  {t("teamManager.numberOfContents")}:{" "}
                   {selectedTournament.contents?.length || 0}
                 </div>
               </div>
@@ -250,7 +258,7 @@ export default function TeamRegistration() {
               className="flex-1"
             >
               <Users className="mr-2 h-4 w-4" />
-              Bước 1: Đăng ký danh sách đoàn
+              {t("teamManager.step1RegisterDelegation")}
               {teamImported && (
                 <CheckCircle className="ml-2 h-4 w-4 text-green-500" />
               )}
@@ -263,7 +271,7 @@ export default function TeamRegistration() {
               disabled={!teamImported && myTeams.length === 0}
             >
               <Trophy className="mr-2 h-4 w-4" />
-              Bước 2: Đăng ký nội dung thi đấu
+              {t("teamManager.step2RegisterContents")}
             </Button>
           </div>
 
@@ -272,10 +280,10 @@ export default function TeamRegistration() {
             <Card className="p-6 space-y-6">
               <div>
                 <h3 className="text-xl font-semibold mb-2">
-                  Đăng ký danh sách đoàn thể thao
+                  {t("teamManager.registerDelegationList")}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Chọn cách để đăng ký đoàn: Import file Excel hoặc tạo thủ công
+                  {t("teamManager.chooseRegistrationMethod")}
                 </p>
               </div>
 
@@ -285,7 +293,8 @@ export default function TeamRegistration() {
                   <div className="flex items-center gap-2 mb-2">
                     <CheckCircle className="h-5 w-5 text-green-600" />
                     <span className="font-medium text-green-800 dark:text-green-200">
-                      Bạn đang quản lý {myTeams.length} đoàn
+                      {t("teamManager.youAreManaging")} {myTeams.length}{" "}
+                      {t("team.delegations")}
                     </span>
                   </div>
                   <div className="space-y-1">
@@ -309,14 +318,14 @@ export default function TeamRegistration() {
                     className="flex items-center gap-2"
                   >
                     <Upload className="h-4 w-4" />
-                    Import Excel
+                    {t("teamManager.importExcel")}
                   </TabsTrigger>
                   <TabsTrigger
                     value="manual"
                     className="flex items-center gap-2"
                   >
                     <Plus className="h-4 w-4" />
-                    Tạo thủ công
+                    {t("teamManager.createManually")}
                   </TabsTrigger>
                 </TabsList>
 
@@ -329,14 +338,14 @@ export default function TeamRegistration() {
                       className="flex-1"
                     >
                       <Download className="mr-2 h-4 w-4" />
-                      Tải file mẫu đăng ký danh sách
+                      {t("teamManager.downloadTemplateFile")}
                     </Button>
                     <Button
                       onClick={() => setTeamImportOpen(true)}
                       className="flex-1"
                     >
                       <Upload className="mr-2 h-4 w-4" />
-                      Import danh sách đoàn
+                      {t("teamManager.importDelegationList")}
                     </Button>
                   </div>
 
@@ -345,21 +354,14 @@ export default function TeamRegistration() {
                       <FileSpreadsheet className="h-5 w-5 text-muted-foreground mt-0.5" />
                       <div className="text-sm text-muted-foreground space-y-1">
                         <p className="font-medium text-foreground">
-                          Hướng dẫn sử dụng:
+                          {t("teamManager.usageGuide")}:
                         </p>
                         <ol className="list-decimal list-inside space-y-1 ml-2">
-                          <li>Tải file mẫu Excel "DangKyDanhSach.xlsx"</li>
-                          <li>
-                            Điền thông tin các thành viên trong đoàn theo định
-                            dạng
-                          </li>
-                          <li>
-                            Mỗi đoàn cần có ít nhất 1 trưởng đoàn (team_manager)
-                          </li>
-                          <li>Các vai trò: team_manager, coach, athlete</li>
-                          <li>
-                            Upload file và kiểm tra preview trước khi xác nhận
-                          </li>
+                          <li>{t("teamManager.instruction1")}</li>
+                          <li>{t("teamManager.instruction2")}</li>
+                          <li>{t("teamManager.instruction3")}</li>
+                          <li>{t("teamManager.instruction4")}</li>
+                          <li>{t("teamManager.instruction5")}</li>
                         </ol>
                       </div>
                     </div>
@@ -384,7 +386,7 @@ export default function TeamRegistration() {
                   onClick={() => setActiveStep("entries")}
                   className="w-full"
                 >
-                  Tiếp tục: Đăng ký nội dung thi đấu
+                  {t("teamManager.continueToRegisterContents")}
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
               )}
@@ -396,17 +398,17 @@ export default function TeamRegistration() {
             <Card className="p-6 space-y-6">
               <div>
                 <h3 className="text-xl font-semibold mb-2">
-                  Đăng ký nội dung thi đấu
+                  {t("teamManager.registerContents")}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Chọn cách để đăng ký: Import file Excel hoặc chọn thủ công
+                  {t("teamManager.chooseRegistrationMethodContents")}
                 </p>
               </div>
 
               {/* Select Team */}
               <div>
                 <label className="text-sm font-medium mb-2 block">
-                  Chọn đoàn của bạn
+                  {t("teamManager.selectYourDelegation")}
                 </label>
                 <Select
                   value={selectedTeamId?.toString() || ""}
@@ -415,12 +417,15 @@ export default function TeamRegistration() {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="-- Chọn đoàn --" />
+                    <SelectValue
+                      placeholder={t("teamManager.selectDelegationPlaceholder")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {myTeams.map((tm) => (
                       <SelectItem key={tm.id} value={tm.teamId.toString()}>
-                        {tm.team?.name || `Đoàn #${tm.teamId}`}
+                        {tm.team?.name ||
+                          `${t("team.delegation")} #${tm.teamId}`}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -435,14 +440,14 @@ export default function TeamRegistration() {
                       className="flex items-center gap-2"
                     >
                       <Upload className="h-4 w-4" />
-                      Import Excel
+                      {t("teamManager.importExcel")}
                     </TabsTrigger>
                     <TabsTrigger
                       value="manual"
                       className="flex items-center gap-2"
                     >
                       <Plus className="h-4 w-4" />
-                      Chọn thủ công
+                      {t("teamManager.selectManually")}
                     </TabsTrigger>
                   </TabsList>
 
@@ -461,7 +466,9 @@ export default function TeamRegistration() {
                                     {content.name}
                                   </h4>
                                   <p className="text-sm text-muted-foreground">
-                                    Tối đa {content.maxEntries} entries
+                                    {t("teamManager.maxEntries", {
+                                      count: content.maxEntries,
+                                    })}
                                   </p>
                                 </div>
                                 {getContentTypeBadge(content.type)}
@@ -469,17 +476,18 @@ export default function TeamRegistration() {
                               <div className="space-y-2 text-sm text-muted-foreground mb-4">
                                 {content.gender && (
                                   <p>
-                                    Giới tính:{" "}
+                                    {t("athlete.gender")}:{" "}
                                     {content.gender === "male"
-                                      ? "Nam"
+                                      ? t("athlete.male")
                                       : content.gender === "female"
-                                        ? "Nữ"
-                                        : "Hỗn hợp"}
+                                        ? t("athlete.female")
+                                        : t("teamManager.mixed")}
                                   </p>
                                 )}
                                 {content.minAge && content.maxAge && (
                                   <p>
-                                    Độ tuổi: {content.minAge} - {content.maxAge}
+                                    {t("teamManager.ageRange")}:{" "}
+                                    {content.minAge} - {content.maxAge}
                                   </p>
                                 )}
                                 {content.minElo && content.maxElo && (
@@ -497,14 +505,14 @@ export default function TeamRegistration() {
                                   }
                                 >
                                   <Download className="h-4 w-4 mr-2" />
-                                  Tải file mẫu
+                                  {t("teamManager.downloadTemplate")}
                                 </Button>
                                 <Button
                                   className="w-full"
                                   onClick={() => handleOpenEntryDialog(content)}
                                 >
                                   <Upload className="h-4 w-4 mr-2" />
-                                  Import đăng ký
+                                  {t("teamManager.importRegistration")}
                                 </Button>
                               </div>
                             </CardContent>
@@ -514,7 +522,7 @@ export default function TeamRegistration() {
                     ) : (
                       <div className="text-center py-8 text-muted-foreground">
                         <Trophy className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                        <p>Giải đấu này chưa có nội dung thi đấu</p>
+                        <p>{t("teamManager.noContentsYet")}</p>
                       </div>
                     )}
                   </TabsContent>
@@ -527,8 +535,8 @@ export default function TeamRegistration() {
                       onSuccess={() => {
                         refetchTournament();
                         showToast.success(
-                          "Thành công",
-                          "Đã đăng ký nội dung thi đấu",
+                          t("common.success"),
+                          t("teamManager.registeredContentsSuccess"),
                         );
                       }}
                     />

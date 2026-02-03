@@ -11,24 +11,28 @@ import {
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import ThemeToggle from "./ThemeToggle";
+import LanguageSwitcher from "./LanguageSwitcher";
 import useScrollHide from "@/hooks/useScrollHide";
 import { useAuth } from "@/store/useAuth";
 import { useRole } from "@/store/useRole";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const navItems = [
-  { name: "Home", to: "/" },
-  { name: "Rankings", to: "/rankings" },
-  { name: "Tournaments", to: "/tournaments" },
-  { name: "Players", to: "/players" },
+const getNavItems = (t: (key: string) => string) => [
+  { name: t("nav.home"), to: "/" },
+  { name: t("nav.rankings"), to: "/rankings" },
+  { name: t("nav.tournaments"), to: "/tournaments" },
+  { name: t("nav.athletes"), to: "/players" },
 ];
 
 const NavigationBar = () => {
+  const { t } = useTranslation();
   const isVisible = useScrollHide();
   const { user, isAuthenticated } = useAuth();
   const { getDefaultRouteForRoles, getRoleNames } = useRole();
   const { logout } = useAuthOperations();
   const navigate = useNavigate();
+  const navItems = getNavItems(t);
 
   const handleLogout = async () => {
     await logout();
@@ -89,6 +93,7 @@ const NavigationBar = () => {
 
           {/* Auth links */}
           <div className="flex items-center space-x-4">
+            <LanguageSwitcher />
             <ThemeToggle />
             {isAuthenticated && user ? (
               <DropdownMenu>
@@ -128,18 +133,18 @@ const NavigationBar = () => {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleDashboard}>
                     <User className="mr-2 h-4 w-4" />
-                    <span>Dashboard</span>
+                    <span>{t("nav.dashboard")}</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => navigate("/change-password")}
                   >
                     <User className="mr-2 h-4 w-4" />
-                    <span>Đổi mật khẩu</span>
+                    <span>{t("auth.changePassword")}</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Đăng xuất</span>
+                    <span>{t("auth.signOut")}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -148,13 +153,13 @@ const NavigationBar = () => {
                 <Button variant="ghost" size="sm" asChild>
                   <NavLink to="/signin">
                     <LogIn className="h-4 w-4 mr-2" />
-                    Sign In
+                    {t("auth.signIn")}
                   </NavLink>
                 </Button>
                 <Button size="sm" asChild>
                   <NavLink to="/signup">
                     <UserPlus className="h-4 w-4 mr-2" />
-                    Sign Up
+                    {t("auth.signUp")}
                   </NavLink>
                 </Button>
               </>

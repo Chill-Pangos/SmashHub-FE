@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -27,6 +28,7 @@ import EditMemberDialog from "./components/EditMemberDialog";
 import DeleteMemberDialog from "./components/DeleteMemberDialog";
 
 export default function MyTeam() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [selectedTeam, setSelectedTeam] = useState<TeamMember | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -119,9 +121,9 @@ export default function MyTeam() {
       athlete: "outline",
     };
     const labels: Record<string, string> = {
-      team_manager: "Trưởng đoàn",
-      coach: "HLV",
-      athlete: "VĐV",
+      team_manager: t("team.teamManager"),
+      coach: t("team.coach"),
+      athlete: t("team.athlete"),
     };
 
     return (
@@ -172,7 +174,7 @@ export default function MyTeam() {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -183,9 +185,11 @@ export default function MyTeam() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Đoàn của tôi</h1>
+          <h1 className="text-3xl font-bold">
+            {t("teamManager.myDelegation")}
+          </h1>
           <p className="text-muted-foreground mt-1">
-            Quản lý các đoàn thể thao bạn đang phụ trách
+            {t("teamManager.manageDelegationsDescription")}
           </p>
         </div>
       </div>
@@ -195,10 +199,10 @@ export default function MyTeam() {
           <CardContent className="py-12 text-center">
             <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium mb-2">
-              Bạn chưa quản lý đoàn nào
+              {t("teamManager.noDelegationsManaging")}
             </h3>
             <p className="text-muted-foreground">
-              Liên hệ với ban tổ chức để được phân công làm trưởng đoàn
+              {t("teamManager.contactOrganizerForAssignment")}
             </p>
           </CardContent>
         </Card>
@@ -207,7 +211,9 @@ export default function MyTeam() {
           {/* Team List */}
           <Card className="md:col-span-1">
             <CardHeader>
-              <CardTitle className="text-lg">Danh sách đoàn</CardTitle>
+              <CardTitle className="text-lg">
+                {t("teamManager.delegationList")}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {myTeams.map((team) => {
@@ -225,7 +231,8 @@ export default function MyTeam() {
                   >
                     <Users className="h-4 w-4 mr-2" />
                     <span className="truncate">
-                      {team.team?.name || `Đoàn #${team.teamId}`}
+                      {team.team?.name ||
+                        `${t("team.delegation")} #${team.teamId}`}
                     </span>
                   </Button>
                 );
@@ -244,12 +251,12 @@ export default function MyTeam() {
             <Card>
               <CardHeader>
                 <div className="flex justify-between items-center">
-                  <CardTitle>Danh sách thành viên</CardTitle>
+                  <CardTitle>{t("teamManager.memberList")}</CardTitle>
                   <div className="flex gap-2">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
-                        placeholder="Tìm kiếm thành viên..."
+                        placeholder={t("teamManager.searchMembers")}
                         className="pl-9 w-64"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -260,7 +267,7 @@ export default function MyTeam() {
                       className="gap-2"
                     >
                       <Plus className="h-4 w-4" />
-                      Thêm thành viên
+                      {t("team.addMember")}
                     </Button>
                   </div>
                 </div>
@@ -268,7 +275,7 @@ export default function MyTeam() {
               <CardContent>
                 {filteredMembers.length === 0 ? (
                   <p className="text-center text-muted-foreground py-8">
-                    Không có thành viên nào
+                    {t("teamManager.noMembers")}
                   </p>
                 ) : (
                   <div className="space-y-2">
@@ -287,7 +294,7 @@ export default function MyTeam() {
                               <div className="flex items-center gap-2">
                                 <Loader2 className="h-4 w-4 animate-spin" />
                                 <p className="text-sm text-muted-foreground">
-                                  Đang tải...
+                                  {t("common.loading")}
                                 </p>
                               </div>
                             ) : hasUserInfo ? (
@@ -306,7 +313,7 @@ export default function MyTeam() {
                                   User ID: {member.userId}
                                 </p>
                                 <p className="text-sm text-muted-foreground">
-                                  Thêm vào:{" "}
+                                  {t("teamManager.addedOn")}:{" "}
                                   {new Date(
                                     member.createdAt,
                                   ).toLocaleDateString("vi-VN")}
@@ -327,14 +334,14 @@ export default function MyTeam() {
                                   onClick={() => handleEditMember(member)}
                                 >
                                   <Edit className="h-4 w-4 mr-2" />
-                                  Chỉnh sửa vai trò
+                                  {t("teamManager.editRole")}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   className="text-destructive"
                                   onClick={() => handleDeleteMember(member)}
                                 >
                                   <Trash2 className="h-4 w-4 mr-2" />
-                                  Xóa khỏi đoàn
+                                  {t("teamManager.removeFromDelegation")}
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>

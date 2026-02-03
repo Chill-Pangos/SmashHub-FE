@@ -9,8 +9,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Medal, Trophy, TrendingUp } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function Rankings() {
+  const { t } = useTranslation();
   // Mock rankings data
   const rankings = [
     {
@@ -115,10 +117,10 @@ export default function Rankings() {
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <Medal className="h-8 w-8 text-primary" />
-          Bảng xếp hạng
+          {t("spectator.rankingsTitle")}
         </h1>
         <p className="text-muted-foreground mt-1">
-          Top vận động viên có điểm ELO cao nhất
+          {t("spectator.topAthletesWithHighestElo")}
         </p>
       </div>
 
@@ -169,19 +171,27 @@ export default function Rankings() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
-            Bảng xếp hạng đầy đủ
+            {t("spectator.fullRankingsTable")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[80px]">Hạng</TableHead>
-                <TableHead>Vận động viên</TableHead>
+                <TableHead className="w-[80px]">
+                  {t("spectator.rankColumn")}
+                </TableHead>
+                <TableHead>{t("spectator.athleteColumn")}</TableHead>
                 <TableHead className="text-center">ELO</TableHead>
-                <TableHead className="text-center">Thắng</TableHead>
-                <TableHead className="text-center">Thua</TableHead>
-                <TableHead className="text-right">Tỷ lệ thắng</TableHead>
+                <TableHead className="text-center">
+                  {t("spectator.winsColumn")}
+                </TableHead>
+                <TableHead className="text-center">
+                  {t("spectator.lossesColumn")}
+                </TableHead>
+                <TableHead className="text-right">
+                  {t("spectator.winRateColumn")}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

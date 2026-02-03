@@ -2,9 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { AlertCircle, ArrowLeft, Home, Search } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const NotFound = () => {
   const nav = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen bg-background">
@@ -22,14 +24,13 @@ const NotFound = () => {
             <div className="mb-6">
               <h1 className="text-7xl font-bold text-primary mb-2">404</h1>
               <p className="text-sm text-muted-foreground uppercase tracking-widest">
-                Page Not Found
+                {t("message.notFound")}
               </p>
             </div>
 
             {/* Description */}
             <p className="text-muted-foreground mb-8 text-balance">
-              The page you're looking for seems to have missed a match. Let's
-              get you back to the game!
+              {t("message.notFound")}
             </p>
 
             {/* Buttons */}
@@ -41,12 +42,12 @@ const NotFound = () => {
                 className="w-full bg-transparent"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Go Back
+                {t("common.back")}
               </Button>
               <Button size="lg" asChild className="w-full">
                 <NavLink to="/">
                   <Home className="w-4 h-4 mr-2" />
-                  Back to Home
+                  {t("nav.home")}
                 </NavLink>
               </Button>
               <Button
@@ -57,7 +58,7 @@ const NotFound = () => {
               >
                 <NavLink to="/rankings">
                   <Search className="w-4 h-4 mr-2" />
-                  View Rankings
+                  {t("nav.rankings")}
                 </NavLink>
               </Button>
             </div>

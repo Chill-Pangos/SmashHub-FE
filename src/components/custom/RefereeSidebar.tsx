@@ -13,32 +13,35 @@ import { useState } from "react";
 import { useAuth } from "@/store/useAuth";
 import { useNavigate } from "react-router-dom";
 import NotificationDropdown from "./NotificationDropdown";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface RefereeSidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
 
-const menuItems = [
-  {
-    id: "dashboard",
-    label: "Bảng điều khiển",
-    icon: LayoutDashboard,
-  },
-  {
-    id: "history",
-    label: "Lịch sử trận đấu",
-    icon: History,
-  },
-];
-
 export default function RefereeSidebar({
   activeTab,
   setActiveTab,
 }: RefereeSidebarProps) {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
   const { logout } = useAuth();
   const navigate = useNavigate();
+
+  const menuItems = [
+    {
+      id: "dashboard",
+      label: t("referee.refereeDashboard"),
+      icon: LayoutDashboard,
+    },
+    {
+      id: "history",
+      label: t("referee.refereeHistory"),
+      icon: History,
+    },
+  ];
 
   const handleLogout = () => {
     logout();
@@ -57,11 +60,12 @@ export default function RefereeSidebar({
         {!collapsed && (
           <div className="flex items-center gap-2">
             <Gavel className="h-6 w-6 text-primary" />
-            <span className="font-semibold">Trọng tài</span>
+            <span className="font-semibold">{t("referee.referee")}</span>
           </div>
         )}
         <div className="flex items-center gap-1">
           <NotificationDropdown />
+          <LanguageSwitcher />
           <Button
             variant="ghost"
             size="icon"
@@ -107,7 +111,7 @@ export default function RefereeSidebar({
           onClick={handleLogout}
         >
           <LogOut className={cn("h-5 w-5", !collapsed && "mr-2")} />
-          {!collapsed && <span>Đăng xuất</span>}
+          {!collapsed && <span>{t("auth.signOut")}</span>}
         </Button>
       </div>
     </div>

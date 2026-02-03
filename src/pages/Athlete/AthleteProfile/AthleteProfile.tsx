@@ -1,3 +1,4 @@
+import { useTranslation } from "@/hooks/useTranslation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { useAuth } from "@/store/useAuth";
 import { useState } from "react";
 
 export default function AthleteProfile() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
 
@@ -17,9 +19,9 @@ export default function AthleteProfile() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Hồ sơ cá nhân</h1>
+          <h1 className="text-3xl font-bold">{t("athlete.personalProfile")}</h1>
           <p className="text-muted-foreground mt-1">
-            Xem và quản lý thông tin cá nhân
+            {t("athlete.viewAndManageProfile")}
           </p>
         </div>
         <Button
@@ -29,12 +31,12 @@ export default function AthleteProfile() {
           {isEditing ? (
             <>
               <Save className="h-4 w-4 mr-2" />
-              Lưu thay đổi
+              {t("athlete.saveChanges")}
             </>
           ) : (
             <>
               <Edit className="h-4 w-4 mr-2" />
-              Chỉnh sửa
+              {t("common.edit")}
             </>
           )}
         </Button>
@@ -53,9 +55,11 @@ export default function AthleteProfile() {
               </Avatar>
               <h3 className="text-xl font-semibold">{user?.username}</h3>
               <p className="text-muted-foreground">{user?.email}</p>
-              <Badge className="mt-2">Vận động viên</Badge>
+              <Badge className="mt-2">{t("athlete.athlete")}</Badge>
               <div className="mt-4 p-4 bg-muted rounded-lg w-full">
-                <p className="text-sm text-muted-foreground">ELO hiện tại</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("athlete.currentElo")}
+                </p>
                 <p className="text-3xl font-bold text-primary">1500</p>
               </div>
             </div>
@@ -65,11 +69,11 @@ export default function AthleteProfile() {
         {/* Profile Details */}
         <Card className="md:col-span-2">
           <CardHeader>
-            <CardTitle>Thông tin chi tiết</CardTitle>
+            <CardTitle>{t("athlete.detailedInfo")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Tên đăng nhập</Label>
+              <Label htmlFor="username">{t("athlete.username")}</Label>
               <Input
                 id="username"
                 value={user?.username || ""}
@@ -77,14 +81,18 @@ export default function AthleteProfile() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("auth.email")}</Label>
               <Input id="email" value={user?.email || ""} disabled />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="emailVerified">Trạng thái email</Label>
+              <Label htmlFor="emailVerified">{t("athlete.emailStatus")}</Label>
               <Input
                 id="emailVerified"
-                value={user?.isEmailVerified ? "Đã xác thực" : "Chưa xác thực"}
+                value={
+                  user?.isEmailVerified
+                    ? t("athlete.verified")
+                    : t("athlete.notVerified")
+                }
                 disabled
               />
             </div>
@@ -97,25 +105,33 @@ export default function AthleteProfile() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
-            Thống kê tổng quan
+            {t("athlete.statsOverview")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-4">
             <div className="p-4 bg-muted rounded-lg text-center">
-              <p className="text-sm text-muted-foreground">Tổng trận đấu</p>
+              <p className="text-sm text-muted-foreground">
+                {t("athlete.totalMatches")}
+              </p>
               <p className="text-2xl font-bold">0</p>
             </div>
             <div className="p-4 bg-muted rounded-lg text-center">
-              <p className="text-sm text-muted-foreground">Số trận thắng</p>
+              <p className="text-sm text-muted-foreground">
+                {t("athlete.winsCount")}
+              </p>
               <p className="text-2xl font-bold text-green-600">0</p>
             </div>
             <div className="p-4 bg-muted rounded-lg text-center">
-              <p className="text-sm text-muted-foreground">Số trận thua</p>
+              <p className="text-sm text-muted-foreground">
+                {t("athlete.lossesCount")}
+              </p>
               <p className="text-2xl font-bold text-red-600">0</p>
             </div>
             <div className="p-4 bg-muted rounded-lg text-center">
-              <p className="text-sm text-muted-foreground">Tỷ lệ thắng</p>
+              <p className="text-sm text-muted-foreground">
+                {t("athlete.winRate")}
+              </p>
               <p className="text-2xl font-bold">0%</p>
             </div>
           </div>

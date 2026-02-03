@@ -16,47 +16,50 @@ import { useNavigate } from "react-router-dom";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
 import NotificationDropdown from "./NotificationDropdown";
 import ThemeToggle from "./ThemeToggle";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface CoachSidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
 
-const menuItems = [
-  {
-    id: "dashboard",
-    label: "Tổng quan",
-    icon: LayoutDashboard,
-  },
-  {
-    id: "athletes",
-    label: "Vận động viên",
-    icon: Users,
-  },
-  {
-    id: "tournaments",
-    label: "Giải đấu",
-    icon: Trophy,
-  },
-  {
-    id: "schedule",
-    label: "Lịch thi đấu",
-    icon: Calendar,
-  },
-  {
-    id: "training",
-    label: "Kế hoạch huấn luyện",
-    icon: Clipboard,
-  },
-];
-
 export default function CoachSidebar({
   activeTab,
   setActiveTab,
 }: CoachSidebarProps) {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
   const { logout } = useAuthOperations();
   const navigate = useNavigate();
+
+  const menuItems = [
+    {
+      id: "dashboard",
+      label: t("nav.dashboard"),
+      icon: LayoutDashboard,
+    },
+    {
+      id: "athletes",
+      label: t("coach.myAthletes"),
+      icon: Users,
+    },
+    {
+      id: "tournaments",
+      label: t("tournament.tournaments"),
+      icon: Trophy,
+    },
+    {
+      id: "schedule",
+      label: t("schedule.schedule"),
+      icon: Calendar,
+    },
+    {
+      id: "training",
+      label: t("coach.trainingPlan"),
+      icon: Clipboard,
+    },
+  ];
 
   const handleLogout = async () => {
     await logout();
@@ -75,11 +78,12 @@ export default function CoachSidebar({
         {!collapsed && (
           <div className="flex items-center gap-2">
             <Clipboard className="h-6 w-6 text-primary" />
-            <span className="font-semibold">Huấn luyện viên</span>
+            <span className="font-semibold">{t("coach.coach")}</span>
           </div>
         )}
         <div className="flex items-center gap-1">
           <NotificationDropdown />
+          <LanguageSwitcher />
           <Button
             variant="ghost"
             size="icon"
@@ -126,7 +130,7 @@ export default function CoachSidebar({
           onClick={handleLogout}
         >
           <LogOut className={cn("h-5 w-5", !collapsed && "mr-2")} />
-          {!collapsed && <span>Đăng xuất</span>}
+          {!collapsed && <span>{t("auth.signOut")}</span>}
         </Button>
       </div>
     </div>

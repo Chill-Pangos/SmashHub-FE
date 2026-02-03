@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Users, Trophy, Calendar, ChevronRight } from "lucide-react";
 import { useAuth } from "@/store/useAuth";
 import {
@@ -17,6 +18,7 @@ interface CoachDashboardProps {
 }
 
 export default function CoachDashboard({ onNavigateTo }: CoachDashboardProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
 
   // Fetch teams where user is coach
@@ -84,7 +86,7 @@ export default function CoachDashboard({ onNavigateTo }: CoachDashboardProps) {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -96,10 +98,10 @@ export default function CoachDashboard({ onNavigateTo }: CoachDashboardProps) {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">
-            Xin chào, HLV {user?.username}!
+            {t("home.welcomeBack", { name: user?.username || "" })}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Quản lý vận động viên và theo dõi thi đấu
+            {t("coach.coachDashboard")}
           </p>
         </div>
       </div>
@@ -107,28 +109,28 @@ export default function CoachDashboard({ onNavigateTo }: CoachDashboardProps) {
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
-          title="Vận động viên"
+          title={t("nav.athletes")}
           value={stats.totalAthletes}
           icon={Users}
-          description="Đang huấn luyện"
+          description={t("coach.trainingPlan")}
         />
         <StatsCard
-          title="Đoàn"
+          title={t("team.delegation")}
           value={stats.totalTeams}
           icon={Users}
-          description="Đang phụ trách"
+          description={t("coach.coachDashboard")}
         />
         <StatsCard
-          title="Giải đấu"
+          title={t("tournament.tournaments")}
           value={stats.activeTournaments}
           icon={Trophy}
-          description="Sắp diễn ra"
+          description={t("tournament.upcoming")}
         />
         <StatsCard
-          title="Trận đấu"
+          title={t("match.matches")}
           value={stats.upcomingMatches}
           icon={Calendar}
-          description="Sắp tới"
+          description={t("match.upcomingMatches")}
         />
       </div>
 
@@ -142,13 +144,13 @@ export default function CoachDashboard({ onNavigateTo }: CoachDashboardProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Vận động viên
+              {t("nav.athletes")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {athletes.length === 0 ? (
               <p className="text-muted-foreground text-center py-4">
-                Chưa có vận động viên nào
+                {t("message.noResultsFound")}
               </p>
             ) : (
               <div className="space-y-3">
@@ -178,13 +180,13 @@ export default function CoachDashboard({ onNavigateTo }: CoachDashboardProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Trophy className="h-5 w-5" />
-              Giải đấu sắp tới
+              {t("match.upcomingMatches")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {upcomingTournaments.length === 0 ? (
               <p className="text-muted-foreground text-center py-4">
-                Không có giải đấu sắp tới
+                {t("message.noResultsFound")}
               </p>
             ) : (
               <div className="space-y-3">

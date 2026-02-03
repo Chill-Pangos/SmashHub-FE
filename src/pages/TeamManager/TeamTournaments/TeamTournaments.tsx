@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Calendar, MapPin, Users } from "lucide-react";
 import { useTournaments, useTournamentsByStatus } from "@/hooks/queries";
@@ -7,10 +8,12 @@ import type { Tournament, TournamentStatus } from "@/types";
 import TournamentDetailViewer from "@/components/custom/TournamentDetailViewer";
 
 export default function TeamTournaments() {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState<
     "all" | "upcoming" | "ongoing" | "completed"
   >("all");
-  const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null);
+  const [selectedTournament, setSelectedTournament] =
+    useState<Tournament | null>(null);
 
   // React Query hooks - conditionally fetch based on filter
   const allTournamentsQuery = useTournaments(0, 50);
@@ -40,9 +43,9 @@ export default function TeamTournaments() {
       completed: "secondary",
     };
     const labels: Record<string, string> = {
-      upcoming: "Sắp diễn ra",
-      ongoing: "Đang diễn ra",
-      completed: "Đã kết thúc",
+      upcoming: t("tournament.upcoming"),
+      ongoing: t("tournament.ongoing"),
+      completed: t("tournament.completed"),
     };
 
     return (
@@ -57,7 +60,7 @@ export default function TeamTournaments() {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -79,19 +82,19 @@ export default function TeamTournaments() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Giải đấu</h1>
+        <h1 className="text-3xl font-bold">{t("tournament.tournaments")}</h1>
         <p className="text-muted-foreground mt-1">
-          Danh sách các giải đấu có thể tham gia
+          {t("teamManager.tournamentsDescription")}
         </p>
       </div>
 
       {/* Filter Tabs */}
       <div className="flex gap-2">
         {[
-          { value: "all", label: "Tất cả" },
-          { value: "upcoming", label: "Sắp diễn ra" },
-          { value: "ongoing", label: "Đang diễn ra" },
-          { value: "completed", label: "Đã kết thúc" },
+          { value: "all", label: t("common.all") },
+          { value: "upcoming", label: t("tournament.upcoming") },
+          { value: "ongoing", label: t("tournament.ongoing") },
+          { value: "completed", label: t("tournament.completed") },
         ].map((tab) => (
           <Badge
             key={tab.value}
@@ -109,9 +112,11 @@ export default function TeamTournaments() {
         <Card>
           <CardContent className="py-12 text-center">
             <Trophy className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">Không có giải đấu nào</h3>
+            <h3 className="text-lg font-medium mb-2">
+              {t("tournament.noTournamentFound")}
+            </h3>
             <p className="text-muted-foreground">
-              Không tìm thấy giải đấu phù hợp với bộ lọc
+              {t("tournament.tryChangingFilter")}
             </p>
           </CardContent>
         </Card>
@@ -155,7 +160,9 @@ export default function TeamTournaments() {
                   {tournament.contents && tournament.contents.length > 0 && (
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Users className="h-4 w-4" />
-                      <span>{tournament.contents.length} nội dung thi đấu</span>
+                      <span>
+                        {tournament.contents.length} {t("tournament.contents")}
+                      </span>
                     </div>
                   )}
                 </div>

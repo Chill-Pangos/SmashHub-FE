@@ -16,6 +16,7 @@ import {
   useKnockoutBracketsByContent,
 } from "@/hooks/queries";
 import type { GroupStanding, KnockoutBracket } from "@/types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface TournamentBracketViewerProps {
   contentId: number;
@@ -30,6 +31,7 @@ export default function TournamentBracketViewer({
   contentId,
   hasGroupStage = true,
 }: TournamentBracketViewerProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState(
     hasGroupStage ? "groups" : "knockout",
   );
@@ -72,7 +74,11 @@ export default function TournamentBracketViewer({
     const knockoutBrackets = knockoutData?.data || [];
     const rounds: Record<string, KnockoutBracket[]> = {};
     knockoutBrackets.forEach((bracket) => {
-      const roundKey = bracket.roundName || `Vòng ${bracket.roundNumber}`;
+      const roundKey =
+        bracket.roundName ||
+        t("components.tournamentBracketViewer.round", {
+          number: bracket.roundNumber,
+        });
       if (!rounds[roundKey]) {
         rounds[roundKey] = [];
       }
@@ -83,18 +89,34 @@ export default function TournamentBracketViewer({
       rounds[roundName].sort((a, b) => a.bracketPosition - b.bracketPosition);
     });
     return rounds;
-  }, [knockoutData]);
+  }, [knockoutData, t]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge variant="default">Hoàn thành</Badge>;
+        return (
+          <Badge variant="default">
+            {t("components.tournamentBracketViewer.completed")}
+          </Badge>
+        );
       case "in_progress":
-        return <Badge variant="secondary">Đang đấu</Badge>;
+        return (
+          <Badge variant="secondary">
+            {t("components.tournamentBracketViewer.inProgress")}
+          </Badge>
+        );
       case "ready":
-        return <Badge variant="outline">Sẵn sàng</Badge>;
+        return (
+          <Badge variant="outline">
+            {t("components.tournamentBracketViewer.ready")}
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">Chờ</Badge>;
+        return (
+          <Badge variant="outline">
+            {t("components.tournamentBracketViewer.waiting")}
+          </Badge>
+        );
     }
   };
 
@@ -102,7 +124,7 @@ export default function TournamentBracketViewer({
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">
-          Vui lòng chọn nội dung thi đấu để xem bảng đấu
+          {t("components.tournamentBracketViewer.selectContentToView")}
         </CardContent>
       </Card>
     );
@@ -113,7 +135,7 @@ export default function TournamentBracketViewer({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Trophy className="h-5 w-5" />
-          Bảng đấu & Vòng loại
+          {t("components.tournamentBracketViewer.bracketAndRounds")}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -122,12 +144,12 @@ export default function TournamentBracketViewer({
             {hasGroupStage && (
               <TabsTrigger value="groups" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
-                Vòng bảng
+                {t("components.tournamentBracketViewer.groupStage")}
               </TabsTrigger>
             )}
             <TabsTrigger value="knockout" className="flex items-center gap-2">
               <Medal className="h-4 w-4" />
-              Vòng loại trực tiếp
+              {t("components.tournamentBracketViewer.knockoutStage")}
             </TabsTrigger>
           </TabsList>
 
@@ -145,11 +167,11 @@ export default function TournamentBracketViewer({
                 </div>
               ) : groupError ? (
                 <div className="text-center text-destructive py-8">
-                  Không thể tải dữ liệu vòng bảng
+                  {t("components.tournamentBracketViewer.cannotLoadGroupData")}
                 </div>
               ) : Object.keys(groupedStandings).length === 0 ? (
                 <div className="text-center text-muted-foreground py-8">
-                  Chưa có dữ liệu vòng bảng
+                  {t("components.tournamentBracketViewer.noGroupData")}
                 </div>
               ) : (
                 <div className="grid gap-4 md:grid-cols-2">
@@ -164,18 +186,24 @@ export default function TournamentBracketViewer({
                             <TableHeader>
                               <TableRow>
                                 <TableHead className="w-12">#</TableHead>
-                                <TableHead>Đội</TableHead>
-                                <TableHead className="text-center w-12">
-                                  Đ
+                                <TableHead>
+                                  {t("components.tournamentBracketViewer.team")}
                                 </TableHead>
                                 <TableHead className="text-center w-12">
-                                  T
+                                  {t(
+                                    "components.tournamentBracketViewer.played",
+                                  )}
                                 </TableHead>
                                 <TableHead className="text-center w-12">
-                                  B
+                                  {t("components.tournamentBracketViewer.won")}
+                                </TableHead>
+                                <TableHead className="text-center w-12">
+                                  {t("components.tournamentBracketViewer.lost")}
                                 </TableHead>
                                 <TableHead className="text-center w-16">
-                                  HS
+                                  {t(
+                                    "components.tournamentBracketViewer.setDiff",
+                                  )}
                                 </TableHead>
                               </TableRow>
                             </TableHeader>
@@ -240,11 +268,11 @@ export default function TournamentBracketViewer({
               </div>
             ) : knockoutError ? (
               <div className="text-center text-destructive py-8">
-                Không thể tải dữ liệu vòng knockout
+                {t("components.tournamentBracketViewer.cannotLoadKnockoutData")}
               </div>
             ) : Object.keys(bracketsByRound).length === 0 ? (
               <div className="text-center text-muted-foreground py-8">
-                Chưa có dữ liệu vòng knockout
+                {t("components.tournamentBracketViewer.noKnockoutData")}
               </div>
             ) : (
               <div className="space-y-6">
@@ -324,7 +352,11 @@ export default function TournamentBracketViewer({
                                 {/* Status */}
                                 <div className="flex justify-center pt-2">
                                   {bracket.isByeMatch ? (
-                                    <Badge variant="secondary">Bye</Badge>
+                                    <Badge variant="secondary">
+                                      {t(
+                                        "components.tournamentBracketViewer.bye",
+                                      )}
+                                    </Badge>
                                   ) : (
                                     getStatusBadge(bracket.status)
                                   )}

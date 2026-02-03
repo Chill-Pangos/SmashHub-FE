@@ -13,7 +13,9 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
+import LanguageSwitcher from "./LanguageSwitcher";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface SidebarProps {
   activeTab: string;
@@ -24,6 +26,7 @@ export default function AdminSidebar({
   activeTab,
   setActiveTab,
 }: SidebarProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(true);
   const navigate = useNavigate();
   const { logout } = useAuthOperations();
@@ -34,11 +37,11 @@ export default function AdminSidebar({
   };
 
   const menuItems = [
-    { id: "overview", label: "Tổng quan hệ thống", icon: BarChart3 },
+    { id: "overview", label: t("admin.systemDashboard"), icon: BarChart3 },
     // COMMENTED OUT: These features use mock data, no API available
-    // { id: "users", label: "Quản lý người dùng", icon: Users },
-    // { id: "rbac", label: "Cài đặt phân quyền", icon: Award },
-    // { id: "logs", label: "Nhật ký hệ thống", icon: Calendar },
+    // { id: "users", label: t("admin.userManagement"), icon: Users },
+    // { id: "rbac", label: t("admin.rbacSettings"), icon: Award },
+    // { id: "logs", label: t("admin.systemLogs"), icon: Calendar },
   ];
 
   return (
@@ -55,7 +58,7 @@ export default function AdminSidebar({
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 rounded-lg hover:bg-accent transition-colors flex-shrink-0"
-              title={isOpen ? "Thu gọn" : "Mở rộng"}
+              title={isOpen ? t("common.close") : t("common.open")}
             >
               <Menu size={20} />
             </button>
@@ -67,13 +70,14 @@ export default function AdminSidebar({
                 </div>
                 <div className="flex-1 min-w-0">
                   <h1 className="font-bold text-lg text-card-foreground truncate">
-                    Admin
+                    {t("admin.admin")}
                   </h1>
                   <p className="text-xs text-muted-foreground truncate">
-                    Quản trị hệ thống
+                    {t("admin.adminPanel")}
                   </p>
                 </div>
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 flex gap-1">
+                  <LanguageSwitcher />
                   <ThemeToggle />
                 </div>
               </>
@@ -108,20 +112,20 @@ export default function AdminSidebar({
             className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-card-foreground hover:bg-accent transition-colors ${
               !isOpen && "justify-center"
             }`}
-            title={!isOpen ? "Cài đặt" : undefined}
+            title={!isOpen ? t("nav.settings") : undefined}
           >
             <Settings size={20} className="flex-shrink-0" />
-            {isOpen && <span>Cài đặt</span>}
+            {isOpen && <span>{t("nav.settings")}</span>}
           </button>
           <button
             onClick={handleLogout}
             className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors ${
               !isOpen && "justify-center"
             }`}
-            title={!isOpen ? "Đăng xuất" : undefined}
+            title={!isOpen ? t("auth.signOut") : undefined}
           >
             <LogOut size={20} className="flex-shrink-0" />
-            {isOpen && <span>Đăng xuất</span>}
+            {isOpen && <span>{t("auth.signOut")}</span>}
           </button>
         </div>
       </aside>

@@ -23,7 +23,9 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
+import LanguageSwitcher from "./LanguageSwitcher";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface TournamentManagerSidebarProps {
   activeTab: string;
@@ -41,6 +43,7 @@ export default function TournamentManagerSidebar({
   activeTab,
   setActiveTab,
 }: TournamentManagerSidebarProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(true);
   const [expandedGroups, setExpandedGroups] = useState<string[]>([
     "tournament",
@@ -66,40 +69,60 @@ export default function TournamentManagerSidebar({
   const menuGroups: MenuGroup[] = [
     {
       id: "tournament",
-      label: "Giải đấu",
+      label: t("tournament.tournament"),
       icon: Trophy,
       items: [
-        { id: "setup-wizard", label: "Thiết lập giải đấu", icon: Trophy },
-        { id: "tournament-list", label: "Danh sách giải đấu", icon: List },
+        {
+          id: "setup-wizard",
+          label: t("tournament.tournamentSetup"),
+          icon: Trophy,
+        },
+        {
+          id: "tournament-list",
+          label: t("tournament.tournamentList"),
+          icon: List,
+        },
       ],
     },
     {
       id: "management",
-      label: "Quản lý",
+      label: t("tournamentManager.delegationManagement"),
       icon: Folder,
       items: [
-        { id: "delegations", label: "Quản lý đoàn", icon: Users },
-        { id: "referees", label: "Phân công trọng tài", icon: UserPlus },
-        { id: "accounts", label: "Tài khoản đoàn", icon: Key },
+        { id: "delegations", label: t("team.delegations"), icon: Users },
+        {
+          id: "referees",
+          label: t("referee.refereeAssignment"),
+          icon: UserPlus,
+        },
+        {
+          id: "accounts",
+          label: t("tournamentManager.delegationAccounts"),
+          icon: Key,
+        },
       ],
     },
     {
       id: "competition",
-      label: "Thi đấu",
+      label: t("match.matches"),
       icon: ClipboardList,
       items: [
-        { id: "scheduling", label: "Ma trận lịch thi đấu", icon: Calendar },
-        { id: "matches", label: "Quản lý trận đấu", icon: CalendarCheck },
-        // COMMENTED OUT: Uses mock data, no result correction API
-        // { id: "results", label: "Điều chỉnh kết quả", icon: Edit },
+        {
+          id: "scheduling",
+          label: t("schedule.scheduleGenerator"),
+          icon: Calendar,
+        },
+        {
+          id: "matches",
+          label: t("tournamentManager.matchManagement"),
+          icon: CalendarCheck,
+        },
       ],
     },
   ];
 
   const singleItems = [
-    { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
-    // COMMENTED OUT: Uses mock data, no reports/export API
-    // { id: "reports", label: "Trung tâm báo cáo", icon: FileText },
+    { id: "dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
   ];
 
   return (
@@ -116,7 +139,7 @@ export default function TournamentManagerSidebar({
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 rounded-lg hover:bg-accent transition-colors flex-shrink-0"
-              title={isOpen ? "Thu gọn" : "Mở rộng"}
+              title={isOpen ? t("common.close") : t("common.open")}
             >
               <Menu size={20} />
             </button>
@@ -128,13 +151,14 @@ export default function TournamentManagerSidebar({
                 </div>
                 <div className="flex-1 min-w-0">
                   <h1 className="font-bold text-lg text-card-foreground truncate">
-                    QLGĐ
+                    {t("tournamentManager.tournamentManager")}
                   </h1>
                   <p className="text-xs text-muted-foreground truncate">
-                    Quản lý giải đấu
+                    {t("tournament.tournament")}
                   </p>
                 </div>
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 flex gap-1">
+                  <LanguageSwitcher />
                   <ThemeToggle />
                 </div>
               </>
@@ -228,18 +252,18 @@ export default function TournamentManagerSidebar({
         <div className="p-2 border-t border-border flex-shrink-0 space-y-2">
           <button
             className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-card-foreground hover:bg-accent transition-colors ${!isOpen && "justify-center"}`}
-            title={!isOpen ? "Cài đặt" : undefined}
+            title={!isOpen ? t("nav.settings") : undefined}
           >
             <Settings size={20} className="flex-shrink-0" />
-            {isOpen && <span>Cài đặt</span>}
+            {isOpen && <span>{t("nav.settings")}</span>}
           </button>
           <button
             onClick={handleLogout}
             className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors ${!isOpen && "justify-center"}`}
-            title={!isOpen ? "Đăng xuất" : undefined}
+            title={!isOpen ? t("auth.signOut") : undefined}
           >
             <LogOut size={20} className="flex-shrink-0" />
-            {isOpen && <span>Đăng xuất</span>}
+            {isOpen && <span>{t("auth.signOut")}</span>}
           </button>
         </div>
       </aside>

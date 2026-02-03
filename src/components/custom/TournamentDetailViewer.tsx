@@ -15,6 +15,7 @@ import TournamentBracketViewer from "@/components/custom/TournamentBracketViewer
 import TournamentScheduleViewer from "@/components/custom/TournamentScheduleViewer";
 import { useTournament } from "@/hooks/queries";
 import type { Tournament } from "@/types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface TournamentDetailViewerProps {
   tournament: Tournament;
@@ -29,6 +30,7 @@ export default function TournamentDetailViewer({
   tournament: initialTournament,
   onBack,
 }: TournamentDetailViewerProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("info");
 
   // Fetch full tournament details to get contents
@@ -39,7 +41,7 @@ export default function TournamentDetailViewer({
   const tournament = fetchedTournament || initialTournament;
   const contents = useMemo(
     () => tournament.contents || [],
-    [tournament.contents]
+    [tournament.contents],
   );
 
   const [selectedContentId, setSelectedContentId] = useState<number | null>(
@@ -67,9 +69,9 @@ export default function TournamentDetailViewer({
       completed: "secondary",
     };
     const labels: Record<string, string> = {
-      upcoming: "Sắp diễn ra",
-      ongoing: "Đang diễn ra",
-      completed: "Đã kết thúc",
+      upcoming: t("components.tournamentDetailViewer.upcoming"),
+      ongoing: t("components.tournamentDetailViewer.ongoing"),
+      completed: t("components.tournamentDetailViewer.completed"),
     };
 
     return (
@@ -107,7 +109,7 @@ export default function TournamentDetailViewer({
             <div className="flex items-center justify-center gap-3">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
               <span className="text-muted-foreground">
-                Đang tải nội dung thi đấu...
+                {t("components.tournamentDetailViewer.loadingContents")}
               </span>
             </div>
           </CardContent>
@@ -122,11 +124,10 @@ export default function TournamentDetailViewer({
               <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               <div>
                 <p className="font-medium text-amber-800 dark:text-amber-200">
-                  Chưa có nội dung thi đấu
+                  {t("components.tournamentDetailViewer.noContentsTitle")}
                 </p>
                 <p className="text-sm text-amber-600 dark:text-amber-400">
-                  Giải đấu này chưa được thiết lập các nội dung thi đấu. Vui
-                  lòng quay lại sau.
+                  {t("components.tournamentDetailViewer.noContentsDescription")}
                 </p>
               </div>
             </div>
@@ -139,13 +140,19 @@ export default function TournamentDetailViewer({
         <Card>
           <CardContent className="p-4">
             <div className="flex flex-wrap items-center gap-4">
-              <span className="text-sm font-medium">Nội dung thi đấu:</span>
+              <span className="text-sm font-medium">
+                {t("components.tournamentDetailViewer.selectContent")}
+              </span>
               <Select
                 value={selectedContentId?.toString() || ""}
                 onValueChange={(value) => setSelectedContentId(Number(value))}
               >
                 <SelectTrigger className="w-[280px]">
-                  <SelectValue placeholder="Chọn nội dung" />
+                  <SelectValue
+                    placeholder={t(
+                      "components.tournamentDetailViewer.selectContentPlaceholder",
+                    )}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {contents
@@ -163,7 +170,9 @@ export default function TournamentDetailViewer({
               </Select>
               {selectedContent && (
                 <Badge variant="outline">
-                  {hasGroupStage ? "Có vòng bảng" : "Knockout"}
+                  {hasGroupStage
+                    ? t("components.tournamentDetailViewer.hasGroupStage")
+                    : t("components.tournamentDetailViewer.knockout")}
                 </Badge>
               )}
             </div>
@@ -176,15 +185,15 @@ export default function TournamentDetailViewer({
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="info" className="flex items-center gap-2">
             <Info className="h-4 w-4" />
-            Thông tin
+            {t("components.tournamentDetailViewer.information")}
           </TabsTrigger>
           <TabsTrigger value="bracket" className="flex items-center gap-2">
             <Trophy className="h-4 w-4" />
-            Bảng đấu
+            {t("components.tournamentDetailViewer.bracket")}
           </TabsTrigger>
           <TabsTrigger value="schedule" className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
-            Lịch thi đấu
+            {t("components.tournamentDetailViewer.schedule")}
           </TabsTrigger>
         </TabsList>
 
@@ -192,19 +201,21 @@ export default function TournamentDetailViewer({
         <TabsContent value="info" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Thông tin giải đấu</CardTitle>
+              <CardTitle>
+                {t("components.tournamentDetailViewer.tournamentInfo")}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground mb-1">
-                    Địa điểm
+                    {t("components.tournamentDetailViewer.location")}
                   </h4>
                   <p>{tournament.location}</p>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground mb-1">
-                    Thời gian
+                    {t("components.tournamentDetailViewer.time")}
                   </h4>
                   <p>
                     {new Date(tournament.startDate).toLocaleDateString("vi-VN")}
@@ -216,16 +227,20 @@ export default function TournamentDetailViewer({
                 </div>
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground mb-1">
-                    Trạng thái
+                    {t("components.tournamentDetailViewer.status")}
                   </h4>
                   {getStatusBadge(tournament.status)}
                 </div>
                 {contents.length > 0 && (
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">
-                      Số nội dung
+                      {t("components.tournamentDetailViewer.numberOfContents")}
                     </h4>
-                    <p>{contents.length} nội dung thi đấu</p>
+                    <p>
+                      {t("components.tournamentDetailViewer.contentsCount", {
+                        count: contents.length,
+                      })}
+                    </p>
                   </div>
                 )}
               </div>
@@ -234,7 +249,7 @@ export default function TournamentDetailViewer({
               {contents.length > 0 && (
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground mb-2">
-                    Các nội dung thi đấu
+                    {t("components.tournamentDetailViewer.tournamentContents")}
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {contents
@@ -267,7 +282,9 @@ export default function TournamentDetailViewer({
               {isLoadingDetails && (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                  <span className="text-sm">Đang tải nội dung...</span>
+                  <span className="text-sm">
+                    {t("components.tournamentDetailViewer.loading")}
+                  </span>
                 </div>
               )}
             </CardContent>
@@ -281,7 +298,9 @@ export default function TournamentDetailViewer({
               <CardContent className="py-8 text-center">
                 <div className="flex items-center justify-center gap-3">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
-                  <span className="text-muted-foreground">Đang tải...</span>
+                  <span className="text-muted-foreground">
+                    {t("components.tournamentDetailViewer.loading")}
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -295,17 +314,19 @@ export default function TournamentDetailViewer({
               <CardContent className="py-8 text-center">
                 <AlertCircle className="h-8 w-8 mx-auto mb-3 text-amber-600 dark:text-amber-400" />
                 <p className="font-medium text-amber-800 dark:text-amber-200">
-                  Chưa có nội dung thi đấu
+                  {t("components.tournamentDetailViewer.noContentsTitle")}
                 </p>
                 <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
-                  Giải đấu này chưa được thiết lập nội dung thi đấu
+                  {t("components.tournamentDetailViewer.noContentsDescription")}
                 </p>
               </CardContent>
             </Card>
           ) : (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
-                Vui lòng chọn nội dung thi đấu để xem bảng đấu
+                {t(
+                  "components.tournamentDetailViewer.selectContentToViewBracket",
+                )}
               </CardContent>
             </Card>
           )}
@@ -318,7 +339,9 @@ export default function TournamentDetailViewer({
               <CardContent className="py-8 text-center">
                 <div className="flex items-center justify-center gap-3">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
-                  <span className="text-muted-foreground">Đang tải...</span>
+                  <span className="text-muted-foreground">
+                    {t("components.tournamentDetailViewer.loading")}
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -329,17 +352,19 @@ export default function TournamentDetailViewer({
               <CardContent className="py-8 text-center">
                 <AlertCircle className="h-8 w-8 mx-auto mb-3 text-amber-600 dark:text-amber-400" />
                 <p className="font-medium text-amber-800 dark:text-amber-200">
-                  Chưa có nội dung thi đấu
+                  {t("components.tournamentDetailViewer.noContentsTitle")}
                 </p>
                 <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
-                  Giải đấu này chưa được thiết lập nội dung thi đấu
+                  {t("components.tournamentDetailViewer.noContentsDescription")}
                 </p>
               </CardContent>
             </Card>
           ) : (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
-                Vui lòng chọn nội dung thi đấu để xem lịch thi đấu
+                {t(
+                  "components.tournamentDetailViewer.selectContentToViewSchedule",
+                )}
               </CardContent>
             </Card>
           )}

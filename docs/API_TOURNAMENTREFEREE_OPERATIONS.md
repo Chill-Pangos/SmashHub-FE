@@ -14,10 +14,10 @@ Tài liệu này mô tả các API để **quản lý trọng tài trong giải 
 
 ## **Referee Roles**
 
-| Role        | Description                                    | Cách Thêm                                        |
-| ----------- | ---------------------------------------------- | ------------------------------------------------ |
-| `main`      | Tổng trọng tài - điều khiển giải đấu toàn bộ | POST /tournament-referees (một người một lần)  |
-| `assistant` | Trọng tài - hỗ trợ tổng trọng tài              | POST /tournament-referees/assign (nhiều cùng lúc) |
+| Role        | Description                                  | Cách Thêm                                         |
+| ----------- | -------------------------------------------- | ------------------------------------------------- |
+| `main`      | Tổng trọng tài - điều khiển giải đấu toàn bộ | POST /tournament-referees (một người một lần)     |
+| `assistant` | Trọng tài - hỗ trợ tổng trọng tài            | POST /tournament-referees/assign (nhiều cùng lúc) |
 
 ---
 
@@ -158,11 +158,11 @@ Thêm một **Tổng trọng tài** vào giải đấu. Endpoint này **luôn** 
 
 ### **Request Body**
 
-| Field          | Type    | Required | Description                          |
-| -------------- | ------- | -------- | ------------------------------------ |
-| `tournamentId` | integer | Yes      | ID của tournament                    |
-| `refereeId`    | integer | Yes      | User ID của tổng trọng tài           |
-| `role`         | string  | Yes      | **Phải là** `main`                   |
+| Field          | Type    | Required | Description                |
+| -------------- | ------- | -------- | -------------------------- |
+| `tournamentId` | integer | Yes      | ID của tournament          |
+| `refereeId`    | integer | Yes      | User ID của tổng trọng tài |
+| `role`         | string  | Yes      | **Phải là** `main`         |
 
 ### **Request Example**
 
@@ -265,10 +265,10 @@ Phân công nhiều **Trọng tài hỗ trợ** vào giải đấu cùng lúc. E
 
 ### **Request Body**
 
-| Field          | Type      | Required | Description                       |
-| -------------- | --------- | -------- | --------------------------------- |
-| `tournamentId` | integer   | Yes      | ID của tournament                 |
-| `refereeIds`   | integer[] | Yes      | Array các user IDs của trọng tài  |
+| Field          | Type      | Required | Description                      |
+| -------------- | --------- | -------- | -------------------------------- |
+| `tournamentId` | integer   | Yes      | ID của tournament                |
+| `refereeIds`   | integer[] | Yes      | Array các user IDs của trọng tài |
 
 ### **Request Example**
 
@@ -375,11 +375,11 @@ Lấy tất cả tournament referees với optional filter theo tournament.
 
 ### **Query Parameters**
 
-| Parameter      | Type    | Default | Description                |
-| -------------- | ------- | ------- | -------------------------- |
-| `tournamentId` | integer | -       | Filter theo tournament ID  |
-| `skip`         | integer | 0       | Số records bỏ qua          |
-| `limit`        | integer | 10      | Số records tối đa trả về   |
+| Parameter      | Type    | Default | Description               |
+| -------------- | ------- | ------- | ------------------------- |
+| `tournamentId` | integer | -       | Filter theo tournament ID |
+| `skip`         | integer | 0       | Số records bỏ qua         |
+| `limit`        | integer | 10      | Số records tối đa trả về  |
 
 ### **Request Example**
 
@@ -442,9 +442,9 @@ Lấy tất cả trọng tài của một giải đấu cụ thể.
 
 ### **Path Parameters**
 
-| Parameter      | Type    | Required | Description     |
-| -------------- | ------- | -------- | --------------- |
-| `tournamentId` | integer | Yes      | Tournament ID   |
+| Parameter      | Type    | Required | Description   |
+| -------------- | ------- | -------- | ------------- |
+| `tournamentId` | integer | Yes      | Tournament ID |
 
 ### **Query Parameters**
 
@@ -527,15 +527,15 @@ Lấy danh sách các trọng tài **sẵn sàng** (`isAvailable = true`) của 
 
 ### **Path Parameters**
 
-| Parameter      | Type    | Required | Description     |
-| -------------- | ------- | -------- | --------------- |
-| `tournamentId` | integer | Yes      | Tournament ID   |
+| Parameter      | Type    | Required | Description   |
+| -------------- | ------- | -------- | ------------- |
+| `tournamentId` | integer | Yes      | Tournament ID |
 
 ### **Query Parameters**
 
-| Parameter    | Type   | Description                              |
-| ------------ | ------ | ---------------------------------------- |
-| `excludeIds` | string | Comma-separated referee IDs to exclude   |
+| Parameter    | Type   | Description                            |
+| ------------ | ------ | -------------------------------------- |
+| `excludeIds` | string | Comma-separated referee IDs to exclude |
 
 ### **Request Example**
 
@@ -594,8 +594,8 @@ Lấy thông tin chi tiết của một tournament referee.
 
 ### **Path Parameters**
 
-| Parameter | Type    | Required | Description           |
-| --------- | ------- | -------- | ---------------------   |
+| Parameter | Type    | Required | Description             |
+| --------- | ------- | -------- | ----------------------- |
 | --------- | ------- | -------- | ----------------------- |
 | `id`      | integer | Yes      | Tournament Referee ID   |
 
@@ -622,7 +622,7 @@ GET /api/tournament-referees/1
     "email": "referee1
   "tournament": {
     "id": 1,
-    "name": "Giải vô địch cầu lông toàn quốc 2024",
+    "name": "Giải vô địch bóng bàn toàn quốc 2024",
     "startDate": "2024-06-20",
     "endDate": "2024-06-25"
   }
@@ -633,7 +633,7 @@ GET /api/tournament-referees/1
 
 **404 Not Found**
 
-```json
+````json
 {
   "message": "Tournament referee not found"
 }
@@ -645,9 +645,11 @@ GET /api/tournament-referees/1
 
 ### **Endpoint**
 
-```
+````
+
 PUT /api/tournament-referees/{id}
-```
+
+````
 
 ### **Authentication**
 
@@ -677,19 +679,21 @@ Cập nhật thông tin tournament referee (role, availability).
   "role": "main",
   "isAvailable": true
 }
-```
+````
+
 id": 1,
-  "tournamentId": 1,
-  "refereeId": 5,
-  "role": "main",
-  "isAvailable": true,
-  "updatedAt": "2024-06-15T11:00:00.000Z" "tournamentId": 1,
-    "refereeId": 15,
-    "role": "main",
-    "isAvailable": true,
-    "updatedAt": "2024-06-15T11:00:00.000Z"
-  }
+"tournamentId": 1,
+"refereeId": 5,
+"role": "main",
+"isAvailable": true,
+"updatedAt": "2024-06-15T11:00:00.000Z" "tournamentId": 1,
+"refereeId": 15,
+"role": "main",
+"isAvailable": true,
+"updatedAt": "2024-06-15T11:00:00.000Z"
 }
+}
+
 ```9
 
 ---
@@ -699,8 +703,10 @@ id": 1,
 ### **Endpoint**
 
 ```
+
 PATCH /api/tournament-referees/{id}/availability
-```
+
+````
 
 ### **Authentication**
 
@@ -734,7 +740,7 @@ Cập nhật **nhanh** trạng thái sẵn sàng của trọng tài. Dùng khi c
 {
   "isAvailable": false
 }
-```
+````
 
 ### **Response - 200 OK**
 
@@ -754,8 +760,10 @@ Cập nhật **nhanh** trạng thái sẵn sàng của trọng tài. Dùng khi c
 ### **Endpoint**
 
 ```
+
 DELETE /api/tournament-referees/{id}
-```
+
+````
 
 ### **Authentication**
 
@@ -785,7 +793,7 @@ Không có response body. Status code 204 nghĩa là xóa thành công.
 
 ```http
 DELETE /api/tournament-referees/1
-```
+````
 
 ### **Response - 204 No Content**
 

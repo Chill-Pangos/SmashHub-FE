@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/hooks/useTranslation";
 import {
   Select,
   SelectContent,
@@ -12,6 +13,7 @@ import { Calendar, Clock, MapPin } from "lucide-react";
 import { useTournaments, useMatches, useSchedules } from "@/hooks/queries";
 
 export default function CoachSchedule() {
+  const { t } = useTranslation();
   const [selectedTournamentId, setSelectedTournamentId] = useState<
     number | null
   >(null);
@@ -46,9 +48,9 @@ export default function CoachSchedule() {
       completed: "secondary",
     };
     const labels: Record<string, string> = {
-      scheduled: "Chưa bắt đầu",
-      in_progress: "Đang diễn ra",
-      completed: "Đã kết thúc",
+      scheduled: t("match.scheduled"),
+      in_progress: t("match.inProgress"),
+      completed: t("match.finished"),
     };
 
     return (
@@ -62,10 +64,8 @@ export default function CoachSchedule() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Lịch thi đấu</h1>
-        <p className="text-muted-foreground mt-1">
-          Xem lịch thi đấu của vận động viên
-        </p>
+        <h1 className="text-3xl font-bold">{t("schedule.schedule")}</h1>
+        <p className="text-muted-foreground mt-1">{t("schedule.mySchedule")}</p>
       </div>
 
       {/* Tournament Selection */}
@@ -73,7 +73,7 @@ export default function CoachSchedule() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            Chọn giải đấu
+            {t("placeholder.selectTournament")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -84,7 +84,7 @@ export default function CoachSchedule() {
             }
           >
             <SelectTrigger className="w-full md:w-96">
-              <SelectValue placeholder="-- Chọn giải đấu --" />
+              <SelectValue placeholder={t("placeholder.selectTournament")} />
             </SelectTrigger>
             <SelectContent>
               {tournaments.map((tournament) => (
@@ -103,7 +103,7 @@ export default function CoachSchedule() {
       {/* Matches List */}
       <Card>
         <CardHeader>
-          <CardTitle>Danh sách trận đấu</CardTitle>
+          <CardTitle>{t("match.matchSchedule")}</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -112,7 +112,7 @@ export default function CoachSchedule() {
             </div>
           ) : matches.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
-              Chưa có lịch thi đấu nào
+              {t("message.noResultsFound")}
             </p>
           ) : (
             <div className="space-y-4">
@@ -139,7 +139,7 @@ export default function CoachSchedule() {
                                   (s) => s.id === match.scheduleId,
                                 )!.matchTime,
                               ).toLocaleString("vi-VN")
-                            : "Chưa xác định"}
+                            : t("common.noData")}
                         </span>
                       </div>
                       <div className="flex items-center gap-1">

@@ -3,9 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Calendar, Radio, Users } from "lucide-react";
 import { useTournamentsByStatus, useMatchesByStatus } from "@/hooks/queries";
+import { useTranslation } from "@/hooks/useTranslation";
 import type { Match } from "@/types";
 
 export default function SpectatorDashboard() {
+  const { t } = useTranslation();
+
   // Fetch ongoing tournaments using React Query
   const { data: tournamentsData, isLoading: isTournamentsLoading } =
     useTournamentsByStatus("ongoing", 0, 10);
@@ -36,7 +39,7 @@ export default function SpectatorDashboard() {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -46,9 +49,9 @@ export default function SpectatorDashboard() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Trang chủ</h1>
+        <h1 className="text-3xl font-bold">{t("spectator.homepage")}</h1>
         <p className="text-muted-foreground mt-1">
-          Theo dõi các giải đấu và trận đấu đang diễn ra
+          {t("spectator.trackTournamentsAndMatches")}
         </p>
       </div>
 
@@ -62,7 +65,7 @@ export default function SpectatorDashboard() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
-                  Giải đang diễn ra
+                  {t("spectator.ongoingTournaments")}
                 </p>
                 <p className="text-2xl font-bold">{tournaments.length}</p>
               </div>
@@ -77,7 +80,7 @@ export default function SpectatorDashboard() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
-                  Trận đấu trực tiếp
+                  {t("spectator.liveMatches")}
                 </p>
                 <p className="text-2xl font-bold">{liveMatches.length}</p>
               </div>
@@ -91,7 +94,9 @@ export default function SpectatorDashboard() {
                 <Calendar className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Sự kiện hôm nay</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("spectator.eventsToday")}
+                </p>
                 <p className="text-2xl font-bold">-</p>
               </div>
             </div>
@@ -104,7 +109,9 @@ export default function SpectatorDashboard() {
                 <Users className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">VĐV tham gia</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("spectator.participatingAthletes")}
+                </p>
                 <p className="text-2xl font-bold">-</p>
               </div>
             </div>
@@ -118,13 +125,13 @@ export default function SpectatorDashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-orange-600">
               <Radio className="h-5 w-5" />
-              Trận đấu trực tiếp
+              {t("spectator.liveMatches")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {liveMatches.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
-                Không có trận đấu nào đang diễn ra
+                {t("spectator.noLiveMatches")}
               </p>
             ) : (
               <div className="space-y-3">
@@ -156,13 +163,13 @@ export default function SpectatorDashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Trophy className="h-5 w-5" />
-              Giải đấu đang diễn ra
+              {t("spectator.ongoingTournamentsTitle")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {tournaments.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
-                Không có giải đấu nào đang diễn ra
+                {t("spectator.noOngoingTournaments")}
               </p>
             ) : (
               <div className="space-y-3">
@@ -173,7 +180,7 @@ export default function SpectatorDashboard() {
                   >
                     <div className="flex justify-between items-center">
                       <span className="font-medium">{tournament.name}</span>
-                      <Badge variant="default">Đang diễn ra</Badge>
+                      <Badge variant="default">{t("tournament.ongoing")}</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">
                       {tournament.location}

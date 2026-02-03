@@ -1,21 +1,24 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clipboard, Plus, Calendar, Users } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function TrainingPlan() {
+  const { t } = useTranslation();
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Kế hoạch huấn luyện</h1>
+          <h1 className="text-3xl font-bold">{t("coach.trainingPlan")}</h1>
           <p className="text-muted-foreground mt-1">
-            Quản lý kế hoạch tập luyện cho vận động viên
+            {t("coach.performanceAnalysis")}
           </p>
         </div>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
-          Tạo kế hoạch mới
+          {t("coach.createPlan")}
         </Button>
       </div>
 
@@ -23,13 +26,11 @@ export default function TrainingPlan() {
       <Card>
         <CardContent className="py-12 text-center">
           <Clipboard className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">Chưa có kế hoạch nào</h3>
-          <p className="text-muted-foreground mb-4">
-            Bắt đầu tạo kế hoạch huấn luyện cho vận động viên của bạn
-          </p>
+          <h3 className="text-lg font-medium mb-2">{t("common.noData")}</h3>
+          <p className="text-muted-foreground mb-4">{t("coach.createPlan")}</p>
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            Tạo kế hoạch đầu tiên
+            {t("coach.createPlan")}
           </Button>
         </CardContent>
       </Card>
@@ -40,12 +41,12 @@ export default function TrainingPlan() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Calendar className="h-5 w-5" />
-              Lịch tập luyện
+              {t("schedule.schedule")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Sắp xếp lịch tập luyện hàng ngày, hàng tuần cho vận động viên
+              {t("coach.trainingPlan")}
             </p>
           </CardContent>
         </Card>
@@ -54,12 +55,12 @@ export default function TrainingPlan() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Users className="h-5 w-5" />
-              Phân công VĐV
+              {t("coach.myAthletes")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Phân công vận động viên vào các buổi tập theo nhóm
+              {t("coach.athleteEvaluation")}
             </p>
           </CardContent>
         </Card>
@@ -68,12 +69,12 @@ export default function TrainingPlan() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Clipboard className="h-5 w-5" />
-              Theo dõi tiến độ
+              {t("coach.performanceAnalysis")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Ghi chú và theo dõi tiến độ của từng vận động viên
+              {t("coach.tacticalReport")}
             </p>
           </CardContent>
         </Card>

@@ -8,8 +8,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { TournamentFormData, ValidationErrors } from "@/utils/validation.utils";
+import type {
+  TournamentFormData,
+  ValidationErrors,
+} from "@/utils/validation.utils";
 import type { TournamentStatus } from "@/types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface BasicInfoFormProps {
   formData: TournamentFormData;
@@ -22,28 +26,38 @@ export default function BasicInfoForm({
   onChange,
   errors = {},
 }: BasicInfoFormProps) {
+  const { t } = useTranslation();
+
   return (
     <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-6">Thông tin cơ bản giải đấu</h2>
+      <h2 className="text-xl font-semibold mb-6">
+        {t("tournamentManager.setupWizardPage.basicInfoTitle")}
+      </h2>
 
       <div className="space-y-6">
         <div className="space-y-2">
-          <Label>Tên giải đấu *</Label>
+          <Label>
+            {t("tournamentManager.setupWizardPage.tournamentName")} *
+          </Label>
           <Input
-            placeholder="VD: Giải vô địch Quốc gia 2024"
+            placeholder={t(
+              "tournamentManager.setupWizardPage.tournamentNamePlaceholder",
+            )}
             value={formData.name}
             onChange={(e) => onChange("name", e.target.value)}
             className={errors.name ? "border-red-500" : ""}
           />
-          {errors.name && (
-            <p className="text-sm text-red-500">{errors.name}</p>
-          )}
+          {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
         </div>
 
         <div className="space-y-2">
-          <Label>Địa điểm tổ chức *</Label>
+          <Label>
+            {t("tournamentManager.setupWizardPage.locationLabel")} *
+          </Label>
           <Input
-            placeholder="VD: Sân vận động Quốc gia Mỹ Đình"
+            placeholder={t(
+              "tournamentManager.setupWizardPage.locationPlaceholder",
+            )}
             value={formData.location}
             onChange={(e) => onChange("location", e.target.value)}
             className={errors.location ? "border-red-500" : ""}
@@ -55,7 +69,7 @@ export default function BasicInfoForm({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Ngày bắt đầu *</Label>
+            <Label>{t("tournamentManager.setupWizardPage.startDate")} *</Label>
             <Input
               type="datetime-local"
               value={formData.startDate}
@@ -68,7 +82,7 @@ export default function BasicInfoForm({
           </div>
 
           <div className="space-y-2">
-            <Label>Ngày kết thúc *</Label>
+            <Label>{t("tournamentManager.setupWizardPage.endDate")} *</Label>
             <Input
               type="datetime-local"
               value={formData.endDate}
@@ -82,29 +96,43 @@ export default function BasicInfoForm({
         </div>
 
         <div className="space-y-2">
-          <Label>Trạng thái</Label>
+          <Label>{t("tournamentManager.setupWizardPage.statusLabel")}</Label>
           <Select
             value={formData.status}
-            onValueChange={(value) => onChange("status", value as TournamentStatus)}
+            onValueChange={(value) =>
+              onChange("status", value as TournamentStatus)
+            }
           >
             <SelectTrigger>
-              <SelectValue placeholder="Chọn trạng thái" />
+              <SelectValue
+                placeholder={t(
+                  "tournamentManager.setupWizardPage.selectStatus",
+                )}
+              />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="upcoming">Sắp diễn ra</SelectItem>
-              <SelectItem value="ongoing">Đang diễn ra</SelectItem>
-              <SelectItem value="completed">Đã kết thúc</SelectItem>
+              <SelectItem value="upcoming">
+                {t("tournamentManager.setupWizardPage.upcoming")}
+              </SelectItem>
+              <SelectItem value="ongoing">
+                {t("tournamentManager.setupWizardPage.ongoing")}
+              </SelectItem>
+              <SelectItem value="completed">
+                {t("tournamentManager.setupWizardPage.completed")}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label>Số bàn thi đấu</Label>
+          <Label>{t("tournamentManager.setupWizardPage.numberOfTables")}</Label>
           <Input
             type="number"
             min="1"
             max="100"
-            placeholder="Mặc định: 1"
+            placeholder={t(
+              "tournamentManager.setupWizardPage.numberOfTablesDefault",
+            )}
             value={formData.numberOfTables || 1}
             onChange={(e) => {
               const value = e.target.value ? parseInt(e.target.value) : 1;
@@ -116,14 +144,14 @@ export default function BasicInfoForm({
             <p className="text-sm text-red-500">{errors.numberOfTables}</p>
           )}
           <p className="text-xs text-muted-foreground">
-            Số lượng bàn thi đấu có sẵn để chơi đồng thời
+            {t("tournamentManager.setupWizardPage.numberOfTablesDesc")}
           </p>
         </div>
 
         <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
           <p className="text-sm text-blue-800 dark:text-blue-200">
-            <strong>Lưu ý:</strong> Các trường có dấu (*) là bắt buộc. Bạn sẽ thiết lập
-            các nội dung thi đấu (đơn/đôi/đồng đội) ở bước tiếp theo.
+            <strong>{t("common.warning")}:</strong>{" "}
+            {t("tournamentManager.setupWizardPage.basicInfoNote")}
           </p>
         </div>
       </div>

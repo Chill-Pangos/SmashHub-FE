@@ -18,51 +18,47 @@ import {
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/store/useAuth";
 import { useRole } from "@/store/useRole";
-
-const cardItems = [
-  {
-    title: "Tournament Management",
-    content:
-      "Create and manage tournaments with automated bracket generation and real-time updates.",
-    icon: Trophy,
-  },
-  {
-    title: "Player Rankings",
-    content:
-      "Dynamic ranking system that tracks player performance and skill progression over time.",
-    icon: BarChart3,
-  },
-  {
-    title: "Player Profiles",
-    content:
-      "Comprehensive player profiles with match history, statistics, and achievements.",
-    icon: Users,
-  },
-  {
-    title: "Match Scheduling",
-    content:
-      "Smart scheduling system for matches with automated notifications and reminders.",
-    icon: Calendar,
-  },
-  {
-    title: "Performance Analytics",
-    content:
-      "Detailed analytics and insights to help players improve their game and strategy.",
-    icon: Target,
-  },
-  {
-    title: "Achievement System",
-    content:
-      "Unlock achievements and badges as you progress through your table tennis journey.",
-    icon: Award,
-  },
-];
+import { useTranslation } from "@/hooks/useTranslation";
 
 const Home = () => {
   const { user, isAuthenticated } = useAuth();
   const { getDefaultRouteForRoles, getRoleNames, hasAnyRole, getRoleByName } =
     useRole();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const cardItems = [
+    {
+      title: t("tournamentManager.tournamentManager"),
+      content: t("home.tournamentManagementDesc"),
+      icon: Trophy,
+    },
+    {
+      title: t("nav.rankings"),
+      content: t("home.playerRankingsDesc"),
+      icon: BarChart3,
+    },
+    {
+      title: t("athlete.athleteProfile"),
+      content: t("home.playerProfilesDesc"),
+      icon: Users,
+    },
+    {
+      title: t("nav.schedule"),
+      content: t("home.matchSchedulingDesc"),
+      icon: Calendar,
+    },
+    {
+      title: t("athlete.performanceStats"),
+      content: t("home.performanceAnalyticsDesc"),
+      icon: Target,
+    },
+    {
+      title: t("athlete.achievements"),
+      content: t("home.achievementSystemDesc"),
+      icon: Award,
+    },
+  ];
 
   const handleDashboard = () => {
     if (user && user.roles && user.roles.length > 0) {
@@ -71,7 +67,7 @@ const Home = () => {
         "Navigating to dashboard:",
         dashboardRoute,
         "with roles:",
-        user.roles
+        user.roles,
       );
       navigate(dashboardRoute);
     } else {
@@ -87,21 +83,19 @@ const Home = () => {
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="text-center">
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-balance mb-6">
-              <span className="text-foreground">MASTER YOUR</span>
+              <span className="text-foreground">{t("home.heroTitle1")}</span>
               <br />
-              <span className="text-primary">TABLE TENNIS GAME</span>
+              <span className="text-primary">{t("home.heroTitle2")}</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8 text-pretty">
-              The ultimate management system for table tennis tournaments,
-              player rankings, and match statistics. Track your progress and
-              compete with the best.
+              {t("home.heroDescription")}
             </p>
 
             {/* User welcome section when authenticated */}
             {isAuthenticated && user && (
               <div className="mb-8 p-6 rounded-lg bg-primary/10 border border-primary/20 max-w-2xl mx-auto">
                 <h2 className="text-2xl font-bold text-foreground mb-2">
-                  Chào mừng trở lại, {user.username}!
+                  {t("home.welcomeBack", { name: user.username })}
                 </h2>
                 <div className="flex flex-wrap gap-2 justify-center mb-4">
                   {getRoleNames(user.roles).map((roleName) => (
@@ -119,7 +113,7 @@ const Home = () => {
                   className="text-lg px-8 gap-2"
                   type="button"
                 >
-                  Vào Dashboard
+                  {t("home.goToDashboard")}
                   <ArrowRight className="h-5 w-5" />
                 </Button>
               </div>
@@ -129,7 +123,7 @@ const Home = () => {
             {!isAuthenticated && (
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" className="text-lg px-8 py-6" asChild>
-                  <NavLink to="/signup">Get Started</NavLink>
+                  <NavLink to="/signup">{t("home.getStarted")}</NavLink>
                 </Button>
                 <Button
                   variant="outline"
@@ -137,7 +131,7 @@ const Home = () => {
                   className="text-lg px-8 py-6 bg-transparent"
                   asChild
                 >
-                  <NavLink to="/rankings">View Rankings</NavLink>
+                  <NavLink to="/rankings">{t("home.viewRankings")}</NavLink>
                 </Button>
               </div>
             )}
@@ -171,7 +165,7 @@ const Home = () => {
                           <Trophy className="h-6 w-6 text-primary" />
                         </div>
                         <CardTitle className="text-lg">
-                          Quản trị hệ thống
+                          {t("admin.systemDashboard")}
                         </CardTitle>
                       </CardHeader>
                     </Card>
@@ -192,7 +186,7 @@ const Home = () => {
                           <Calendar className="h-6 w-6 text-primary" />
                         </div>
                         <CardTitle className="text-lg">
-                          Quản lý giải đấu
+                          {t("tournamentManager.tournamentManager")}
                         </CardTitle>
                       </CardHeader>
                     </Card>
@@ -213,7 +207,7 @@ const Home = () => {
                           <Users className="h-6 w-6 text-primary" />
                         </div>
                         <CardTitle className="text-lg">
-                          Tổng trọng tài
+                          {t("chiefReferee.chiefReferee")}
                         </CardTitle>
                       </CardHeader>
                     </Card>
@@ -229,10 +223,10 @@ const Home = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-              CHAMPIONS OF THE SEASON
+              {t("home.featuresTitle")}
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Track performance, manage tournaments, and climb the rankings
+              {t("home.featuresDescription")}
             </p>
           </div>
         </div>
@@ -264,14 +258,13 @@ const Home = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-              Ready to Elevate Your Game?
+              {t("home.ctaTitle")}
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              Join thousands of players already using PingPong Pro to manage
-              their table tennis experience.
+              {t("home.ctaDescription")}
             </p>
             <Button size="lg" className="text-lg px-8 py-6" asChild>
-              <NavLink to="/signup">Start Your Journey</NavLink>
+              <NavLink to="/signup">{t("home.startJourney")}</NavLink>
             </Button>
           </div>
         </div>

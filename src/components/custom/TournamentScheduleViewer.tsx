@@ -12,8 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import { useSchedulesByContent } from "@/hooks/queries";
 import { format } from "date-fns";
-import { vi } from "date-fns/locale";
+import { vi, enUS } from "date-fns/locale";
 import type { Schedule, ScheduleStage } from "@/types";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLanguage } from "@/store/useLanguage";
 
 interface TournamentScheduleViewerProps {
   contentId: number;
@@ -30,6 +32,9 @@ export default function TournamentScheduleViewer({
   stage,
   limit = 50,
 }: TournamentScheduleViewerProps) {
+  const { t } = useTranslation();
+  const { language } = useLanguage();
+  const dateLocale = language === "vi" ? vi : enUS;
   const {
     data: schedulesData,
     isLoading,
@@ -79,7 +84,9 @@ export default function TournamentScheduleViewer({
 
   const formatDate = (dateStr: string) => {
     try {
-      return format(new Date(dateStr), "EEEE, dd/MM/yyyy", { locale: vi });
+      return format(new Date(dateStr), "EEEE, dd/MM/yyyy", {
+        locale: dateLocale,
+      });
     } catch {
       return dateStr;
     }
@@ -93,7 +100,10 @@ export default function TournamentScheduleViewer({
     }
     if (schedule.stage === "group") {
       return (
-        <Badge variant="secondary">{schedule.groupName || "Vòng bảng"}</Badge>
+        <Badge variant="secondary">
+          {schedule.groupName ||
+            t("components.tournamentScheduleViewer.groupStage")}
+        </Badge>
       );
     }
     return <Badge variant="outline">-</Badge>;
@@ -104,13 +114,29 @@ export default function TournamentScheduleViewer({
 
     switch (schedule.match.status) {
       case "completed":
-        return <Badge variant="default">Hoàn thành</Badge>;
+        return (
+          <Badge variant="default">
+            {t("components.tournamentScheduleViewer.completed")}
+          </Badge>
+        );
       case "in_progress":
-        return <Badge variant="destructive">Đang đấu</Badge>;
+        return (
+          <Badge variant="destructive">
+            {t("components.tournamentScheduleViewer.inProgress")}
+          </Badge>
+        );
       case "cancelled":
-        return <Badge variant="outline">Hủy</Badge>;
+        return (
+          <Badge variant="outline">
+            {t("components.tournamentScheduleViewer.cancelled")}
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">Sắp diễn ra</Badge>;
+        return (
+          <Badge variant="outline">
+            {t("components.tournamentScheduleViewer.upcoming")}
+          </Badge>
+        );
     }
   };
 
@@ -118,7 +144,7 @@ export default function TournamentScheduleViewer({
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">
-          Vui lòng chọn nội dung thi đấu để xem lịch
+          {t("components.tournamentScheduleViewer.selectContentToView")}
         </CardContent>
       </Card>
     );
@@ -148,7 +174,7 @@ export default function TournamentScheduleViewer({
     return (
       <Card>
         <CardContent className="py-8 text-center text-destructive">
-          Không thể tải lịch thi đấu
+          {t("components.tournamentScheduleViewer.cannotLoadSchedule")}
         </CardContent>
       </Card>
     );
@@ -160,11 +186,11 @@ export default function TournamentScheduleViewer({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            Lịch thi đấu
+            {t("components.tournamentScheduleViewer.scheduleTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent className="py-8 text-center text-muted-foreground">
-          Chưa có lịch thi đấu cho nội dung này
+          {t("components.tournamentScheduleViewer.noSchedule")}
         </CardContent>
       </Card>
     );
@@ -175,10 +201,12 @@ export default function TournamentScheduleViewer({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-5 w-5" />
-          Lịch thi đấu
+          {t("components.tournamentScheduleViewer.scheduleTitle")}
           {stage && (
             <Badge variant="outline" className="ml-2">
-              {stage === "group" ? "Vòng bảng" : "Knockout"}
+              {stage === "group"
+                ? t("components.tournamentScheduleViewer.groupStage")
+                : t("components.tournamentScheduleViewer.knockout")}
             </Badge>
           )}
         </CardTitle>
@@ -199,15 +227,21 @@ export default function TournamentScheduleViewer({
                       <TableRow>
                         <TableHead className="w-20">
                           <Clock className="h-4 w-4 inline mr-1" />
-                          Giờ
+                          {t("components.tournamentScheduleViewer.hour")}
                         </TableHead>
                         <TableHead className="w-20">
                           <MapPin className="h-4 w-4 inline mr-1" />
-                          Bàn
+                          {t("components.tournamentScheduleViewer.table")}
                         </TableHead>
-                        <TableHead>Vòng đấu</TableHead>
-                        <TableHead>Trận đấu</TableHead>
-                        <TableHead className="text-right">Trạng thái</TableHead>
+                        <TableHead>
+                          {t("components.tournamentScheduleViewer.round")}
+                        </TableHead>
+                        <TableHead>
+                          {t("components.tournamentScheduleViewer.match")}
+                        </TableHead>
+                        <TableHead className="text-right">
+                          {t("components.tournamentScheduleViewer.status")}
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>

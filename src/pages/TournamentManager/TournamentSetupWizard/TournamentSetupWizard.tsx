@@ -24,8 +24,10 @@ import type {
   CreateTournamentContentRequest,
   Tournament,
 } from "@/types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function TournamentSetupWizard() {
+  const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const [createdTournament, setCreatedTournament] = useState<Tournament | null>(
     null,
@@ -69,8 +71,8 @@ export default function TournamentSetupWizard() {
     // Backend chỉ cho phép 1 nội dung thi đấu cho mỗi giải đấu
     if (tournamentContents.length >= 1) {
       showToast.error(
-        "Không thể thêm nội dung thi đấu",
-        "Hiện tại hệ thống chỉ cho phép tạo 1 nội dung thi đấu cho mỗi giải đấu",
+        t("tournamentManager.setupWizardPage.cannotAddContent"),
+        t("tournamentManager.setupWizardPage.onlyOneContentAllowed"),
       );
       return;
     }
@@ -95,7 +97,10 @@ export default function TournamentSetupWizard() {
       const errors = validateTournamentForm(formData);
       if (Object.keys(errors).length > 0) {
         setValidationErrors(errors);
-        showToast.error("Vui lòng kiểm tra lại thông tin", "Có lỗi trong form");
+        showToast.error(
+          t("tournamentManager.setupWizardPage.pleaseCheckInfo"),
+          t("tournamentManager.setupWizardPage.formHasErrors"),
+        );
         return false;
       }
     }
@@ -107,7 +112,9 @@ export default function TournamentSetupWizard() {
     const tournamentErrors = validateTournamentForm(formData);
     if (Object.keys(tournamentErrors).length > 0) {
       setValidationErrors(tournamentErrors);
-      showToast.error("Vui lòng kiểm tra lại thông tin giải đấu");
+      showToast.error(
+        t("tournamentManager.setupWizardPage.pleaseCheckTournamentInfo"),
+      );
       setStep(1);
       return;
     }
@@ -129,7 +136,9 @@ export default function TournamentSetupWizard() {
       (errors) => Object.keys(errors).length > 0,
     );
     if (hasContentErrors) {
-      showToast.error("Vui lòng kiểm tra lại thông tin nội dung thi đấu");
+      showToast.error(
+        t("tournamentManager.setupWizardPage.pleaseCheckContentInfo"),
+      );
       setStep(2);
       return;
     }
@@ -167,18 +176,26 @@ export default function TournamentSetupWizard() {
       onSuccess: (response) => {
         if (response.success && response.data) {
           setCreatedTournament(response.data);
-          showToast.success("Tạo giải đấu thành công!", response.message);
+          showToast.success(
+            t("tournamentManager.setupWizardPage.tournamentCreatedSuccess"),
+            response.message,
+          );
           // Move to Chief Referee selection step
           setStep(3);
         } else {
-          showToast.error("Không thể tạo giải đấu", "Vui lòng thử lại");
+          showToast.error(
+            t("tournamentManager.setupWizardPage.cannotCreateTournament"),
+            t("tournamentManager.setupWizardPage.pleaseTryAgain"),
+          );
         }
       },
       onError: (error) => {
         console.error("Error creating tournament:", error);
         showToast.error(
-          "Đã có lỗi xảy ra khi tạo giải đấu",
-          error instanceof Error ? error.message : "Vui lòng thử lại",
+          t("tournamentManager.setupWizardPage.errorCreatingTournament"),
+          error instanceof Error
+            ? error.message
+            : t("tournamentManager.setupWizardPage.pleaseTryAgain"),
         );
       },
     });
@@ -221,7 +238,9 @@ export default function TournamentSetupWizard() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">Thiết lập giải đấu mới</h1>
+      <h1 className="text-3xl font-bold mb-8">
+        {t("tournamentManager.setupWizardPage.title")}
+      </h1>
 
       <StepIndicator currentStep={step} />
 
@@ -283,11 +302,15 @@ export default function TournamentSetupWizard() {
               </div>
             </div>
             <h2 className="text-2xl font-bold mb-2">
-              Tạo giải đấu thành công!
+              {t("tournamentManager.setupWizardPage.createSuccess")}
             </h2>
             <p className="text-muted-foreground mb-2">
-              Giải đấu <strong>{createdTournament?.name}</strong> đã được tạo và
-              sẵn sàng để bắt đầu.
+              {t(
+                "tournamentManager.setupWizardPage.tournamentCreatedDesc",
+              ).replace(
+                "<strong>{{name}}</strong>",
+                createdTournament?.name || "",
+              )}
             </p>
             <p className="text-sm text-muted-foreground mb-6">
               ID: {createdTournament?.id}
@@ -312,14 +335,14 @@ export default function TournamentSetupWizard() {
                   setSelectedChiefRefereeId(null);
                 }}
               >
-                Tạo giải đấu mới
+                {t("tournamentManager.setupWizardPage.createNewTournament")}
               </Button>
               <Button
                 onClick={() =>
                   console.log("View tournament:", createdTournament?.id)
                 }
               >
-                Xem chi tiết giải đấu
+                {t("tournamentManager.setupWizardPage.viewTournamentDetails")}
               </Button>
             </div>
           </div>
@@ -334,11 +357,15 @@ export default function TournamentSetupWizard() {
             disabled={step === 1 || isSubmitting}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Quay lại
+            {t("tournamentManager.setupWizardPage.back")}
           </Button>
           <Button onClick={handleNext} disabled={!canProceed() || isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {step === 4 ? "Tạo giải đấu" : step === 5 ? "Hoàn tất" : "Tiếp theo"}
+            {step === 4
+              ? t("tournamentManager.setupWizardPage.createTournament")
+              : step === 5
+                ? t("tournamentManager.setupWizardPage.finish")
+                : t("tournamentManager.setupWizardPage.next")}
             {!isSubmitting && step < 5 && (
               <ArrowRight className="ml-2 h-4 w-4" />
             )}

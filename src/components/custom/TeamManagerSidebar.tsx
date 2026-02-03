@@ -16,47 +16,50 @@ import { useNavigate } from "react-router-dom";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
 import NotificationDropdown from "./NotificationDropdown";
 import ThemeToggle from "./ThemeToggle";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface TeamManagerSidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
 
-const menuItems = [
-  {
-    id: "dashboard",
-    label: "Tổng quan",
-    icon: LayoutDashboard,
-  },
-  {
-    id: "my-team",
-    label: "Đoàn của tôi",
-    icon: Users,
-  },
-  {
-    id: "registration",
-    label: "Đăng ký thi đấu",
-    icon: UserPlus,
-  },
-  {
-    id: "tournaments",
-    label: "Giải đấu",
-    icon: Trophy,
-  },
-  {
-    id: "schedule",
-    label: "Lịch thi đấu",
-    icon: Calendar,
-  },
-];
-
 export default function TeamManagerSidebar({
   activeTab,
   setActiveTab,
 }: TeamManagerSidebarProps) {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
   const { logout } = useAuthOperations();
   const navigate = useNavigate();
+
+  const menuItems = [
+    {
+      id: "dashboard",
+      label: t("nav.dashboard"),
+      icon: LayoutDashboard,
+    },
+    {
+      id: "my-team",
+      label: t("team.myTeam"),
+      icon: Users,
+    },
+    {
+      id: "registration",
+      label: t("team.teamRegistration"),
+      icon: UserPlus,
+    },
+    {
+      id: "tournaments",
+      label: t("tournament.tournaments"),
+      icon: Trophy,
+    },
+    {
+      id: "schedule",
+      label: t("schedule.schedule"),
+      icon: Calendar,
+    },
+  ];
 
   const handleLogout = async () => {
     await logout();
@@ -75,11 +78,12 @@ export default function TeamManagerSidebar({
         {!collapsed && (
           <div className="flex items-center gap-2">
             <Users className="h-6 w-6 text-primary" />
-            <span className="font-semibold">Trưởng đoàn</span>
+            <span className="font-semibold">{t("team.teamManager")}</span>
           </div>
         )}
         <div className="flex items-center gap-1">
           <NotificationDropdown />
+          <LanguageSwitcher />
           <Button
             variant="ghost"
             size="icon"
@@ -126,7 +130,7 @@ export default function TeamManagerSidebar({
           onClick={handleLogout}
         >
           <LogOut className={cn("h-5 w-5", !collapsed && "mr-2")} />
-          {!collapsed && <span>Đăng xuất</span>}
+          {!collapsed && <span>{t("auth.signOut")}</span>}
         </Button>
       </div>
     </div>

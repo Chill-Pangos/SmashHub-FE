@@ -27,7 +27,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ShieldCheck, Check, X, Loader2 } from "lucide-react";
 import { showToast } from "@/utils/toast.utils";
-import { useAvailableChiefReferees, useCreateTournamentReferee } from "@/hooks/queries";
+import {
+  useAvailableChiefReferees,
+  useCreateTournamentReferee,
+} from "@/hooks/queries";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ChiefRefereeSelectionProps {
   tournamentId: number;
@@ -40,6 +44,7 @@ export default function ChiefRefereeSelection({
   selectedRefereeId,
   onSelect,
 }: ChiefRefereeSelectionProps) {
+  const { t } = useTranslation();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [pendingRefereeId, setPendingRefereeId] = useState<number | null>(null);
 
@@ -73,15 +78,18 @@ export default function ChiefRefereeSelection({
       {
         onSuccess: () => {
           onSelect(pendingRefereeId);
-          showToast.success("Thành công", "Đã thêm tổng trọng tài cho giải đấu");
+          showToast.success(
+            t("common.success"),
+            t("tournamentManager.setupWizardPage.chiefRefereeAssignedSuccess"),
+          );
           setShowConfirmDialog(false);
           setPendingRefereeId(null);
         },
         onError: (error) => {
           console.error("Error assigning chief referee:", error);
           showToast.error(
-            "Lỗi",
-            "Không thể thêm tổng trọng tài. Vui lòng thử lại",
+            t("common.error"),
+            t("tournamentManager.setupWizardPage.chiefRefereeAssignedError"),
           );
         },
       },
@@ -99,9 +107,11 @@ export default function ChiefRefereeSelection({
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-blue-600" />
           <div>
-            <CardTitle>Chọn Tổng Trọng Tài</CardTitle>
+            <CardTitle>
+              {t("tournamentManager.setupWizardPage.chiefRefereeTitle")}
+            </CardTitle>
             <CardDescription>
-              Chọn tổng trọng tài để quản lý giải đấu này
+              {t("tournamentManager.setupWizardPage.chiefRefereeDesc")}
             </CardDescription>
           </div>
         </div>
@@ -114,32 +124,33 @@ export default function ChiefRefereeSelection({
         ) : availableReferees.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-muted-foreground mb-2">
-              Không có tổng trọng tài sẵn sàng
+              {t("tournamentManager.setupWizardPage.noChiefRefereeAvailable")}
             </p>
             <p className="text-sm text-muted-foreground">
-              Vui lòng tạo tài khoản trọng tài trước
+              {t("tournamentManager.setupWizardPage.createRefereeAccountFirst")}
             </p>
           </div>
         ) : (
           <div className="space-y-4">
             {/* Selection Dropdown */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Danh sách tổng trọng tài</label>
+              <label className="text-sm font-medium">
+                {t("tournamentManager.setupWizardPage.chiefRefereeList")}
+              </label>
               <Select
                 value={selectedRefereeId?.toString() || ""}
-                onValueChange={(value) =>
-                  handleSelectReferee(parseInt(value))
-                }
+                onValueChange={(value) => handleSelectReferee(parseInt(value))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Chọn tổng trọng tài..." />
+                  <SelectValue
+                    placeholder={t(
+                      "tournamentManager.setupWizardPage.selectChiefReferee",
+                    )}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {availableReferees.map((referee) => (
-                    <SelectItem
-                      key={referee.id}
-                      value={referee.id.toString()}
-                    >
+                    <SelectItem key={referee.id} value={referee.id.toString()}>
                       {referee.fullName} (@{referee.username})
                     </SelectItem>
                   ))}
@@ -153,10 +164,15 @@ export default function ChiefRefereeSelection({
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="font-semibold">{selectedReferee.fullName}</h4>
-                      <Badge variant="secondary" className="bg-blue-200 text-blue-900">
+                      <h4 className="font-semibold">
+                        {selectedReferee.fullName}
+                      </h4>
+                      <Badge
+                        variant="secondary"
+                        className="bg-blue-200 text-blue-900"
+                      >
                         <Check className="h-3 w-3 mr-1" />
-                        Đã chọn
+                        {t("tournamentManager.setupWizardPage.selected")}
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">
@@ -183,8 +199,7 @@ export default function ChiefRefereeSelection({
             {!selectedRefereeId && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <p className="text-sm text-yellow-900">
-                  💡 Tổng trọng tài sẽ có quyền duyệt kết quả các trận đấu và quản lý
-                  giải đấu.
+                  {t("tournamentManager.setupWizardPage.chiefRefereeTip")}
                 </p>
               </div>
             )}
@@ -196,25 +211,26 @@ export default function ChiefRefereeSelection({
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận chọn tổng trọng tài</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("tournamentManager.setupWizardPage.confirmSelectChiefReferee")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {pendingRefereeId && (
                 <>
-                  Bạn có chắc muốn chọn{" "}
-                  <strong>
-                    {
-                      availableReferees.find((r) => r.id === pendingRefereeId)
-                        ?.fullName
-                    }
-                  </strong>{" "}
-                  làm tổng trọng tài cho giải đấu này?
+                  {t(
+                    "tournamentManager.setupWizardPage.confirmSelectChiefRefereeDesc",
+                  ).replace(
+                    "<strong>{{name}}</strong>",
+                    availableReferees.find((r) => r.id === pendingRefereeId)
+                      ?.fullName || "",
+                  )}
                 </>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={createReferee.isPending}>
-              Hủy
+              {t("common.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmSelection}
@@ -224,7 +240,7 @@ export default function ChiefRefereeSelection({
               {createReferee.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              Xác nhận
+              {t("common.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

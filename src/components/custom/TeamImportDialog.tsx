@@ -15,6 +15,7 @@ import ImportPreview from "@/components/custom/ImportPreview";
 import { usePreviewImportTeams, useConfirmImportTeams } from "@/hooks/queries";
 import { showToast } from "@/utils/toast.utils";
 import type { ImportTeamDto } from "@/types/team.types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface TeamImportDialogProps {
   /**
@@ -54,6 +55,7 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
   onImportSuccess,
   trigger,
 }) => {
+  const { t } = useTranslation();
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
@@ -89,7 +91,7 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
   // Preview import
   const handlePreview = () => {
     if (!selectedFile) {
-      showToast.error("Vui lòng chọn file để preview");
+      showToast.error(t("components.teamImportDialog.selectFileToPreview"));
       return;
     }
 
@@ -99,7 +101,7 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
           setPreviewData(result.data);
           setCurrentStep("preview");
         } else {
-          showToast.error("Không thể preview file. Vui lòng thử lại.");
+          showToast.error(t("components.teamImportDialog.cannotPreviewFile"));
         }
       },
       onError: (error: unknown) => {
@@ -108,7 +110,7 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
           error instanceof Error && "response" in error
             ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (error as any).response?.data?.message
-            : "Có lỗi xảy ra khi preview file. Vui lòng thử lại.";
+            : t("components.teamImportDialog.errorPreviewingFile");
         showToast.error(errorMessage);
       },
     });
@@ -117,7 +119,7 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
   // Confirm import
   const handleConfirmImport = () => {
     if (!previewData || previewData.errors.length > 0) {
-      showToast.error("Vui lòng sửa các lỗi trước khi import");
+      showToast.error(t("components.teamImportDialog.fixErrorsBeforeImport"));
       return;
     }
 
@@ -130,12 +132,14 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
         onSuccess: (result) => {
           if (result.success) {
             showToast.success(
-              `Import thành công ${result.data.created} teams!`,
+              t("components.teamImportDialog.importSuccess", {
+                count: result.data.created,
+              }),
             );
             handleOpenChange(false);
             onImportSuccess?.();
           } else {
-            showToast.error("Import thất bại. Vui lòng thử lại.");
+            showToast.error(t("components.teamImportDialog.importFailed"));
           }
         },
         onError: (error: unknown) => {
@@ -144,7 +148,7 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
             error instanceof Error && "response" in error
               ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (error as any).response?.data?.message
-              : "Có lỗi xảy ra khi import. Vui lòng thử lại.";
+              : t("components.teamImportDialog.errorImporting");
           showToast.error(errorMessage);
         },
       },
@@ -181,19 +185,23 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        {trigger || <Button variant="outline">Import Teams từ Excel</Button>}
+        {trigger || (
+          <Button variant="outline">
+            {t("components.teamImportDialog.importTeamsFromExcel")}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {currentStep === "upload"
-              ? "Upload File Excel"
-              : "Xem trước dữ liệu"}
+              ? t("components.teamImportDialog.uploadExcelFile")
+              : t("components.teamImportDialog.previewData")}
           </DialogTitle>
           <DialogDescription>
             {currentStep === "upload"
-              ? "Tải lên file Excel chứa danh sách teams và members. Vui lòng sử dụng file mẫu để đảm bảo định dạng đúng."
-              : "Kiểm tra dữ liệu trước khi import vào hệ thống"}
+              ? t("components.teamImportDialog.uploadDescription")
+              : t("components.teamImportDialog.checkDataBeforeImport")}
           </DialogDescription>
         </DialogHeader>
 
@@ -225,18 +233,32 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
                 )}
                 errors={previewData.errors}
                 columns={[
-                  { key: "teamName", label: "Tên Team" },
-                  { key: "teamDescription", label: "Mô tả" },
-                  { key: "memberName", label: "Tên Member" },
-                  { key: "memberEmail", label: "Email" },
+                  {
+                    key: "teamName",
+                    label: t("components.teamImportDialog.teamName"),
+                  },
+                  {
+                    key: "teamDescription",
+                    label: t("components.teamImportDialog.description"),
+                  },
+                  {
+                    key: "memberName",
+                    label: t("components.teamImportDialog.memberName"),
+                  },
+                  {
+                    key: "memberEmail",
+                    label: t("components.teamImportDialog.memberEmail"),
+                  },
                   {
                     key: "memberRole",
-                    label: "Vai trò",
+                    label: t("components.teamImportDialog.role"),
                     render: (value: unknown) => {
                       const roleLabels = {
-                        team_manager: "Quản lý",
-                        coach: "HLV",
-                        athlete: "VĐV",
+                        team_manager: t(
+                          "components.teamImportDialog.roleManager",
+                        ),
+                        coach: t("components.teamImportDialog.roleCoach"),
+                        athlete: t("components.teamImportDialog.roleAthlete"),
                       };
                       const role = value as keyof typeof roleLabels;
                       return roleLabels[role] || String(value);
@@ -256,7 +278,7 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
                 onClick={() => handleOpenChange(false)}
                 disabled={isPreviewLoading}
               >
-                Hủy
+                {t("components.teamImportDialog.cancel")}
               </Button>
               <Button
                 onClick={handlePreview}
@@ -265,7 +287,7 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
                 {isPreviewLoading && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Xem trước
+                {t("components.teamImportDialog.preview")}
               </Button>
             </>
           ) : (
@@ -275,7 +297,7 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
                 onClick={handleBackToUpload}
                 disabled={isImportLoading}
               >
-                Quay lại
+                {t("components.teamImportDialog.back")}
               </Button>
               <Button
                 onClick={handleConfirmImport}
@@ -288,7 +310,7 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
                 {isImportLoading && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Xác nhận Import
+                {t("components.teamImportDialog.confirmImport")}
               </Button>
             </>
           )}

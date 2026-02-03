@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ImportError {
   row: number;
@@ -65,6 +66,7 @@ export const ImportPreview: React.FC<ImportPreviewProps> = ({
   columns,
   showRowNumbers = true,
 }) => {
+  const { t } = useTranslation();
   const hasErrors = errors.length > 0;
   const totalEntries = entries.length;
 
@@ -77,23 +79,35 @@ export const ImportPreview: React.FC<ImportPreviewProps> = ({
       {hasErrors ? (
         <Alert variant="destructive">
           <XCircle className="h-4 w-4" />
-          <AlertTitle>Phát hiện lỗi trong file</AlertTitle>
-          <AlertDescription>
-            Tìm thấy <strong>{errors.length}</strong> lỗi trong{" "}
-            <strong>{errorRows.size}</strong> dòng. Vui lòng sửa các lỗi sau đây
-            và upload lại file.
-          </AlertDescription>
+          <AlertTitle>
+            {t("components.importPreview.errorsFoundTitle")}
+          </AlertTitle>
+          <AlertDescription
+            dangerouslySetInnerHTML={{
+              __html: t("components.importPreview.errorsFoundDescription", {
+                errorCount: errors.length,
+                rowCount: errorRows.size,
+              }),
+            }}
+          />
         </Alert>
       ) : (
         <Alert className="border-green-500 bg-green-50">
           <CheckCircle className="h-4 w-4 text-green-600" />
           <AlertTitle className="text-green-800">
-            Kiểm tra thành công
+            {t("components.importPreview.validationSuccessTitle")}
           </AlertTitle>
-          <AlertDescription className="text-green-700">
-            Tất cả <strong>{totalEntries}</strong> dòng dữ liệu đều hợp lệ. Bạn
-            có thể tiếp tục import dữ liệu vào hệ thống.
-          </AlertDescription>
+          <AlertDescription
+            className="text-green-700"
+            dangerouslySetInnerHTML={{
+              __html: t(
+                "components.importPreview.validationSuccessDescription",
+                {
+                  count: totalEntries,
+                },
+              ),
+            }}
+          />
         </Alert>
       )}
 
@@ -101,7 +115,9 @@ export const ImportPreview: React.FC<ImportPreviewProps> = ({
       {hasErrors && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4">
           <h3 className="mb-3 text-sm font-semibold text-red-800">
-            Danh sách lỗi ({errors.length})
+            {t("components.importPreview.errorListTitle", {
+              count: errors.length,
+            })}
           </h3>
           <div className="space-y-2">
             {errors.map((error, index) => (
@@ -112,7 +128,7 @@ export const ImportPreview: React.FC<ImportPreviewProps> = ({
                 <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-500" />
                 <div>
                   <span className="font-medium text-red-700">
-                    Dòng {error.row}
+                    {t("components.importPreview.row", { row: error.row })}
                   </span>
                   {" - "}
                   <span className="text-gray-600">{error.field}:</span>{" "}
@@ -128,17 +144,21 @@ export const ImportPreview: React.FC<ImportPreviewProps> = ({
       {entries.length > 0 && columns && (
         <div>
           <h3 className="mb-3 text-sm font-semibold text-gray-800">
-            Xem trước dữ liệu ({entries.length} dòng)
+            {t("components.importPreview.previewDataTitle", {
+              count: entries.length,
+            })}
           </h3>
           <div className="max-h-96 overflow-auto rounded-lg border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  {showRowNumbers && <TableCell>STT</TableCell>}
+                  {showRowNumbers && (
+                    <TableCell>{t("components.importPreview.stt")}</TableCell>
+                  )}
                   {columns.map((col) => (
                     <TableCell key={col.key}>{col.label}</TableCell>
                   ))}
-                  <TableCell>Trạng thái</TableCell>
+                  <TableCell>{t("components.importPreview.status")}</TableCell>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -174,14 +194,14 @@ export const ImportPreview: React.FC<ImportPreviewProps> = ({
                       <TableCell>
                         {hasRowError ? (
                           <Badge variant="destructive" className="text-xs">
-                            Lỗi
+                            {t("components.importPreview.error")}
                           </Badge>
                         ) : (
                           <Badge
                             variant="outline"
                             className="border-green-500 bg-green-50 text-xs text-green-700"
                           >
-                            Hợp lệ
+                            {t("components.importPreview.valid")}
                           </Badge>
                         )}
                       </TableCell>

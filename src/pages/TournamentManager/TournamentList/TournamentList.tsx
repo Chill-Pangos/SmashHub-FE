@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "@/hooks/useTranslation";
 import {
   Select,
   SelectContent,
@@ -31,6 +32,7 @@ import TournamentUpdateForm from "../TournamentUpdate/TournamentUpdateForm";
 import TournamentDetail from "../TournamentDetail/TournamentDetail";
 
 export default function TournamentList() {
+  const { t } = useTranslation();
   const [showFilters, setShowFilters] = useState(false);
   const [editingTournamentId, setEditingTournamentId] = useState<number | null>(
     null,
@@ -66,19 +68,19 @@ export default function TournamentList() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Bạn có chắc chắn muốn xóa giải đấu này?")) {
+    if (!confirm(t("message.confirmDelete"))) {
       return;
     }
 
     deleteMutation.mutate(id, {
       onSuccess: () => {
-        showToast.success("Đã xóa giải đấu");
+        showToast.success(t("message.deleteSuccess"));
       },
       onError: (error) => {
         console.error("Error deleting tournament:", error);
         showToast.error(
-          "Không thể xóa giải đấu",
-          error instanceof Error ? error.message : "Vui lòng thử lại",
+          t("message.operationFailed"),
+          error instanceof Error ? error.message : t("message.pleaseTryAgain"),
         );
       },
     });
@@ -91,11 +93,15 @@ export default function TournamentList() {
   const getStatusBadge = (status: Tournament["status"]) => {
     switch (status) {
       case "ongoing":
-        return <Badge className="bg-green-500">Đang diễn ra</Badge>;
+        return (
+          <Badge className="bg-green-500">{t("tournament.ongoing")}</Badge>
+        );
       case "upcoming":
-        return <Badge className="bg-blue-500">Sắp diễn ra</Badge>;
+        return (
+          <Badge className="bg-blue-500">{t("tournament.upcoming")}</Badge>
+        );
       case "completed":
-        return <Badge variant="secondary">Đã kết thúc</Badge>;
+        return <Badge variant="secondary">{t("tournament.completed")}</Badge>;
     }
   };
 
@@ -131,7 +137,7 @@ export default function TournamentList() {
           className="mb-4"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Quay lại danh sách
+          {t("common.back")}
         </Button>
         <TournamentUpdateForm
           tournamentId={editingTournamentId}
@@ -150,16 +156,18 @@ export default function TournamentList() {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Danh sách giải đấu</h1>
+          <h1 className="text-3xl font-bold">
+            {t("tournament.tournamentList")}
+          </h1>
           <p className="text-muted-foreground">
-            Quản lý tất cả các giải đấu ({total} giải)
+            {t("tournament.tournaments")} ({total})
           </p>
         </div>
         <Button onClick={() => refetch()} disabled={isLoading}>
           <RefreshCw
             className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
           />
-          Làm mới
+          {t("common.refresh")}
         </Button>
       </div>
 
@@ -168,14 +176,14 @@ export default function TournamentList() {
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold flex items-center gap-2">
             <Filter className="h-4 w-4" />
-            Bộ lọc tìm kiếm
+            {t("common.filter")}
           </h3>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setShowFilters(!showFilters)}
           >
-            {showFilters ? "Ẩn bộ lọc" : "Hiện bộ lọc nâng cao"}
+            {showFilters ? t("common.close") : t("common.details")}
           </Button>
         </div>
 
@@ -183,10 +191,10 @@ export default function TournamentList() {
           {/* Basic Filters - Always Visible */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label>User ID</Label>
+              <Label>{t("admin.users")} ID</Label>
               <Input
                 type="number"
-                placeholder="Lọc theo user ID"
+                placeholder={t("common.filter")}
                 value={filters.userId || ""}
                 onChange={(e) =>
                   setFilters({
@@ -200,10 +208,10 @@ export default function TournamentList() {
             </div>
 
             <div className="space-y-2">
-              <Label>Người tạo (Created By ID)</Label>
+              <Label>{t("tournament.organizer")} ID</Label>
               <Input
                 type="number"
-                placeholder="Lọc theo người tạo"
+                placeholder={t("common.filter")}
                 value={filters.createdBy || ""}
                 onChange={(e) =>
                   setFilters({
@@ -217,7 +225,7 @@ export default function TournamentList() {
             </div>
 
             <div className="space-y-2">
-              <Label>Giới tính</Label>
+              <Label>{t("athlete.gender")}</Label>
               <Select
                 value={filters.gender || "mixed"}
                 onValueChange={(value) =>
@@ -228,12 +236,12 @@ export default function TournamentList() {
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Tất cả" />
+                  <SelectValue placeholder={t("common.all")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="male">Nam</SelectItem>
-                  <SelectItem value="female">Nữ</SelectItem>
-                  <SelectItem value="mixed">Tất cả</SelectItem>
+                  <SelectItem value="male">{t("athlete.male")}</SelectItem>
+                  <SelectItem value="female">{t("athlete.female")}</SelectItem>
+                  <SelectItem value="mixed">{t("common.all")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -243,10 +251,12 @@ export default function TournamentList() {
           {showFilters && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t">
               <div className="space-y-2">
-                <Label>Tuổi tối thiểu</Label>
+                <Label>
+                  {t("validation.minValue", { min: t("athlete.dateOfBirth") })}
+                </Label>
                 <Input
                   type="number"
-                  placeholder="VD: 18"
+                  placeholder="18"
                   value={filters.minAge || ""}
                   onChange={(e) =>
                     setFilters({
@@ -260,10 +270,12 @@ export default function TournamentList() {
               </div>
 
               <div className="space-y-2">
-                <Label>Tuổi tối đa</Label>
+                <Label>
+                  {t("validation.maxValue", { max: t("athlete.dateOfBirth") })}
+                </Label>
                 <Input
                   type="number"
-                  placeholder="VD: 35"
+                  placeholder="35"
                   value={filters.maxAge || ""}
                   onChange={(e) =>
                     setFilters({
@@ -277,10 +289,10 @@ export default function TournamentList() {
               </div>
 
               <div className="space-y-2">
-                <Label>ELO tối thiểu</Label>
+                <Label>ELO {t("validation.minValue", { min: "" })}</Label>
                 <Input
                   type="number"
-                  placeholder="VD: 1200"
+                  placeholder="1200"
                   value={filters.minElo || ""}
                   onChange={(e) =>
                     setFilters({
@@ -294,10 +306,10 @@ export default function TournamentList() {
               </div>
 
               <div className="space-y-2">
-                <Label>ELO tối đa</Label>
+                <Label>ELO {t("validation.maxValue", { max: "" })}</Label>
                 <Input
                   type="number"
-                  placeholder="VD: 2000"
+                  placeholder="2000"
                   value={filters.maxElo || ""}
                   onChange={(e) =>
                     setFilters({
@@ -311,7 +323,7 @@ export default function TournamentList() {
               </div>
 
               <div className="space-y-2">
-                <Label>Vòng bảng</Label>
+                <Label>{t("schedule.groupStage")}</Label>
                 <Select
                   value={
                     filters.isGroupStage === undefined
@@ -321,7 +333,6 @@ export default function TournamentList() {
                   onValueChange={(value) => {
                     const newFilters = { ...filters };
                     if (value === "all") {
-                      // Xóa hoàn toàn property để không gửi lên backend
                       delete newFilters.isGroupStage;
                     } else {
                       newFilters.isGroupStage = value === "true";
@@ -330,12 +341,12 @@ export default function TournamentList() {
                   }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Chọn..." />
+                    <SelectValue placeholder={t("common.select")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Tất cả (Có + Không)</SelectItem>
-                    <SelectItem value="true">Có vòng bảng</SelectItem>
-                    <SelectItem value="false">Không có vòng bảng</SelectItem>
+                    <SelectItem value="all">{t("common.all")}</SelectItem>
+                    <SelectItem value="true">{t("common.yes")}</SelectItem>
+                    <SelectItem value="false">{t("common.no")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -345,10 +356,10 @@ export default function TournamentList() {
           <div className="flex gap-2">
             <Button onClick={handleSearch} className="flex-1">
               <Search className="mr-2 h-4 w-4" />
-              Tìm kiếm
+              {t("common.search")}
             </Button>
             <Button variant="outline" onClick={handleResetFilters}>
-              Xóa bộ lọc
+              {t("common.clear")}
             </Button>
           </div>
         </div>
@@ -364,7 +375,7 @@ export default function TournamentList() {
       ) : tournaments.length === 0 ? (
         <Card className="p-12">
           <div className="text-center text-muted-foreground">
-            Không tìm thấy giải đấu nào
+            {t("tournament.noTournamentFound")}
           </div>
         </Card>
       ) : (
@@ -395,14 +406,16 @@ export default function TournamentList() {
                       <div className="flex items-center gap-1">
                         <Users className="h-4 w-4" />
                         <span>
-                          {tournament.contents.length} nội dung thi đấu
+                          {tournament.contents.length}{" "}
+                          {t("tournament.contents")}
                         </span>
                       </div>
                     )}
                   </div>
 
                   <div className="text-xs text-muted-foreground">
-                    ID: {tournament.id} | Người tạo: {tournament.createdBy}
+                    ID: {tournament.id} | {t("tournament.organizer")}:{" "}
+                    {tournament.createdBy}
                   </div>
                 </div>
 
@@ -445,7 +458,7 @@ export default function TournamentList() {
         <Card className="p-4">
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              Trang {currentPage} / {totalPages} (Tổng: {total} giải)
+              {currentPage} / {totalPages} ({t("spectator.total")}: {total})
             </div>
             <div className="flex gap-2">
               <Button
@@ -459,7 +472,7 @@ export default function TournamentList() {
                   })
                 }
               >
-                Trang trước
+                {t("common.previous")}
               </Button>
               <Button
                 variant="outline"
@@ -472,7 +485,7 @@ export default function TournamentList() {
                   })
                 }
               >
-                Trang sau
+                {t("common.next")}
               </Button>
             </div>
           </div>

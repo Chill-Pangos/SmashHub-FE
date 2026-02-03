@@ -2,8 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { useAuth } from "@/store/useAuth";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function EloStats() {
+  const { t } = useTranslation();
   useAuth(); // Keep hook call for potential future use
   const currentElo = 1500; // Default ELO, should be fetched from user profile API
 
@@ -44,11 +46,15 @@ export default function EloStats() {
   };
 
   const getRankFromElo = (elo: number) => {
-    if (elo >= 2000) return { rank: "Cao thủ", color: "text-purple-600" };
-    if (elo >= 1800) return { rank: "Chuyên nghiệp", color: "text-blue-600" };
-    if (elo >= 1600) return { rank: "Nâng cao", color: "text-green-600" };
-    if (elo >= 1400) return { rank: "Trung bình", color: "text-yellow-600" };
-    return { rank: "Khởi đầu", color: "text-gray-600" };
+    if (elo >= 2000)
+      return { rank: t("athlete.masterRank"), color: "text-purple-600" };
+    if (elo >= 1800)
+      return { rank: t("athlete.professionalRank"), color: "text-blue-600" };
+    if (elo >= 1600)
+      return { rank: t("athlete.advancedRank"), color: "text-green-600" };
+    if (elo >= 1400)
+      return { rank: t("athlete.intermediateRank"), color: "text-yellow-600" };
+    return { rank: t("athlete.beginnerRank"), color: "text-gray-600" };
   };
 
   const rankInfo = getRankFromElo(currentElo);
@@ -57,9 +63,9 @@ export default function EloStats() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Thống kê ELO</h1>
+        <h1 className="text-3xl font-bold">{t("athlete.eloStats")}</h1>
         <p className="text-muted-foreground mt-1">
-          Theo dõi điểm ELO và xếp hạng của bạn
+          {t("athlete.trackYourEloAndRanking")}
         </p>
       </div>
 
@@ -67,7 +73,9 @@ export default function EloStats() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="md:col-span-1">
           <CardContent className="p-6 text-center">
-            <p className="text-sm text-muted-foreground mb-2">ELO hiện tại</p>
+            <p className="text-sm text-muted-foreground mb-2">
+              {t("athlete.currentElo")}
+            </p>
             <p className="text-5xl font-bold text-primary">{currentElo}</p>
             <Badge className={`mt-3 ${rankInfo.color}`}>{rankInfo.rank}</Badge>
           </CardContent>
@@ -75,28 +83,32 @@ export default function EloStats() {
 
         <Card className="md:col-span-2">
           <CardHeader>
-            <CardTitle>Bảng xếp hạng ELO</CardTitle>
+            <CardTitle>{t("athlete.eloRankingTable")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               <div className="flex justify-between items-center p-2 rounded-lg bg-purple-50">
-                <span className="font-medium">Cao thủ</span>
+                <span className="font-medium">{t("athlete.masterRank")}</span>
                 <span className="text-muted-foreground">2000+</span>
               </div>
               <div className="flex justify-between items-center p-2 rounded-lg bg-blue-50">
-                <span className="font-medium">Chuyên nghiệp</span>
+                <span className="font-medium">
+                  {t("athlete.professionalRank")}
+                </span>
                 <span className="text-muted-foreground">1800 - 1999</span>
               </div>
               <div className="flex justify-between items-center p-2 rounded-lg bg-green-50">
-                <span className="font-medium">Nâng cao</span>
+                <span className="font-medium">{t("athlete.advancedRank")}</span>
                 <span className="text-muted-foreground">1600 - 1799</span>
               </div>
               <div className="flex justify-between items-center p-2 rounded-lg bg-yellow-50">
-                <span className="font-medium">Trung bình</span>
+                <span className="font-medium">
+                  {t("athlete.intermediateRank")}
+                </span>
                 <span className="text-muted-foreground">1400 - 1599</span>
               </div>
               <div className="flex justify-between items-center p-2 rounded-lg bg-gray-50">
-                <span className="font-medium">Khởi đầu</span>
+                <span className="font-medium">{t("athlete.beginnerRank")}</span>
                 <span className="text-muted-foreground">&lt; 1400</span>
               </div>
             </div>
@@ -109,7 +121,7 @@ export default function EloStats() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
-            Lịch sử thay đổi ELO
+            {t("athlete.eloHistoryChange")}
           </CardTitle>
         </CardHeader>
         <CardContent>

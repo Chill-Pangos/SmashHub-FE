@@ -1,13 +1,16 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Medal, Award } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function MasterScoreboard() {
+  const { t } = useTranslation();
+
   return (
     <div className="p-6 space-y-6">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-2">Bảng tổng sắp huy chương</h1>
-        <p className="text-muted-foreground">Cập nhật theo thời gian thực</p>
+        <h1 className="text-4xl font-bold mb-2">{t("spectator.medalTally")}</h1>
+        <p className="text-muted-foreground">{t("spectator.realTimeUpdate")}</p>
         <Badge variant="outline" className="mt-2">
           <span className="relative flex h-2 w-2 mr-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -22,7 +25,7 @@ export default function MasterScoreboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">
-                Huy chương Vàng
+                {t("spectator.goldMedal")}
               </p>
               <p className="text-3xl font-bold mt-1">0</p>
             </div>
@@ -33,7 +36,7 @@ export default function MasterScoreboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">
-                Huy chương Bạc
+                {t("spectator.silverMedal")}
               </p>
               <p className="text-3xl font-bold mt-1">0</p>
             </div>
@@ -44,7 +47,7 @@ export default function MasterScoreboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">
-                Huy chương Đồng
+                {t("spectator.bronzeMedal")}
               </p>
               <p className="text-3xl font-bold mt-1">0</p>
             </div>
@@ -56,8 +59,10 @@ export default function MasterScoreboard() {
       <Card className="p-6">
         <div className="space-y-4">
           <div className="flex items-center justify-between pb-4 border-b">
-            <span className="font-semibold">Hạng</span>
-            <span className="font-semibold flex-1 ml-8">Đoàn</span>
+            <span className="font-semibold">{t("spectator.rank")}</span>
+            <span className="font-semibold flex-1 ml-8">
+              {t("spectator.delegation")}
+            </span>
             <div className="flex gap-8 font-semibold">
               <span className="w-12 text-center">
                 <Trophy className="h-4 w-4 inline text-yellow-500" />
@@ -68,12 +73,12 @@ export default function MasterScoreboard() {
               <span className="w-12 text-center">
                 <Award className="h-4 w-4 inline text-orange-600" />
               </span>
-              <span className="w-12 text-center">Tổng</span>
+              <span className="w-12 text-center">{t("spectator.total")}</span>
             </div>
           </div>
 
           <div className="text-center text-muted-foreground py-12">
-            Chưa có dữ liệu bảng xếp hạng
+            {t("spectator.noRankingData")}
           </div>
         </div>
       </Card>

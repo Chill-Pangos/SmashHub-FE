@@ -14,8 +14,10 @@ import { useTournaments } from "@/hooks/queries";
 import TournamentDetailViewer from "@/components/custom/TournamentDetailViewer";
 import type { Tournament } from "@/types";
 import Footer from "@/components/custom/Footer";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function PublicTournaments() {
+  const { t } = useTranslation();
   const { data: tournaments = [], isLoading } = useTournaments(0, 100);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -41,9 +43,9 @@ export default function PublicTournaments() {
       completed: "secondary",
     };
     const labels: Record<string, string> = {
-      upcoming: "Sắp diễn ra",
-      ongoing: "Đang diễn ra",
-      completed: "Đã kết thúc",
+      upcoming: t("tournament.upcoming"),
+      ongoing: t("tournament.ongoing"),
+      completed: t("tournament.completed"),
     };
 
     return (
@@ -60,7 +62,7 @@ export default function PublicTournaments() {
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Đang tải...</p>
+              <p className="text-muted-foreground">{t("common.loading")}</p>
             </div>
           </div>
         </div>
@@ -90,10 +92,10 @@ export default function PublicTournaments() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
-            GIẢI ĐẤU CẦU LÔNG
+            {t("spectator.publicTournaments").toUpperCase()}
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Xem thông tin các giải đấu, lịch thi đấu và kết quả
+            {t("tournament.viewTournamentInfo")}
           </p>
         </div>
 
@@ -104,7 +106,7 @@ export default function PublicTournaments() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm giải đấu..."
+                  placeholder={t("placeholder.searchTournament")}
                   className="pl-10"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -112,13 +114,19 @@ export default function PublicTournaments() {
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-full sm:w-[180px]">
-                  <SelectValue placeholder="Trạng thái" />
+                  <SelectValue placeholder={t("common.status")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tất cả</SelectItem>
-                  <SelectItem value="upcoming">Sắp diễn ra</SelectItem>
-                  <SelectItem value="ongoing">Đang diễn ra</SelectItem>
-                  <SelectItem value="completed">Đã kết thúc</SelectItem>
+                  <SelectItem value="all">{t("common.all")}</SelectItem>
+                  <SelectItem value="upcoming">
+                    {t("tournament.upcoming")}
+                  </SelectItem>
+                  <SelectItem value="ongoing">
+                    {t("tournament.ongoing")}
+                  </SelectItem>
+                  <SelectItem value="completed">
+                    {t("tournament.completed")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -134,7 +142,9 @@ export default function PublicTournaments() {
                   <Trophy className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Tổng giải đấu</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("tournament.totalTournaments")}
+                  </p>
                   <p className="text-2xl font-bold">{tournaments.length}</p>
                 </div>
               </div>
@@ -147,9 +157,15 @@ export default function PublicTournaments() {
                   <Calendar className="h-6 w-6 text-green-500" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Đang diễn ra</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("tournament.ongoing")}
+                  </p>
                   <p className="text-2xl font-bold">
-                    {tournaments.filter((t) => t.status === "ongoing").length}
+                    {
+                      tournaments.filter(
+                        (tournament) => tournament.status === "ongoing",
+                      ).length
+                    }
                   </p>
                 </div>
               </div>
@@ -162,9 +178,15 @@ export default function PublicTournaments() {
                   <Users className="h-6 w-6 text-blue-500" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Sắp diễn ra</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("tournament.upcoming")}
+                  </p>
                   <p className="text-2xl font-bold">
-                    {tournaments.filter((t) => t.status === "upcoming").length}
+                    {
+                      tournaments.filter(
+                        (tournament) => tournament.status === "upcoming",
+                      ).length
+                    }
                   </p>
                 </div>
               </div>
@@ -178,10 +200,10 @@ export default function PublicTournaments() {
             <CardContent className="py-12 text-center">
               <Trophy className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-medium mb-2">
-                Không tìm thấy giải đấu
+                {t("tournament.noTournamentFound")}
               </h3>
               <p className="text-muted-foreground">
-                Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
+                {t("tournament.tryChangingFilter")}
               </p>
             </CardContent>
           </Card>

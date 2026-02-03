@@ -11,10 +11,12 @@ import {
 } from "@/components/ui/select";
 import { Trophy, Calendar, MapPin, Search } from "lucide-react";
 import { useTournaments } from "@/hooks/queries";
+import { useTranslation } from "@/hooks/useTranslation";
 import TournamentDetailViewer from "@/components/custom/TournamentDetailViewer";
 import type { Tournament } from "@/types";
 
 export default function SpectatorTournaments() {
+  const { t } = useTranslation();
   const { data: tournaments = [], isLoading } = useTournaments(0, 100);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -48,9 +50,9 @@ export default function SpectatorTournaments() {
       completed: "secondary",
     };
     const labels: Record<string, string> = {
-      upcoming: "Sắp diễn ra",
-      ongoing: "Đang diễn ra",
-      completed: "Đã kết thúc",
+      upcoming: t("tournament.upcoming"),
+      ongoing: t("tournament.ongoing"),
+      completed: t("tournament.completed"),
     };
 
     return (
@@ -65,7 +67,7 @@ export default function SpectatorTournaments() {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -87,9 +89,9 @@ export default function SpectatorTournaments() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Danh sách giải đấu</h1>
+        <h1 className="text-3xl font-bold">{t("spectator.tournamentList")}</h1>
         <p className="text-muted-foreground mt-1">
-          Xem các giải đấu cầu lông đang và sắp diễn ra
+          {t("spectator.viewTournaments")}
         </p>
       </div>
 
@@ -100,7 +102,7 @@ export default function SpectatorTournaments() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Tìm kiếm giải đấu..."
+                placeholder={t("message.searchTournament")}
                 className="pl-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -108,13 +110,19 @@ export default function SpectatorTournaments() {
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Trạng thái" />
+                <SelectValue placeholder={t("common.status")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tất cả</SelectItem>
-                <SelectItem value="upcoming">Sắp diễn ra</SelectItem>
-                <SelectItem value="ongoing">Đang diễn ra</SelectItem>
-                <SelectItem value="completed">Đã kết thúc</SelectItem>
+                <SelectItem value="all">{t("common.all")}</SelectItem>
+                <SelectItem value="upcoming">
+                  {t("tournament.upcoming")}
+                </SelectItem>
+                <SelectItem value="ongoing">
+                  {t("tournament.ongoing")}
+                </SelectItem>
+                <SelectItem value="completed">
+                  {t("tournament.completed")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -127,10 +135,10 @@ export default function SpectatorTournaments() {
           <CardContent className="py-12 text-center">
             <Trophy className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium mb-2">
-              Không tìm thấy giải đấu
+              {t("spectator.noTournamentFound")}
             </h3>
             <p className="text-muted-foreground">
-              Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
+              {t("spectator.tryChangingFilter")}
             </p>
           </CardContent>
         </Card>

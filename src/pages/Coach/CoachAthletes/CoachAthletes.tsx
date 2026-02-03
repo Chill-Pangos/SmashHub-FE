@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -17,6 +18,7 @@ import { useQueries } from "@tanstack/react-query";
 import type { TeamMember } from "@/types";
 
 export default function CoachAthletes() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -79,7 +81,7 @@ export default function CoachAthletes() {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -89,10 +91,8 @@ export default function CoachAthletes() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Vận động viên</h1>
-        <p className="text-muted-foreground mt-1">
-          Danh sách vận động viên bạn đang huấn luyện
-        </p>
+        <h1 className="text-3xl font-bold">{t("coach.myAthletes")}</h1>
+        <p className="text-muted-foreground mt-1">{t("athlete.athleteList")}</p>
       </div>
 
       {/* Search */}
@@ -101,7 +101,7 @@ export default function CoachAthletes() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Tìm kiếm vận động viên..."
+              placeholder={t("placeholder.searchByName")}
               className="pl-9"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -115,22 +115,24 @@ export default function CoachAthletes() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Danh sách vận động viên ({filteredAthletes.length})
+            {t("athlete.athleteList")} ({filteredAthletes.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           {filteredAthletes.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
-              Không có vận động viên nào
+              {t("message.noResultsFound")}
             </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Họ tên</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Đoàn</TableHead>
-                  <TableHead className="text-right">Trạng thái</TableHead>
+                  <TableHead>{t("auth.fullName")}</TableHead>
+                  <TableHead>{t("auth.email")}</TableHead>
+                  <TableHead>{t("team.delegation")}</TableHead>
+                  <TableHead className="text-right">
+                    {t("common.status")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -142,7 +144,7 @@ export default function CoachAthletes() {
                     <TableCell>{athlete.user?.email}</TableCell>
                     <TableCell>{athlete.team?.name || "N/A"}</TableCell>
                     <TableCell className="text-right">
-                      <Badge variant="outline">Hoạt động</Badge>
+                      <Badge variant="outline">{t("common.status")}</Badge>
                     </TableCell>
                   </TableRow>
                 ))}
