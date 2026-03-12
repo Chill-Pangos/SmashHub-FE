@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, AlertCircle } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface CorrectionRequest {
   id: string;
@@ -72,25 +73,27 @@ const mockRequests: CorrectionRequest[] = [
   },
 ];
 
-const getStatusColor = (status: CorrectionRequest["status"]) => {
-  const colors = {
-    pending: "bg-orange-100 text-orange-700",
-    approved: "bg-green-100 text-green-700",
-    rejected: "bg-red-100 text-red-700",
-  };
-  return colors[status];
-};
-
-const getStatusLabel = (status: CorrectionRequest["status"]) => {
-  const labels = {
-    pending: "Chờ duyệt",
-    approved: "Đã duyệt",
-    rejected: "Từ chối",
-  };
-  return labels[status];
-};
-
 export default function CorrectionRequestList() {
+  const { t } = useTranslation();
+
+  const getStatusColor = (status: CorrectionRequest["status"]) => {
+    const colors = {
+      pending: "bg-orange-100 text-orange-700",
+      approved: "bg-green-100 text-green-700",
+      rejected: "bg-red-100 text-red-700",
+    };
+    return colors[status];
+  };
+
+  const getStatusLabel = (status: CorrectionRequest["status"]) => {
+    const labels = {
+      pending: t("tournamentManager.resultCorrection.pendingApproval"),
+      approved: t("tournamentManager.resultCorrection.approved"),
+      rejected: t("tournamentManager.resultCorrection.rejected"),
+    };
+    return labels[status];
+  };
+
   return (
     <div className="space-y-4">
       {mockRequests.map((request) => (
@@ -122,13 +125,13 @@ export default function CorrectionRequestList() {
                 <div className="grid grid-cols-2 gap-4 p-3 bg-muted rounded-lg">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground mb-1">
-                      Điểm hiện tại:
+                      {t("tournamentManager.resultCorrection.currentScore")}:
                     </p>
                     <p className="font-semibold">{request.originalScore}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground mb-1">
-                      Điểm đề xuất:
+                      {t("tournamentManager.resultCorrection.proposedScore")}:
                     </p>
                     <p className="font-semibold text-primary">
                       {request.requestedScore}
@@ -138,7 +141,7 @@ export default function CorrectionRequestList() {
 
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">
-                    Lý do yêu cầu:
+                    {t("tournamentManager.resultCorrection.reasonForRequest")}:
                   </p>
                   <p className="text-sm">{request.reason}</p>
                 </div>
@@ -158,9 +161,11 @@ export default function CorrectionRequestList() {
                   {request.status === "pending" && (
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm">
-                        Từ chối
+                        {t("tournamentManager.resultCorrection.reject")}
                       </Button>
-                      <Button size="sm">Duyệt</Button>
+                      <Button size="sm">
+                        {t("tournamentManager.resultCorrection.approve")}
+                      </Button>
                     </div>
                   )}
                 </div>

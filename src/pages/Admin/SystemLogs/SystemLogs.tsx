@@ -6,8 +6,10 @@ import { Search, Download, RefreshCw } from "lucide-react";
 import LogsTable from "./components/LogsTable";
 import LogsFilter from "./components/LogsFilter";
 import LogDetailDialog from "./components/LogDetailDialog";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function SystemLogs() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
     level: "all",
@@ -36,19 +38,19 @@ export default function SystemLogs() {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Nhật ký hệ thống</h1>
+          <h1 className="text-3xl font-bold">{t("admin.systemLogs")}</h1>
           <p className="text-muted-foreground mt-1">
-            Theo dõi và kiểm tra các hoạt động trong hệ thống
+            {t("admin.systemLogsDescription")}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={handleRefresh}>
             <RefreshCw className="mr-2 h-4 w-4" />
-            Làm mới
+            {t("common.refresh")}
           </Button>
           <Button variant="outline" onClick={handleExport}>
             <Download className="mr-2 h-4 w-4" />
-            Xuất Excel
+            {t("admin.exportExcel")}
           </Button>
         </div>
       </div>
@@ -60,7 +62,7 @@ export default function SystemLogs() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Tìm kiếm theo người dùng, hành động, mô tả..."
+              placeholder={t("admin.searchLogs")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"

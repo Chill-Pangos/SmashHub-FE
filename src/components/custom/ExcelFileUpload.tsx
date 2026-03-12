@@ -3,6 +3,7 @@ import { Upload, FileSpreadsheet, X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useExcelFileUpload } from "@/hooks/useExcelFileUpload";
 import { downloadTemplateByType } from "@/utils/file.utils";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ExcelFileUploadProps {
   /**
@@ -56,10 +57,11 @@ export const ExcelFileUpload: React.FC<ExcelFileUploadProps> = ({
   onFileSelected,
   onFileRemoved,
   accept = ".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel",
-  placeholder = "Kéo thả file Excel vào đây hoặc click để chọn file",
+  placeholder,
   disabled = false,
   className = "",
 }) => {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { uploadState, handleFileSelect, handleFileDrop, resetUpload } =
     useExcelFileUpload();
@@ -120,7 +122,7 @@ export const ExcelFileUpload: React.FC<ExcelFileUploadProps> = ({
             className="gap-2"
           >
             <Download className="h-4 w-4" />
-            Tải file mẫu
+            {t("components.excelFileUpload.downloadTemplate")}
           </Button>
         </div>
       )}
@@ -165,10 +167,11 @@ export const ExcelFileUpload: React.FC<ExcelFileUploadProps> = ({
               <p
                 className={`text-sm font-medium ${disabled ? "text-gray-400" : "text-gray-700"}`}
               >
-                {placeholder}
+                {placeholder ||
+                  t("components.excelFileUpload.dragDropPlaceholder")}
               </p>
               <p className="text-xs text-gray-500">
-                Hỗ trợ file: .xlsx, .xls (tối đa 5MB)
+                {t("components.excelFileUpload.supportedFiles")}
               </p>
             </div>
           </div>
@@ -195,7 +198,7 @@ export const ExcelFileUpload: React.FC<ExcelFileUploadProps> = ({
               className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
             >
               <X className="h-4 w-4" />
-              Xóa file
+              {t("components.excelFileUpload.removeFile")}
             </Button>
           </div>
         )}
@@ -209,8 +212,8 @@ export const ExcelFileUpload: React.FC<ExcelFileUploadProps> = ({
       {/* Helper Text */}
       <div className="text-xs text-gray-500">
         <p>
-          💡 <strong>Lưu ý:</strong> Vui lòng tải file mẫu và điền thông tin
-          theo đúng định dạng để đảm bảo quá trình import thành công.
+          💡 <strong>{t("components.excelFileUpload.note")}</strong>{" "}
+          {t("components.excelFileUpload.noteDescription")}
         </p>
       </div>
     </div>

@@ -24,7 +24,9 @@ import {
 } from "lucide-react";
 import { useNotification } from "@/store";
 import { formatDistanceToNow } from "date-fns";
-import { vi } from "date-fns/locale";
+import { vi, enUS } from "date-fns/locale";
+import { useTranslation } from "@/hooks/useTranslation";
+import i18n from "@/locales/i18n";
 
 const getNotificationIcon = (type: string) => {
   switch (type) {
@@ -47,6 +49,7 @@ const getNotificationIcon = (type: string) => {
 };
 
 export default function NotificationDropdown() {
+  const { t } = useTranslation();
   const {
     notifications,
     unreadCount,
@@ -55,6 +58,7 @@ export default function NotificationDropdown() {
     isConnected,
   } = useNotification();
   const [open, setOpen] = useState(false);
+  const dateLocale = i18n.language === "vi" ? vi : enUS;
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
@@ -91,7 +95,7 @@ export default function NotificationDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-80" align="end">
         <DropdownMenuLabel className="flex items-center justify-between">
-          <span>Thông báo</span>
+          <span>{t("components.notificationDropdown.notifications")}</span>
           {notifications.length > 0 && (
             <Button
               variant="ghost"
@@ -100,7 +104,7 @@ export default function NotificationDropdown() {
               onClick={clearNotifications}
             >
               <Trash2 className="h-3 w-3 mr-1" />
-              Xóa tất cả
+              {t("components.notificationDropdown.clearAll")}
             </Button>
           )}
         </DropdownMenuLabel>
@@ -109,7 +113,9 @@ export default function NotificationDropdown() {
         {notifications.length === 0 ? (
           <div className="py-8 text-center text-muted-foreground">
             <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Không có thông báo</p>
+            <p className="text-sm">
+              {t("components.notificationDropdown.noNotifications")}
+            </p>
           </div>
         ) : (
           <ScrollArea className="h-[300px]">
@@ -132,7 +138,7 @@ export default function NotificationDropdown() {
                     <p className="text-xs text-muted-foreground">
                       {formatDistanceToNow(new Date(notification.timestamp), {
                         addSuffix: true,
-                        locale: vi,
+                        locale: dateLocale,
                       })}
                     </p>
                   </div>
@@ -147,7 +153,7 @@ export default function NotificationDropdown() {
             <DropdownMenuSeparator />
             <DropdownMenuItem className="justify-center text-primary">
               <Check className="h-4 w-4 mr-2" />
-              Đánh dấu tất cả đã đọc
+              {t("components.notificationDropdown.markAllAsRead")}
             </DropdownMenuItem>
           </>
         )}

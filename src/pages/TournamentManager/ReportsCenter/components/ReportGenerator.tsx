@@ -10,8 +10,10 @@ import {
 } from "@/components/ui/select";
 import { FileText, FileSpreadsheet, FileIcon } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function ReportGenerator() {
+  const { t } = useTranslation();
   const [reportType, setReportType] = useState("");
   const [format, setFormat] = useState("");
   const [tournament, setTournament] = useState("");
@@ -19,41 +21,53 @@ export default function ReportGenerator() {
 
   return (
     <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-6">Tạo báo cáo mới</h2>
+      <h2 className="text-xl font-semibold mb-6">
+        {t("tournamentManager.reportsCenter.createReport")}
+      </h2>
 
       <div className="space-y-6">
         <div className="space-y-2">
-          <Label>Loại báo cáo</Label>
+          <Label>{t("tournamentManager.reportsCenter.reportType")}</Label>
           <Select value={reportType} onValueChange={setReportType}>
             <SelectTrigger>
-              <SelectValue placeholder="Chọn loại báo cáo" />
+              <SelectValue
+                placeholder={t(
+                  "tournamentManager.reportsCenter.selectReportType",
+                )}
+              />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="tournament-summary">
-                Báo cáo tổng kết giải đấu
+                {t("tournamentManager.reportsCenter.tournamentSummary")}
               </SelectItem>
-              <SelectItem value="match-report">Biên bản trận đấu</SelectItem>
+              <SelectItem value="match-report">
+                {t("tournamentManager.reportsCenter.matchReport")}
+              </SelectItem>
               <SelectItem value="delegation-report">
-                Báo cáo thành tích đoàn
+                {t("tournamentManager.reportsCenter.delegationReport")}
               </SelectItem>
               <SelectItem value="statistics-report">
-                Báo cáo thống kê
+                {t("tournamentManager.reportsCenter.statisticsReport")}
               </SelectItem>
               <SelectItem value="referee-report">
-                Báo cáo hoạt động trọng tài
+                {t("tournamentManager.reportsCenter.refereeReport")}
               </SelectItem>
               <SelectItem value="schedule-report">
-                Báo cáo lịch thi đấu
+                {t("tournamentManager.reportsCenter.scheduleReport")}
               </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label>Giải đấu</Label>
+          <Label>{t("tournament.tournament")}</Label>
           <Select value={tournament} onValueChange={setTournament}>
             <SelectTrigger>
-              <SelectValue placeholder="Chọn giải đấu" />
+              <SelectValue
+                placeholder={t(
+                  "tournamentManager.reportsCenter.selectTournament",
+                )}
+              />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="t1">Giải vô địch Quốc gia 2024</SelectItem>
@@ -64,24 +78,40 @@ export default function ReportGenerator() {
         </div>
 
         <div className="space-y-2">
-          <Label>Khoảng thời gian</Label>
+          <Label>{t("tournamentManager.reportsCenter.dateRange")}</Label>
           <Select value={dateRange} onValueChange={setDateRange}>
             <SelectTrigger>
-              <SelectValue placeholder="Chọn khoảng thời gian" />
+              <SelectValue
+                placeholder={t(
+                  "tournamentManager.reportsCenter.selectDateRange",
+                )}
+              />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Toàn bộ giải đấu</SelectItem>
-              <SelectItem value="today">Hôm nay</SelectItem>
-              <SelectItem value="yesterday">Hôm qua</SelectItem>
-              <SelectItem value="week">7 ngày qua</SelectItem>
-              <SelectItem value="month">30 ngày qua</SelectItem>
-              <SelectItem value="custom">Tùy chỉnh</SelectItem>
+              <SelectItem value="all">
+                {t("tournamentManager.reportsCenter.allTournament")}
+              </SelectItem>
+              <SelectItem value="today">
+                {t("tournamentManager.reportsCenter.today")}
+              </SelectItem>
+              <SelectItem value="yesterday">
+                {t("tournamentManager.reportsCenter.yesterday")}
+              </SelectItem>
+              <SelectItem value="week">
+                {t("tournamentManager.reportsCenter.last7Days")}
+              </SelectItem>
+              <SelectItem value="month">
+                {t("tournamentManager.reportsCenter.last30Days")}
+              </SelectItem>
+              <SelectItem value="custom">
+                {t("tournamentManager.reportsCenter.custom")}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label>Định dạng xuất</Label>
+          <Label>{t("tournamentManager.reportsCenter.exportFormat")}</Label>
           <div className="grid grid-cols-3 gap-4">
             <button
               onClick={() => setFormat("pdf")}
@@ -120,10 +150,10 @@ export default function ReportGenerator() {
             className="flex-1"
             disabled={!reportType || !format || !tournament || !dateRange}
           >
-            Tạo báo cáo
+            {t("tournamentManager.reportsCenter.generateReport")}
           </Button>
           <Button variant="outline" className="flex-1">
-            Xem trước
+            {t("tournamentManager.reportsCenter.preview")}
           </Button>
         </div>
       </div>

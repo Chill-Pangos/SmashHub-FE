@@ -173,6 +173,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.28.4":
+  version: 7.28.6
+  resolution: "@babel/runtime@npm:7.28.6"
+  checksum: 10c0/358cf2429992ac1c466df1a21c1601d595c46930a13c1d4662fde908d44ee78ec3c183aaff513ecb01ef8c55c3624afe0309eeeb34715672dbfadb7feedb2c0d
+  languageName: node
+  linkType: hard
+
 "@babel/template@npm:^7.28.6":
   version: 7.28.6
   resolution: "@babel/template@npm:7.28.6"
@@ -3388,6 +3395,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"html-parse-stringify@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "html-parse-stringify@npm:3.0.1"
+  dependencies:
+    void-elements: "npm:3.1.0"
+  checksum: 10c0/159292753d48b84d216d61121054ae5a33466b3db5b446e2ffc093ac077a411a99ce6cbe0d18e55b87cf25fa3c5a86c4d8b130b9719ec9b66623259000c72c15
+  languageName: node
+  linkType: hard
+
 "http-cache-semantics@npm:^4.1.1":
   version: 4.2.0
   resolution: "http-cache-semantics@npm:4.2.0"
@@ -3412,6 +3428,29 @@ __metadata:
     agent-base: "npm:^7.1.2"
     debug: "npm:4"
   checksum: 10c0/f729219bc735edb621fa30e6e84e60ee5d00802b8247aac0d7b79b0bd6d4b3294737a337b93b86a0bd9e68099d031858a39260c976dc14cdbba238ba1f8779ac
+  languageName: node
+  linkType: hard
+
+"i18next-browser-languagedetector@npm:^8.2.0":
+  version: 8.2.0
+  resolution: "i18next-browser-languagedetector@npm:8.2.0"
+  dependencies:
+    "@babel/runtime": "npm:^7.23.2"
+  checksum: 10c0/4fcb6ec316e0fd4a10eee67a8d1e3d7e1407f14d5bed98978c50ed6f1853f5d559dc18ea7fd4b2de445ac0a4ed44df5b38f0b31b89b9ac883f99050d59ffec82
+  languageName: node
+  linkType: hard
+
+"i18next@npm:^25.8.1":
+  version: 25.8.1
+  resolution: "i18next@npm:25.8.1"
+  dependencies:
+    "@babel/runtime": "npm:^7.28.4"
+  peerDependencies:
+    typescript: ^5
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 10c0/04d03edbb107e523dd617ec51d58aa871c353fbe59a171fa61556119423a37d21f5b2019c3d4ebd6fc9c6e4852125af0d95b2e153d4038353116e6607b531951
   languageName: node
   linkType: hard
 
@@ -4127,6 +4166,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-i18next@npm:^16.5.4":
+  version: 16.5.4
+  resolution: "react-i18next@npm:16.5.4"
+  dependencies:
+    "@babel/runtime": "npm:^7.28.4"
+    html-parse-stringify: "npm:^3.0.1"
+    use-sync-external-store: "npm:^1.6.0"
+  peerDependencies:
+    i18next: ">= 25.6.2"
+    react: ">= 16.8.0"
+    typescript: ^5
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+    react-native:
+      optional: true
+    typescript:
+      optional: true
+  checksum: 10c0/41d0b76873addfa3abe0c6b8a10a796e01f205f3636bc2d090d0078b42222f2949c4303f18d7a80cc26cf1298918cb6220d96e39ae2b8644abfdbec3bb504b37
+  languageName: node
+  linkType: hard
+
 "react-is@npm:^19.2.0":
   version: 19.2.4
   resolution: "react-is@npm:19.2.4"
@@ -4503,9 +4564,12 @@ __metadata:
     eslint-plugin-react-hooks: "npm:^5.2.0"
     eslint-plugin-react-refresh: "npm:^0.4.20"
     globals: "npm:^16.4.0"
+    i18next: "npm:^25.8.1"
+    i18next-browser-languagedetector: "npm:^8.2.0"
     lucide-react: "npm:^0.545.0"
     react: "npm:^19.1.1"
     react-dom: "npm:^19.1.1"
+    react-i18next: "npm:^16.5.4"
     react-is: "npm:^19.2.0"
     react-router-dom: "npm:^7.9.4"
     react-signify: "npm:^1.7.2"
@@ -4803,7 +4867,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"use-sync-external-store@npm:^1.2.2, use-sync-external-store@npm:^1.4.0, use-sync-external-store@npm:^1.5.0":
+"use-sync-external-store@npm:^1.2.2, use-sync-external-store@npm:^1.4.0, use-sync-external-store@npm:^1.5.0, use-sync-external-store@npm:^1.6.0":
   version: 1.6.0
   resolution: "use-sync-external-store@npm:1.6.0"
   peerDependencies:
@@ -4886,6 +4950,13 @@ __metadata:
   bin:
     vite: bin/vite.js
   checksum: 10c0/5c7548f5f43a23533e53324304db4ad85f1896b1bfd3ee32ae9b866bac2933782c77b350eb2b52a02c625c8ad1ddd4c000df077419410650c982cd97fde8d014
+  languageName: node
+  linkType: hard
+
+"void-elements@npm:3.1.0":
+  version: 3.1.0
+  resolution: "void-elements@npm:3.1.0"
+  checksum: 10c0/0b8686f9f9aa44012e9bd5eabf287ae0cde409b9a2854c5a2335cb83920c957668ac5876e3f0d158dd424744ac411a7270e64128556b451ed3bec875ef18534d
   languageName: node
   linkType: hard
 

@@ -1,17 +1,39 @@
 import { Check } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Step {
   id: number;
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
 }
 
 const steps: Step[] = [
-  { id: 1, title: "Thông tin cơ bản", description: "Tên, thời gian, địa điểm" },
-  { id: 2, title: "Nội dung thi đấu", description: "Các môn và hạng mục" },
-  { id: 3, title: "Đoàn tham gia", description: "Danh sách đoàn VĐV" },
-  { id: 4, title: "Trọng tài", description: "Phân công trọng tài" },
-  { id: 5, title: "Xác nhận", description: "Kiểm tra và hoàn tất" },
+  {
+    id: 1,
+    titleKey: "tournamentManager.setupWizardPage.steps.basicInfo",
+    descriptionKey: "tournamentManager.setupWizardPage.steps.basicInfoDesc",
+  },
+  {
+    id: 2,
+    titleKey: "tournamentManager.setupWizardPage.steps.tournamentContent",
+    descriptionKey:
+      "tournamentManager.setupWizardPage.steps.tournamentContentDesc",
+  },
+  {
+    id: 3,
+    titleKey: "tournamentManager.setupWizardPage.steps.delegations",
+    descriptionKey: "tournamentManager.setupWizardPage.steps.delegationsDesc",
+  },
+  {
+    id: 4,
+    titleKey: "tournamentManager.setupWizardPage.steps.referees",
+    descriptionKey: "tournamentManager.setupWizardPage.steps.refereesDesc",
+  },
+  {
+    id: 5,
+    titleKey: "tournamentManager.setupWizardPage.steps.confirmation",
+    descriptionKey: "tournamentManager.setupWizardPage.steps.confirmationDesc",
+  },
 ];
 
 interface StepIndicatorProps {
@@ -19,6 +41,8 @@ interface StepIndicatorProps {
 }
 
 export default function StepIndicator({ currentStep }: StepIndicatorProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between">
@@ -31,8 +55,8 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
                     step.id < currentStep
                       ? "bg-primary border-primary text-primary-foreground"
                       : step.id === currentStep
-                      ? "border-primary text-primary"
-                      : "border-muted-foreground/30 text-muted-foreground"
+                        ? "border-primary text-primary"
+                        : "border-muted-foreground/30 text-muted-foreground"
                   }`}
                 >
                   {step.id < currentStep ? (
@@ -59,10 +83,10 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
                       : "text-muted-foreground"
                   }`}
                 >
-                  {step.title}
+                  {t(step.titleKey)}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  {step.description}
+                  {t(step.descriptionKey)}
                 </p>
               </div>
             </div>

@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Delegation {
   id: string;
@@ -30,6 +31,8 @@ export default function DelegationSelection({
   selectedDelegations,
   onChange,
 }: DelegationSelectionProps) {
+  const { t } = useTranslation();
+
   const toggleDelegation = (delegationId: string) => {
     if (selectedDelegations.includes(delegationId)) {
       onChange(selectedDelegations.filter((id) => id !== delegationId));
@@ -39,21 +42,23 @@ export default function DelegationSelection({
   };
 
   const selectedDelegationData = mockDelegations.filter((d) =>
-    selectedDelegations.includes(d.id)
+    selectedDelegations.includes(d.id),
   );
 
   const totalAthletes = selectedDelegationData.reduce(
     (sum, d) => sum + d.athletes,
-    0
+    0,
   );
   const totalCoaches = selectedDelegationData.reduce(
     (sum, d) => sum + d.coaches,
-    0
+    0,
   );
 
   return (
     <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-6">Đoàn tham gia</h2>
+      <h2 className="text-xl font-semibold mb-6">
+        {t("tournamentManager.setupWizardPage.delegationsTitle")}
+      </h2>
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -81,10 +86,16 @@ export default function DelegationSelection({
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Users className="h-4 w-4" />
-                        <span>{delegation.athletes} VĐV</span>
+                        <span>
+                          {delegation.athletes}{" "}
+                          {t("tournamentManager.setupWizardPage.vdv")}
+                        </span>
                       </div>
                       <span>•</span>
-                      <span>{delegation.coaches} HLV</span>
+                      <span>
+                        {delegation.coaches}{" "}
+                        {t("tournamentManager.setupWizardPage.hlv")}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -94,25 +105,35 @@ export default function DelegationSelection({
         </div>
 
         <div className="p-4 bg-muted rounded-lg">
-          <h3 className="font-semibold mb-3">Thống kê đoàn đã chọn</h3>
+          <h3 className="font-semibold mb-3">
+            {t("tournamentManager.setupWizardPage.selectedDelegationsStats")}
+          </h3>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-2xl font-bold">{selectedDelegations.length}</p>
-              <p className="text-sm text-muted-foreground">Đoàn</p>
+              <p className="text-sm text-muted-foreground">
+                {t("tournamentManager.setupWizardPage.delegationsCount")}
+              </p>
             </div>
             <div>
               <p className="text-2xl font-bold">{totalAthletes}</p>
-              <p className="text-sm text-muted-foreground">Vận động viên</p>
+              <p className="text-sm text-muted-foreground">
+                {t("tournamentManager.setupWizardPage.athletesCount")}
+              </p>
             </div>
             <div>
               <p className="text-2xl font-bold">{totalCoaches}</p>
-              <p className="text-sm text-muted-foreground">Huấn luyện viên</p>
+              <p className="text-sm text-muted-foreground">
+                {t("tournamentManager.setupWizardPage.coachesCount")}
+              </p>
             </div>
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label>Đoàn đã chọn:</Label>
+          <Label>
+            {t("tournamentManager.setupWizardPage.selectedDelegations")}
+          </Label>
           {selectedDelegations.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {selectedDelegations.map((id) => {
@@ -126,7 +147,9 @@ export default function DelegationSelection({
               })}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Chưa chọn đoàn nào</p>
+            <p className="text-sm text-muted-foreground">
+              {t("tournamentManager.setupWizardPage.noDelegationSelected")}
+            </p>
           )}
         </div>
       </div>

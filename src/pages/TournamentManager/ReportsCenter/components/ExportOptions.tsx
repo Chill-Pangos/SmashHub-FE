@@ -2,50 +2,47 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Download, Mail, Share2, Printer } from "lucide-react";
-
-interface ExportOption {
-  id: string;
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  action: string;
-}
-
-const exportOptions: ExportOption[] = [
-  {
-    id: "download",
-    icon: <Download className="h-6 w-6" />,
-    title: "Tải xuống",
-    description: "Lưu báo cáo về máy tính",
-    action: "Tải xuống",
-  },
-  {
-    id: "email",
-    icon: <Mail className="h-6 w-6" />,
-    title: "Gửi email",
-    description: "Gửi báo cáo qua email",
-    action: "Gửi email",
-  },
-  {
-    id: "print",
-    icon: <Printer className="h-6 w-6" />,
-    title: "In báo cáo",
-    description: "In trực tiếp hoặc xuất PDF để in",
-    action: "In",
-  },
-  {
-    id: "share",
-    icon: <Share2 className="h-6 w-6" />,
-    title: "Chia sẻ",
-    description: "Tạo link chia sẻ báo cáo",
-    action: "Chia sẻ",
-  },
-];
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function ExportOptions() {
+  const { t } = useTranslation();
+
+  const exportOptions = [
+    {
+      id: "download",
+      icon: <Download className="h-6 w-6" />,
+      title: t("tournamentManager.reportsCenter.downloadOption"),
+      description: t("tournamentManager.reportsCenter.downloadDesc"),
+      action: t("tournamentManager.reportsCenter.download"),
+    },
+    {
+      id: "email",
+      icon: <Mail className="h-6 w-6" />,
+      title: t("tournamentManager.reportsCenter.emailOption"),
+      description: t("tournamentManager.reportsCenter.emailDesc"),
+      action: t("tournamentManager.reportsCenter.emailOption"),
+    },
+    {
+      id: "print",
+      icon: <Printer className="h-6 w-6" />,
+      title: t("tournamentManager.reportsCenter.printOption"),
+      description: t("tournamentManager.reportsCenter.printDesc"),
+      action: t("tournamentManager.reportsCenter.printOption"),
+    },
+    {
+      id: "share",
+      icon: <Share2 className="h-6 w-6" />,
+      title: t("tournamentManager.reportsCenter.shareOption"),
+      description: t("tournamentManager.reportsCenter.shareDesc"),
+      action: t("tournamentManager.reportsCenter.shareOption"),
+    },
+  ];
+
   return (
     <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-6">Tùy chọn xuất báo cáo</h2>
+      <h2 className="text-xl font-semibold mb-6">
+        {t("tournamentManager.reportsCenter.exportOptions")}
+      </h2>
 
       <div className="space-y-4">
         {exportOptions.map((option) => (
@@ -71,24 +68,32 @@ export default function ExportOptions() {
 
       <div className="mt-6 p-4 bg-muted rounded-lg">
         <Label className="text-sm font-semibold mb-3 block">
-          Cài đặt xuất báo cáo
+          {t("tournamentManager.reportsCenter.exportSettings")}
         </Label>
         <div className="space-y-3">
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" className="rounded" defaultChecked />
-            <span className="text-sm">Bao gồm logo và header</span>
+            <span className="text-sm">
+              {t("tournamentManager.reportsCenter.includeLogoHeader")}
+            </span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" className="rounded" defaultChecked />
-            <span className="text-sm">Hiển thị chữ ký điện tử</span>
+            <span className="text-sm">
+              {t("tournamentManager.reportsCenter.showDigitalSignature")}
+            </span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" className="rounded" />
-            <span className="text-sm">Đánh số trang</span>
+            <span className="text-sm">
+              {t("tournamentManager.reportsCenter.pageNumbers")}
+            </span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" className="rounded" />
-            <span className="text-sm">Chế độ in đen trắng</span>
+            <span className="text-sm">
+              {t("tournamentManager.reportsCenter.blackWhiteMode")}
+            </span>
           </label>
         </div>
       </div>

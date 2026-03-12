@@ -4,9 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Radio, RefreshCw, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMatchesByStatus } from "@/hooks/queries";
+import { useTranslation } from "@/hooks/useTranslation";
 import type { Match } from "@/types";
 
 export default function LiveMatches() {
+  const { t } = useTranslation();
+
   // Fetch live matches using React Query with auto-refetch every 30 seconds
   const {
     data: liveMatchesData,
@@ -34,7 +37,7 @@ export default function LiveMatches() {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -47,17 +50,17 @@ export default function LiveMatches() {
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Radio className="h-8 w-8 text-orange-600" />
-            Trận đấu trực tiếp
+            {t("spectator.liveMatches")}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Theo dõi các trận đấu đang diễn ra
+            {t("spectator.watchLiveMatches")}
           </p>
         </div>
         <Button variant="outline" onClick={handleRefresh} disabled={isFetching}>
           <RefreshCw
             className={`h-4 w-4 mr-2 ${isFetching ? "animate-spin" : ""}`}
           />
-          Làm mới
+          {t("common.refresh")}
         </Button>
       </div>
 
@@ -67,10 +70,10 @@ export default function LiveMatches() {
           <CardContent className="py-12 text-center">
             <Radio className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium mb-2">
-              Không có trận đấu nào đang diễn ra
+              {t("spectator.noLiveMatches")}
             </h3>
             <p className="text-muted-foreground">
-              Các trận đấu sẽ hiển thị khi bắt đầu
+              {t("spectator.matchesWillAppear")}
             </p>
           </CardContent>
         </Card>
@@ -85,7 +88,7 @@ export default function LiveMatches() {
                 <div className="flex justify-between items-center">
                   <Badge className="bg-orange-600 animate-pulse">🔴 LIVE</Badge>
                   <span className="text-sm text-muted-foreground">
-                    Trận #{match.id}
+                    {t("spectator.matchNumber", { id: match.id })}
                   </span>
                 </div>
               </CardHeader>
@@ -122,9 +125,9 @@ export default function LiveMatches() {
                   {/* Match Info */}
                   <div className="text-center text-sm text-muted-foreground pt-2 border-t">
                     <p>
-                      Trạng thái:{" "}
+                      {t("spectator.matchStatus")}:{" "}
                       {match.status === "in_progress"
-                        ? "Đang diễn ra"
+                        ? t("tournament.ongoing")
                         : match.status}
                     </p>
                   </div>
@@ -137,7 +140,7 @@ export default function LiveMatches() {
 
       {/* Auto refresh notice */}
       <p className="text-center text-sm text-muted-foreground">
-        Tự động cập nhật mỗi 30 giây
+        {t("spectator.autoRefreshEvery30s")}
       </p>
     </div>
   );

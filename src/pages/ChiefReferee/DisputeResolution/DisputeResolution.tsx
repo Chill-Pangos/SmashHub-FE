@@ -2,9 +2,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DisputeDetail, ResolutionForm, ProcessHistory } from "./components";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function DisputeResolution() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
@@ -16,7 +18,9 @@ export default function DisputeResolution() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h1 className="text-3xl font-bold">Xử lý chi tiết khiếu nại</h1>
+        <h1 className="text-3xl font-bold">
+          {t("chiefReferee.disputeResolutionTitle")}
+        </h1>
       </div>
 
       <DisputeDetail />

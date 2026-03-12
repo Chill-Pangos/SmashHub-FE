@@ -1,44 +1,53 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, CheckCircle, Clock, FileText, Users, TrendingUp } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  FileText,
+  Users,
+  TrendingUp,
+} from "lucide-react";
 import { RecentComplaints, QuickActions, ActivityChart } from "./components";
-
-const statsData = [
-  {
-    title: "Khiếu nại mới",
-    value: "8",
-    change: "+3",
-    icon: AlertTriangle,
-    color: "text-orange-500",
-    bgColor: "bg-orange-500/10",
-  },
-  {
-    title: "Đang xử lý",
-    value: "12",
-    change: "+2",
-    icon: Clock,
-    color: "text-blue-500",
-    bgColor: "bg-blue-500/10",
-  },
-  {
-    title: "Đã giải quyết",
-    value: "45",
-    change: "+15",
-    icon: CheckCircle,
-    color: "text-green-500",
-    bgColor: "bg-green-500/10",
-  },
-  {
-    title: "Trọng tài hoạt động",
-    value: "28",
-    change: "+4",
-    icon: Users,
-    color: "text-purple-500",
-    bgColor: "bg-purple-500/10",
-  },
-];
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function ChiefRefereeDashboard() {
+  const { t } = useTranslation();
+
+  const statsData = [
+    {
+      title: t("chiefReferee.newComplaints"),
+      value: "8",
+      change: "+3",
+      icon: AlertTriangle,
+      color: "text-orange-500",
+      bgColor: "bg-orange-500/10",
+    },
+    {
+      title: t("chiefReferee.processing"),
+      value: "12",
+      change: "+2",
+      icon: Clock,
+      color: "text-blue-500",
+      bgColor: "bg-blue-500/10",
+    },
+    {
+      title: t("chiefReferee.resolved"),
+      value: "45",
+      change: "+15",
+      icon: CheckCircle,
+      color: "text-green-500",
+      bgColor: "bg-green-500/10",
+    },
+    {
+      title: t("chiefReferee.activeReferees"),
+      value: "28",
+      change: "+4",
+      icon: Users,
+      color: "text-purple-500",
+      bgColor: "bg-purple-500/10",
+    },
+  ];
   const handleQuickAction = (action: string) => {
     console.log("Quick action:", action);
   };
@@ -47,14 +56,16 @@ export default function ChiefRefereeDashboard() {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Tổng quan Tổng Trọng Tài</h1>
+          <h1 className="text-3xl font-bold">
+            {t("chiefReferee.dashboardOverview")}
+          </h1>
           <p className="text-muted-foreground mt-1">
-            Quản lý và giám sát hoạt động trọng tài
+            {t("chiefReferee.dashboardDescription")}
           </p>
         </div>
         <Button>
           <FileText className="mr-2 h-4 w-4" />
-          Xuất báo cáo
+          {t("chiefReferee.exportReport")}
         </Button>
       </div>
 

@@ -12,6 +12,19 @@ import type {
 // ==================== Query Hooks ====================
 
 /**
+ * Hook để lấy danh sách tổng trọng tài sẵn sàng
+ */
+export const useAvailableChiefReferees = (
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: queryKeys.tournamentReferees.availableChiefReferees(),
+    queryFn: () => tournamentRefereeService.getAvailableChiefReferees(),
+    enabled: options?.enabled ?? true,
+  });
+};
+
+/**
  * Hook để lấy tất cả tournament referees với pagination
  */
 export const useTournamentReferees = (

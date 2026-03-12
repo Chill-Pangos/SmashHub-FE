@@ -2,47 +2,50 @@ import { Card } from "@/components/ui/card";
 import { Users, Trophy, Flag, Calendar } from "lucide-react";
 import ActivityChart from "./components/ActivityChart";
 import RecentActivities from "./components/RecentActivities";
-
-const statsData = [
-  {
-    title: "Tổng người dùng",
-    value: "1,234",
-    change: "+12%",
-    icon: Users,
-    color: "text-blue-500",
-    bgColor: "bg-blue-500/10",
-  },
-  {
-    title: "Giải đấu đang diễn ra",
-    value: "7",
-    change: "+2",
-    icon: Trophy,
-    color: "text-green-500",
-    bgColor: "bg-green-500/10",
-  },
-  {
-    title: "Đoàn tham gia",
-    value: "45",
-    change: "+5",
-    icon: Flag,
-    color: "text-purple-500",
-    bgColor: "bg-purple-500/10",
-  },
-  {
-    title: "Trận đấu hôm nay",
-    value: "82",
-    change: "+15",
-    icon: Calendar,
-    color: "text-orange-500",
-    bgColor: "bg-orange-500/10",
-  },
-];
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function SystemDashboard() {
+  const { t } = useTranslation();
+
+  const statsData = [
+    {
+      title: t("admin.totalUsers"),
+      value: "1,234",
+      change: "+12%",
+      icon: Users,
+      color: "text-blue-500",
+      bgColor: "bg-blue-500/10",
+    },
+    {
+      title: t("admin.activeTournaments"),
+      value: "7",
+      change: "+2",
+      icon: Trophy,
+      color: "text-green-500",
+      bgColor: "bg-green-500/10",
+    },
+    {
+      title: t("admin.participatingDelegations"),
+      value: "45",
+      change: "+5",
+      icon: Flag,
+      color: "text-purple-500",
+      bgColor: "bg-purple-500/10",
+    },
+    {
+      title: t("admin.matchesToday"),
+      value: "82",
+      change: "+15",
+      icon: Calendar,
+      color: "text-orange-500",
+      bgColor: "bg-orange-500/10",
+    },
+  ];
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Tổng quan hệ thống</h1>
+        <h1 className="text-3xl font-bold">{t("admin.systemDashboard")}</h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

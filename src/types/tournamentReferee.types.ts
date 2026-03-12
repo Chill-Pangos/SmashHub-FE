@@ -139,6 +139,14 @@ export interface GetAvailableRefereesResponse {
 }
 
 /**
+ * Get available chief referees response
+ */
+export interface GetAvailableChiefRefereesResponse {
+  data: RefereeUser[];
+  availableCount: number;
+}
+
+/**
  * Get tournament referee by ID response
  */
 export type GetTournamentRefereeResponse = TournamentReferee;

@@ -91,7 +91,7 @@ export default function UpcomingMatches({
                     <span className="text-muted-foreground">vs</span>
                     <span>{entryBName || `Entry ${match.entryBId}`}</span>
                   </div>
-                  {schedule && (
+                  {schedule && schedule.matchTime && (
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Clock className="h-4 w-4" />

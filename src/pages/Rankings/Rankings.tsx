@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import {
   Award,
@@ -139,24 +140,25 @@ function getChangeIcon(change: string) {
 }
 
 const Rankings = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
-            PLAYER RANKINGS
+            {t("rankings.pageTitle")}
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Current standings and performance statistics for all registered
-            players
+            {t("rankings.pageDescription")}
           </p>
         </div>
 
         {/* Top 3 Players */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
-            TOP PERFORMERS
+            {t("rankings.topPerformers")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {topPlayers.map((player, index) => (
@@ -186,24 +188,30 @@ const Rankings = () => {
                     {player.name}
                   </CardTitle>
                   <CardDescription className="text-primary font-semibold text-lg">
-                    {player.points} Points
+                    {player.points} {t("rankings.points")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="text-center space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Wins:</span>
+                    <span className="text-muted-foreground">
+                      {t("rankings.wins")}:
+                    </span>
                     <span className="text-card-foreground font-medium">
                       {player.wins}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Losses:</span>
+                    <span className="text-muted-foreground">
+                      {t("rankings.losses")}:
+                    </span>
                     <span className="text-card-foreground font-medium">
                       {player.losses}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Win Rate:</span>
+                    <span className="text-muted-foreground">
+                      {t("rankings.winRate")}:
+                    </span>
                     <span className="text-card-foreground font-medium">
                       {player.winRate}%
                     </span>
@@ -218,10 +226,10 @@ const Rankings = () => {
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="text-2xl text-card-foreground">
-              FULL SEASON RANKINGS
+              {t("rankings.fullSeasonRankings")}
             </CardTitle>
             <CardDescription>
-              Complete leaderboard with detailed statistics
+              {t("rankings.leaderboardDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -230,25 +238,25 @@ const Rankings = () => {
                 <thead>
                   <tr className="border-b border-border">
                     <th className="text-left py-3 px-4 text-muted-foreground font-medium">
-                      Rank
+                      {t("rankings.rank")}
                     </th>
                     <th className="text-left py-3 px-4 text-muted-foreground font-medium">
-                      Player
+                      {t("rankings.player")}
                     </th>
                     <th className="text-center py-3 px-4 text-muted-foreground font-medium">
-                      Points
+                      {t("rankings.points")}
                     </th>
                     <th className="text-center py-3 px-4 text-muted-foreground font-medium">
-                      Wins
+                      {t("rankings.wins")}
                     </th>
                     <th className="text-center py-3 px-4 text-muted-foreground font-medium">
-                      Losses
+                      {t("rankings.losses")}
                     </th>
                     <th className="text-center py-3 px-4 text-muted-foreground font-medium">
-                      Win Rate
+                      {t("rankings.winRate")}
                     </th>
                     <th className="text-center py-3 px-4 text-muted-foreground font-medium">
-                      Trend
+                      {t("rankings.trend")}
                     </th>
                   </tr>
                 </thead>
@@ -315,7 +323,7 @@ const Rankings = () => {
           <Card className="bg-card border-border">
             <CardHeader className="text-center">
               <CardTitle className="text-lg text-card-foreground">
-                Total Players
+                {t("rankings.totalPlayers")}
               </CardTitle>
               <div className="text-3xl font-bold text-primary">156</div>
             </CardHeader>
@@ -323,7 +331,7 @@ const Rankings = () => {
           <Card className="bg-card border-border">
             <CardHeader className="text-center">
               <CardTitle className="text-lg text-card-foreground">
-                Matches Played
+                {t("rankings.matchesPlayed")}
               </CardTitle>
               <div className="text-3xl font-bold text-primary">2,847</div>
             </CardHeader>
@@ -331,7 +339,7 @@ const Rankings = () => {
           <Card className="bg-card border-border">
             <CardHeader className="text-center">
               <CardTitle className="text-lg text-card-foreground">
-                Active Tournaments
+                {t("rankings.activeTournaments")}
               </CardTitle>
               <div className="text-3xl font-bold text-primary">12</div>
             </CardHeader>

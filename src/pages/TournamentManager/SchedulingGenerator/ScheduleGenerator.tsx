@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import {
   useGenerateCompleteSchedule,
   useGenerateKnockoutOnlySchedule,
@@ -21,6 +22,7 @@ function isCompleteSchedule(
 }
 
 export default function ScheduleGenerator() {
+  const { t } = useTranslation();
   const [contentId, setContentId] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
@@ -40,12 +42,14 @@ export default function ScheduleGenerator() {
 
   const handleGenerateComplete = () => {
     if (!contentId || isNaN(Number(contentId))) {
-      showToast.error("Vui lòng nhập Content ID hợp lệ");
+      showToast.error(
+        t("tournamentManager.scheduleGenerator.invalidContentId"),
+      );
       return;
     }
 
     if (!startDate || !endDate) {
-      showToast.error("Vui lòng nhập đầy đủ ngày bắt đầu và ngày kết thúc");
+      showToast.error(t("tournamentManager.scheduleGenerator.enterDates"));
       return;
     }
 
@@ -59,11 +63,17 @@ export default function ScheduleGenerator() {
           if (response.success) {
             setResult(response.data);
             showToast.success(
-              "Tạo lịch thi đấu hoàn chỉnh thành công!",
-              `Đã tạo ${response.data.groupStage.totalMatches + response.data.knockoutStage.totalMatches} trận đấu`,
+              t("tournamentManager.scheduleGenerator.completeScheduleSuccess"),
+              t("tournamentManager.scheduleGenerator.matchesCreated", {
+                count:
+                  response.data.groupStage.totalMatches +
+                  response.data.knockoutStage.totalMatches,
+              }),
             );
           } else if (response.error) {
-            throw new Error(response.error.message || "Có lỗi xảy ra");
+            throw new Error(
+              response.error.message || t("message.operationFailed"),
+            );
           }
           setGenerationType(null);
         },
@@ -73,8 +83,10 @@ export default function ScheduleGenerator() {
             message?: string;
           };
           showToast.error(
-            "Không thể tạo lịch",
-            err.response?.data?.message || err.message || "Vui lòng thử lại",
+            t("tournamentManager.scheduleGenerator.cannotCreateSchedule"),
+            err.response?.data?.message ||
+              err.message ||
+              t("message.pleaseTryAgain"),
           );
           setResult(null);
           setGenerationType(null);
@@ -85,12 +97,14 @@ export default function ScheduleGenerator() {
 
   const handleGenerateKnockoutOnly = () => {
     if (!contentId || isNaN(Number(contentId))) {
-      showToast.error("Vui lòng nhập Content ID hợp lệ");
+      showToast.error(
+        t("tournamentManager.scheduleGenerator.invalidContentId"),
+      );
       return;
     }
 
     if (!startDate || !endDate) {
-      showToast.error("Vui lòng nhập đầy đủ ngày bắt đầu và ngày kết thúc");
+      showToast.error(t("tournamentManager.scheduleGenerator.enterDates"));
       return;
     }
 
@@ -104,11 +118,15 @@ export default function ScheduleGenerator() {
           if (response.success) {
             setResult(response.data);
             showToast.success(
-              "Tạo lịch knockout thành công!",
-              `Đã tạo ${response.data.totalMatches} trận đấu`,
+              t("tournamentManager.scheduleGenerator.knockoutScheduleSuccess"),
+              t("tournamentManager.scheduleGenerator.matchesCreated", {
+                count: response.data.totalMatches,
+              }),
             );
           } else if (response.error) {
-            throw new Error(response.error.message || "Có lỗi xảy ra");
+            throw new Error(
+              response.error.message || t("message.operationFailed"),
+            );
           }
           setGenerationType(null);
         },
@@ -118,8 +136,10 @@ export default function ScheduleGenerator() {
             message?: string;
           };
           showToast.error(
-            "Không thể tạo lịch",
-            err.response?.data?.message || err.message || "Vui lòng thử lại",
+            t("tournamentManager.scheduleGenerator.cannotCreateSchedule"),
+            err.response?.data?.message ||
+              err.message ||
+              t("message.pleaseTryAgain"),
           );
           setResult(null);
           setGenerationType(null);
@@ -139,9 +159,11 @@ export default function ScheduleGenerator() {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Tạo lịch thi đấu tự động</h1>
+          <h1 className="text-3xl font-bold">
+            {t("tournamentManager.scheduleGenerator.title")}
+          </h1>
           <p className="text-muted-foreground mt-1">
-            Hệ thống sẽ tự động tạo lịch thi đấu cho toàn bộ giải đấu
+            {t("tournamentManager.scheduleGenerator.description")}
           </p>
         </div>
       </div>

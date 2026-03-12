@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Lock, Mail, Trophy, User, Loader2, UserCog } from "lucide-react";
-import { useAuthOperations } from "@/hooks";
+import { useAuthOperations, useTranslation } from "@/hooks";
 import { useRole } from "@/store";
 import {
   validateRegisterForm,
@@ -32,6 +32,7 @@ import {
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { register, loading, error: authError } = useAuthOperations();
   const { isLoading: rolesLoading, getRegistrationRoles } = useRole();
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -107,7 +108,7 @@ const SignUp = () => {
     // Check terms agreement
     if (!agreedToTerms) {
       showToast.error(
-        "Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật"
+        "Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật",
       );
       return;
     }
@@ -138,7 +139,7 @@ const SignUp = () => {
       // Show success message
       showToast.success(
         "Đăng ký thành công",
-        `Chào mừng bạn đến với SmashHub, ${result.data.user.username}!`
+        `Chào mừng bạn đến với SmashHub, ${result.data.user.username}!`,
       );
 
       // Redirect to home page
@@ -147,7 +148,7 @@ const SignUp = () => {
       // Error is already set in authError state
       showToast.error(
         "Đăng ký thất bại",
-        result.error || authError || undefined
+        result.error || authError || undefined,
       );
     }
   };
@@ -160,34 +161,32 @@ const SignUp = () => {
             <Trophy className="h-12 w-12 text-primary" />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Tham gia SmashHub
+            {t("auth.signUp")}
           </h1>
-          <p className="text-muted-foreground">
-            Tạo tài khoản và bắt đầu hành trình của bạn
-          </p>
+          <p className="text-muted-foreground">{t("auth.registerNow")}</p>
         </div>
 
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="text-2xl text-center text-card-foreground">
-              Đăng ký
+              {t("auth.signUp")}
             </CardTitle>
             <CardDescription className="text-center">
-              Điền thông tin để tạo tài khoản của bạn
+              {t("placeholder.enterName")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-card-foreground">
-                  Tên đăng nhập
+                  {t("auth.fullName")}
                 </Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="username"
                     type="text"
-                    placeholder="Nhập tên đăng nhập"
+                    placeholder={t("placeholder.enterName")}
                     className="pl-10 bg-input border-border text-foreground"
                     value={formData.username}
                     onChange={handleChange}
@@ -202,14 +201,14 @@ const SignUp = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-card-foreground">
-                  Email
+                  {t("auth.email")}
                 </Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="email"
                     type="email"
-                    placeholder="Nhập email của bạn"
+                    placeholder={t("placeholder.enterEmail")}
                     className="pl-10 bg-input border-border text-foreground"
                     value={formData.email}
                     onChange={handleChange}
@@ -224,14 +223,14 @@ const SignUp = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-card-foreground">
-                  Mật khẩu
+                  {t("auth.password")}
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Tạo mật khẩu"
+                    placeholder={t("auth.enterNewPassword")}
                     className="pl-10 bg-input border-border text-foreground"
                     value={formData.password}
                     onChange={handleChange}
@@ -242,7 +241,7 @@ const SignUp = () => {
                 {passwordStrength && (
                   <p
                     className={`text-sm ${getPasswordStrengthColor(
-                      passwordStrength
+                      passwordStrength,
                     )}`}
                   >
                     Độ mạnh mật khẩu:{" "}
@@ -259,14 +258,14 @@ const SignUp = () => {
                   htmlFor="confirmPassword"
                   className="text-card-foreground"
                 >
-                  Xác nhận mật khẩu
+                  {t("auth.confirmPassword")}
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="confirmPassword"
                     type="password"
-                    placeholder="Xác nhận mật khẩu"
+                    placeholder={t("auth.confirmPassword")}
                     className="pl-10 bg-input border-border text-foreground"
                     value={formData.confirmPassword}
                     onChange={handleChange}
@@ -310,7 +309,9 @@ const SignUp = () => {
                   <SelectTrigger className="w-full bg-input border-border text-foreground">
                     <div className="flex items-center gap-2">
                       <UserCog className="h-4 w-4 text-muted-foreground" />
-                      <SelectValue placeholder="Chọn loại tài khoản của bạn" />
+                      <SelectValue
+                        placeholder={t("placeholder.selectOption")}
+                      />
                     </div>
                   </SelectTrigger>
                   <SelectContent>
@@ -318,7 +319,7 @@ const SignUp = () => {
                       <div className="flex items-center justify-center py-4">
                         <Loader2 className="h-4 w-4 animate-spin text-primary" />
                         <span className="ml-2 text-sm text-muted-foreground">
-                          Đang tải...
+                          {t("common.loading")}
                         </span>
                       </div>
                     ) : registrationRoles.length > 0 ? (
@@ -338,7 +339,7 @@ const SignUp = () => {
                       ))
                     ) : (
                       <div className="py-4 text-center text-sm text-muted-foreground">
-                        Không có vai trò khả dụng
+                        {t("message.noResultsFound")}
                       </div>
                     )}
                   </SelectContent>
@@ -391,22 +392,22 @@ const SignUp = () => {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Đang tạo tài khoản...
+                    {t("common.loading")}
                   </>
                 ) : (
-                  "Tạo tài khoản"
+                  t("auth.signUp")
                 )}
               </Button>
             </form>
 
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
-                Đã có tài khoản?{" "}
+                {t("auth.alreadyHaveAccount")}{" "}
                 <NavLink
                   to="/signin"
                   className="text-primary hover:text-primary/80 font-medium transition-colors"
                 >
-                  Đăng nhập
+                  {t("auth.signIn")}
                 </NavLink>
               </p>
             </div>

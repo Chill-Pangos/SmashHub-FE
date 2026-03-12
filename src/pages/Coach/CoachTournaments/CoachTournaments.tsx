@@ -1,10 +1,17 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Trophy, Calendar, MapPin } from "lucide-react";
 import { useTournaments } from "@/hooks/queries";
+import type { Tournament } from "@/types";
+import TournamentDetailViewer from "@/components/custom/TournamentDetailViewer";
 
 export default function CoachTournaments() {
+  const { t } = useTranslation();
   const { data: tournaments = [], isLoading } = useTournaments(0, 50);
+  const [selectedTournament, setSelectedTournament] =
+    useState<Tournament | null>(null);
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "outline"> = {
@@ -13,9 +20,9 @@ export default function CoachTournaments() {
       completed: "secondary",
     };
     const labels: Record<string, string> = {
-      upcoming: "Sắp diễn ra",
-      ongoing: "Đang diễn ra",
-      completed: "Đã kết thúc",
+      upcoming: t("tournament.upcoming"),
+      ongoing: t("tournament.ongoing"),
+      completed: t("tournament.completed"),
     };
 
     return (
@@ -30,8 +37,20 @@ export default function CoachTournaments() {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
+      </div>
+    );
+  }
+
+  // Show tournament detail view if selected
+  if (selectedTournament) {
+    return (
+      <div className="p-6">
+        <TournamentDetailViewer
+          tournament={selectedTournament}
+          onBack={() => setSelectedTournament(null)}
+        />
       </div>
     );
   }
@@ -40,9 +59,9 @@ export default function CoachTournaments() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Giải đấu</h1>
+        <h1 className="text-3xl font-bold">{t("tournament.tournaments")}</h1>
         <p className="text-muted-foreground mt-1">
-          Theo dõi các giải đấu của vận động viên
+          {t("tournament.viewTournamentInfo")}
         </p>
       </div>
 
@@ -51,7 +70,9 @@ export default function CoachTournaments() {
         <Card>
           <CardContent className="py-12 text-center">
             <Trophy className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">Không có giải đấu nào</h3>
+            <h3 className="text-lg font-medium mb-2">
+              {t("tournament.noTournamentFound")}
+            </h3>
           </CardContent>
         </Card>
       ) : (
@@ -59,7 +80,8 @@ export default function CoachTournaments() {
           {tournaments.map((tournament) => (
             <Card
               key={tournament.id}
-              className="hover:shadow-md transition-shadow"
+              className="hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => setSelectedTournament(tournament)}
             >
               <CardHeader>
                 <div className="flex justify-between items-start">

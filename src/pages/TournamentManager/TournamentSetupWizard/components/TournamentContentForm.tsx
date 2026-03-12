@@ -17,6 +17,7 @@ import type {
 } from "@/utils/validation.utils";
 import { validateTournamentContentForm } from "@/utils/validation.utils";
 import type { TournamentContentType, Gender } from "@/types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface TournamentContentFormProps {
   onSave: (content: TournamentContentFormData) => void;
@@ -32,6 +33,7 @@ export default function TournamentContentForm({
   onCancel,
   initialData,
 }: TournamentContentFormProps) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<TournamentContentFormData>(
     initialData || {
       name: "",
@@ -47,14 +49,14 @@ export default function TournamentContentForm({
       maxElo: null,
       gender: null,
       isGroupStage: false,
-    }
+    },
   );
 
   const [errors, setErrors] = useState<ValidationErrors>({});
 
   const handleChange = (
     field: keyof TournamentContentFormData,
-    value: string | number | boolean | null
+    value: string | number | boolean | null,
   ) => {
     setFormData({ ...formData, [field]: value });
     // Clear error for this field
@@ -77,14 +79,18 @@ export default function TournamentContentForm({
   return (
     <Card className="p-6">
       <h3 className="text-lg font-semibold mb-4">
-        {initialData ? "Chỉnh sửa nội dung thi đấu" : "Thêm nội dung thi đấu"}
+        {initialData
+          ? t("tournamentManager.setupWizardPage.editContent")
+          : t("tournamentManager.setupWizardPage.addNewContent")}
       </h3>
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label>Tên nội dung *</Label>
+          <Label>{t("tournamentManager.setupWizardPage.contentName")} *</Label>
           <Input
-            placeholder="VD: Nam đơn, Nữ đôi, Đồng đội nam"
+            placeholder={t(
+              "tournamentManager.setupWizardPage.contentNamePlaceholder",
+            )}
             value={formData.name}
             onChange={(e) => handleChange("name", e.target.value)}
             className={errors.name ? "border-red-500" : ""}
@@ -94,7 +100,9 @@ export default function TournamentContentForm({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Loại hình thi đấu *</Label>
+            <Label>
+              {t("tournamentManager.setupWizardPage.contentType")} *
+            </Label>
             <Select
               value={formData.type}
               onValueChange={(value) =>
@@ -105,28 +113,45 @@ export default function TournamentContentForm({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="single">Đơn (Single)</SelectItem>
-                <SelectItem value="double">Đôi (Double)</SelectItem>
-                <SelectItem value="team">Đồng đội (Team)</SelectItem>
+                <SelectItem value="single">
+                  {t("tournamentManager.setupWizardPage.single")} (Single)
+                </SelectItem>
+                <SelectItem value="double">
+                  {t("tournamentManager.setupWizardPage.double")} (Double)
+                </SelectItem>
+                <SelectItem value="team">
+                  {t("tournamentManager.setupWizardPage.team")} (Team)
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label>Giới tính</Label>
+            <Label>{t("tournamentManager.setupWizardPage.gender")}</Label>
             <Select
               value={formData.gender || "mixed"}
               onValueChange={(value) =>
-                handleChange("gender", value === "mixed" ? null : (value as Gender))
+                handleChange(
+                  "gender",
+                  value === "mixed" ? null : (value as Gender),
+                )
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Tất cả" />
+                <SelectValue
+                  placeholder={t("tournamentManager.setupWizardPage.all")}
+                />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="male">Nam</SelectItem>
-                <SelectItem value="female">Nữ</SelectItem>
-                <SelectItem value="mixed">Tất cả</SelectItem>
+                <SelectItem value="male">
+                  {t("tournamentManager.setupWizardPage.male")}
+                </SelectItem>
+                <SelectItem value="female">
+                  {t("tournamentManager.setupWizardPage.female")}
+                </SelectItem>
+                <SelectItem value="mixed">
+                  {t("tournamentManager.setupWizardPage.all")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -134,7 +159,7 @@ export default function TournamentContentForm({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Số lượng tối đa *</Label>
+            <Label>{t("tournamentManager.setupWizardPage.maxEntries")} *</Label>
             <Select
               value={formData.maxEntries.toString()}
               onValueChange={(value) =>
@@ -147,7 +172,10 @@ export default function TournamentContentForm({
               <SelectContent>
                 {MAX_ENTRIES_OPTIONS.map((num) => (
                   <SelectItem key={num} value={num.toString()}>
-                    {num} {formData.type === "team" ? "đội" : "người/cặp"}
+                    {num}{" "}
+                    {formData.type === "team"
+                      ? t("tournamentManager.setupWizardPage.teamOrPair")
+                      : t("tournamentManager.setupWizardPage.personOrPair")}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -158,7 +186,7 @@ export default function TournamentContentForm({
           </div>
 
           <div className="space-y-2">
-            <Label>Số set tối đa *</Label>
+            <Label>{t("tournamentManager.setupWizardPage.maxSets")} *</Label>
             <Select
               value={formData.maxSets.toString()}
               onValueChange={(value) =>
@@ -171,7 +199,7 @@ export default function TournamentContentForm({
               <SelectContent>
                 {MAX_SETS_OPTIONS.map((num) => (
                   <SelectItem key={num} value={num.toString()}>
-                    {num} set
+                    {num} {t("tournamentManager.setupWizardPage.set")}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -186,7 +214,9 @@ export default function TournamentContentForm({
         {formData.type === "team" && (
           <div className="grid grid-cols-2 gap-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
             <div className="space-y-2">
-              <Label>Số trận đơn *</Label>
+              <Label>
+                {t("tournamentManager.setupWizardPage.numberOfSingles")} *
+              </Label>
               <Input
                 type="number"
                 min="0"
@@ -194,7 +224,7 @@ export default function TournamentContentForm({
                 onChange={(e) =>
                   handleChange(
                     "numberOfSingles",
-                    e.target.value ? parseInt(e.target.value) : null
+                    e.target.value ? parseInt(e.target.value) : null,
                   )
                 }
                 className={errors.numberOfSingles ? "border-red-500" : ""}
@@ -205,7 +235,9 @@ export default function TournamentContentForm({
             </div>
 
             <div className="space-y-2">
-              <Label>Số trận đôi *</Label>
+              <Label>
+                {t("tournamentManager.setupWizardPage.numberOfDoubles")} *
+              </Label>
               <Input
                 type="number"
                 min="0"
@@ -213,7 +245,7 @@ export default function TournamentContentForm({
                 onChange={(e) =>
                   handleChange(
                     "numberOfDoubles",
-                    e.target.value ? parseInt(e.target.value) : null
+                    e.target.value ? parseInt(e.target.value) : null,
                   )
                 }
                 className={errors.numberOfDoubles ? "border-red-500" : ""}
@@ -233,17 +265,19 @@ export default function TournamentContentForm({
         {/* Age restrictions */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Tuổi tối thiểu</Label>
+            <Label>{t("tournamentManager.setupWizardPage.minAge")}</Label>
             <Input
               type="number"
               min="5"
               max="100"
-              placeholder="VD: 18"
+              placeholder={t(
+                "tournamentManager.setupWizardPage.minAgePlaceholder",
+              )}
               value={formData.minAge ?? ""}
               onChange={(e) =>
                 handleChange(
                   "minAge",
-                  e.target.value ? parseInt(e.target.value) : null
+                  e.target.value ? parseInt(e.target.value) : null,
                 )
               }
               className={errors.minAge ? "border-red-500" : ""}
@@ -254,17 +288,19 @@ export default function TournamentContentForm({
           </div>
 
           <div className="space-y-2">
-            <Label>Tuổi tối đa</Label>
+            <Label>{t("tournamentManager.setupWizardPage.maxAge")}</Label>
             <Input
               type="number"
               min="5"
               max="100"
-              placeholder="VD: 35"
+              placeholder={t(
+                "tournamentManager.setupWizardPage.maxAgePlaceholder",
+              )}
               value={formData.maxAge ?? ""}
               onChange={(e) =>
                 handleChange(
                   "maxAge",
-                  e.target.value ? parseInt(e.target.value) : null
+                  e.target.value ? parseInt(e.target.value) : null,
                 )
               }
               className={errors.maxAge ? "border-red-500" : ""}
@@ -278,17 +314,19 @@ export default function TournamentContentForm({
         {/* ELO restrictions */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>ELO tối thiểu</Label>
+            <Label>{t("tournamentManager.setupWizardPage.minElo")}</Label>
             <Input
               type="number"
               min="0"
               max="3000"
-              placeholder="VD: 1200"
+              placeholder={t(
+                "tournamentManager.setupWizardPage.minEloPlaceholder",
+              )}
               value={formData.minElo ?? ""}
               onChange={(e) =>
                 handleChange(
                   "minElo",
-                  e.target.value ? parseInt(e.target.value) : null
+                  e.target.value ? parseInt(e.target.value) : null,
                 )
               }
               className={errors.minElo ? "border-red-500" : ""}
@@ -299,17 +337,19 @@ export default function TournamentContentForm({
           </div>
 
           <div className="space-y-2">
-            <Label>ELO tối đa</Label>
+            <Label>{t("tournamentManager.setupWizardPage.maxElo")}</Label>
             <Input
               type="number"
               min="0"
               max="3000"
-              placeholder="VD: 2000"
+              placeholder={t(
+                "tournamentManager.setupWizardPage.maxEloPlaceholder",
+              )}
               value={formData.maxElo ?? ""}
               onChange={(e) =>
                 handleChange(
                   "maxElo",
-                  e.target.value ? parseInt(e.target.value) : null
+                  e.target.value ? parseInt(e.target.value) : null,
                 )
               }
               className={errors.maxElo ? "border-red-500" : ""}
@@ -330,7 +370,7 @@ export default function TournamentContentForm({
             }
           />
           <Label htmlFor="racketCheck" className="cursor-pointer">
-            Kiểm tra vợt
+            {t("tournamentManager.setupWizardPage.racketCheck")}
           </Label>
         </div>
 
@@ -343,16 +383,16 @@ export default function TournamentContentForm({
             }
           />
           <Label htmlFor="isGroupStage" className="cursor-pointer">
-            Có vòng bảng
+            {t("tournamentManager.setupWizardPage.hasGroupStage")}
           </Label>
         </div>
 
         <div className="flex justify-end gap-2 pt-4">
           <Button variant="outline" onClick={onCancel}>
-            Hủy
+            {t("common.cancel")}
           </Button>
           <Button onClick={handleSubmit}>
-            {initialData ? "Cập nhật" : "Thêm"}
+            {initialData ? t("common.update") : t("common.add")}
           </Button>
         </div>
       </div>

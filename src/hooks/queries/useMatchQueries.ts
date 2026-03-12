@@ -275,3 +275,35 @@ export const useRejectMatch = () => {
     },
   });
 };
+
+/**
+ * Hook để lấy upcoming matches của athlete
+ */
+export const useAthleteUpcomingMatches = (
+  userId: number,
+  skip = 0,
+  limit = 10,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: [...queryKeys.matches.all, "athlete", userId, "upcoming", { skip, limit }],
+    queryFn: () => matchService.getAthleteUpcomingMatches(userId, skip, limit),
+    enabled: (options?.enabled ?? true) && userId > 0,
+  });
+};
+
+/**
+ * Hook để lấy match history của athlete
+ */
+export const useAthleteMatchHistory = (
+  userId: number,
+  skip = 0,
+  limit = 10,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: [...queryKeys.matches.all, "athlete", userId, "history", { skip, limit }],
+    queryFn: () => matchService.getAthleteMatchHistory(userId, skip, limit),
+    enabled: (options?.enabled ?? true) && userId > 0,
+  });
+};

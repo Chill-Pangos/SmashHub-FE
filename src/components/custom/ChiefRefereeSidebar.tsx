@@ -5,8 +5,10 @@ import { Monitor, Shield, Settings, LogOut, Menu } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
+import LanguageSwitcher from "./LanguageSwitcher";
 import NotificationDropdown from "./NotificationDropdown";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ChiefRefereeSidebarProps {
   activeTab: string;
@@ -17,6 +19,7 @@ export default function ChiefRefereeSidebar({
   activeTab,
   setActiveTab,
 }: ChiefRefereeSidebarProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(true);
   const navigate = useNavigate();
   const { logout } = useAuthOperations();
@@ -27,12 +30,11 @@ export default function ChiefRefereeSidebar({
   };
 
   const menuItems = [
-    // COMMENTED OUT: These features use mock data, no API available
-    // { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
-    // { id: "complaint-board", label: "Theo dõi khiếu nại", icon: AlertCircle },
-    // { id: "dispute-resolution", label: "Xử lý chi tiết", icon: FileCheck },
-    { id: "match-supervision", label: "Giám sát trận đấu", icon: Monitor },
-    // { id: "decision-log", label: "Nhật ký quyết định", icon: ScrollText },
+    {
+      id: "match-supervision",
+      label: t("chiefReferee.matchSupervision"),
+      icon: Monitor,
+    },
   ];
 
   return (
@@ -49,7 +51,7 @@ export default function ChiefRefereeSidebar({
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 rounded-lg hover:bg-accent transition-colors flex-shrink-0"
-              title={isOpen ? "Thu gọn" : "Mở rộng"}
+              title={isOpen ? t("common.close") : t("common.open")}
             >
               <Menu size={20} />
             </button>
@@ -61,14 +63,15 @@ export default function ChiefRefereeSidebar({
                 </div>
                 <div className="flex-1 min-w-0">
                   <h1 className="font-bold text-lg text-card-foreground truncate">
-                    Tổng TT
+                    {t("chiefReferee.chiefReferee")}
                   </h1>
                   <p className="text-xs text-muted-foreground truncate">
-                    Tổng trọng tài
+                    {t("chiefReferee.matchSupervision")}
                   </p>
                 </div>
                 <div className="flex-shrink-0 flex items-center gap-1">
                   <NotificationDropdown />
+                  <LanguageSwitcher />
                   <ThemeToggle />
                 </div>
               </>
@@ -103,20 +106,20 @@ export default function ChiefRefereeSidebar({
             className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-card-foreground hover:bg-accent transition-colors ${
               !isOpen && "justify-center"
             }`}
-            title={!isOpen ? "Cài đặt" : undefined}
+            title={!isOpen ? t("nav.settings") : undefined}
           >
             <Settings size={20} className="flex-shrink-0" />
-            {isOpen && <span>Cài đặt</span>}
+            {isOpen && <span>{t("nav.settings")}</span>}
           </button>
           <button
             onClick={handleLogout}
             className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors ${
               !isOpen && "justify-center"
             }`}
-            title={!isOpen ? "Đăng xuất" : undefined}
+            title={!isOpen ? t("auth.signOut") : undefined}
           >
             <LogOut size={20} className="flex-shrink-0" />
-            {isOpen && <span>Đăng xuất</span>}
+            {isOpen && <span>{t("auth.signOut")}</span>}
           </button>
         </div>
       </aside>

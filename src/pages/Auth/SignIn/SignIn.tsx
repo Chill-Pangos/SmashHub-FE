@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
 import { Lock, Mail, Trophy, Loader2 } from "lucide-react";
-import { useAuthOperations } from "@/hooks";
+import { useAuthOperations, useTranslation } from "@/hooks";
 import {
   validateLoginForm,
   hasValidationErrors,
@@ -22,6 +22,7 @@ import {
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { login, loading, error: authError } = useAuthOperations();
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
@@ -59,8 +60,8 @@ const SignIn = () => {
     if (result.success && result.data) {
       // Show success message
       showToast.success(
-        "Đăng nhập thành công",
-        `Chào mừng trở lại, ${result.data.user.username}!`
+        t("auth.loginSuccess"),
+        `${t("message.welcomeBack") || "Chào mừng trở lại"}, ${result.data.user.username}!`,
       );
 
       // Redirect to home page
@@ -68,8 +69,8 @@ const SignIn = () => {
     } else {
       // Error is already set in authError state
       showToast.error(
-        "Đăng nhập thất bại",
-        result.error || authError || undefined
+        t("message.operationFailed"),
+        result.error || authError || undefined,
       );
     }
   };
@@ -82,34 +83,32 @@ const SignIn = () => {
             <Trophy className="h-12 w-12 text-primary" />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Chào mừng trở lại
+            {t("auth.signIn")}
           </h1>
-          <p className="text-muted-foreground">
-            Đăng nhập vào tài khoản SmashHub của bạn
-          </p>
+          <p className="text-muted-foreground">{t("auth.enterEmail")}</p>
         </div>
 
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="text-2xl text-center text-card-foreground">
-              Đăng nhập
+              {t("auth.signIn")}
             </CardTitle>
             <CardDescription className="text-center">
-              Nhập thông tin đăng nhập để tiếp tục
+              {t("placeholder.enterEmail")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-card-foreground">
-                  Email
+                  {t("auth.email")}
                 </Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="email"
                     type="email"
-                    placeholder="Nhập email của bạn"
+                    placeholder={t("placeholder.enterEmail")}
                     className="pl-10 bg-input border-border text-foreground"
                     value={formData.email}
                     onChange={handleChange}
@@ -124,14 +123,14 @@ const SignIn = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-card-foreground">
-                  Mật khẩu
+                  {t("auth.password")}
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Nhập mật khẩu của bạn"
+                    placeholder={t("auth.enterPassword")}
                     className="pl-10 bg-input border-border text-foreground"
                     value={formData.password}
                     onChange={handleChange}
@@ -158,14 +157,14 @@ const SignIn = () => {
                     htmlFor="remember"
                     className="text-sm text-muted-foreground"
                   >
-                    Ghi nhớ đăng nhập
+                    {t("auth.rememberMe")}
                   </Label>
                 </div>
                 <NavLink
                   to="/forgot-password"
                   className="text-sm text-primary hover:text-primary/80 transition-colors"
                 >
-                  Quên mật khẩu?
+                  {t("auth.forgotPassword")}?
                 </NavLink>
               </div>
 
@@ -178,22 +177,22 @@ const SignIn = () => {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Đang đăng nhập...
+                    {t("common.loading")}
                   </>
                 ) : (
-                  "Đăng nhập"
+                  t("auth.signIn")
                 )}
               </Button>
             </form>
 
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
-                Chưa có tài khoản?{" "}
+                {t("auth.dontHaveAccount")}{" "}
                 <NavLink
                   to="/signup"
                   className="text-primary hover:text-primary/80 font-medium transition-colors"
                 >
-                  Đăng ký ngay
+                  {t("auth.registerNow")}
                 </NavLink>
               </p>
             </div>

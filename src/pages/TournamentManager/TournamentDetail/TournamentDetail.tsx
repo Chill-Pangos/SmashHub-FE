@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useTournament, useDeleteTournament } from "@/hooks/queries";
 import { showToast } from "@/utils/toast.utils";
+import { useTranslation } from "@/hooks/useTranslation";
 import type { Tournament, TournamentContent } from "@/types";
 
 interface TournamentDetailProps {
@@ -29,6 +30,7 @@ export default function TournamentDetail({
   onEdit,
   onDelete,
 }: TournamentDetailProps) {
+  const { t } = useTranslation();
   // React Query hooks
   const { data: tournament, isLoading, error } = useTournament(tournamentId);
 
@@ -38,27 +40,35 @@ export default function TournamentDetail({
   useEffect(() => {
     if (error) {
       showToast.error(
-        "Không thể tải thông tin giải đấu",
-        error instanceof Error ? error.message : "Vui lòng thử lại",
+        t("tournamentManager.tournamentDetail.cannotLoadTournament"),
+        error instanceof Error
+          ? error.message
+          : t("tournamentManager.tournamentDetail.pleaseTryAgain"),
       );
     }
-  }, [error]);
+  }, [error, t]);
 
   const handleDelete = () => {
-    if (!confirm("Bạn có chắc chắn muốn xóa giải đấu này?")) {
+    if (
+      !confirm(t("tournamentManager.tournamentDetail.confirmDeleteTournament"))
+    ) {
       return;
     }
 
     deleteMutation.mutate(tournamentId, {
       onSuccess: () => {
-        showToast.success("Đã xóa giải đấu");
+        showToast.success(
+          t("tournamentManager.tournamentDetail.deletedTournament"),
+        );
         onDelete?.(tournamentId);
       },
       onError: (error) => {
         console.error("Error deleting tournament:", error);
         showToast.error(
-          "Không thể xóa giải đấu",
-          error instanceof Error ? error.message : "Vui lòng thử lại",
+          t("tournamentManager.tournamentDetail.cannotDeleteTournament"),
+          error instanceof Error
+            ? error.message
+            : t("tournamentManager.tournamentDetail.pleaseTryAgain"),
         );
       },
     });
@@ -78,22 +88,46 @@ export default function TournamentDetail({
   const getStatusBadge = (status: Tournament["status"]) => {
     switch (status) {
       case "ongoing":
-        return <Badge className="bg-green-500 text-white">Đang diễn ra</Badge>;
+        return (
+          <Badge className="bg-green-500 text-white">
+            {t("tournamentManager.tournamentDetail.ongoing")}
+          </Badge>
+        );
       case "upcoming":
-        return <Badge className="bg-blue-500 text-white">Sắp diễn ra</Badge>;
+        return (
+          <Badge className="bg-blue-500 text-white">
+            {t("tournamentManager.tournamentDetail.upcoming")}
+          </Badge>
+        );
       case "completed":
-        return <Badge variant="secondary">Đã kết thúc</Badge>;
+        return (
+          <Badge variant="secondary">
+            {t("tournamentManager.tournamentDetail.completed")}
+          </Badge>
+        );
     }
   };
 
   const getTypeBadge = (type: TournamentContent["type"]) => {
     switch (type) {
       case "single":
-        return <Badge variant="outline">Đơn</Badge>;
+        return (
+          <Badge variant="outline">
+            {t("tournamentManager.tournamentDetail.single")}
+          </Badge>
+        );
       case "double":
-        return <Badge variant="outline">Đôi</Badge>;
+        return (
+          <Badge variant="outline">
+            {t("tournamentManager.tournamentDetail.double")}
+          </Badge>
+        );
       case "team":
-        return <Badge variant="outline">Đồng đội</Badge>;
+        return (
+          <Badge variant="outline">
+            {t("tournamentManager.tournamentDetail.team")}
+          </Badge>
+        );
     }
   };
 
@@ -101,11 +135,23 @@ export default function TournamentDetail({
     if (!gender) return null;
     switch (gender) {
       case "male":
-        return <Badge className="bg-blue-500 text-white">Nam</Badge>;
+        return (
+          <Badge className="bg-blue-500 text-white">
+            {t("tournamentManager.tournamentDetail.male")}
+          </Badge>
+        );
       case "female":
-        return <Badge className="bg-pink-500 text-white">Nữ</Badge>;
+        return (
+          <Badge className="bg-pink-500 text-white">
+            {t("tournamentManager.tournamentDetail.female")}
+          </Badge>
+        );
       case "mixed":
-        return <Badge className="bg-purple-500 text-white">Hỗn hợp</Badge>;
+        return (
+          <Badge className="bg-purple-500 text-white">
+            {t("tournamentManager.tournamentDetail.mixed")}
+          </Badge>
+        );
     }
   };
 
@@ -123,7 +169,7 @@ export default function TournamentDetail({
     return (
       <Card className="p-12">
         <div className="text-center text-muted-foreground">
-          Không tìm thấy giải đấu
+          {t("tournamentManager.tournamentDetail.tournamentNotFound")}
         </div>
       </Card>
     );
@@ -135,16 +181,16 @@ export default function TournamentDetail({
       <div className="flex items-center justify-between">
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Quay lại
+          {t("tournamentManager.tournamentDetail.goBack")}
         </Button>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => onEdit?.(tournamentId)}>
             <Edit className="mr-2 h-4 w-4" />
-            Chỉnh sửa
+            {t("tournamentManager.tournamentDetail.edit")}
           </Button>
           <Button variant="destructive" onClick={handleDelete}>
             <Trash2 className="mr-2 h-4 w-4" />
-            Xóa
+            {t("tournamentManager.tournamentDetail.delete")}
           </Button>
         </div>
       </div>
@@ -167,17 +213,22 @@ export default function TournamentDetail({
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold text-sm text-muted-foreground mb-2">
-                Thời gian
+                {t("tournamentManager.tournamentDetail.time")}
               </h3>
               <div className="flex items-start gap-2">
                 <Calendar className="h-4 w-4 mt-1 text-muted-foreground" />
                 <div>
                   <p className="text-sm">
-                    <strong>Bắt đầu:</strong> {formatDate(tournament.startDate)}
+                    <strong>
+                      {t("tournamentManager.tournamentDetail.start")}:
+                    </strong>{" "}
+                    {formatDate(tournament.startDate)}
                   </p>
                   {tournament.endDate && (
                     <p className="text-sm mt-1">
-                      <strong>Kết thúc:</strong>{" "}
+                      <strong>
+                        {t("tournamentManager.tournamentDetail.end")}:
+                      </strong>{" "}
                       {formatDate(tournament.endDate)}
                     </p>
                   )}
@@ -187,7 +238,7 @@ export default function TournamentDetail({
 
             <div>
               <h3 className="font-semibold text-sm text-muted-foreground mb-2">
-                Địa điểm
+                {t("tournamentManager.tournamentDetail.location")}
               </h3>
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -199,21 +250,29 @@ export default function TournamentDetail({
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold text-sm text-muted-foreground mb-2">
-                Thông tin khác
+                {t("tournamentManager.tournamentDetail.otherInfo")}
               </h3>
               <div className="space-y-2 text-sm">
                 <p>
-                  <strong>ID:</strong> {tournament.id}
+                  <strong>{t("tournamentManager.tournamentDetail.id")}:</strong>{" "}
+                  {tournament.id}
                 </p>
                 <p>
-                  <strong>Người tạo:</strong> {tournament.createdBy}
+                  <strong>
+                    {t("tournamentManager.tournamentDetail.createdBy")}:
+                  </strong>{" "}
+                  {tournament.createdBy}
                 </p>
                 <p>
-                  <strong>Ngày tạo:</strong>{" "}
+                  <strong>
+                    {t("tournamentManager.tournamentDetail.createdDate")}:
+                  </strong>{" "}
                   {new Date(tournament.createdAt).toLocaleDateString("vi-VN")}
                 </p>
                 <p>
-                  <strong>Cập nhật lần cuối:</strong>{" "}
+                  <strong>
+                    {t("tournamentManager.tournamentDetail.lastUpdated")}:
+                  </strong>{" "}
                   {new Date(tournament.updatedAt).toLocaleDateString("vi-VN")}
                 </p>
               </div>
@@ -227,16 +286,17 @@ export default function TournamentDetail({
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold flex items-center gap-2">
             <Users className="h-6 w-6" />
-            Nội dung thi đấu
+            {t("tournamentManager.tournamentDetail.tournamentContents")}
           </h2>
           <Badge variant="secondary">
-            {tournament.contents?.length || 0} nội dung
+            {tournament.contents?.length || 0}{" "}
+            {t("tournament.contents").toLowerCase()}
           </Badge>
         </div>
 
         {!tournament.contents || tournament.contents.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
-            Chưa có nội dung thi đấu
+            {t("tournamentManager.tournamentDetail.noContentsYet")}
           </div>
         ) : (
           <div className="space-y-4">
@@ -255,11 +315,15 @@ export default function TournamentDetail({
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div>
-                    <span className="text-muted-foreground">Số lượng:</span>
+                    <span className="text-muted-foreground">
+                      {t("tournamentManager.tournamentDetail.quantity")}:
+                    </span>
                     <p className="font-semibold">{content.maxEntries}</p>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Số set:</span>
+                    <span className="text-muted-foreground">
+                      {t("tournamentManager.tournamentDetail.sets")}:
+                    </span>
                     <p className="font-semibold">{content.maxSets}</p>
                   </div>
 
@@ -267,7 +331,9 @@ export default function TournamentDetail({
                     <>
                       {content.numberOfSingles !== null && (
                         <div>
-                          <span className="text-muted-foreground">Đơn:</span>
+                          <span className="text-muted-foreground">
+                            {t("tournamentManager.tournamentDetail.singles")}:
+                          </span>
                           <p className="font-semibold">
                             {content.numberOfSingles}
                           </p>
@@ -275,7 +341,9 @@ export default function TournamentDetail({
                       )}
                       {content.numberOfDoubles !== null && (
                         <div>
-                          <span className="text-muted-foreground">Đôi:</span>
+                          <span className="text-muted-foreground">
+                            {t("tournamentManager.tournamentDetail.doubles")}:
+                          </span>
                           <p className="font-semibold">
                             {content.numberOfDoubles}
                           </p>
@@ -286,7 +354,9 @@ export default function TournamentDetail({
 
                   {(content.minAge !== null || content.maxAge !== null) && (
                     <div>
-                      <span className="text-muted-foreground">Tuổi:</span>
+                      <span className="text-muted-foreground">
+                        {t("tournamentManager.tournamentDetail.age")}:
+                      </span>
                       <p className="font-semibold">
                         {content.minAge || ""}
                         {content.minAge && content.maxAge && " - "}
@@ -297,7 +367,9 @@ export default function TournamentDetail({
 
                   {(content.minElo !== null || content.maxElo !== null) && (
                     <div>
-                      <span className="text-muted-foreground">ELO:</span>
+                      <span className="text-muted-foreground">
+                        {t("tournamentManager.tournamentDetail.elo")}:
+                      </span>
                       <p className="font-semibold">
                         {content.minElo || ""}
                         {content.minElo && content.maxElo && " - "}
@@ -309,7 +381,9 @@ export default function TournamentDetail({
 
                 <div className="flex gap-4 mt-3 pt-3 border-t">
                   {content.isGroupStage && (
-                    <Badge variant="outline">Có vòng bảng</Badge>
+                    <Badge variant="outline">
+                      {t("tournamentManager.tournamentDetail.hasGroupStage")}
+                    </Badge>
                   )}
                 </div>
               </Card>

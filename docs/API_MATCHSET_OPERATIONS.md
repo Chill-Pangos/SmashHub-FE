@@ -309,7 +309,7 @@ POST /api/match-sets/score
 
 ### **Description**
 
-🎯 **API KHUYẾN KHÍCH SỬ DỤNG** - Tạo match set mới với điểm tổng kết và **tự động validate** theo quy tắc cầu lông:
+🎯 **API KHUYẾN KHÍCH SỬ DỤNG** - Tạo match set mới với điểm tổng kết và **tự động validate** theo quy tắc bóng bàn:
 
 **Quy tắc validate:**
 
@@ -322,7 +322,7 @@ POST /api/match-sets/score
 **Lợi ích:**
 
 - ✅ Không cần truyền `setNumber` - tự động tính
-- ✅ Validate điểm theo luật cầu lông
+- ✅ Validate điểm theo luật bóng bàn
 - ✅ Đảm bảo kết quả hợp lệ
 - ✅ Tránh lỗi người dùng nhập sai
 
@@ -552,7 +552,7 @@ POST /api/match-sets/score
   "entryAScore": 11,
   "entryBScore": 5
 }
-// ✅ Auto validate theo luật cầu lông
+// ✅ Auto validate theo luật bóng bàn
 // ✅ Auto tính setNumber
 // ✅ Đảm bảo kết quả hợp lệ
 ```

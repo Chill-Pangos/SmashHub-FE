@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -26,6 +27,7 @@ import { useTournaments, useTournament } from "@/hooks/queries";
 import { showToast } from "@/utils";
 
 export default function DelegationManagement() {
+  const { t } = useTranslation();
   const [activeStep, setActiveStep] = useState<"teams" | "entries">("teams");
   const [selectedTournamentId, setSelectedTournamentId] = useState<
     number | null
@@ -53,7 +55,9 @@ export default function DelegationManagement() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    showToast.success("Đã tải file mẫu đăng ký danh sách");
+    showToast.success(
+      t("tournamentManager.delegationManagement.templateDownloaded"),
+    );
   };
 
   const handleDownloadEntryTemplate = (
@@ -71,14 +75,16 @@ export default function DelegationManagement() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    showToast.success("Đã tải file mẫu đăng ký nội dung thi đấu");
+    showToast.success(
+      t("tournamentManager.delegationManagement.entryTemplateDownloaded"),
+    );
   };
 
   const getContentTypeBadge = (type: string) => {
     const variants = {
-      single: { variant: "default" as const, label: "Đơn" },
-      double: { variant: "secondary" as const, label: "Đôi" },
-      team: { variant: "outline" as const, label: "Đội" },
+      single: { variant: "default" as const, label: t("teamManager.single") },
+      double: { variant: "secondary" as const, label: t("teamManager.double") },
+      team: { variant: "outline" as const, label: t("team.team") },
     };
     const config = variants[type as keyof typeof variants] || variants.single;
     return (
@@ -92,9 +98,11 @@ export default function DelegationManagement() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Đăng ký tham gia giải đấu</h1>
+        <h1 className="text-3xl font-bold">
+          {t("tournamentManager.delegationManagement.title")}
+        </h1>
         <p className="text-muted-foreground mt-1">
-          Đăng ký danh sách đội và nội dung thi đấu cho đoàn thể thao
+          {t("tournamentManager.delegationManagement.description")}
         </p>
       </div>
 
@@ -103,7 +111,7 @@ export default function DelegationManagement() {
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium mb-2 block">
-              Chọn giải đấu
+              {t("teamManager.selectTournament")}
             </label>
             <Select
               value={selectedTournamentId?.toString() || ""}
@@ -113,7 +121,9 @@ export default function DelegationManagement() {
               disabled={loading}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="-- Chọn giải đấu --" />
+                <SelectValue
+                  placeholder={t("teamManager.selectTournamentPlaceholder")}
+                />
               </SelectTrigger>
               <SelectContent>
                 {tournaments.map((tournament) => (
@@ -133,7 +143,9 @@ export default function DelegationManagement() {
           {selectedTournament && (
             <div className="p-4 bg-muted/50 rounded-lg space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Thông tin giải đấu:</span>
+                <span className="text-sm font-medium">
+                  {t("tournament.tournamentInfo")}:
+                </span>
                 <Badge
                   variant={
                     selectedTournament.status === "upcoming"
@@ -144,20 +156,20 @@ export default function DelegationManagement() {
                   }
                 >
                   {selectedTournament.status === "upcoming"
-                    ? "Sắp diễn ra"
+                    ? t("tournament.upcoming")
                     : selectedTournament.status === "ongoing"
-                      ? "Đang diễn ra"
-                      : "Đã kết thúc"}
+                      ? t("tournament.ongoing")
+                      : t("tournament.completed")}
                 </Badge>
               </div>
               <div className="text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <MapPin className="h-3 w-3" />
-                  Địa điểm: {selectedTournament.location}
+                  {t("tournament.location")}: {selectedTournament.location}
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  Thời gian:{" "}
+                  {t("teamManager.time")}:{" "}
                   {new Date(selectedTournament.startDate).toLocaleDateString(
                     "vi-VN",
                   )}
@@ -166,7 +178,7 @@ export default function DelegationManagement() {
                 </div>
                 <div className="flex items-center gap-1">
                   <Trophy className="h-3 w-3" />
-                  Số nội dung thi đấu:{" "}
+                  {t("teamManager.numberOfContents")}:{" "}
                   {selectedTournament.contents?.length || 0}
                 </div>
               </div>
@@ -185,7 +197,7 @@ export default function DelegationManagement() {
               className="flex-1"
             >
               <Users className="mr-2 h-4 w-4" />
-              Bước 1: Đăng ký danh sách đội
+              {t("teamManager.step1RegisterDelegation")}
             </Button>
             <ChevronRight className="h-5 w-5 text-muted-foreground" />
             <Button
@@ -194,7 +206,7 @@ export default function DelegationManagement() {
               className="flex-1"
             >
               <Trophy className="mr-2 h-4 w-4" />
-              Bước 2: Đăng ký nội dung thi đấu
+              {t("teamManager.step2RegisterContents")}
             </Button>
           </div>
 
@@ -203,11 +215,12 @@ export default function DelegationManagement() {
             <Card className="p-6 space-y-6">
               <div>
                 <h3 className="text-xl font-semibold mb-2">
-                  Đăng ký danh sách đội
+                  {t("tournamentManager.delegationManagement.registerTeamList")}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Import file Excel chứa danh sách các đội và thành viên tham
-                  gia giải đấu
+                  {t(
+                    "tournamentManager.delegationManagement.registerTeamListDescription",
+                  )}
                 </p>
               </div>
 
@@ -218,14 +231,14 @@ export default function DelegationManagement() {
                   className="flex-1"
                 >
                   <Download className="mr-2 h-4 w-4" />
-                  Tải file mẫu đăng ký danh sách
+                  {t("teamManager.downloadTemplateFile")}
                 </Button>
                 <Button
                   onClick={() => setTeamImportOpen(true)}
                   className="flex-1"
                 >
                   <Upload className="mr-2 h-4 w-4" />
-                  Import danh sách đội
+                  {t("teamManager.importDelegationList")}
                 </Button>
               </div>
 
@@ -234,20 +247,14 @@ export default function DelegationManagement() {
                   <FileSpreadsheet className="h-5 w-5 text-muted-foreground mt-0.5" />
                   <div className="text-sm text-muted-foreground space-y-1">
                     <p className="font-medium text-foreground">
-                      Hướng dẫn sử dụng:
+                      {t("teamManager.usageGuide")}:
                     </p>
                     <ol className="list-decimal list-inside space-y-1 ml-2">
-                      <li>Tải file mẫu Excel "DangKyDanhSach.xlsx"</li>
-                      <li>
-                        Điền thông tin các đội và thành viên theo định dạng
-                      </li>
-                      <li>
-                        Mỗi đội cần có ít nhất 1 trưởng đoàn (team_manager)
-                      </li>
-                      <li>Các vai trò: team_manager, coach, athlete</li>
-                      <li>
-                        Upload file và kiểm tra preview trước khi xác nhận
-                      </li>
+                      <li>{t("teamManager.instruction1")}</li>
+                      <li>{t("teamManager.instruction2")}</li>
+                      <li>{t("teamManager.instruction3")}</li>
+                      <li>{t("teamManager.instruction4")}</li>
+                      <li>{t("teamManager.instruction5")}</li>
                     </ol>
                   </div>
                 </div>
@@ -260,11 +267,12 @@ export default function DelegationManagement() {
             <Card className="p-6 space-y-6">
               <div>
                 <h3 className="text-xl font-semibold mb-2">
-                  Đăng ký nội dung thi đấu
+                  {t("teamManager.registerContents")}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Chọn nội dung thi đấu và import danh sách vận động viên đăng
-                  ký
+                  {t(
+                    "tournamentManager.delegationManagement.selectContentAndImport",
+                  )}
                 </p>
               </div>
 
@@ -273,7 +281,9 @@ export default function DelegationManagement() {
                 <div className="space-y-4">
                   <div>
                     <label className="text-sm font-medium mb-2 block">
-                      Chọn nội dung thi đấu
+                      {t(
+                        "tournamentManager.delegationManagement.selectContent",
+                      )}
                     </label>
                     <Select
                       value={selectedContentId?.toString() || ""}
@@ -282,7 +292,11 @@ export default function DelegationManagement() {
                       }
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="-- Chọn nội dung thi đấu --" />
+                        <SelectValue
+                          placeholder={t(
+                            "tournamentManager.delegationManagement.selectContentPlaceholder",
+                          )}
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {selectedTournament.contents.map((content) => (
@@ -319,14 +333,14 @@ export default function DelegationManagement() {
                           className="flex-1"
                         >
                           <Download className="mr-2 h-4 w-4" />
-                          Tải file mẫu đăng ký
+                          {t("teamManager.downloadTemplate")}
                         </Button>
                         <Button
                           onClick={() => setEntryImportOpen(true)}
                           className="flex-1"
                         >
                           <Upload className="mr-2 h-4 w-4" />
-                          Import danh sách đăng ký
+                          {t("teamManager.importRegistration")}
                         </Button>
                       </div>
 
@@ -335,24 +349,25 @@ export default function DelegationManagement() {
                           <FileSpreadsheet className="h-5 w-5 text-muted-foreground mt-0.5" />
                           <div className="text-sm text-muted-foreground space-y-1">
                             <p className="font-medium text-foreground">
-                              Hướng dẫn sử dụng:
+                              {t("teamManager.usageGuide")}:
                             </p>
                             <ol className="list-decimal list-inside space-y-1 ml-2">
                               <li>
-                                Tải file mẫu tương ứng với loại nội dung (Đơn,
-                                Đôi, Đội)
+                                {t(
+                                  "tournamentManager.delegationManagement.entryInstruction1",
+                                )}
                               </li>
                               <li>
-                                Điền thông tin vận động viên theo định dạng
+                                {t(
+                                  "tournamentManager.delegationManagement.entryInstruction2",
+                                )}
                               </li>
                               <li>
-                                Đảm bảo email khớp với thành viên đã đăng ký ở
-                                bước 1
+                                {t(
+                                  "tournamentManager.delegationManagement.entryInstruction3",
+                                )}
                               </li>
-                              <li>
-                                Upload file và kiểm tra preview trước khi xác
-                                nhận
-                              </li>
+                              <li>{t("teamManager.instruction5")}</li>
                             </ol>
                           </div>
                         </div>
@@ -363,7 +378,7 @@ export default function DelegationManagement() {
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <Trophy className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                  <p>Giải đấu này chưa có nội dung thi đấu</p>
+                  <p>{t("teamManager.noContentsYet")}</p>
                 </div>
               )}
             </Card>
@@ -379,7 +394,9 @@ export default function DelegationManagement() {
             onOpenChange={setTeamImportOpen}
             tournamentId={selectedTournamentId}
             onImportSuccess={() => {
-              showToast.success("Import danh sách đội thành công!");
+              showToast.success(
+                t("tournamentManager.delegationManagement.teamImportSuccess"),
+              );
               setActiveStep("entries");
             }}
           />
@@ -395,7 +412,11 @@ export default function DelegationManagement() {
                 )?.type || "single"
               }
               onImportSuccess={() => {
-                showToast.success("Import danh sách đăng ký thành công!");
+                showToast.success(
+                  t(
+                    "tournamentManager.delegationManagement.entryImportSuccess",
+                  ),
+                );
               }}
             />
           )}

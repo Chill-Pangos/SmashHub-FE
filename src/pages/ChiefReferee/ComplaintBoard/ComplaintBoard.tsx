@@ -2,16 +2,31 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Search, Download, AlertTriangle, Clock, CheckCircle, XCircle } from "lucide-react";
-import { ComplaintTable, ComplaintFilters, ComplaintDetailDialog } from "./components";
+import {
+  Search,
+  Download,
+  AlertTriangle,
+  Clock,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
+import {
+  ComplaintTable,
+  ComplaintFilters,
+  ComplaintDetailDialog,
+} from "./components";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function ComplaintBoard() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
   const [filterType, setFilterType] = useState("all");
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
-  const [selectedComplaintId, setSelectedComplaintId] = useState<number | null>(null);
+  const [selectedComplaintId, setSelectedComplaintId] = useState<number | null>(
+    null,
+  );
 
   const handleViewDetail = (id: number) => {
     setSelectedComplaintId(id);
@@ -22,14 +37,16 @@ export default function ComplaintBoard() {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Bảng theo dõi khiếu nại</h1>
+          <h1 className="text-3xl font-bold">
+            {t("chiefReferee.complaintBoardTitle")}
+          </h1>
           <p className="text-muted-foreground mt-1">
-            Quản lý và xử lý khiếu nại từ các đoàn
+            {t("chiefReferee.complaintBoardDescription")}
           </p>
         </div>
         <Button variant="outline">
           <Download className="mr-2 h-4 w-4" />
-          Xuất báo cáo
+          {t("chiefReferee.exportReport")}
         </Button>
       </div>
 
@@ -40,7 +57,9 @@ export default function ComplaintBoard() {
               <AlertTriangle className="h-6 w-6 text-orange-600" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Khiếu nại mới</p>
+              <p className="text-sm text-muted-foreground">
+                {t("chiefReferee.newComplaints")}
+              </p>
               <p className="text-2xl font-bold">8</p>
             </div>
           </div>
@@ -51,7 +70,9 @@ export default function ComplaintBoard() {
               <Clock className="h-6 w-6 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Đang xử lý</p>
+              <p className="text-sm text-muted-foreground">
+                {t("chiefReferee.processing")}
+              </p>
               <p className="text-2xl font-bold">12</p>
             </div>
           </div>
@@ -62,7 +83,9 @@ export default function ComplaintBoard() {
               <CheckCircle className="h-6 w-6 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Đã giải quyết</p>
+              <p className="text-sm text-muted-foreground">
+                {t("chiefReferee.resolved")}
+              </p>
               <p className="text-2xl font-bold">45</p>
             </div>
           </div>
@@ -73,7 +96,9 @@ export default function ComplaintBoard() {
               <XCircle className="h-6 w-6 text-red-600" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Từ chối</p>
+              <p className="text-sm text-muted-foreground">
+                {t("chiefReferee.rejected")}
+              </p>
               <p className="text-2xl font-bold">5</p>
             </div>
           </div>
@@ -96,7 +121,7 @@ export default function ComplaintBoard() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Tìm kiếm theo mã, trận đấu, người khiếu nại..."
+              placeholder={t("chiefReferee.searchComplaintPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -104,7 +129,10 @@ export default function ComplaintBoard() {
           </div>
         </div>
 
-        <ComplaintTable searchQuery={searchQuery} onViewDetail={handleViewDetail} />
+        <ComplaintTable
+          searchQuery={searchQuery}
+          onViewDetail={handleViewDetail}
+        />
       </Card>
 
       <ComplaintDetailDialog

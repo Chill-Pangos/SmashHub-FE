@@ -27,6 +27,7 @@ import type {
   ImportTeamEntryDto,
 } from "@/types/entry.types";
 import type { TournamentContentType } from "@/types/tournament.types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface EntryImportDialogProps {
   /**
@@ -72,6 +73,7 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
   onImportSuccess,
   trigger,
 }) => {
+  const { t } = useTranslation();
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
@@ -130,7 +132,7 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
   // Preview import
   const handlePreview = () => {
     if (!selectedFile) {
-      showToast.error("Vui lòng chọn file để preview");
+      showToast.error(t("components.entryImportDialog.selectFileToPreview"));
       return;
     }
 
@@ -142,7 +144,7 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
         setPreviewData(result.data);
         setCurrentStep("preview");
       } else {
-        showToast.error("Không thể preview file. Vui lòng thử lại.");
+        showToast.error(t("components.entryImportDialog.cannotPreviewFile"));
       }
     };
 
@@ -152,7 +154,7 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
         error instanceof Error && "response" in error
           ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (error as any).response?.data?.message
-          : "Có lỗi xảy ra khi preview file. Vui lòng thử lại.";
+          : t("components.entryImportDialog.errorPreviewingFile");
       showToast.error(errorMessage);
     };
 
@@ -181,7 +183,7 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
   // Confirm import
   const handleConfirmImport = () => {
     if (!previewData || previewData.errors.length > 0) {
-      showToast.error("Vui lòng sửa các lỗi trước khi import");
+      showToast.error(t("components.entryImportDialog.fixErrorsBeforeImport"));
       return;
     }
 
@@ -190,11 +192,15 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
       data: { created: number };
     }) => {
       if (result.success) {
-        showToast.success(`Import thành công ${result.data.created} entries!`);
+        showToast.success(
+          t("components.entryImportDialog.importSuccess", {
+            count: result.data.created,
+          }),
+        );
         handleOpenChange(false);
         onImportSuccess?.();
       } else {
-        showToast.error("Import thất bại. Vui lòng thử lại.");
+        showToast.error(t("components.entryImportDialog.importFailed"));
       }
     };
 
@@ -204,7 +210,7 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
         error instanceof Error && "response" in error
           ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (error as any).response?.data?.message
-          : "Có lỗi xảy ra khi import. Vui lòng thử lại.";
+          : t("components.entryImportDialog.errorImporting");
       showToast.error(errorMessage);
     };
 
@@ -266,22 +272,37 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
     switch (contentType) {
       case "single":
         return [
-          { key: "name", label: "Tên vận động viên" },
-          { key: "email", label: "Email" },
+          { key: "name", label: t("components.entryImportDialog.athleteName") },
+          { key: "email", label: t("components.entryImportDialog.email") },
         ];
       case "double":
         return [
-          { key: "player1Name", label: "VĐV 1 - Tên" },
-          { key: "player1Email", label: "VĐV 1 - Email" },
-          { key: "player2Name", label: "VĐV 2 - Tên" },
-          { key: "player2Email", label: "VĐV 2 - Email" },
+          {
+            key: "player1Name",
+            label: t("components.entryImportDialog.player1Name"),
+          },
+          {
+            key: "player1Email",
+            label: t("components.entryImportDialog.player1Email"),
+          },
+          {
+            key: "player2Name",
+            label: t("components.entryImportDialog.player2Name"),
+          },
+          {
+            key: "player2Email",
+            label: t("components.entryImportDialog.player2Email"),
+          },
         ];
       case "team":
         return [
-          { key: "teamName", label: "Tên đội" },
+          {
+            key: "teamName",
+            label: t("components.entryImportDialog.teamName"),
+          },
           {
             key: "members",
-            label: "Thành viên",
+            label: t("components.entryImportDialog.members"),
             render: (value: unknown) => {
               const members = value as Array<{ name: string; email: string }>;
               return (
@@ -299,11 +320,11 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
   const getContentTypeLabel = () => {
     switch (contentType) {
       case "single":
-        return "Đơn";
+        return t("components.entryImportDialog.single");
       case "double":
-        return "Đôi";
+        return t("components.entryImportDialog.double");
       case "team":
-        return "Đội";
+        return t("components.entryImportDialog.team");
       default:
         return "";
     }
@@ -314,7 +335,7 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="outline">
-            Import Entries ({getContentTypeLabel()})
+            {`Import Entries (${getContentTypeLabel()})`}
           </Button>
         )}
       </DialogTrigger>
@@ -322,13 +343,17 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
         <DialogHeader>
           <DialogTitle>
             {currentStep === "upload"
-              ? `Upload File Excel - Nội dung ${getContentTypeLabel()}`
-              : "Xem trước dữ liệu"}
+              ? t("components.entryImportDialog.uploadExcelTitle", {
+                  contentType: getContentTypeLabel(),
+                })
+              : t("components.entryImportDialog.previewData")}
           </DialogTitle>
           <DialogDescription>
             {currentStep === "upload"
-              ? `Tải lên file Excel chứa danh sách đăng ký nội dung thi đấu ${getContentTypeLabel().toLowerCase()}. Vui lòng sử dụng file mẫu để đảm bảo định dạng đúng.`
-              : "Kiểm tra dữ liệu trước khi import vào hệ thống"}
+              ? t("components.entryImportDialog.uploadDescription", {
+                  contentType: getContentTypeLabel().toLowerCase(),
+                })
+              : t("components.entryImportDialog.checkDataBeforeImport")}
           </DialogDescription>
         </DialogHeader>
 
@@ -368,7 +393,7 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
                 onClick={() => handleOpenChange(false)}
                 disabled={isPreviewLoading}
               >
-                Hủy
+                {t("components.entryImportDialog.cancel")}
               </Button>
               <Button
                 onClick={handlePreview}
@@ -377,7 +402,7 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
                 {isPreviewLoading && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Xem trước
+                {t("components.entryImportDialog.preview")}
               </Button>
             </>
           ) : (
@@ -387,7 +412,7 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
                 onClick={handleBackToUpload}
                 disabled={isImportLoading}
               >
-                Quay lại
+                {t("components.entryImportDialog.back")}
               </Button>
               <Button
                 onClick={handleConfirmImport}
@@ -400,7 +425,7 @@ export const EntryImportDialog: React.FC<EntryImportDialogProps> = ({
                 {isImportLoading && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Xác nhận Import
+                {t("components.entryImportDialog.confirmImport")}
               </Button>
             </>
           )}

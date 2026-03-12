@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -22,6 +23,7 @@ import { RefereeList, AssignRefereeDialog } from "./components";
 import { useTournaments, useRefereesByTournament } from "@/hooks/queries";
 
 export default function RefereeAssignment() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [assignRefereeDialogOpen, setAssignRefereeDialogOpen] = useState(false);
   const [selectedTournamentId, setSelectedTournamentId] = useState<string>("");
@@ -77,20 +79,21 @@ export default function RefereeAssignment() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Quản lý trọng tài</h1>
+          <h1 className="text-3xl font-bold">
+            {t("tournamentManager.refereeAssignment.title")}
+          </h1>
           <p className="text-muted-foreground mt-1">
-            Phân công trọng tài vào giải đấu để họ có thể tham gia điều khiển
-            trận đấu
+            {t("tournamentManager.refereeAssignment.description")}
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleRefreshData}>
             <RefreshCw className="mr-2 h-4 w-4" />
-            Làm mới
+            {t("common.refresh")}
           </Button>
           <Button onClick={() => setAssignRefereeDialogOpen(true)}>
             <Users className="mr-2 h-4 w-4" />
-            Thêm trọng tài
+            {t("tournamentManager.refereeAssignment.addReferee")}
           </Button>
         </div>
       </div>
@@ -99,14 +102,14 @@ export default function RefereeAssignment() {
       <Card className="p-4">
         <div className="flex items-center gap-4">
           <label className="text-sm font-medium whitespace-nowrap">
-            Giải đấu:
+            {t("tournament.tournament")}:
           </label>
           <Select
             value={selectedTournamentId}
             onValueChange={setSelectedTournamentId}
           >
             <SelectTrigger className="w-80">
-              <SelectValue placeholder="Chọn giải đấu" />
+              <SelectValue placeholder={t("placeholder.selectTournament")} />
             </SelectTrigger>
             <SelectContent>
               {tournaments.map((t) => (
@@ -118,7 +121,7 @@ export default function RefereeAssignment() {
           </Select>
           {selectedTournament && (
             <span className="text-sm text-muted-foreground">
-              Trạng thái: {selectedTournament.status}
+              {t("common.status")}: {selectedTournament.status}
             </span>
           )}
         </div>
@@ -132,7 +135,9 @@ export default function RefereeAssignment() {
               <Users className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Tổng trọng tài</p>
+              <p className="text-xs text-muted-foreground">
+                {t("tournamentManager.refereeAssignment.totalReferees")}
+              </p>
               <p className="text-xl font-bold">
                 {isLoading ? "..." : totalReferees}
               </p>
@@ -146,7 +151,9 @@ export default function RefereeAssignment() {
               <ShieldCheck className="h-5 w-5 text-indigo-600" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Trọng tài chính</p>
+              <p className="text-xs text-muted-foreground">
+                {t("tournamentManager.refereeAssignment.mainReferee")}
+              </p>
               <p className="text-xl font-bold">
                 {isLoading ? "..." : mainReferees}
               </p>
@@ -160,7 +167,9 @@ export default function RefereeAssignment() {
               <Shield className="h-5 w-5 text-purple-600" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Trợ lý trọng tài</p>
+              <p className="text-xs text-muted-foreground">
+                {t("tournamentManager.refereeAssignment.assistantReferee")}
+              </p>
               <p className="text-xl font-bold">
                 {isLoading ? "..." : assistantReferees}
               </p>
@@ -174,7 +183,9 @@ export default function RefereeAssignment() {
               <CheckCircle className="h-5 w-5 text-green-600" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Sẵn sàng</p>
+              <p className="text-xs text-muted-foreground">
+                {t("tournamentManager.refereeAssignment.available")}
+              </p>
               <p className="text-xl font-bold">
                 {isLoading ? "..." : availableReferees}
               </p>
@@ -188,7 +199,9 @@ export default function RefereeAssignment() {
               <UserX className="h-5 w-5 text-gray-600" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Không khả dụng</p>
+              <p className="text-xs text-muted-foreground">
+                {t("tournamentManager.refereeAssignment.unavailable")}
+              </p>
               <p className="text-xl font-bold">
                 {isLoading ? "..." : unavailableReferees}
               </p>
@@ -202,7 +215,9 @@ export default function RefereeAssignment() {
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Tìm kiếm trọng tài theo tên..."
+            placeholder={t(
+              "tournamentManager.refereeAssignment.searchPlaceholder",
+            )}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"

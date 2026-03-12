@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Users, Trophy, Calendar, ChevronRight, UserCheck } from "lucide-react";
@@ -15,6 +16,7 @@ interface TeamManagerDashboardProps {
 export default function TeamManagerDashboard({
   onNavigateTo,
 }: TeamManagerDashboardProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
 
   // Fetch teams where user is a member using React Query
@@ -49,7 +51,7 @@ export default function TeamManagerDashboard({
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -60,9 +62,11 @@ export default function TeamManagerDashboard({
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Xin chào, {user?.username}!</h1>
+          <h1 className="text-3xl font-bold">
+            {t("home.welcomeBack", { name: user?.username })}
+          </h1>
           <p className="text-muted-foreground mt-1">
-            Quản lý đoàn thể thao của bạn
+            {t("teamManager.manageDelegation")}
           </p>
         </div>
       </div>
@@ -70,28 +74,28 @@ export default function TeamManagerDashboard({
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
-          title="Đoàn của tôi"
+          title={t("teamManager.myDelegation")}
           value={stats.totalTeams}
           icon={Users}
-          description="Số đoàn đang quản lý"
+          description={t("teamManager.delegationsManaging")}
         />
         <StatsCard
-          title="Thành viên"
+          title={t("team.teamMembers")}
           value={stats.totalMembers}
           icon={UserCheck}
-          description="Tổng số thành viên"
+          description={t("teamManager.totalMembers")}
         />
         <StatsCard
-          title="Giải đấu"
+          title={t("tournament.tournaments")}
           value={stats.activeTournaments}
           icon={Trophy}
-          description="Giải đấu sắp tới"
+          description={t("tournament.upcoming")}
         />
         <StatsCard
-          title="Chờ đăng ký"
+          title={t("teamManager.pendingRegistrations")}
           value={stats.pendingRegistrations}
           icon={Calendar}
-          description="Nội dung chờ đăng ký"
+          description={t("teamManager.contentsPendingRegistration")}
         />
       </div>
 
@@ -105,13 +109,13 @@ export default function TeamManagerDashboard({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Đoàn của tôi
+              {t("teamManager.myDelegation")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {myTeams.length === 0 ? (
               <p className="text-muted-foreground text-center py-4">
-                Bạn chưa quản lý đoàn nào
+                {t("teamManager.noDelegationsManaging")}
               </p>
             ) : (
               <div className="space-y-3">
@@ -122,10 +126,11 @@ export default function TeamManagerDashboard({
                   >
                     <div>
                       <p className="font-medium">
-                        {teamMember.team?.name || "Đoàn chưa xác định"}
+                        {teamMember.team?.name ||
+                          t("teamManager.undefinedDelegation")}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Trưởng đoàn
+                        {t("team.teamManager")}
                       </p>
                     </div>
                     <ChevronRight className="h-5 w-5 text-muted-foreground" />
@@ -137,7 +142,7 @@ export default function TeamManagerDashboard({
                     className="w-full"
                     onClick={() => onNavigateTo?.("my-team")}
                   >
-                    Xem tất cả ({myTeams.length})
+                    {t("common.viewAll")} ({myTeams.length})
                   </Button>
                 )}
               </div>
@@ -150,13 +155,13 @@ export default function TeamManagerDashboard({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Trophy className="h-5 w-5" />
-              Giải đấu sắp tới
+              {t("teamManager.upcomingTournaments")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {upcomingTournaments.length === 0 ? (
               <p className="text-muted-foreground text-center py-4">
-                Không có giải đấu sắp tới
+                {t("teamManager.noUpcomingTournaments")}
               </p>
             ) : (
               <div className="space-y-3">
@@ -182,7 +187,7 @@ export default function TeamManagerDashboard({
                     className="w-full"
                     onClick={() => onNavigateTo?.("tournaments")}
                   >
-                    Xem tất cả ({upcomingTournaments.length})
+                    {t("common.viewAll")} ({upcomingTournaments.length})
                   </Button>
                 )}
               </div>
