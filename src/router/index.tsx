@@ -1,6 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import { useRole } from "@/store/useRole";
 import NotFound from "@/pages/NotFound/NotFound";
+import RoleLoadingScreen from "@/components/custom/RoleLoadingScreen";
+import RoleErrorScreen from "@/components/custom/RoleErrorScreen";
 import PublicRoutes from "./PublicRoutes";
 import ProtectedRoutes from "./ProtectedRoutes";
 import AdminRoutes from "./AdminRoutes";
@@ -18,30 +20,18 @@ import SpectatorRoutes from "./SpectatorRoutes";
  * Routes are only rendered if the role exists in the database
  */
 export default function AppRouter() {
-  const { getRoleByName, isLoading, error } = useRole();
+  const { getRoleByName, isLoading, error, fetchRoles } = useRole();
 
-  // Show loading while roles are being fetched
+  // Show loading screen while roles are being fetched
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải vai trò...</p>
-        </div>
-      </div>
-    );
+    return <RoleLoadingScreen />;
   }
 
-  // Show error if roles failed to load
+  // Show error screen if roles failed to load
+  // Pass fetchRoles as onRetry callback to allow retrying without full page reload
+  // Navigation and logout will use window.location for full page reload
   if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-destructive mb-4">{error}</p>
-          <p className="text-muted-foreground">Vui lòng tải lại trang</p>
-        </div>
-      </div>
-    );
+    return <RoleErrorScreen error={error} onRetry={fetchRoles} />;
   }
 
   // Get role objects from API using getRoleByName()

@@ -1072,6 +1072,28 @@ export default {
     processingRequest: "Đang xử lý yêu cầu...",
   },
 
+  // Role Loading Screen
+  roleLoading: {
+    title: "Đang tải vai trò",
+    description:
+      "Vui lòng chờ trong giây lát, hệ thống đang tải thông tin vai trò của bạn...",
+  },
+
+  // Role Error Screen
+  roleError: {
+    title: "Không thể tải vai trò",
+    errorLabel: "Lỗi",
+    description:
+      "Hệ thống không thể tải thông tin vai trò. Vui lòng thử lại hoặc liên hệ quản trị viên nếu lỗi vẫn tiếp tục.",
+    btnRetry: "Tải lại",
+    btnHome: "Về trang chủ",
+    btnLogout: "Đăng xuất",
+    helpText: "Nếu vấn đề vẫn tiếp diễn, vui lòng liên hệ bộ phận hỗ trợ",
+    retryFailed: "Không thể tải lại",
+    navigationFailed: "Không thể chuyển trang",
+    logoutFailed: "Không thể đăng xuất",
+  },
+
   // Placeholders
   placeholder: {
     search: "Tìm kiếm...",
