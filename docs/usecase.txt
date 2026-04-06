@@ -1,0 +1,544 @@
+Đặc tả chi tiết các use case (đặc tả chi tiết use case, sơ đồ hoạt động, sơ đồ tuần tự)
+Use Case UC-01 – Quản lý tài khoản & phân quyền
+Use Case ID: UC-01
+ Use Case Name: Quản lý tài khoản & phân quyền
+ Actor: Admin
+ Description: Tạo/sửa/xóa tài khoản và gán vai trò.
+Precondition: Admin đã đăng nhập.
+ Main Flow:
+ 1. Admin mở trang quản lý → tạo/sửa/xóa user → lưu thay đổi.
+ Alternative / Exception Flow: Nếu thông tin thiếu → báo lỗi.
+ Postcondition: User mới/được cập nhật trong DB.
+Use Case UC-02 – Quản lý quyền truy cập (RBAC)
+Use Case ID: UC-02
+ Use Case Name: Quản lý quyền truy cập (RBAC)
+ Actor: Admin
+ Description: Kiểm soát chức năng theo vai trò.
+ Precondition: Có user roles.
+ Main Flow:
+ 1. Admin thiết lập rule → lưu.
+ Alternative / Exception Flow: Nếu vai trò không hợp lệ → hiển thị cảnh báo.
+ Postcondition: Quyền được cập nhật.
+Use Case UC-03 – Tạo giải đấu
+Use Case ID: UC-03
+ Use Case Name: Tạo giải đấu
+ Actor: Admin, Quản lý giải đấu
+ Description: Tạo giải với tên, thể thức, thời gian, địa điểm.
+ Precondition: Đã đăng nhập.
+ Main Flow:
+ 1. Mở “Tạo giải đấu” → nhập thông tin → xác nhận.
+ Alternative / Exception Flow: Nếu thiếu dữ liệu → thông báo.
+ Postcondition: Giải đấu mới được tạo.
+Use Case UC-04 – Chỉnh sửa/Hủy giải đấu
+Use Case ID: UC-04
+ Use Case Name: Chỉnh sửa/Hủy giải đấu
+ Actor: Admin, Quản lý giải đấu
+ Description: Cập nhật/hủy giải khi chưa bắt đầu.
+ Precondition: Giải ở trạng thái draft.
+ Main Flow:
+ 1. Chọn giải đấu → chỉnh sửa hoặc chọn hủy.
+ Alternative / Exception Flow: Nếu giải đã bắt đầu → không cho hủy.
+ Postcondition: Giải được cập nhật/hủy.
+Use Case UC-05 – Phân công trọng tài
+Use Case ID: UC-05
+ Use Case Name: Phân công trọng tài
+ Actor: Quản lý giải đấu
+ Description: Gán trọng tài, tổng trọng tài cho trận.
+ Precondition: Giải đã được tạo.
+ Main Flow:
+ 1. Quản lý giải đấu chọn trận → gán trọng tài.
+ Alternative / Exception Flow: Nếu trùng lịch → hiển thị cảnh báo.
+ Postcondition: Trọng tài được phân công.
+Use Case UC-06 – Quản lý VĐV tham gia
+Use Case ID: UC-06
+ Use Case Name: Quản lý VĐV tham gia
+ Actor: Quản lý giải đấu, Đoàn trưởng
+ Description: Quản lý danh sách VĐV, phân bảng.
+ Precondition: Giải đã tồn tại.
+ Main Flow:
+ 1. Đoàn trưởng nhập danh sách → Quản lý giải đấu phê duyệt; Trưởng đoàn có thể add HLV, VĐV vào đoàn; Trưởng đoàn phân công VĐV vào đội/nhóm.
+ Alternative / Exception Flow: Nếu quá hạn → không thể thêm.
+ Postcondition: VĐV/HLV/đội được thêm vào giải và đoàn.
+Use Case UC-07 – Sắp xếp lịch thi đấu ban đầu
+Use Case ID: UC-07
+ Use Case Name: Sắp xếp lịch thi đấu ban đầu
+ Actor: Quản lý giải đấu
+ Description: Tạo lịch thi đấu tự động.
+ Precondition: Có đủ VĐV/đội.
+ Main Flow:
+ 1. Quản lý giải đấu chọn “Tạo lịch” → hệ thống auto sinh.
+ Alternative / Exception Flow: Nếu chưa đủ đội → báo lỗi.
+ Postcondition: Lịch được tạo.
+Use Case UC-08 – Quản lý khiếu nại
+Use Case ID: UC-08
+ Use Case Name: Quản lý khiếu nại
+ Actor: Quản lý giải đấu
+ Description: Nhận, phân loại, xử lý khiếu nại từ VĐV/Đoàn trưởng.
+ Precondition: Có khiếu nại.
+ Main Flow:
+ 1. Quản lý giải đấu mở module khiếu nại → xử lý → cập nhật trạng thái.
+ Alternative / Exception Flow: Nếu thông tin thiếu → reject.
+ Postcondition: Khiếu nại được xử lý.
+Use Case UC-09 – Xuất báo cáo giải đấu
+Use Case ID: UC-09
+ Use Case Name: Xuất báo cáo giải đấu
+ Actor: Quản lý giải đấu
+ Description: Xuất báo cáo (PDF/Excel).
+ Precondition: Giải đã tồn tại.
+ Main Flow:
+ 1. Quản lý giải đấu chọn “Xuất báo cáo” → hệ thống sinh file.
+ Alternative / Exception Flow: Nếu lỗi hệ thống → thông báo.
+ Postcondition: File báo cáo tải về.
+Use Case UC-10 – Quản lý kết quả trận đấu
+Use Case ID: UC-10
+ Use Case Name: Quản lý kết quả trận đấu
+ Actor: Tổng trọng tài
+ Description: Xác minh, phê duyệt, hủy kết quả.
+ Precondition: Trọng tài đã gửi kết quả.
+ Main Flow:
+ 1. Tổng trọng tài chọn trận → duyệt/hủy.
+ Alternative / Exception Flow: Nếu sai định dạng → từ chối.
+ Postcondition: Kết quả được cập nhật.
+Use Case UC-11 – Tự động tính điểm, BXH
+Use Case ID: UC-11
+ Use Case Name: Tự động tính điểm, BXH
+ Actor: Hệ thống
+ Description: Tự động tính điểm, cập nhật BXH.
+ Precondition: Có kết quả trận.
+ Main Flow:
+ 1. Hệ thống xử lý kết quả → update điểm.
+ Alternative / Exception Flow: Nếu lỗi → báo cho Quản lý giải đấu.
+ Postcondition: BXH cập nhật.
+Use Case UC-12 – Sắp xếp lịch thi đấu tiếp theo
+Use Case ID: UC-12
+ Use Case Name: Sắp xếp lịch thi đấu tiếp theo
+ Actor: Tổng trọng tài
+ Description: Xác định vòng tiếp theo dựa vào kết quả.
+ Precondition: Có kết quả vòng trước.
+ Main Flow:
+ 1. Tổng trọng tài chọn “Sắp xếp vòng mới” → hệ thống tạo lịch.
+ Alternative / Exception Flow: Nếu thiếu dữ liệu → báo lỗi.
+ Postcondition: Lịch vòng sau được tạo.
+Use Case UC-13 – Quản lý chỉnh sửa kết quả
+Use Case ID: UC-13
+ Use Case Name: Quản lý chỉnh sửa kết quả
+ Actor: Tổng trọng tài
+ Description: Điều chỉnh kết quả đã duyệt.
+ Precondition: Có kết quả tồn tại.
+ Main Flow:
+ 1. Tổng trọng tài chọn trận → chỉnh sửa kết quả.
+ Alternative / Exception Flow: Nếu trái luật → từ chối.
+ Postcondition: Kết quả được cập nhật, lưu audit log.
+Use Case UC-14 – Điều hành trận đấu (Live)
+Use Case ID: UC-14
+ Use Case Name: Điều hành trận đấu (Live)
+ Actor: Trọng tài
+ Description: Cập nhật điểm, lỗi, time-out live.
+ Precondition: Trận đã bắt đầu.
+ Main Flow:
+ 1. Trọng tài nhập sự kiện → hệ thống cập nhật live score.
+ Alternative / Exception Flow: Nếu mất kết nối → lưu offline sync.
+ Postcondition: Sự kiện được lưu.
+Use Case UC-15 – Gửi kết quả trận đấu
+Use Case ID: UC-15
+ Use Case Name: Gửi kết quả trận đấu
+ Actor: Trọng tài
+ Description: Nộp kết quả cho tổng trọng tài.
+ Precondition: Trận đã kết thúc.
+ Main Flow:
+ 1. Trọng tài mở form → nhập kết quả → submit.
+ Alternative / Exception Flow: Nếu dữ liệu thiếu → báo lỗi.
+ Postcondition: Kết quả gửi thành công.
+Use Case UC-16 – Đính kèm biên bản/minh chứng
+Use Case ID: UC-16
+ Use Case Name: Đính kèm biên bản/minh chứng
+ Actor: Trọng tài
+ Description: Upload ảnh, video, file trận đấu.
+ Precondition: Có trận đã diễn ra.
+ Main Flow:
+ 1. Chọn “Upload file” → gửi kèm kết quả.
+ Alternative / Exception Flow: Nếu dung lượng vượt quá → từ chối.
+ Postcondition: File được lưu.
+Use Case UC-17 – Xem lịch thi đấu cá nhân
+Use Case ID: UC-17
+ Use Case Name: Xem lịch thi đấu cá nhân
+ Actor: VĐV
+ Description: Tra cứu lịch thi đấu.
+ Precondition: Đã đăng nhập.
+ Main Flow:
+ 1. VĐV mở “Lịch cá nhân”.
+ Alternative / Exception Flow: Nếu chưa có lịch → hiển thị trống.
+ Postcondition: Lịch hiển thị.
+Use Case UC-18 – Nhận thông báo giờ thi đấu
+Use Case ID: UC-18
+ Use Case Name: Nhận thông báo giờ thi đấu
+ Actor: VĐV
+ Description: Push notification trước giờ.
+ Precondition: Có trận sắp diễn ra.
+ Main Flow:
+ 1. Hệ thống gửi noti.
+ Alternative / Exception Flow: Nếu thiết bị offline → gửi lại khi online.
+ Postcondition: VĐV nhận thông báo.
+Use Case UC-19 – Xem kết quả, BXH
+Use Case ID: UC-19
+ Use Case Name: Xem kết quả, BXH
+ Actor: VĐV
+ Description: Tra cứu kết quả, thứ hạng cá nhân.
+ Precondition: Đã có BXH.
+ Main Flow:
+ 1. VĐV mở “Kết quả & BXH”.
+ Alternative / Exception Flow: Nếu chưa có dữ liệu → hiển thị trống.
+ Postcondition: Kết quả hiển thị.
+Use Case UC-20 – Gửi khiếu nại
+Use Case ID: UC-20
+ Use Case Name: Gửi khiếu nại
+ Actor: VĐV
+ Description: Submit complaint sau trận (≤24h).
+ Precondition: Có trận đã kết thúc.
+ Main Flow:
+ 1. VĐV mở form → nhập lý do → submit.
+ Alternative / Exception Flow: Nếu quá hạn → không cho gửi.
+ Postcondition: Khiếu nại gửi thành công.
+Use Case UC-21 – Quản lý hồ sơ cá nhân
+Use Case ID: UC-21
+ Use Case Name: Quản lý hồ sơ cá nhân
+ Actor: VĐV, Khán giả, HLV
+ Description: Cập nhật ảnh, giấy tờ, thông tin.
+ Precondition: Đã đăng nhập.
+ Main Flow:
+ 1. User vào “Hồ sơ” → sửa → lưu.
+ Alternative / Exception Flow: Nếu thiếu thông tin → báo lỗi.
+ Postcondition: Hồ sơ cập nhật.
+Use Case UC-22 – Xem lịch thi đấu toàn giải
+Use Case ID: UC-22
+ Use Case Name: Xem lịch thi đấu toàn giải
+ Actor: Khán giả
+ Description: Xem lịch công khai toàn giải.
+ Precondition: Giải đã tạo.
+ Main Flow:
+ 1. Khán giả mở “Lịch giải đấu”.
+ Alternative / Exception Flow: Nếu chưa có lịch → hiển thị trống.
+ Postcondition: Lịch hiển thị.
+Use Case UC-23 – Xem kết quả trận đấu
+Use Case ID: UC-23
+ Use Case Name: Xem kết quả trận đấu
+ Actor: Khán giả
+ Description: Xem kết quả đã duyệt.
+ Precondition: Có kết quả.
+ Main Flow:
+ 1. Khán giả mở “Kết quả trận”.
+ Alternative / Exception Flow: Nếu chưa có → hiển thị trống.
+ Postcondition: Kết quả hiển thị.
+Use Case UC-24 – Xem bảng xếp hạng
+Use Case ID: UC-24
+ Use Case Name: Xem bảng xếp hạng
+ Actor: Khán giả
+ Description: Theo dõi BXH real-time.
+ Precondition: Có dữ liệu BXH.
+ Main Flow:
+ 1. Khán giả mở “BXH”.
+ Alternative / Exception Flow: Nếu lỗi kết nối → refresh.
+ Postcondition: BXH hiển thị.
+Use Case UC-25 – Tìm kiếm trận đấu
+Use Case ID: UC-25
+ Use Case Name: Tìm kiếm trận đấu
+ Actor: Khán giả
+ Description: Tìm trận theo VĐV, đội, ngày.
+ Precondition: Giải đã tồn tại.
+ Main Flow:
+ 1. Nhập từ khóa → hệ thống trả kết quả.
+ Alternative / Exception Flow: Nếu không có kết quả → hiển thị “Not found”.
+ Postcondition: Kết quả trả về.
+Use Case UC-26 – Theo dõi trận yêu thích
+Use Case ID: UC-26
+ Use Case Name: Theo dõi trận yêu thích
+ Actor: Khán giả
+ Description: Đăng ký nhận thông báo trận quan tâm.
+ Precondition: Đã đăng nhập.
+ Main Flow:
+ 1. Khán giả chọn trận → bấm “Theo dõi”.
+ Alternative / Exception Flow: Nếu chưa login → yêu cầu login.
+ Postcondition: Trận được đánh dấu yêu thích.
+Use Case UC-27 – Quản lý danh sách VĐV đoàn
+Use Case ID: UC-27
+ Use Case Name: Quản lý danh sách VĐV đoàn
+ Actor: Đoàn trưởng
+ Description: Cập nhật, xác nhận danh sách VĐV.
+ Precondition: Giải đã tồn tại.
+ Main Flow:
+ 1. Đoàn trưởng nhập danh sách → submit.
+ Alternative / Exception Flow: Nếu quá hạn → từ chối.
+ Postcondition: Danh sách được cập nhật.
+Use Case UC-28 – Theo dõi lịch VĐV trong đoàn
+Use Case ID: UC-28
+ Use Case Name: Theo dõi lịch VĐV trong đoàn
+ Actor: Đoàn trưởng
+ Description: Xem lịch thi đấu của VĐV đoàn.
+ Precondition: Giải có lịch.
+ Main Flow:
+ 1. Đoàn trưởng mở “Lịch đoàn”.
+ Alternative / Exception Flow: Nếu chưa có lịch → hiển thị trống.
+ Postcondition: Lịch hiển thị.
+Use Case UC-29 – Gửi khiếu nại thay VĐV
+Use Case ID: UC-29
+ Use Case Name: Gửi khiếu nại thay VĐV
+ Actor: Đoàn trưởng
+ Description: Submit khiếu nại thay VĐV.
+ Precondition: VĐV đã có trận.
+ Main Flow:
+ 1. Đoàn trưởng mở form → nhập → submit.
+ Alternative / Exception Flow: Nếu quá hạn → không cho gửi.
+ Postcondition: Khiếu nại gửi thành công.
+Use Case UC-30 – Nhận thông báo từ Quản lý giải đấu
+Use Case ID: UC-30
+ Use Case Name: Nhận thông báo từ Quản lý giải đấu
+ Actor: Đoàn trưởng
+ Description: Nhận thông báo từ hệ thống.
+ Precondition: Có thông báo.
+ Main Flow:
+ 1. Hệ thống gửi thông báo.
+ Alternative / Exception Flow: Nếu offline → nhận khi online.
+ Postcondition: Thông báo hiển thị.
+Use Case UC-31 – Tải xuống lịch thi đấu đoàn
+Use Case ID: UC-31
+ Use Case Name: Tải xuống lịch thi đấu đoàn
+ Actor: Đoàn trưởng
+ Description: Xuất toàn bộ lịch (PDF/Excel).
+ Precondition: Giải đã tồn tại.
+ Main Flow:
+ 1. Đoàn trưởng chọn “Tải xuống”.
+ Alternative / Exception Flow: Nếu lỗi hệ thống → thông báo.
+ Postcondition: File tải về.
+Use Case UC-32 – Đăng nhập/Đăng xuất hệ thống
+Use Case ID: UC-32
+ Use Case Name: Đăng nhập/Đăng xuất hệ thống
+ Actor: Tất cả Actor
+ Description: Người dùng đăng nhập, đăng xuất.
+ Precondition: Có tài khoản.
+ Main Flow:
+ 1. Mở Login → nhập user/pass → login thành công.
+ Alternative / Exception Flow: Sai mật khẩu → thông báo lỗi.
+ Postcondition: User vào hệ thống.
+Use Case UC-33 – Quản lý thông tin cá nhân
+Use Case ID: UC-33
+ Use Case Name: Quản lý thông tin cá nhân
+ Actor: Tất cả Actor
+ Description: User cập nhật thông tin, đổi mật khẩu, avatar.
+ Precondition: Đã login.
+ Main Flow:
+ 1. User mở Profile → chỉnh sửa → lưu.
+ Alternative / Exception Flow: Nếu sai định dạng → báo lỗi.
+ Postcondition: Profile cập nhật.
+Use Case UC-34 – Notification Center
+Use Case ID: UC-34
+ Use Case Name: Notification Center
+ Actor: Tất cả Actor
+ Description: Xem danh sách thông báo đã nhận.
+ Precondition: Có noti log.
+ Main Flow:
+ 1. User mở Notification Center → xem chi tiết.
+ Alternative / Exception Flow: Nếu chưa có noti → hiển thị trống.
+ Postcondition: Thông báo hiển thị.
+Use Case UC-35 – Complaint Tracking
+Use Case ID: UC-35
+ Use Case Name: Complaint Tracking
+ Actor: VĐV, Đoàn trưởng
+ Description: Theo dõi tiến trình khiếu nại (submitted → resolved).
+ Precondition: Có khiếu nại.
+ Main Flow:
+ 1. User mở Complaint Tracking → xem trạng thái.
+ Alternative / Exception Flow: Nếu khiếu nại không tồn tại → báo lỗi.
+ Postcondition: Tiến trình hiển thị.
+Use Case UC-36 – About Tournament
+Use Case ID: UC-36
+ Use Case Name: About Tournament
+ Actor: Public
+ Description: Xem giới thiệu tổng quan, sponsor, thể lệ.
+ Precondition: Giải đã được công bố.
+ Main Flow:
+ 1. User mở “About Tournament”.
+ Alternative / Exception Flow: Nếu chưa có dữ liệu → hiển thị trống.
+ Postcondition: Thông tin giải hiển thị.
+Use Case UC-37 – News & Announcements
+Use Case ID: UC-37
+ Use Case Name: News & Announcements
+ Actor: Khán giả, Public
+ Description: Xem tin tức, thông báo công khai.
+ Precondition: Quản lý giải đấu đã đăng tin.
+ Main Flow:
+ 1. User mở “News” → xem danh sách bài viết.
+ Alternative / Exception Flow: Nếu không có tin → hiển thị trống.
+ Postcondition: Tin tức hiển thị.
+Use Case UC-38 – Athlete & Team Directory
+Use Case ID: UC-38
+ Use Case Name: Athlete & Team Directory
+ Actor: Khán giả, Public
+ Description: Tra cứu danh sách VĐV, đội tham gia.
+ Precondition: Giải đã công bố danh sách.
+ Main Flow:
+ 1. User mở “Danh sách VĐV/Đội”.
+ Alternative / Exception Flow: Nếu chưa có danh sách → hiển thị trống.
+ Postcondition: Danh sách hiển thị.
+Use Case UC-39 – Contact & Support
+Use Case ID: UC-39
+ Use Case Name: Contact & Support
+ Actor: Khán giả, Public
+ Description: Xem thông tin liên hệ, gửi yêu cầu hỗ trợ.
+ Precondition: Hệ thống đã thiết lập form.
+ Main Flow:
+ 1. User mở “Contact” → điền form → gửi.
+ Alternative / Exception Flow: Nếu thiếu dữ liệu → báo lỗi.
+ Postcondition: Yêu cầu hỗ trợ được gửi.
+Use Case UC-40 – Ranking Detail
+Use Case ID: UC-40
+ Use Case Name: Ranking Detail
+ Actor: VĐV, Khán giả, Đoàn trưởng
+ Description: Xem chi tiết BXH theo bảng/vòng.
+ Precondition: Có BXH tổng.
+ Main Flow:
+ 1. User mở “BXH chi tiết” → chọn vòng.
+ Alternative / Exception Flow: Nếu vòng không tồn tại → báo lỗi.
+ Postcondition: BXH chi tiết hiển thị.
+Use Case UC-41 – Dashboard/Homepage định tuyến
+Use Case ID: UC-41
+ Use Case Name: Dashboard/Homepage định tuyến
+ Actor: Tất cả Actor
+ Description: Sau login, hiển thị trang home và điều hướng đến dashboard theo role.
+ Precondition: User login thành công.
+ Main Flow:
+ 1. Hệ thống check role → điều hướng: Admin → Admin Dashboard, Quản lý giải đấu → Quản lý giải đấu Dashboard, QLGĐ → QLGĐ Dashboard, HLV → HLV Dashboard, v.v.
+ Alternative / Exception Flow: Nếu role chưa được gán → báo lỗi.
+ Postcondition: User được điều hướng.
+
+
+Use Case UC-42 – System Logs/Backup & Restore
+Use Case ID: UC-42
+Use Case Name: System Logs/Backup & Restore
+Actor: Admin
+Description: Xem nhật ký hệ thống, backup & restore dữ liệu.
+Precondition: Admin login.
+Main Flow:
+ 1. Admin mở “System Logs” hoặc “Backup” → thao tác.
+Alternative / Exception Flow: Nếu không có quyền → từ chối.
+Postcondition: Nhật ký/backup được cập nhật.
+Use Case UC-43 – Khiếu nại: VĐV -> HLV
+Use Case ID: UC-43
+ Use Case Name: Khiếu nại: VĐV -> HLV
+ Actor: VĐV, HLV
+ Description: VĐV gửi khiếu nại đầu tiên cho HLV để tổng hợp và xác thực.
+ Precondition: Trận đã kết thúc và VĐV trong thời hạn khiếu nại.
+ Main Flow:
+ 1. VĐV mở form khiếu nại → nộp cho HLV (chọn topic, files) → HLV nhận và xác thực.
+ Alternative / Exception Flow: Nếu thiếu info → HLV yêu cầu bổ sung từ VĐV.
+ Postcondition: Khiếu nại được ghi vào danh sách HLV chờ gửi lên Trưởng đoàn.
+Use Case UC-44 – Quản lý khiếu nại của HLV
+Use Case ID: UC-44
+ Use Case Name: Quản lý khiếu nại của HLV
+ Actor: HLV
+ Description: HLV tổng hợp, bổ sung khiếu nại do VĐV và tự tạo, sau đó gửi lên Trưởng đoàn.
+
+ Precondition: HLV đã login và có VĐV trong đoàn.
+ Main Flow:
+ 1. HLV xem danh sách khiếu nại → bổ sung/ghi chú → gửi cho Trưởng đoàn.
+ Alternative / Exception Flow: Nếu trùng topic với VĐV → cảnh báo/trùng lặp.
+ Postcondition: Danh sách khiếu nại của đoàn được cập nhật và gửi.
+Use Case UC-45 – Duyệt khiếu nại của Trưởng đoàn
+Use Case ID: UC-45
+ Use Case Name: Duyệt khiếu nại của Trưởng đoàn
+ Actor: Đoàn trưởng
+ Description: Trưởng đoàn nhận danh sách khiếu nại từ HLV/VĐV, duyệt và gửi lên Tổng Trọng tài.
+ Precondition: Có khiếu nại từ HLV/VĐV.
+ Main Flow:
+ 1. Đoàn trưởng mở danh sách → phê duyệt/ghi chú → gửi cho Tổng Trọng tài.
+ Alternative / Exception Flow: Nếu cần thêm info → yêu cầu HLV/VĐV bổ sung.
+ Postcondition: Khiếu nại được chuyển sang Tổng Trọng tài.
+Use Case UC-46 – Xử lý khiếu nại bởi Tổng Trọng tài
+Use Case ID: UC-46
+ Use Case Name: Xử lý khiếu nại bởi Tổng Trọng tài
+ Actor: Tổng trọng tài
+ Description: Kiểm tra, yêu cầu làm việc với Trưởng đoàn nếu cần, quyết định xử lý và trả kết quả.
+ Precondition: Đã nhận khiếu nại từ Trưởng đoàn.
+ Main Flow:
+ 1. Tổng Trọng tài kiểm tra bằng chứng → họp/trao đổi (nếu cần) → quyết định → cập nhật trạng thái.
+ Alternative / Exception Flow: Nếu thiếu bằng chứng → yêu cầu làm rõ.
+ Postcondition: Kết quả khiếu nại được quyết định và lưu audit log.
+Use Case UC-47 – Phản hồi khiếu nại cho VĐV & HLV
+Use Case ID: UC-47
+ Use Case Name: Phản hồi khiếu nại cho VĐV & HLV
+ Actor: Hệ thống
+ Description: Gửi thông báo kết quả khiếu nại từ Tổng Trọng tài đến VĐV và HLV.
+ Precondition: Tổng Trọng tài đã quyết định.
+ Main Flow:
+ 1. Hệ thống gửi noti/email tới VĐV và HLV; cập nhật trạng thái trong Complaint Tracking.
+ Alternative / Exception Flow: Nếu thiết bị offline → gửi khi online.
+ Postcondition: VĐV & HLV nhận phản hồi.
+Use Case UC-48 – Phân công đội nội bộ của đoàn
+Use Case ID: UC-48
+ Use Case Name: Phân công đội nội bộ của đoàn
+ Actor: Đoàn trưởng
+ Description: Phân chia VĐV thành các đội (đơn, đôi, tập thể) và phân công HLV cho từng đội.
+ Precondition: Đoàn có danh sách VĐV/HLV.
+ Main Flow:
+ 1. Đoàn trưởng chọn đoàn → tạo/ghi danh đội → phân VĐV vào đội → gán HLV.
+ Alternative / Exception Flow: Nếu trùng lịch hoặc vượt giới hạn → cảnh báo.
+ Postcondition: Thành viên và HLV được phân công vào đội.
+Use Case UC-49 – Tạo tài khoản người dùng
+Use Case ID: UC-49
+ Use Case Name: Tạo tài khoản người dùng
+ Actor: VĐV, Khán giả, HLV
+ Description: Người dùng tự đăng ký tài khoản cơ bản.
+ Precondition: Có email/sđt hợp lệ.
+ Main Flow:
+ 1. Người dùng mở đăng ký → nhập info → submit → verify email/sms.
+ Alternative / Exception Flow: Nếu thông tin không hợp lệ → báo lỗi.
+ Postcondition: Tài khoản tạo thành công (chờ verify nếu cần).
+Use Case UC-50 – Admin cấp acc cho QLGĐ
+Use Case ID: UC-50
+ Use Case Name: Admin cấp acc cho QLGĐ
+ Actor: Admin
+ Description: Admin tạo/cấp tài khoản QLGĐ (Quản lý giải đấu) với quyền quản trị giới hạn.
+ Precondition: Admin đã login.
+ Main Flow:
+ 1. Admin mở quản lý acc → tạo QLGĐ → gán quyền → thông báo QLGĐ.
+ Alternative / Exception Flow: Nếu quyền sai phạm → cảnh báo.
+ Postcondition: QLGD có tài khoản và quyền quản lý được phân bổ.
+Use Case UC-51 – QLGD quản lý acc & ủy quyền
+Use Case ID: UC-51
+ Use Case Name: QLGD quản lý acc & ủy quyền
+ Actor: Quản lý giải đấu
+ Description: QLGD quản lý danh sách acc trong phạm vi giải: cấp cho Tổng Trọng tài, Trọng tài, Trưởng đoàn.
+ Precondition: QLGD có quyền.
+ Main Flow:
+ 1. QLGD mở quản lý acc → tạo/gán/thu hồi quyền cho các role liên quan.
+ Alternative / Exception Flow: Nếu vượt quyền được cấp → từ chối.
+ Postcondition: Các tài khoản được cấp/thu hồi phù hợp.
+Use Case UC-52 – Trưởng đoàn thêm HLV & VĐV vào đoàn
+Use Case ID: UC-52
+ Use Case Name: Trưởng đoàn thêm HLV & VĐV vào đoàn
+ Actor: Đoàn trưởng
+ Description: Trưởng đoàn có quyền tạo thêm hồ sơ HLV, VĐV trong đoàn (nếu chưa tồn tại) và gán họ vào đội.
+ Precondition: Trưởng đoàn đã login và có quyền quản lý đoàn.
+ Main Flow:
+ 1. Trưởng đoàn mở danh sách đoàn → add HLV/VĐV → gửi thông báo xác nhận.
+ Alternative / Exception Flow: Nếu quá hạn đăng ký hoặc thông tin thiếu → từ chối.
+ Postcondition: HLV và VĐV được thêm vào đoàn.
+Use Case UC-53 – Tạo/Kế hoạch huấn luyện
+Use Case ID: UC-53
+ Use Case Name: Tạo/Kế hoạch huấn luyện
+ Actor: HLV
+ Description: HLV tạo lịch và kế hoạch huấn luyện cho VĐV/đội.
+ Precondition: HLV đã login và có VĐV được gán.
+ Main Flow:
+ 1. HLV mở module huấn luyện → tạo kế hoạch (buổi, mục tiêu, bài tập) → lưu.
+ Alternative / Exception Flow: Nếu trùng lịch thi đấu → cảnh báo.
+ Postcondition: Kế hoạch huấn luyện được lưu và gửi thông báo cho VĐV.
+Use Case UC-54 – Ghi nhận/Đánh giá VĐV
+Use Case ID: UC-54
+ Use Case Name: Ghi nhận/Đánh giá VĐV
+ Actor: HLV
+ Description: HLV nhập báo cáo tiến độ, điểm đánh giá, video phân tích cho VĐV.
+ Precondition: Có buổi huấn luyện hoặc trận đấu.
+ Main Flow:
+ 1. HLV chọn VĐV → nhập đánh giá, upload file → lưu.
+ Alternative / Exception Flow: Nếu định dạng file sai → từ chối.
+ Postcondition: Báo cáo huấn luyện được lưu vào hồ sơ VĐV.
