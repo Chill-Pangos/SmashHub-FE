@@ -17,22 +17,16 @@ const ROLE_ROUTES: Record<string, string> = {
   organizer: "/tournament-manager",
   chief_referee: "/chief-referee",
   referee: "/referee",
-  team_manager: "/team-manager",
-  coach: "/coach",
-  athlete: "/athlete",
-  spectator: "/spectator",
+  user: "/user",
 };
 
 // Priority mapping by role name (higher = more important)
 const ROLE_PRIORITY: Record<string, number> = {
-  admin: 8,
-  organizer: 7,
-  chief_referee: 6,
-  referee: 5,
-  team_manager: 4,
-  coach: 3,
-  athlete: 2,
-  spectator: 1,
+  admin: 5,
+  organizer: 4,
+  chief_referee: 3,
+  referee: 2,
+  user: 1,
 };
 
 // Vietnamese role names by role name
@@ -41,10 +35,7 @@ const ROLE_DISPLAY_NAMES: Record<string, string> = {
   organizer: "Quản lý giải đấu",
   chief_referee: "Tổng trọng tài",
   referee: "Trọng tài",
-  athlete: "Vận động viên",
-  spectator: "Khán giả",
-  team_manager: "Quản lý đoàn",
-  coach: "Huấn luyện viên",
+  user: "Người dùng",
 };
 
 export const RoleProvider: React.FC<RoleProviderProps> = ({ children }) => {
@@ -87,13 +78,7 @@ export const RoleProvider: React.FC<RoleProviderProps> = ({ children }) => {
   };
 
   const getRegistrationRoles = (): Role[] => {
-    return roleState.roles.filter(
-      (role) =>
-        role.name !== "admin" &&
-        role.name !== "organizer" &&
-        role.name !== "chief_referee" &&
-        role.name !== "referee",
-    );
+    return roleState.roles.filter((role) => role.name === "user");
   };
 
   // ==================== Role Checking Helpers ====================

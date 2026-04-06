@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ChangeEvent } from "react";
-import { useNavigate, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,7 +21,6 @@ import {
 } from "@/utils";
 
 const SignIn = () => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const { login, loading, error: authError } = useAuthOperations();
   const [formData, setFormData] = useState<LoginFormData>({
@@ -61,11 +60,10 @@ const SignIn = () => {
       // Show success message
       showToast.success(
         t("auth.loginSuccess"),
-        `${t("message.welcomeBack") || "Chào mừng trở lại"}, ${result.data.user.username}!`,
+        t("authFlow.welcomeBackWithName", {
+          name: `${result.data.user.firstName} ${result.data.user.lastName}`.trim(),
+        }),
       );
-
-      // Redirect to home page
-      navigate("/");
     } else {
       // Error is already set in authError state
       showToast.error(

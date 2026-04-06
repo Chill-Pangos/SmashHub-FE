@@ -1,5 +1,8 @@
 import type { ApiResponse } from "@/types";
+import i18n from "@/locales/i18n";
 import { showApiError, getUserFriendlyMessage } from "./toast.utils";
+
+const tApi = (key: string): string => i18n.t(key) as string;
 
 /**
  * API Utilities
@@ -19,12 +22,12 @@ export const unwrapApiResponse = <T>(response: ApiResponse<T>): T => {
   if ("error" in response && response.error) {
     const userMessage = getUserFriendlyMessage(
       response.error.code,
-      response.error.message
+      response.error.message,
     );
     throw new Error(userMessage);
   }
 
-  throw new Error("An error occurred");
+  throw new Error(tApi("api.errors.unknown"));
 };
 
 /**
@@ -40,7 +43,7 @@ export const handleApiCall = async <T>(
     successMessage?: string;
     showErrorToast?: boolean;
     errorMessage?: string;
-  }
+  },
 ): Promise<T> => {
   const {
     showSuccessToast = false,
@@ -57,11 +60,11 @@ export const handleApiCall = async <T>(
       if ("error" in response && response.error) {
         const userMessage = getUserFriendlyMessage(
           response.error.code,
-          response.error.message
+          response.error.message,
         );
         throw new Error(userMessage);
       }
-      throw new Error("Request failed");
+      throw new Error(tApi("api.errors.requestFailed"));
     }
 
     // Show success toast if enabled
@@ -89,7 +92,7 @@ export const safeApiCall = async <T>(
   options?: {
     showErrorToast?: boolean;
     errorMessage?: string;
-  }
+  },
 ): Promise<T | null> => {
   try {
     return await handleApiCall(apiCall, {
@@ -109,18 +112,18 @@ export const batchApiCalls = async <T>(
   apiCalls: Array<() => Promise<ApiResponse<T>>>,
   options?: {
     showErrorToast?: boolean;
-  }
+  },
 ): Promise<Array<T | null>> => {
   const results = await Promise.allSettled(
     apiCalls.map((call) =>
       handleApiCall(call, {
         showErrorToast: options?.showErrorToast ?? false,
-      })
-    )
+      }),
+    ),
   );
 
   return results.map((result) =>
-    result.status === "fulfilled" ? result.value : null
+    result.status === "fulfilled" ? result.value : null,
   );
 };
 
@@ -134,7 +137,7 @@ export const retryApiCall = async <T>(
     delayMs?: number;
     backoffMultiplier?: number;
     showErrorToast?: boolean;
-  }
+  },
 ): Promise<T> => {
   const {
     maxRetries = 3,
@@ -193,7 +196,7 @@ export const isNetworkError = (error: unknown): boolean => {
 
   if ("code" in error) {
     return ["ECONNABORTED", "ETIMEDOUT", "ENOTFOUND", "ENETUNREACH"].includes(
-      error.code as string
+      error.code as string,
     );
   }
 

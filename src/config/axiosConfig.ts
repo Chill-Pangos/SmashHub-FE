@@ -7,6 +7,46 @@ import axios, {
 // Base URL configuration
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
+// Public auth endpoints should not trigger refresh flow on 401 responses.
+const SKIP_REFRESH_ENDPOINTS = [
+  "/auth/login",
+  "/auth/register",
+  "/auth/refresh",
+  "/auth/logout",
+  "/auth/forgot-password",
+  "/auth/verify-otp",
+  "/auth/reset-password",
+  "/auth/send-email-verification-otp",
+  "/auth/verify-email-otp",
+  "/auth/resend-email-verification-otp",
+];
+
+const normalizeRequestUrl = (url?: string): string => {
+  if (!url) return "";
+  return url.toLowerCase().split("?")[0];
+};
+
+const shouldSkipTokenRefresh = (url?: string): boolean => {
+  const normalizedUrl = normalizeRequestUrl(url);
+
+  if (!normalizedUrl) return false;
+
+  return SKIP_REFRESH_ENDPOINTS.some(
+    (endpoint) =>
+      normalizedUrl.endsWith(endpoint) || normalizedUrl.includes(endpoint),
+  );
+};
+
+const clearAuthAndRedirectToSignin = () => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  localStorage.removeItem("user");
+
+  if (window.location.pathname !== "/signin") {
+    window.location.href = "/signin";
+  }
+};
+
 // Create axios instance
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -66,13 +106,13 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    if (shouldSkipTokenRefresh(originalRequest.url)) {
+      return Promise.reject(error);
+    }
+
     // If request already retried, logout user
     if (originalRequest._retry) {
-      // Clear tokens and redirect to login
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("user");
-      window.location.href = "/signin";
+      clearAuthAndRedirectToSignin();
       return Promise.reject(error);
     }
 
@@ -100,10 +140,7 @@ axiosInstance.interceptors.response.use(
 
     if (!refreshToken) {
       // No refresh token, logout user
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("user");
-      window.location.href = "/signin";
+      clearAuthAndRedirectToSignin();
       return Promise.reject(error);
     }
 
@@ -133,10 +170,7 @@ axiosInstance.interceptors.response.use(
     } catch (refreshError) {
       // Refresh failed, logout user
       processQueue(refreshError as Error, null);
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("user");
-      window.location.href = "/signin";
+      clearAuthAndRedirectToSignin();
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;

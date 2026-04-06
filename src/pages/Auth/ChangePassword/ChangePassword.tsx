@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Trophy, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/store/useAuth";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
+import { useTranslation } from "@/hooks/useTranslation";
 import { showToast } from "@/utils/toast.utils";
 import {
   validatePassword,
@@ -30,6 +31,7 @@ interface ChangePasswordFormData {
 
 const ChangePassword = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const { changePassword, loading } = useAuthOperations();
 
@@ -43,10 +45,14 @@ const ChangePassword = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      showToast.error(t("toast.errors.UNAUTHORIZED"));
+      navigate("/signin", { replace: true });
+    }
+  }, [isAuthenticated, navigate, t]);
+
   if (!isAuthenticated) {
-    showToast.error("Vui lòng đăng nhập để tiếp tục");
-    navigate("/signin");
     return null;
   }
 
@@ -79,11 +85,11 @@ const ChangePassword = () => {
   const getPasswordStrengthText = (strength: PasswordStrength) => {
     switch (strength) {
       case PasswordStrength.WEAK:
-        return "Yếu";
+        return t("validation.passwordStrength.weak");
       case PasswordStrength.MEDIUM:
-        return "Trung bình";
+        return t("validation.passwordStrength.medium");
       case PasswordStrength.STRONG:
-        return "Mạnh";
+        return t("validation.passwordStrength.strong");
       default:
         return "";
     }
@@ -98,7 +104,7 @@ const ChangePassword = () => {
 
     // Validate old password
     if (!formData.oldPassword) {
-      setErrors({ oldPassword: "Vui lòng nhập mật khẩu hiện tại" });
+      setErrors({ oldPassword: t("validation.auth.oldPasswordRequired") });
       return;
     }
 
@@ -106,7 +112,7 @@ const ChangePassword = () => {
     const newPasswordError = validatePassword(formData.newPassword);
     const confirmError = validatePasswordConfirmation(
       formData.newPassword,
-      formData.confirmPassword
+      formData.confirmPassword,
     );
 
     if (newPasswordError || confirmError) {
@@ -120,7 +126,7 @@ const ChangePassword = () => {
     // Check if new password is different from old
     if (formData.oldPassword === formData.newPassword) {
       setErrors({
-        newPassword: "Mật khẩu mới phải khác mật khẩu cũ",
+        newPassword: t("validation.auth.newPasswordMustDiffer"),
       });
       return;
     }
@@ -133,8 +139,8 @@ const ChangePassword = () => {
 
     if (result.success) {
       showToast.success(
-        "Đổi mật khẩu thành công",
-        "Vui lòng đăng nhập lại với mật khẩu mới"
+        t("auth.passwordChangeSuccess"),
+        t("authFlow.changePassword.successDescription"),
       );
       // Navigate to signin after success
       setTimeout(() => {
@@ -142,9 +148,9 @@ const ChangePassword = () => {
       }, 1500);
     } else {
       setErrors({
-        oldPassword: result.error || "Đổi mật khẩu thất bại",
+        oldPassword: result.error || t("authFlow.changePassword.failed"),
       });
-      showToast.error("Đổi mật khẩu thất bại", result.error);
+      showToast.error(t("authFlow.changePassword.failed"), result.error);
     }
   };
 
@@ -156,34 +162,36 @@ const ChangePassword = () => {
             <Trophy className="h-12 w-12 text-primary" />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Đổi mật khẩu
+            {t("auth.changePassword")}
           </h1>
           <p className="text-muted-foreground">
-            Thay đổi mật khẩu tài khoản của bạn
+            {t("authFlow.changePassword.subtitle")}
           </p>
         </div>
 
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="text-2xl text-center text-card-foreground">
-              Đổi mật khẩu
+              {t("auth.changePassword")}
             </CardTitle>
             <CardDescription className="text-center">
-              Nhập mật khẩu hiện tại và mật khẩu mới
+              {t("authFlow.changePassword.cardDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <form className="space-y-4" onSubmit={handleSubmit}>
               {/* Old Password */}
               <div className="space-y-2">
-                <Label htmlFor="oldPassword">Mật khẩu hiện tại</Label>
+                <Label htmlFor="oldPassword">{t("auth.currentPassword")}</Label>
                 <div className="relative">
                   <Input
                     id="oldPassword"
                     type={showOldPassword ? "text" : "password"}
                     value={formData.oldPassword}
                     onChange={handleChange}
-                    placeholder="Nhập mật khẩu hiện tại"
+                    placeholder={t(
+                      "authFlow.changePassword.oldPasswordPlaceholder",
+                    )}
                     className={
                       errors.oldPassword ? "border-red-500 pr-10" : "pr-10"
                     }
@@ -209,14 +217,14 @@ const ChangePassword = () => {
 
               {/* New Password */}
               <div className="space-y-2">
-                <Label htmlFor="newPassword">Mật khẩu mới</Label>
+                <Label htmlFor="newPassword">{t("auth.newPassword")}</Label>
                 <div className="relative">
                   <Input
                     id="newPassword"
                     type={showNewPassword ? "text" : "password"}
                     value={formData.newPassword}
                     onChange={handleChange}
-                    placeholder="Nhập mật khẩu mới"
+                    placeholder={t("auth.enterNewPassword")}
                     className={
                       errors.newPassword ? "border-red-500 pr-10" : "pr-10"
                     }
@@ -238,31 +246,35 @@ const ChangePassword = () => {
                 {formData.newPassword && passwordStrength && (
                   <p
                     className={`text-sm ${getPasswordStrengthColor(
-                      passwordStrength
+                      passwordStrength,
                     )}`}
                   >
-                    Độ mạnh: {getPasswordStrengthText(passwordStrength)}
+                    {t("authFlow.passwordStrengthLabel")}:{" "}
+                    {getPasswordStrengthText(passwordStrength)}
                   </p>
                 )}
                 {errors.newPassword && (
                   <p className="text-sm text-red-500">{errors.newPassword}</p>
                 )}
                 <p className="text-xs text-muted-foreground">
-                  Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường,
-                  số và ký tự đặc biệt
+                  {t("authFlow.changePassword.passwordRequirements")}
                 </p>
               </div>
 
               {/* Confirm Password */}
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Xác nhận mật khẩu mới</Label>
+                <Label htmlFor="confirmPassword">
+                  {t("authFlow.changePassword.confirmNewPassword")}
+                </Label>
                 <div className="relative">
                   <Input
                     id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    placeholder="Nhập lại mật khẩu mới"
+                    placeholder={t(
+                      "authFlow.changePassword.confirmPasswordPlaceholder",
+                    )}
                     className={
                       errors.confirmPassword ? "border-red-500 pr-10" : "pr-10"
                     }
@@ -297,10 +309,10 @@ const ChangePassword = () => {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Đang xử lý...
+                    {t("authFlow.changePassword.submitting")}
                   </>
                 ) : (
-                  "Đổi mật khẩu"
+                  t("auth.changePassword")
                 )}
               </Button>
             </form>
@@ -311,7 +323,7 @@ const ChangePassword = () => {
                   onClick={() => navigate(-1)}
                   className="text-primary hover:text-primary/80 font-medium transition-colors"
                 >
-                  Quay lại
+                  {t("common.back")}
                 </button>
               </p>
             </div>

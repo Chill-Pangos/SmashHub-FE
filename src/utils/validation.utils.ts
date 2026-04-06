@@ -3,6 +3,13 @@
  * Frontend validation for authentication and other forms
  */
 
+import i18n from "@/locales/i18n";
+
+const tValidation = (
+  key: string,
+  options?: Record<string, string | number>,
+): string => i18n.t(key, options) as string;
+
 // ==================== Email Validation ====================
 
 /**
@@ -18,11 +25,11 @@ export const isValidEmail = (email: string): boolean => {
  */
 export const validateEmail = (email: string): string | null => {
   if (!email || email.trim() === "") {
-    return "Email không được để trống";
+    return tValidation("validation.auth.emailRequired");
   }
 
   if (!isValidEmail(email)) {
-    return "Email không đúng định dạng";
+    return tValidation("validation.auth.emailInvalid");
   }
 
   return null;
@@ -77,28 +84,28 @@ export const checkPasswordStrength = (password: string): PasswordStrength => {
  */
 export const validatePassword = (password: string): string | null => {
   if (!password || password.trim() === "") {
-    return "Mật khẩu không được để trống";
+    return tValidation("validation.auth.passwordRequired");
   }
 
   if (password.length < 8) {
-    return "Mật khẩu phải có ít nhất 8 ký tự";
+    return tValidation("validation.auth.passwordMinLength");
   }
 
   if (!/[a-z]/.test(password)) {
-    return "Mật khẩu phải chứa ít nhất một chữ cái thường";
+    return tValidation("validation.auth.passwordLowercaseRequired");
   }
 
   if (!/[A-Z]/.test(password)) {
-    return "Mật khẩu phải chứa ít nhất một chữ cái hoa";
+    return tValidation("validation.auth.passwordUppercaseRequired");
   }
 
   if (!/\d/.test(password)) {
-    return "Mật khẩu phải chứa ít nhất một chữ số";
+    return tValidation("validation.auth.passwordNumberRequired");
   }
 
   const strength = checkPasswordStrength(password);
   if (strength === PasswordStrength.WEAK) {
-    return "Mật khẩu quá yếu. Vui lòng sử dụng mật khẩu mạnh hơn";
+    return tValidation("validation.auth.passwordTooWeak");
   }
 
   return null;
@@ -112,11 +119,11 @@ export const validatePasswordConfirmation = (
   confirmPassword: string,
 ): string | null => {
   if (!confirmPassword || confirmPassword.trim() === "") {
-    return "Vui lòng xác nhận mật khẩu";
+    return tValidation("validation.auth.confirmPasswordRequired");
   }
 
   if (password !== confirmPassword) {
-    return "Mật khẩu xác nhận không khớp";
+    return tValidation("validation.auth.confirmPasswordMismatch");
   }
 
   return null;
@@ -129,20 +136,54 @@ export const validatePasswordConfirmation = (
  */
 export const validateUsername = (username: string): string | null => {
   if (!username || username.trim() === "") {
-    return "Tên đăng nhập không được để trống";
+    return tValidation("validation.auth.usernameRequired");
   }
 
   if (username.length < 3) {
-    return "Tên đăng nhập phải có ít nhất 3 ký tự";
+    return tValidation("validation.auth.usernameMinLength");
   }
 
   if (username.length > 30) {
-    return "Tên đăng nhập không được quá 30 ký tự";
+    return tValidation("validation.auth.usernameMaxLength");
   }
 
   // Only alphanumeric, underscore, and hyphen
   if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-    return "Tên đăng nhập chỉ được chứa chữ cái, số, gạch dưới và gạch ngang";
+    return tValidation("validation.auth.usernameInvalid");
+  }
+
+  return null;
+};
+
+/**
+ * Validate first name / last name
+ */
+export const validateName = (
+  value: string,
+  fieldLabel: string,
+): string | null => {
+  if (!value || value.trim() === "") {
+    return tValidation("validation.auth.nameRequired", {
+      field: fieldLabel,
+    });
+  }
+
+  if (value.trim().length < 2) {
+    return tValidation("validation.auth.nameMinLength", {
+      field: fieldLabel,
+    });
+  }
+
+  if (value.trim().length > 50) {
+    return tValidation("validation.auth.nameMaxLength", {
+      field: fieldLabel,
+    });
+  }
+
+  if (!/^[\p{L}'][\p{L}\s'-]*$/u.test(value.trim())) {
+    return tValidation("validation.auth.nameInvalidCharacters", {
+      field: fieldLabel,
+    });
   }
 
   return null;
@@ -155,11 +196,11 @@ export const validateUsername = (username: string): string | null => {
  */
 export const validateOTP = (otp: string): string | null => {
   if (!otp || otp.trim() === "") {
-    return "Mã OTP không được để trống";
+    return tValidation("validation.auth.otpRequired");
   }
 
   if (!/^\d{6}$/.test(otp)) {
-    return "Mã OTP phải là 6 chữ số";
+    return tValidation("validation.auth.otpInvalid");
   }
 
   return null;
@@ -171,11 +212,11 @@ export const validateOTP = (otp: string): string | null => {
  * Register form validation
  */
 export interface RegisterFormData {
-  username: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   confirmPassword: string;
-  role?: "spectator" | "athlete" | "coach" | "team_manager";
 }
 
 export interface ValidationErrors {
@@ -187,8 +228,17 @@ export const validateRegisterForm = (
 ): ValidationErrors => {
   const errors: ValidationErrors = {};
 
-  const usernameError = validateUsername(data.username);
-  if (usernameError) errors.username = usernameError;
+  const firstNameError = validateName(
+    data.firstName,
+    tValidation("validation.fields.firstName"),
+  );
+  if (firstNameError) errors.firstName = firstNameError;
+
+  const lastNameError = validateName(
+    data.lastName,
+    tValidation("validation.fields.lastName"),
+  );
+  if (lastNameError) errors.lastName = lastNameError;
 
   const emailError = validateEmail(data.email);
   if (emailError) errors.email = emailError;
@@ -220,7 +270,7 @@ export const validateLoginForm = (data: LoginFormData): ValidationErrors => {
   if (emailError) errors.email = emailError;
 
   if (!data.password || data.password.trim() === "") {
-    errors.password = "Mật khẩu không được để trống";
+    errors.password = tValidation("validation.auth.passwordRequired");
   }
 
   return errors;
@@ -241,14 +291,14 @@ export const validateChangePasswordForm = (
   const errors: ValidationErrors = {};
 
   if (!data.oldPassword || data.oldPassword.trim() === "") {
-    errors.oldPassword = "Mật khẩu hiện tại không được để trống";
+    errors.oldPassword = tValidation("validation.auth.oldPasswordRequired");
   }
 
   const newPasswordError = validatePassword(data.newPassword);
   if (newPasswordError) errors.newPassword = newPasswordError;
 
   if (data.oldPassword === data.newPassword) {
-    errors.newPassword = "Mật khẩu mới phải khác mật khẩu hiện tại";
+    errors.newPassword = tValidation("validation.auth.newPasswordMustDiffer");
   }
 
   const confirmPasswordError = validatePasswordConfirmation(
@@ -314,15 +364,15 @@ export const hasValidationErrors = (errors: ValidationErrors): boolean => {
  */
 export const validateTournamentName = (name: string): string | null => {
   if (!name || name.trim() === "") {
-    return "Tên giải đấu không được để trống";
+    return tValidation("validation.tournament.nameRequired");
   }
 
   if (name.length < 3) {
-    return "Tên giải đấu phải có ít nhất 3 ký tự";
+    return tValidation("validation.tournament.nameMinLength");
   }
 
   if (name.length > 200) {
-    return "Tên giải đấu không được quá 200 ký tự";
+    return tValidation("validation.tournament.nameMaxLength");
   }
 
   return null;
@@ -333,15 +383,15 @@ export const validateTournamentName = (name: string): string | null => {
  */
 export const validateTournamentLocation = (location: string): string | null => {
   if (!location || location.trim() === "") {
-    return "Địa điểm tổ chức không được để trống";
+    return tValidation("validation.tournament.locationRequired");
   }
 
   if (location.length < 3) {
-    return "Địa điểm phải có ít nhất 3 ký tự";
+    return tValidation("validation.tournament.locationMinLength");
   }
 
   if (location.length > 300) {
-    return "Địa điểm không được quá 300 ký tự";
+    return tValidation("validation.tournament.locationMaxLength");
   }
 
   return null;
@@ -358,15 +408,15 @@ export const validateNumberOfTables = (
   }
 
   if (numberOfTables < 1) {
-    return "Số bàn thi đấu phải ít nhất là 1";
+    return tValidation("validation.tournament.tablesMin");
   }
 
   if (numberOfTables > 100) {
-    return "Số bàn thi đấu không được quá 100";
+    return tValidation("validation.tournament.tablesMax");
   }
 
   if (!Number.isInteger(numberOfTables)) {
-    return "Số bàn thi đấu phải là số nguyên";
+    return tValidation("validation.tournament.tablesInteger");
   }
 
   return null;
@@ -382,11 +432,11 @@ export const validateTournamentDates = (
   const errors: { startDate?: string; endDate?: string } = {};
 
   if (!startDate || startDate.trim() === "") {
-    errors.startDate = "Ngày bắt đầu không được để trống";
+    errors.startDate = tValidation("validation.tournament.startDateRequired");
   }
 
   if (!endDate || endDate.trim() === "") {
-    errors.endDate = "Ngày kết thúc không được để trống";
+    errors.endDate = tValidation("validation.tournament.endDateRequired");
   }
 
   // If either date is missing, return early
@@ -396,13 +446,13 @@ export const validateTournamentDates = (
 
   const start = new Date(startDate);
   if (isNaN(start.getTime())) {
-    errors.startDate = "Ngày bắt đầu không hợp lệ";
+    errors.startDate = tValidation("validation.tournament.startDateInvalid");
     return errors;
   }
 
   const end = new Date(endDate);
   if (isNaN(end.getTime())) {
-    errors.endDate = "Ngày kết thúc không hợp lệ";
+    errors.endDate = tValidation("validation.tournament.endDateInvalid");
     return errors;
   }
 
@@ -410,11 +460,11 @@ export const validateTournamentDates = (
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   if (start < today) {
-    errors.startDate = "Ngày bắt đầu không được là quá khứ";
+    errors.startDate = tValidation("validation.tournament.startDatePast");
   }
 
   if (end <= start) {
-    errors.endDate = "Ngày kết thúc phải sau ngày bắt đầu";
+    errors.endDate = tValidation("validation.tournament.endDateAfterStart");
   }
 
   return errors;
@@ -425,15 +475,15 @@ export const validateTournamentDates = (
  */
 export const validateContentName = (name: string): string | null => {
   if (!name || name.trim() === "") {
-    return "Tên nội dung thi đấu không được để trống";
+    return tValidation("validation.content.nameRequired");
   }
 
   if (name.length < 3) {
-    return "Tên nội dung phải có ít nhất 3 ký tự";
+    return tValidation("validation.content.nameMinLength");
   }
 
   if (name.length > 100) {
-    return "Tên nội dung không được quá 100 ký tự";
+    return tValidation("validation.content.nameMaxLength");
   }
 
   return null;
@@ -444,16 +494,16 @@ export const validateContentName = (name: string): string | null => {
  */
 export const validateMaxEntries = (maxEntries: number): string | null => {
   if (!maxEntries || maxEntries <= 0) {
-    return "Số lượng tối đa phải lớn hơn 0";
+    return tValidation("validation.content.maxEntriesMin");
   }
 
   if (maxEntries > 256) {
-    return "Số lượng tối đa không được quá 256";
+    return tValidation("validation.content.maxEntriesMax");
   }
 
   // Should be power of 2 for knockout tournament (2, 4, 8, 16, 32, 64, 128, 256)
   if ((maxEntries & (maxEntries - 1)) !== 0) {
-    return "Số lượng tối đa nên là lũy thừa của 2 (2, 4, 8, 16, 32, 64, 128, 256)";
+    return tValidation("validation.content.maxEntriesPowerOfTwo");
   }
 
   return null;
@@ -464,16 +514,16 @@ export const validateMaxEntries = (maxEntries: number): string | null => {
  */
 export const validateMaxSets = (maxSets: number): string | null => {
   if (!maxSets || maxSets <= 0) {
-    return "Số set tối đa phải lớn hơn 0";
+    return tValidation("validation.content.maxSetsMin");
   }
 
   if (maxSets > 7) {
-    return "Số set tối đa không được quá 7";
+    return tValidation("validation.content.maxSetsMax");
   }
 
   // Should be odd number (1, 3, 5, 7)
   if (maxSets % 2 === 0) {
-    return "Số set tối đa nên là số lẻ (1, 3, 5, 7)";
+    return tValidation("validation.content.maxSetsOdd");
   }
 
   return null;
@@ -499,29 +549,37 @@ export const validateTeamFormat = (
     numberOfDoubles === null ||
     numberOfDoubles === undefined
   ) {
-    errors.numberOfSingles = "Số trận đơn là bắt buộc cho thể thức đồng đội";
-    errors.numberOfDoubles = "Số trận đôi là bắt buộc cho thể thức đồng đội";
+    errors.numberOfSingles = tValidation(
+      "validation.teamFormat.singlesRequired",
+    );
+    errors.numberOfDoubles = tValidation(
+      "validation.teamFormat.doublesRequired",
+    );
     return errors;
   }
 
   if (numberOfSingles < 0) {
-    errors.numberOfSingles = "Số trận đơn không được âm";
+    errors.numberOfSingles = tValidation(
+      "validation.teamFormat.singlesNonNegative",
+    );
   }
 
   if (numberOfDoubles < 0) {
-    errors.numberOfDoubles = "Số trận đôi không được âm";
+    errors.numberOfDoubles = tValidation(
+      "validation.teamFormat.doublesNonNegative",
+    );
   }
 
   const total = numberOfSingles + numberOfDoubles;
 
   // Total must be >= 3
   if (total < 3) {
-    errors.total = "Tổng số trận (đơn + đôi) phải >= 3";
+    errors.total = tValidation("validation.teamFormat.totalMin");
   }
 
   // Total must be odd number
   if (total % 2 === 0) {
-    errors.total = "Tổng số trận phải là số lẻ (3, 5, 7, 9...)";
+    errors.total = tValidation("validation.teamFormat.totalOdd");
   }
 
   return errors;
@@ -538,19 +596,19 @@ export const validateAgeRestrictions = (
 
   if (minAge !== null && minAge !== undefined) {
     if (minAge < 5) {
-      errors.minAge = "Tuổi tối thiểu phải >= 5";
+      errors.minAge = tValidation("validation.age.minAgeMin");
     }
     if (minAge > 100) {
-      errors.minAge = "Tuổi tối thiểu không hợp lệ";
+      errors.minAge = tValidation("validation.age.minAgeInvalid");
     }
   }
 
   if (maxAge !== null && maxAge !== undefined) {
     if (maxAge < 5) {
-      errors.maxAge = "Tuổi tối đa phải >= 5";
+      errors.maxAge = tValidation("validation.age.maxAgeMin");
     }
     if (maxAge > 100) {
-      errors.maxAge = "Tuổi tối đa không hợp lệ";
+      errors.maxAge = tValidation("validation.age.maxAgeInvalid");
     }
   }
 
@@ -561,7 +619,7 @@ export const validateAgeRestrictions = (
     maxAge !== undefined
   ) {
     if (maxAge <= minAge) {
-      errors.maxAge = "Tuổi tối đa phải lớn hơn tuổi tối thiểu";
+      errors.maxAge = tValidation("validation.age.maxAgeGreaterThanMin");
     }
   }
 
@@ -579,19 +637,19 @@ export const validateEloRestrictions = (
 
   if (minElo !== null && minElo !== undefined) {
     if (minElo < 0) {
-      errors.minElo = "ELO tối thiểu không được âm";
+      errors.minElo = tValidation("validation.elo.minEloNonNegative");
     }
     if (minElo > 3000) {
-      errors.minElo = "ELO tối thiểu không hợp lệ";
+      errors.minElo = tValidation("validation.elo.minEloInvalid");
     }
   }
 
   if (maxElo !== null && maxElo !== undefined) {
     if (maxElo < 0) {
-      errors.maxElo = "ELO tối đa không được âm";
+      errors.maxElo = tValidation("validation.elo.maxEloNonNegative");
     }
     if (maxElo > 3000) {
-      errors.maxElo = "ELO tối đa không hợp lệ";
+      errors.maxElo = tValidation("validation.elo.maxEloInvalid");
     }
   }
 
@@ -602,7 +660,7 @@ export const validateEloRestrictions = (
     maxElo !== undefined
   ) {
     if (maxElo <= minElo) {
-      errors.maxElo = "ELO tối đa phải lớn hơn ELO tối thiểu";
+      errors.maxElo = tValidation("validation.elo.maxEloGreaterThanMin");
     }
   }
 
@@ -648,11 +706,11 @@ export const validateTournamentContentsCount = (
   contents: unknown[],
 ): string | null => {
   if (!contents || contents.length === 0) {
-    return "Giải đấu phải có ít nhất 1 nội dung thi đấu";
+    return tValidation("validation.content.contentsMin");
   }
 
   if (contents.length > 1) {
-    return "Hiện tại hệ thống chỉ cho phép tạo 1 nội dung thi đấu cho mỗi giải đấu";
+    return tValidation("validation.content.contentsMaxOne");
   }
 
   return null;
@@ -717,14 +775,18 @@ export const validateTournamentContentForm = (
       data.numberOfSingles !== undefined &&
       data.numberOfSingles !== 0
     ) {
-      errors.numberOfSingles = "Số trận đơn chỉ dành cho thể thức đồng đội";
+      errors.numberOfSingles = tValidation(
+        "validation.teamFormat.singlesOnlyTeam",
+      );
     }
     if (
       data.numberOfDoubles !== null &&
       data.numberOfDoubles !== undefined &&
       data.numberOfDoubles !== 0
     ) {
-      errors.numberOfDoubles = "Số trận đôi chỉ dành cho thể thức đồng đội";
+      errors.numberOfDoubles = tValidation(
+        "validation.teamFormat.doublesOnlyTeam",
+      );
     }
   }
 
@@ -765,17 +827,17 @@ export const validateTournamentSearchFilters = (
   if (filters.skip !== undefined && filters.skip !== null) {
     const skip = Number(filters.skip);
     if (isNaN(skip) || skip < 0) {
-      errors.skip = "Skip phải là số >= 0";
+      errors.skip = tValidation("validation.filters.skipMin");
     }
   }
 
   if (filters.limit !== undefined && filters.limit !== null) {
     const limit = Number(filters.limit);
     if (isNaN(limit) || limit <= 0) {
-      errors.limit = "Limit phải là số > 0";
+      errors.limit = tValidation("validation.filters.limitMin");
     }
     if (limit > 100) {
-      errors.limit = "Limit không được quá 100";
+      errors.limit = tValidation("validation.filters.limitMax");
     }
   }
 
@@ -783,14 +845,14 @@ export const validateTournamentSearchFilters = (
   if (filters.userId !== undefined && filters.userId !== null) {
     const userId = Number(filters.userId);
     if (isNaN(userId) || userId <= 0) {
-      errors.userId = "User ID không hợp lệ";
+      errors.userId = tValidation("validation.filters.userIdInvalid");
     }
   }
 
   if (filters.createdBy !== undefined && filters.createdBy !== null) {
     const createdBy = Number(filters.createdBy);
     if (isNaN(createdBy) || createdBy <= 0) {
-      errors.createdBy = "Created By ID không hợp lệ";
+      errors.createdBy = tValidation("validation.filters.createdByInvalid");
     }
   }
 
@@ -824,20 +886,22 @@ export const validateTournamentSearchFilters = (
   if (filters.gender !== undefined && filters.gender !== null) {
     const gender = filters.gender as string;
     if (!["male", "female", "mixed"].includes(gender)) {
-      errors.gender = "Giới tính phải là: male, female, hoặc mixed";
+      errors.gender = tValidation("validation.filters.genderInvalid");
     }
   }
 
   // Validate boolean fields
   if (filters.racketCheck !== undefined && filters.racketCheck !== null) {
     if (typeof filters.racketCheck !== "boolean") {
-      errors.racketCheck = "Racket check phải là true hoặc false";
+      errors.racketCheck = tValidation("validation.filters.racketCheckBoolean");
     }
   }
 
   if (filters.isGroupStage !== undefined && filters.isGroupStage !== null) {
     if (typeof filters.isGroupStage !== "boolean") {
-      errors.isGroupStage = "Is group stage phải là true hoặc false";
+      errors.isGroupStage = tValidation(
+        "validation.filters.isGroupStageBoolean",
+      );
     }
   }
 
@@ -851,20 +915,20 @@ export const validateTournamentSearchFilters = (
  */
 export const validateRoleName = (name: string): string | null => {
   if (!name || name.trim() === "") {
-    return "Tên role không được để trống";
+    return tValidation("validation.role.nameRequired");
   }
 
   if (name.length < 2) {
-    return "Tên role phải có ít nhất 2 ký tự";
+    return tValidation("validation.role.nameMinLength");
   }
 
   if (name.length > 50) {
-    return "Tên role không được vượt quá 50 ký tự";
+    return tValidation("validation.role.nameMaxLength");
   }
 
   // Allow letters, numbers, spaces, hyphens, underscores
   if (!/^[a-zA-Z0-9\s\-_]+$/.test(name)) {
-    return "Tên role chỉ được chứa chữ cái, số, khoảng trắng, gạch ngang và gạch dưới";
+    return tValidation("validation.role.nameInvalid");
   }
 
   return null;
@@ -881,7 +945,7 @@ export const validateRoleDescription = (
   }
 
   if (description.length > 500) {
-    return "Mô tả không được vượt quá 500 ký tự";
+    return tValidation("validation.role.descriptionMaxLength");
   }
 
   return null;
@@ -926,7 +990,7 @@ export const validateMatchSetScore = (
 ): string | null => {
   // Both scores must be non-negative
   if (score1 < 0 || score2 < 0) {
-    return "Điểm số không được âm";
+    return tValidation("validation.matchSet.scoreNonNegative");
   }
 
   // At least one player must reach 11 to win
@@ -934,26 +998,26 @@ export const validateMatchSetScore = (
   const minScore = Math.min(score1, score2);
 
   if (maxScore < 11) {
-    return "Điểm số thắng phải ít nhất là 11";
+    return tValidation("validation.matchSet.winScoreMin");
   }
 
   // Check if it's a valid win
   if (maxScore >= 30) {
     // Cap rule: game ends at 30 points
     if (maxScore > 30 || minScore !== 29) {
-      return "Trận đấu kết thúc ở 30-29";
+      return tValidation("validation.matchSet.capRule");
     }
   } else if (maxScore >= 11) {
     // Normal win: must be ahead by at least 2 points, or exactly 11-X where X < 10
     if (maxScore < 11) {
-      return "Điểm số thắng phải ít nhất là 11";
+      return tValidation("validation.matchSet.winScoreMin");
     }
 
     // If score is 11 or above, check deuce rule
     if (minScore >= 10) {
       // Deuce: must win by 2
       if (maxScore - minScore < 2) {
-        return "Sau 10-10, phải thắng cách biệt ít nhất 2 điểm";
+        return tValidation("validation.matchSet.deuceRule");
       }
     }
   }
@@ -969,11 +1033,11 @@ export const validateSetNumbers = (
   maxSets: number,
 ): string | null => {
   if (setNumber < 1) {
-    return "Số set phải lớn hơn 0";
+    return tValidation("validation.matchSet.setNumberMin");
   }
 
   if (setNumber > maxSets) {
-    return `Số set không được vượt quá ${maxSets}`;
+    return tValidation("validation.matchSet.setNumberMax", { maxSets });
   }
 
   return null;
@@ -1018,11 +1082,11 @@ export const validateScheduleDateRange = (
   const errors: { startDate?: string; endDate?: string } = {};
 
   if (!startDate || startDate.trim() === "") {
-    errors.startDate = "Ngày bắt đầu lịch thi đấu không được để trống";
+    errors.startDate = tValidation("validation.schedule.startDateRequired");
   }
 
   if (!endDate || endDate.trim() === "") {
-    errors.endDate = "Ngày kết thúc lịch thi đấu không được để trống";
+    errors.endDate = tValidation("validation.schedule.endDateRequired");
   }
 
   // If either date is missing, return early
@@ -1032,18 +1096,20 @@ export const validateScheduleDateRange = (
 
   const start = new Date(startDate);
   if (isNaN(start.getTime())) {
-    errors.startDate = "Ngày bắt đầu không hợp lệ";
+    errors.startDate = tValidation("validation.schedule.startDateInvalid");
     return errors;
   }
 
   const end = new Date(endDate);
   if (isNaN(end.getTime())) {
-    errors.endDate = "Ngày kết thúc không hợp lệ";
+    errors.endDate = tValidation("validation.schedule.endDateInvalid");
     return errors;
   }
 
   if (end < start) {
-    errors.endDate = "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu";
+    errors.endDate = tValidation(
+      "validation.schedule.endDateAfterOrEqualStart",
+    );
   }
 
   return errors;
@@ -1054,13 +1120,13 @@ export const validateScheduleDateRange = (
  */
 export const validateScheduleTime = (time: string): string | null => {
   if (!time || time.trim() === "") {
-    return "Thời gian thi đấu không được để trống";
+    return tValidation("validation.schedule.timeRequired");
   }
 
   // Validate time format (HH:MM or HH:MM:SS)
   const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/;
   if (!timeRegex.test(time)) {
-    return "Thời gian không đúng định dạng (HH:MM hoặc HH:MM:SS)";
+    return tValidation("validation.schedule.timeInvalidFormat");
   }
 
   return null;
@@ -1071,15 +1137,15 @@ export const validateScheduleTime = (time: string): string | null => {
  */
 export const validateMatchDuration = (duration: number): string | null => {
   if (duration <= 0) {
-    return "Thời lượng trận đấu phải lớn hơn 0";
+    return tValidation("validation.schedule.durationMin");
   }
 
   if (duration > 300) {
-    return "Thời lượng trận đấu không được quá 300 phút";
+    return tValidation("validation.schedule.durationMax");
   }
 
   if (!Number.isInteger(duration)) {
-    return "Thời lượng trận đấu phải là số nguyên";
+    return tValidation("validation.schedule.durationInteger");
   }
 
   return null;
@@ -1092,15 +1158,15 @@ export const validateScheduleNumberOfTables = (
   numberOfTables: number,
 ): string | null => {
   if (numberOfTables < 1) {
-    return "Số bàn thi đấu phải ít nhất là 1";
+    return tValidation("validation.schedule.tablesMin");
   }
 
   if (numberOfTables > 100) {
-    return "Số bàn thi đấu không được quá 100";
+    return tValidation("validation.schedule.tablesMax");
   }
 
   if (!Number.isInteger(numberOfTables)) {
-    return "Số bàn thi đấu phải là số nguyên";
+    return tValidation("validation.schedule.tablesInteger");
   }
 
   return null;
@@ -1148,11 +1214,11 @@ export const validateScheduleForm = (
  */
 export const validateBracketPosition = (position: number): string | null => {
   if (position < 1) {
-    return "Vị trí trong nhánh đấu phải lớn hơn 0";
+    return tValidation("validation.knockout.positionMin");
   }
 
   if (position > 256) {
-    return "Vị trí trong nhánh đấu không hợp lệ";
+    return tValidation("validation.knockout.positionInvalid");
   }
 
   return null;
@@ -1166,11 +1232,11 @@ export const validateRoundNumber = (
   maxRounds: number,
 ): string | null => {
   if (round < 1) {
-    return "Vòng đấu phải lớn hơn 0";
+    return tValidation("validation.knockout.roundMin");
   }
 
   if (round > maxRounds) {
-    return `Vòng đấu không được vượt quá ${maxRounds}`;
+    return tValidation("validation.knockout.roundMax", { maxRounds });
   }
 
   return null;
@@ -1181,16 +1247,16 @@ export const validateRoundNumber = (
  */
 export const validateBracketSize = (size: number): string | null => {
   if (size < 2) {
-    return "Kích thước nhánh đấu phải ít nhất là 2";
+    return tValidation("validation.knockout.sizeMin");
   }
 
   if (size > 256) {
-    return "Kích thước nhánh đấu không được quá 256";
+    return tValidation("validation.knockout.sizeMax");
   }
 
   // Must be power of 2
   if ((size & (size - 1)) !== 0) {
-    return "Kích thước nhánh đấu phải là lũy thừa của 2 (2, 4, 8, 16, 32, 64, 128, 256)";
+    return tValidation("validation.knockout.sizePowerOfTwo");
   }
 
   return null;
@@ -1234,11 +1300,11 @@ export const validateKnockoutBracketForm = (
  */
 export const validateGroupName = (name: string): string | null => {
   if (!name || name.trim() === "") {
-    return "Tên bảng đấu không được để trống";
+    return tValidation("validation.group.nameRequired");
   }
 
   if (name.length > 50) {
-    return "Tên bảng đấu không được quá 50 ký tự";
+    return tValidation("validation.group.nameMaxLength");
   }
 
   return null;
@@ -1251,11 +1317,11 @@ export const validateNumberOfGroups = (
   numberOfGroups: number,
 ): string | null => {
   if (numberOfGroups < 1) {
-    return "Số lượng bảng đấu phải ít nhất là 1";
+    return tValidation("validation.group.numberOfGroupsMin");
   }
 
   if (numberOfGroups > 32) {
-    return "Số lượng bảng đấu không được quá 32";
+    return tValidation("validation.group.numberOfGroupsMax");
   }
 
   return null;
@@ -1266,11 +1332,11 @@ export const validateNumberOfGroups = (
  */
 export const validateTeamsPerGroup = (teamsPerGroup: number): string | null => {
   if (teamsPerGroup < 2) {
-    return "Số đội mỗi bảng phải ít nhất là 2";
+    return tValidation("validation.group.teamsPerGroupMin");
   }
 
   if (teamsPerGroup > 16) {
-    return "Số đội mỗi bảng không được quá 16";
+    return tValidation("validation.group.teamsPerGroupMax");
   }
 
   return null;
@@ -1284,11 +1350,11 @@ export const validateQualifiedTeamsPerGroup = (
   teamsPerGroup: number,
 ): string | null => {
   if (qualifiedTeams < 1) {
-    return "Số đội đi tiếp phải ít nhất là 1";
+    return tValidation("validation.group.qualifiedTeamsMin");
   }
 
   if (qualifiedTeams > teamsPerGroup) {
-    return "Số đội đi tiếp không được nhiều hơn số đội trong bảng";
+    return tValidation("validation.group.qualifiedTeamsMax");
   }
 
   return null;
@@ -1347,11 +1413,14 @@ export const validateMatchStatusTransition = (
   };
 
   if (!validTransitions[currentStatus]) {
-    return "Trạng thái hiện tại không hợp lệ";
+    return tValidation("validation.match.statusCurrentInvalid");
   }
 
   if (!validTransitions[currentStatus].includes(newStatus)) {
-    return `Không thể chuyển từ trạng thái "${currentStatus}" sang "${newStatus}"`;
+    return tValidation("validation.match.statusTransitionInvalid", {
+      currentStatus,
+      newStatus,
+    });
   }
 
   return null;
@@ -1364,11 +1433,11 @@ export const validateMatchTableNumber = (
   tableNumber: number,
 ): string | null => {
   if (tableNumber < 1) {
-    return "Số bàn thi đấu phải lớn hơn 0";
+    return tValidation("validation.match.tableNumberMin");
   }
 
   if (tableNumber > 100) {
-    return "Số bàn thi đấu không được quá 100";
+    return tValidation("validation.match.tableNumberMax");
   }
 
   return null;

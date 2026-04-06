@@ -11,9 +11,9 @@
 export interface Role {
   id: number;
   name: string;
-  description?: string | null;
-  createdAt: string;
-  updatedAt: string;
+  description?: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
 }
 
 // ==================== Create Role ====================
@@ -53,7 +53,7 @@ export interface UpdateRoleRequest {
  */
 export type UpdateRoleResponse = [
   number, // Number of rows updated
-  Role[] // Array of updated role(s)
+  Role[], // Array of updated role(s)
 ];
 
 // ==================== Role Validation ====================

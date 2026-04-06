@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authService } from "@/services";
 import { queryKeys } from "./queryKeys";
 import type {
@@ -12,19 +12,6 @@ import type {
   VerifyEmailOtpRequest,
   ResendEmailVerificationRequest,
 } from "@/types";
-
-// ==================== Query Hooks ====================
-
-/**
- * Hook để lấy profile user hiện tại
- */
-export const useProfile = (options?: { enabled?: boolean }) => {
-  return useQuery({
-    queryKey: queryKeys.auth.profile(),
-    queryFn: () => authService.getProfile(),
-    enabled: options?.enabled ?? true,
-  });
-};
 
 // ==================== Mutation Hooks ====================
 
@@ -144,17 +131,9 @@ export const useSendEmailVerification = () => {
  * Hook để verify email với OTP
  */
 export const useVerifyEmailOtp = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (data: VerifyEmailOtpRequest) =>
       authService.verifyEmailOtp(data),
-    onSuccess: () => {
-      // Refetch profile to get updated isEmailVerified status
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.auth.profile(),
-      });
-    },
   });
 };
 

@@ -10,11 +10,12 @@ import {
 } from "@/components/ui/card";
 import { Trophy, Loader2, Mail, CheckCircle } from "lucide-react";
 import { useAuth } from "@/store";
-import { useAuthOperations } from "@/hooks";
+import { useAuthOperations, useTranslation } from "@/hooks";
 import { showToast } from "@/utils";
 
 const EmailVerification = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
   const { sendEmailVerification, loading } = useAuthOperations();
   const [emailSent, setEmailSent] = useState(false);
@@ -22,23 +23,23 @@ const EmailVerification = () => {
   useEffect(() => {
     // Redirect if not authenticated
     if (!isAuthenticated || !user) {
-      showToast.error("Vui lòng đăng nhập để tiếp tục");
+      showToast.error(t("toast.errors.UNAUTHORIZED"));
       navigate("/signin");
       return;
     }
 
     // Redirect if email is already verified
     if (user.isEmailVerified) {
-      showToast.info("Email của bạn đã được xác thực");
+      showToast.info(t("authFlow.emailVerification.alreadyVerified"));
       navigate("/");
     }
-  }, [isAuthenticated, user, navigate]);
+  }, [isAuthenticated, user, navigate, t]);
 
   const handleSendVerification = async (e?: FormEvent) => {
     e?.preventDefault();
 
     if (!user?.email) {
-      showToast.error("Không tìm thấy thông tin email");
+      showToast.error(t("authFlow.emailVerification.emailNotFound"));
       return;
     }
 
@@ -46,21 +47,18 @@ const EmailVerification = () => {
 
     if (result.success) {
       setEmailSent(true);
-      showToast.success(
-        "Mã OTP đã được gửi",
-        "Vui lòng kiểm tra email của bạn"
-      );
+      showToast.success(t("auth.otpSent"), t("authFlow.checkEmail"));
 
       // Navigate to verify OTP page
       setTimeout(() => {
         navigate(
           `/verify-otp?email=${encodeURIComponent(
-            user.email
-          )}&type=email-verification`
+            user.email,
+          )}&type=email-verification`,
         );
       }, 1500);
     } else {
-      showToast.error("Gửi email thất bại", result.error);
+      showToast.error(t("authFlow.emailVerification.sendFailed"), result.error);
     }
   };
 
@@ -76,20 +74,21 @@ const EmailVerification = () => {
             <Trophy className="h-12 w-12 text-primary" />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Xác thực Email
+            {t("auth.verifyEmail")}
           </h1>
           <p className="text-muted-foreground">
-            Xác thực email để sử dụng đầy đủ tính năng
+            {t("authFlow.emailVerification.subtitle")}
           </p>
         </div>
 
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="text-2xl text-center text-card-foreground">
-              Xác thực email của bạn
+              {t("authFlow.emailVerification.cardTitle")}
             </CardTitle>
             <CardDescription className="text-center">
-              Email: <span className="font-medium">{user.email}</span>
+              {t("auth.email")}:{" "}
+              <span className="font-medium">{user.email}</span>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -99,11 +98,10 @@ const EmailVerification = () => {
                   <Mail className="h-5 w-5 text-yellow-700 dark:text-yellow-300 mt-0.5" />
                   <div className="flex-1">
                     <h3 className="font-medium text-yellow-800 dark:text-yellow-200 mb-1">
-                      Email chưa được xác thực
+                      {t("authFlow.emailVerification.unverifiedTitle")}
                     </h3>
                     <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                      Vui lòng xác thực email để sử dụng tất cả các tính năng
-                      của SmashHub.
+                      {t("authFlow.emailVerification.unverifiedDescription")}
                     </p>
                   </div>
                 </div>
@@ -118,12 +116,12 @@ const EmailVerification = () => {
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Đang gửi...
+                        {t("authFlow.emailVerification.sending")}
                       </>
                     ) : (
                       <>
                         <Mail className="mr-2 h-4 w-4" />
-                        Gửi mã xác thực
+                        {t("authFlow.emailVerification.sendButton")}
                       </>
                     )}
                   </Button>
@@ -135,7 +133,7 @@ const EmailVerification = () => {
                     variant="ghost"
                     onClick={() => navigate("/")}
                   >
-                    Bỏ qua, xác thực sau
+                    {t("authFlow.emailVerification.skipForNow")}
                   </Button>
                 </div>
               </div>
@@ -145,15 +143,15 @@ const EmailVerification = () => {
                   <CheckCircle className="h-5 w-5 text-green-700 dark:text-green-300 mt-0.5" />
                   <div className="flex-1">
                     <h3 className="font-medium text-green-800 dark:text-green-200 mb-1">
-                      Email đã được gửi!
+                      {t("authFlow.emailVerification.emailSentTitle")}
                     </h3>
                     <p className="text-sm text-green-700 dark:text-green-300">
-                      Mã OTP đã được gửi đến email của bạn.
+                      {t("authFlow.emailVerification.emailSentDescription")}
                     </p>
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Đang chuyển hướng đến trang xác thực...
+                  {t("authFlow.redirectingToVerification")}
                 </p>
               </div>
             )}

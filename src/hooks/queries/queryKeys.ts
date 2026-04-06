@@ -173,7 +173,6 @@ export const queryKeys = {
   // ==================== Auth Keys ====================
   auth: {
     all: ["auth"] as const,
-    profile: () => [...queryKeys.auth.all, "profile"] as const,
     user: () => [...queryKeys.auth.all, "user"] as const,
   },
 

@@ -1,6 +1,6 @@
 // ==================== Base API Response ====================
 
-export type ApiResponse<T = void> = 
+export type ApiResponse<T = void> =
   | { success: true; message: string; data: T }
   | { success: false; error: { code: string; message: string }; data?: never };
 
@@ -12,10 +12,11 @@ export interface ApiError {
 // ==================== Request Types ====================
 
 export interface RegisterRequest {
-  username: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
-  role?: 'spectator' | 'athlete' | 'coach' | 'team_manager';
+  role?: string;
 }
 
 export interface LoginRequest {
@@ -64,10 +65,13 @@ export interface ResendEmailVerificationRequest {
 
 export interface User {
   id: number;
-  username: string;
+  firstName: string;
+  lastName: string;
   email: string;
   roles: number[];
   isEmailVerified: boolean;
+  // Backward compatibility during incremental refactor of non-auth screens.
+  username?: string;
   createdAt?: string;
   updatedAt?: string;
 }

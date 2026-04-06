@@ -9,10 +9,7 @@ import AdminRoutes from "./AdminRoutes";
 import TournamentManagerRoutes from "./TournamentManagerRoutes";
 import ChiefRefereeRoutes from "./ChiefRefereeRoutes"; // RE-ENABLED: MatchSupervision uses React Query
 import RefereeRoutes from "./RefereeRoutes";
-import TeamManagerRoutes from "./TeamManagerRoutes";
-import CoachRoutes from "./CoachRoutes";
-import AthleteRoutes from "./AthleteRoutes";
-import SpectatorRoutes from "./SpectatorRoutes";
+import UserRoutes from "@/router/UserRoutes";
 
 /**
  * AppRouter - Main application router
@@ -22,27 +19,13 @@ import SpectatorRoutes from "./SpectatorRoutes";
 export default function AppRouter() {
   const { getRoleByName, isLoading, error, fetchRoles } = useRole();
 
-  // Show loading screen while roles are being fetched
-  if (isLoading) {
-    return <RoleLoadingScreen />;
-  }
-
-  // Show error screen if roles failed to load
-  // Pass fetchRoles as onRetry callback to allow retrying without full page reload
-  // Navigation and logout will use window.location for full page reload
-  if (error) {
-    return <RoleErrorScreen error={error} onRetry={fetchRoles} />;
-  }
-
   // Get role objects from API using getRoleByName()
   // Returns Role object with { id, name, description } or undefined if not found
   const adminRole = getRoleByName("admin");
   const organizerRole = getRoleByName("organizer");
   const chiefRefereeRole = getRoleByName("chief_referee"); // RE-ENABLED: MatchSupervision uses React Query
   const refereeRole = getRoleByName("referee");
-  const teamManagerRole = getRoleByName("team_manager");
-  const coachRole = getRoleByName("coach");
-  const athleteRole = getRoleByName("athlete");
+  const userRole = getRoleByName("user");
 
   return (
     <Routes>
@@ -67,18 +50,45 @@ export default function AppRouter() {
       {/* Referee routes - only render if referee role exists */}
       {refereeRole && RefereeRoutes({ refereeRoleId: refereeRole.id })}
 
-      {/* Team Manager routes - only render if team_manager role exists */}
-      {teamManagerRole &&
-        TeamManagerRoutes({ teamManagerRoleId: teamManagerRole.id })}
+      {/* User routes - only render if user role exists */}
+      {userRole && UserRoutes({ userRoleId: userRole.id })}
 
-      {/* Coach routes - only render if coach role exists */}
-      {coachRole && CoachRoutes({ coachRoleId: coachRole.id })}
+      {/* Loading state for role-protected routes while role list is being fetched */}
+      {isLoading && (
+        <>
+          <Route path="/admin/*" element={<RoleLoadingScreen />} />
+          <Route path="/tournament-manager/*" element={<RoleLoadingScreen />} />
+          <Route path="/chief-referee/*" element={<RoleLoadingScreen />} />
+          <Route path="/referee/*" element={<RoleLoadingScreen />} />
+          <Route path="/user/*" element={<RoleLoadingScreen />} />
+        </>
+      )}
 
-      {/* Athlete routes - only render if athlete role exists */}
-      {athleteRole && AthleteRoutes({ athleteRoleId: athleteRole.id })}
-
-      {/* Spectator routes - accessible to any authenticated user */}
-      {SpectatorRoutes()}
+      {/* Error state for role-protected routes when role list fails to load */}
+      {error && (
+        <>
+          <Route
+            path="/admin/*"
+            element={<RoleErrorScreen error={error} onRetry={fetchRoles} />}
+          />
+          <Route
+            path="/tournament-manager/*"
+            element={<RoleErrorScreen error={error} onRetry={fetchRoles} />}
+          />
+          <Route
+            path="/chief-referee/*"
+            element={<RoleErrorScreen error={error} onRetry={fetchRoles} />}
+          />
+          <Route
+            path="/referee/*"
+            element={<RoleErrorScreen error={error} onRetry={fetchRoles} />}
+          />
+          <Route
+            path="/user/*"
+            element={<RoleErrorScreen error={error} onRetry={fetchRoles} />}
+          />
+        </>
+      )}
 
       {/* 404 Not Found */}
       <Route path="*" element={<NotFound />} />

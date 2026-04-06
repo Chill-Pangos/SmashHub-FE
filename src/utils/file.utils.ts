@@ -3,6 +3,13 @@
  * Handles Excel file validation and upload preparation
  */
 
+import i18n from "@/locales/i18n";
+
+const tFile = (
+  key: string,
+  options?: Record<string, string | number>,
+): string => i18n.t(key, options) as string;
+
 /**
  * Allowed Excel file MIME types
  */
@@ -61,20 +68,22 @@ export function validateExcelFile(file: File): {
   error?: string;
 } {
   if (!file) {
-    return { valid: false, error: "Vui lòng chọn file để upload" };
+    return { valid: false, error: tFile("file.validation.selectFile") };
   }
 
   if (!isExcelFile(file)) {
     return {
       valid: false,
-      error: "File không hợp lệ. Vui lòng chọn file Excel (.xlsx hoặc .xls)",
+      error: tFile("file.validation.invalidExcelFile"),
     };
   }
 
   if (!isValidFileSize(file)) {
     return {
       valid: false,
-      error: `File quá lớn. Kích thước tối đa là ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
+      error: tFile("file.validation.fileTooLarge", {
+        maxSizeMB: MAX_FILE_SIZE / (1024 * 1024),
+      }),
     };
   }
 
@@ -88,10 +97,17 @@ export function validateExcelFile(file: File): {
  * @returns Formatted file size string
  */
 export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return "0 Bytes";
+  if (bytes === 0) {
+    return `0 ${tFile("file.units.bytes")}`;
+  }
 
   const k = 1024;
-  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const sizes = [
+    tFile("file.units.bytes"),
+    tFile("file.units.kb"),
+    tFile("file.units.mb"),
+    tFile("file.units.gb"),
+  ];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
@@ -184,7 +200,7 @@ export function getExcelTemplatePath(
     case "team":
       return EXCEL_TEMPLATES.TEAM_ENTRY;
     default:
-      throw new Error(`Unknown template type: ${type}`);
+      throw new Error(tFile("file.errors.unknownTemplateType", { type }));
   }
 }
 
@@ -201,16 +217,16 @@ export function downloadTemplateByType(
 
   switch (type) {
     case "registration":
-      filename = "Mẫu_Đăng_Ký_Danh_Sách.xlsx";
+      filename = tFile("file.templates.registrationFilename");
       break;
     case "single":
-      filename = "Mẫu_Đăng_Ký_Đơn.xlsx";
+      filename = tFile("file.templates.singleFilename");
       break;
     case "double":
-      filename = "Mẫu_Đăng_Ký_Đôi.xlsx";
+      filename = tFile("file.templates.doubleFilename");
       break;
     case "team":
-      filename = "Mẫu_Đăng_Ký_Đội.xlsx";
+      filename = tFile("file.templates.teamFilename");
       break;
   }
 

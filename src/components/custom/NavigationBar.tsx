@@ -17,6 +17,7 @@ import { useAuth } from "@/store/useAuth";
 import { useRole } from "@/store/useRole";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
 import { useTranslation } from "@/hooks/useTranslation";
+import type { User as AuthUser } from "@/types";
 
 const getNavItems = (t: (key: string) => string) => [
   { name: t("nav.home"), to: "/" },
@@ -36,24 +37,31 @@ const NavigationBar = () => {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/signin");
   };
 
   const handleDashboard = () => {
     if (user) {
       const dashboardRoute = getDefaultRouteForRoles(user.roles);
-      navigate(dashboardRoute);
+      const resolvedRoute = dashboardRoute === "/" ? "/user" : dashboardRoute;
+      navigate(resolvedRoute);
     }
   };
 
-  const getUserInitials = (username: string) => {
-    return username
+  const getUserDisplayName = (authUser: AuthUser) => {
+    const fullName = `${authUser.firstName} ${authUser.lastName}`.trim();
+    return fullName || authUser.username || authUser.email;
+  };
+
+  const getUserInitials = (displayName: string) => {
+    return displayName
       .split(" ")
       .map((word) => word[0])
       .join("")
       .toUpperCase()
       .slice(0, 2);
   };
+
+  const displayName = user ? getUserDisplayName(user) : "";
 
   return (
     <nav
@@ -104,7 +112,7 @@ const NavigationBar = () => {
                   >
                     <Avatar className="h-10 w-10">
                       <AvatarFallback className="bg-primary text-primary-foreground">
-                        {getUserInitials(user.username)}
+                        {getUserInitials(displayName)}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -113,7 +121,7 @@ const NavigationBar = () => {
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">
-                        {user.username}
+                        {displayName}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground">
                         {user.email}

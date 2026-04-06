@@ -27,6 +27,10 @@ const Home = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  const displayName = user
+    ? `${user.firstName} ${user.lastName}`.trim() || user.username || user.email
+    : "";
+
   const cardItems = [
     {
       title: t("tournamentManager.tournamentManager"),
@@ -63,13 +67,14 @@ const Home = () => {
   const handleDashboard = () => {
     if (user && user.roles && user.roles.length > 0) {
       const dashboardRoute = getDefaultRouteForRoles(user.roles);
+      const resolvedRoute = dashboardRoute === "/" ? "/user" : dashboardRoute;
       console.log(
         "Navigating to dashboard:",
-        dashboardRoute,
+        resolvedRoute,
         "with roles:",
         user.roles,
       );
-      navigate(dashboardRoute);
+      navigate(resolvedRoute);
     } else {
       console.warn("Cannot navigate: user or roles not available", { user });
       navigate("/");
@@ -95,7 +100,7 @@ const Home = () => {
             {isAuthenticated && user && (
               <div className="mb-8 p-6 rounded-lg bg-primary/10 border border-primary/20 max-w-2xl mx-auto">
                 <h2 className="text-2xl font-bold text-foreground mb-2">
-                  {t("home.welcomeBack", { name: user.username })}
+                  {t("home.welcomeBack", { name: displayName })}
                 </h2>
                 <div className="flex flex-wrap gap-2 justify-center mb-4">
                   {getRoleNames(user.roles).map((roleName) => (

@@ -10,8 +10,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "@/store/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useAuthOperations } from "@/hooks/useAuthOperations";
 import NotificationDropdown from "./NotificationDropdown";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -27,8 +26,7 @@ export default function RefereeSidebar({
 }: RefereeSidebarProps) {
   const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
-  const { logout } = useAuth();
-  const navigate = useNavigate();
+  const { logout } = useAuthOperations();
 
   const menuItems = [
     {
@@ -43,9 +41,8 @@ export default function RefereeSidebar({
     },
   ];
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
+  const handleLogout = async () => {
+    await logout();
   };
 
   return (
