@@ -292,19 +292,36 @@ class ScheduleService {
   }
 
   /**
-   * Get schedules by content ID
-   * GET /api/schedules/content/:contentId
+   * Get schedules by category ID
+   * GET /api/schedules/category/:categoryId
    *
-   * @param contentId Tournament content ID
-   * @param options Query options for filtering and pagination
-   * @returns Promise with schedules for the content
-   *
-   * @example
-   * const schedules = await scheduleService.getSchedulesByContent(1, {
-   *   stage: "knockout",
-   *   skip: 0,
-   *   limit: 20
-   * });
+   * Falls back to legacy /content path during transition.
+   */
+  async getSchedulesByCategory(
+    categoryId: number,
+    options?: {
+      stage?: ScheduleStage;
+      skip?: number;
+      limit?: number;
+    },
+  ): Promise<GetSchedulesByContentResponse> {
+    try {
+      const response = await axiosInstance.get<GetSchedulesByContentResponse>(
+        `${this.baseURL}/category/${categoryId}`,
+        { params: options },
+      );
+      return response.data;
+    } catch {
+      const response = await axiosInstance.get<GetSchedulesByContentResponse>(
+        `${this.baseURL}/content/${categoryId}`,
+        { params: options },
+      );
+      return response.data;
+    }
+  }
+
+  /**
+   * @deprecated Use getSchedulesByCategory instead.
    */
   async getSchedulesByContent(
     contentId: number,
@@ -314,11 +331,7 @@ class ScheduleService {
       limit?: number;
     },
   ): Promise<GetSchedulesByContentResponse> {
-    const response = await axiosInstance.get<GetSchedulesByContentResponse>(
-      `${this.baseURL}/content/${contentId}`,
-      { params: options },
-    );
-    return response.data;
+    return this.getSchedulesByCategory(contentId, options);
   }
 }
 

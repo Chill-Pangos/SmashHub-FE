@@ -55,8 +55,9 @@ export const queryKeys = {
       [...queryKeys.entries.lists(), filters] as const,
     details: () => [...queryKeys.entries.all, "detail"] as const,
     detail: (id: number) => [...queryKeys.entries.details(), id] as const,
-    byContent: (contentId: number) =>
-      [...queryKeys.entries.all, "content", contentId] as const,
+    byCategory: (categoryId: number) =>
+      [...queryKeys.entries.all, "category", categoryId] as const,
+    byContent: (contentId: number) => queryKeys.entries.byCategory(contentId),
     byTeam: (teamId: number) =>
       [...queryKeys.entries.all, "team", teamId] as const,
     byTournament: (tournamentId: number) =>
@@ -102,8 +103,9 @@ export const queryKeys = {
       [...queryKeys.schedules.lists(), filters] as const,
     details: () => [...queryKeys.schedules.all, "detail"] as const,
     detail: (id: number) => [...queryKeys.schedules.details(), id] as const,
-    byContent: (contentId: number) =>
-      [...queryKeys.schedules.all, "content", contentId] as const,
+    byCategory: (categoryId: number) =>
+      [...queryKeys.schedules.all, "category", categoryId] as const,
+    byContent: (contentId: number) => queryKeys.schedules.byCategory(contentId),
   },
 
   // ==================== Group Standing Keys ====================
@@ -115,8 +117,10 @@ export const queryKeys = {
     details: () => [...queryKeys.groupStandings.all, "detail"] as const,
     detail: (id: number) =>
       [...queryKeys.groupStandings.details(), id] as const,
+    byCategory: (categoryId: number) =>
+      [...queryKeys.groupStandings.all, "category", categoryId] as const,
     byContent: (contentId: number) =>
-      [...queryKeys.groupStandings.all, "content", contentId] as const,
+      queryKeys.groupStandings.byCategory(contentId),
     bySchedule: (scheduleId: number) =>
       [...queryKeys.groupStandings.all, "schedule", scheduleId] as const,
     byEntry: (entryId: number) =>
@@ -132,8 +136,10 @@ export const queryKeys = {
     details: () => [...queryKeys.knockoutBrackets.all, "detail"] as const,
     detail: (id: number) =>
       [...queryKeys.knockoutBrackets.details(), id] as const,
+    byCategory: (categoryId: number) =>
+      [...queryKeys.knockoutBrackets.all, "category", categoryId] as const,
     byContent: (contentId: number) =>
-      [...queryKeys.knockoutBrackets.all, "content", contentId] as const,
+      queryKeys.knockoutBrackets.byCategory(contentId),
   },
 
   // ==================== Tournament Referee Keys ====================
@@ -168,6 +174,18 @@ export const queryKeys = {
     detail: (id: number) => [...queryKeys.roles.details(), id] as const,
     byUser: (userId: number) =>
       [...queryKeys.roles.all, "user", userId] as const,
+  },
+
+  // ==================== Permission Keys ====================
+  permissions: {
+    all: ["permissions"] as const,
+    lists: () => [...queryKeys.permissions.all, "list"] as const,
+    list: (filters?: { skip?: number; limit?: number }) =>
+      [...queryKeys.permissions.lists(), filters] as const,
+    details: () => [...queryKeys.permissions.all, "detail"] as const,
+    detail: (id: number) => [...queryKeys.permissions.details(), id] as const,
+    byName: (name: string) =>
+      [...queryKeys.permissions.all, "name", name] as const,
   },
 
   // ==================== Auth Keys ====================

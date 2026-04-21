@@ -1,10 +1,12 @@
 import axiosInstance from "@/config/axiosConfig";
+import { parsePaginatedResponse } from "@/utils/pagination.utils";
 import type {
   Role,
   CreateRoleRequest,
   CreateRoleResponse,
   UpdateRoleRequest,
   UpdateRoleResponse,
+  PaginatedRolesResult,
 } from "@/types/role.types";
 
 /**
@@ -39,6 +41,21 @@ class RoleService {
   }
 
   /**
+   * Get roles in a pagination-ready shape.
+   * Supports both server pagination payloads and plain arrays.
+   */
+  async getAllRolesPaginated(
+    skip: number = 0,
+    limit: number = 10,
+  ): Promise<PaginatedRolesResult> {
+    const response = await axiosInstance.get<unknown>(this.baseURL, {
+      params: { skip, limit },
+    });
+
+    return parsePaginatedResponse<Role>(response.data, { skip, limit });
+  }
+
+  /**
    * Get all roles with pagination
    * GET /api/roles
    *
@@ -50,10 +67,8 @@ class RoleService {
    * const roles = await roleService.getAllRoles(0, 20);
    */
   async getAllRoles(skip: number = 0, limit: number = 10): Promise<Role[]> {
-    const response = await axiosInstance.get<Role[]>(this.baseURL, {
-      params: { skip, limit },
-    });
-    return response.data;
+    const result = await this.getAllRolesPaginated(skip, limit);
+    return result.items;
   }
 
   /**
@@ -85,7 +100,7 @@ class RoleService {
     // URL encode the name to handle spaces and special characters
     const encodedName = encodeURIComponent(name);
     const response = await axiosInstance.get<Role>(
-      `${this.baseURL}/name/${encodedName}`
+      `${this.baseURL}/name/${encodedName}`,
     );
     return response.data;
   }
@@ -105,11 +120,11 @@ class RoleService {
    */
   async updateRole(
     id: number,
-    data: UpdateRoleRequest
+    data: UpdateRoleRequest,
   ): Promise<UpdateRoleResponse> {
     const response = await axiosInstance.put<UpdateRoleResponse>(
       `${this.baseURL}/${id}`,
-      data
+      data,
     );
     return response.data;
   }

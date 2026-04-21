@@ -52,8 +52,10 @@ export default function RoleGuard({
     return <Navigate to="/signin" replace />;
   }
 
+  const userRoles = user.roles ?? [];
+
   // Check if user has any of the allowed roles
-  if (!hasAnyRole(user.roles, allowedRoles)) {
+  if (!hasAnyRole(userRoles, allowedRoles)) {
     return <Navigate to={redirectTo} replace />;
   }
 

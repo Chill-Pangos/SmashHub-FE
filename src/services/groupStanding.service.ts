@@ -128,43 +128,49 @@ class GroupStandingService {
   }
 
   /**
-   * Get group standings by content ID
-   * GET /api/group-standings/:contentId
-   *
-   * @param contentId Tournament content ID
-   * @returns Promise with group standings
-   *
-   * @example
-   * const standings = await groupStandingService.getStandingsByContent(1);
+   * Get group standings by category ID
+   * GET /api/group-standings/:categoryId
    */
-  async getStandingsByContent(
-    contentId: number,
+  async getStandingsByCategory(
+    categoryId: number,
   ): Promise<GetStandingsByContentResponse> {
     const response = await axiosInstance.get<GetStandingsByContentResponse>(
-      `${this.baseURL}/${contentId}`,
+      `${this.baseURL}/${categoryId}`,
     );
 
     return response.data;
   }
 
   /**
-   * Get qualified teams
-   * GET /api/group-standings/qualified/:contentId
-   *
-   * @param contentId Tournament content ID
-   * @returns Promise with qualified teams
-   *
-   * @example
-   * const qualified = await groupStandingService.getQualifiedTeams(1);
+   * @deprecated Use getStandingsByCategory instead.
+   */
+  async getStandingsByContent(
+    contentId: number,
+  ): Promise<GetStandingsByContentResponse> {
+    return this.getStandingsByCategory(contentId);
+  }
+
+  /**
+   * Get qualified teams by category ID
+   * GET /api/group-standings/qualified/:categoryId
+   */
+  async getQualifiedTeamsByCategory(
+    categoryId: number,
+  ): Promise<GetQualifiedTeamsResponse> {
+    const response = await axiosInstance.get<GetQualifiedTeamsResponse>(
+      `${this.baseURL}/qualified/${categoryId}`,
+    );
+
+    return response.data;
+  }
+
+  /**
+   * @deprecated Use getQualifiedTeamsByCategory instead.
    */
   async getQualifiedTeams(
     contentId: number,
   ): Promise<GetQualifiedTeamsResponse> {
-    const response = await axiosInstance.get<GetQualifiedTeamsResponse>(
-      `${this.baseURL}/qualified/${contentId}`,
-    );
-
-    return response.data;
+    return this.getQualifiedTeamsByCategory(contentId);
   }
 }
 

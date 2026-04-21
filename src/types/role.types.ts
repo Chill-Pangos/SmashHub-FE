@@ -3,6 +3,8 @@
  * Type definitions for role-related operations
  */
 
+import type { PaginatedResult, PaginationParams } from "./pagination.types";
+
 // ==================== Base Role Interface ====================
 
 /**
@@ -73,3 +75,9 @@ export interface RoleValidationErrors {
   name?: string;
   description?: string;
 }
+
+// ==================== Pagination Types ====================
+
+export interface RoleListParams extends PaginationParams {}
+
+export type PaginatedRolesResult = PaginatedResult<Role>;

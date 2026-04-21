@@ -19,6 +19,7 @@ export type KnockoutBracketStatus =
 export interface KnockoutBracket {
   id: number;
   contentId: number;
+  categoryId?: number;
   roundNumber: number;
   bracketPosition: number;
   entryAId?: number | null;
@@ -45,6 +46,7 @@ export interface KnockoutBracket {
  */
 export interface CreateKnockoutBracketRequest {
   contentId: number;
+  categoryId?: number;
   roundNumber: number;
   bracketPosition: number;
   entryAId?: number | null;
@@ -82,6 +84,7 @@ export interface UpdateKnockoutBracketRequest {
  */
 export interface GenerateKnockoutBracketRequest {
   contentId: number;
+  categoryId?: number;
 }
 
 /**
@@ -89,6 +92,7 @@ export interface GenerateKnockoutBracketRequest {
  */
 export interface GenerateFromGroupsRequest {
   contentId: number;
+  categoryId?: number;
   teamsPerGroup: number;
 }
 

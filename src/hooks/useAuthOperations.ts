@@ -71,7 +71,9 @@ export const useAuthOperations = () => {
         // Save new auth data
         setAuthData(response.data);
         // Redirect based on user role
-        const redirectPath = resolvePostAuthRoute(response.data.user.roles);
+        const redirectPath = resolvePostAuthRoute(
+          response.data.user.roles ?? [],
+        );
         navigate(redirectPath, { replace: true });
         return { success: true, data: response.data };
       }
@@ -103,7 +105,9 @@ export const useAuthOperations = () => {
         // Save new auth data
         setAuthData(response.data);
         // Redirect based on user role
-        const redirectPath = resolvePostAuthRoute(response.data.user.roles);
+        const redirectPath = resolvePostAuthRoute(
+          response.data.user.roles ?? [],
+        );
         navigate(redirectPath, { replace: true });
         return { success: true, data: response.data };
       }

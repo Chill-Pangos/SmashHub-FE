@@ -2,9 +2,9 @@
 
 import {
   Trophy,
-  // Users, // COMMENTED OUT: Menu item hidden
+  Users,
   // Calendar, // COMMENTED OUT: Menu item hidden
-  // Award, // COMMENTED OUT: Menu item hidden
+  Award,
   BarChart3,
   Settings,
   LogOut,
@@ -35,9 +35,8 @@ export default function AdminSidebar({
 
   const menuItems = [
     { id: "overview", label: t("admin.systemDashboard"), icon: BarChart3 },
-    // COMMENTED OUT: These features use mock data, no API available
-    // { id: "users", label: t("admin.userManagement"), icon: Users },
-    // { id: "rbac", label: t("admin.rbacSettings"), icon: Award },
+    { id: "users", label: t("admin.userManagement"), icon: Users },
+    { id: "rbac", label: t("admin.rbacSettings"), icon: Award },
     // { id: "logs", label: t("admin.systemLogs"), icon: Calendar },
   ];
 

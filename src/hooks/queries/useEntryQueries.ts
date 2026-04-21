@@ -11,6 +11,9 @@ import type {
   ConfirmImportTeamEntriesRequest,
 } from "@/types";
 
+const getCategoryId = (data: { contentId: number; categoryId?: number }) =>
+  data.categoryId ?? data.contentId;
+
 // ==================== Query Hooks ====================
 
 /**
@@ -35,20 +38,30 @@ export const useEntry = (id: number, options?: { enabled?: boolean }) => {
 };
 
 /**
- * Hook để lấy entries theo content ID
+ * Hook để lấy entries theo category ID
+ */
+export const useEntriesByCategory = (
+  categoryId: number,
+  skip = 0,
+  limit = 10,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: queryKeys.entries.byCategory(categoryId),
+    queryFn: () => entryService.getEntriesByCategoryId(categoryId, skip, limit),
+    enabled: (options?.enabled ?? true) && categoryId > 0,
+  });
+};
+
+/**
+ * @deprecated Use useEntriesByCategory instead.
  */
 export const useEntriesByContent = (
   contentId: number,
   skip = 0,
   limit = 10,
   options?: { enabled?: boolean },
-) => {
-  return useQuery({
-    queryKey: queryKeys.entries.byContent(contentId),
-    queryFn: () => entryService.getEntriesByContentId(contentId, skip, limit),
-    enabled: (options?.enabled ?? true) && contentId > 0,
-  });
-};
+) => useEntriesByCategory(contentId, skip, limit, options);
 
 // ==================== Mutation Hooks ====================
 
@@ -61,11 +74,12 @@ export const useCreateEntry = () => {
   return useMutation({
     mutationFn: (data: CreateEntryRequest) => entryService.createEntry(data),
     onSuccess: (newEntry) => {
+      const categoryId = getCategoryId(newEntry);
       queryClient.invalidateQueries({
         queryKey: queryKeys.entries.all,
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.entries.byContent(newEntry.contentId),
+        queryKey: queryKeys.entries.byCategory(categoryId),
       });
     },
   });
@@ -81,11 +95,12 @@ export const useRegisterEntry = () => {
     mutationFn: (data: RegisterEntryRequest) =>
       entryService.registerEntry(data),
     onSuccess: (newEntry) => {
+      const categoryId = getCategoryId(newEntry);
       queryClient.invalidateQueries({
         queryKey: queryKeys.entries.all,
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.entries.byContent(newEntry.contentId),
+        queryKey: queryKeys.entries.byCategory(categoryId),
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.entries.byTeam(newEntry.teamId),
@@ -175,11 +190,12 @@ export const useConfirmImportSingleEntries = () => {
     mutationFn: (data: ConfirmImportSingleEntriesRequest) =>
       entryService.confirmImportSingleEntries(data),
     onSuccess: (_result, data) => {
+      const categoryId = getCategoryId(data);
       queryClient.invalidateQueries({
         queryKey: queryKeys.entries.all,
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.entries.byContent(data.contentId),
+        queryKey: queryKeys.entries.byCategory(categoryId),
       });
     },
   });
@@ -205,11 +221,12 @@ export const useConfirmImportDoubleEntries = () => {
     mutationFn: (data: ConfirmImportDoubleEntriesRequest) =>
       entryService.confirmImportDoubleEntries(data),
     onSuccess: (_result, data) => {
+      const categoryId = getCategoryId(data);
       queryClient.invalidateQueries({
         queryKey: queryKeys.entries.all,
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.entries.byContent(data.contentId),
+        queryKey: queryKeys.entries.byCategory(categoryId),
       });
     },
   });
@@ -235,11 +252,12 @@ export const useConfirmImportTeamEntries = () => {
     mutationFn: (data: ConfirmImportTeamEntriesRequest) =>
       entryService.confirmImportTeamEntries(data),
     onSuccess: (_result, data) => {
+      const categoryId = getCategoryId(data);
       queryClient.invalidateQueries({
         queryKey: queryKeys.entries.all,
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.entries.byContent(data.contentId),
+        queryKey: queryKeys.entries.byCategory(categoryId),
       });
     },
   });

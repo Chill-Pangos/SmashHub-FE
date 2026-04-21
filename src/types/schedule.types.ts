@@ -16,6 +16,7 @@ export type ScheduleStage = "group" | "knockout";
 export interface Schedule {
   id: number;
   contentId: number;
+  categoryId?: number;
   roundNumber?: number;
   groupName?: string | null;
   stage?: ScheduleStage;
@@ -44,6 +45,7 @@ export interface GroupResult {
  */
 export interface CreateScheduleRequest {
   contentId: number;
+  categoryId?: number;
   matchTime: string;
   tableNumber?: number;
   matchId?: number | null;
@@ -54,6 +56,7 @@ export interface CreateScheduleRequest {
  */
 export interface UpdateScheduleRequest {
   contentId?: number;
+  categoryId?: number;
   matchTime?: string;
   tableNumber?: number;
   matchId?: number | null;
@@ -64,6 +67,7 @@ export interface UpdateScheduleRequest {
  */
 export interface GenerateScheduleRequest {
   contentId: number;
+  categoryId?: number;
   startDate: string;
   endDate: string;
 }
@@ -73,6 +77,7 @@ export interface GenerateScheduleRequest {
  */
 export interface UpdateKnockoutEntriesRequest {
   contentId: number;
+  categoryId?: number;
   groupResults: GroupResult[];
 }
 
@@ -81,6 +86,7 @@ export interface UpdateKnockoutEntriesRequest {
  */
 export interface GenerateGroupStageScheduleRequest {
   contentId: number;
+  categoryId?: number;
   startDate: string;
   endDate: string;
 }
@@ -90,6 +96,7 @@ export interface GenerateGroupStageScheduleRequest {
  */
 export interface GenerateCompleteScheduleRequest {
   contentId: number;
+  categoryId?: number;
   startDate: string;
   endDate: string;
   groupStageEndDate?: string;
@@ -100,6 +107,7 @@ export interface GenerateCompleteScheduleRequest {
  */
 export interface GenerateKnockoutOnlyScheduleRequest {
   contentId: number;
+  categoryId?: number;
   startDate: string;
   endDate: string;
 }
@@ -109,6 +117,7 @@ export interface GenerateKnockoutOnlyScheduleRequest {
  */
 export interface GenerateKnockoutStageScheduleRequest {
   contentId: number;
+  categoryId?: number;
   startDate: string;
   endDate: string;
 }
@@ -229,4 +238,5 @@ export interface GetSchedulesByContentData {
 /**
  * Get schedules by content response
  */
-export type GetSchedulesByContentResponse = ApiResponse<GetSchedulesByContentData>;
+export type GetSchedulesByContentResponse =
+  ApiResponse<GetSchedulesByContentData>;

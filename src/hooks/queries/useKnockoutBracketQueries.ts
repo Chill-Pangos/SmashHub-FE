@@ -10,6 +10,9 @@ import type {
   AdvanceWinnerRequest,
 } from "@/types";
 
+const getCategoryId = (data: { contentId: number; categoryId?: number }) =>
+  data.categoryId ?? data.contentId;
+
 // ==================== Query Hooks ====================
 
 /**
@@ -37,19 +40,27 @@ export const useKnockoutBracket = (
 };
 
 /**
- * Hook để lấy knockout brackets theo content ID
+ * Hook để lấy knockout brackets theo category ID
+ */
+export const useKnockoutBracketsByCategory = (
+  categoryId: number,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: queryKeys.knockoutBrackets.byCategory(categoryId),
+    queryFn: () =>
+      knockoutBracketService.getKnockoutBracketsByCategory(categoryId),
+    enabled: (options?.enabled ?? true) && categoryId > 0,
+  });
+};
+
+/**
+ * @deprecated Use useKnockoutBracketsByCategory instead.
  */
 export const useKnockoutBracketsByContent = (
   contentId: number,
   options?: { enabled?: boolean },
-) => {
-  return useQuery({
-    queryKey: queryKeys.knockoutBrackets.byContent(contentId),
-    queryFn: () =>
-      knockoutBracketService.getKnockoutBracketsByContent(contentId),
-    enabled: (options?.enabled ?? true) && contentId > 0,
-  });
-};
+) => useKnockoutBracketsByCategory(contentId, options);
 
 // ==================== Mutation Hooks ====================
 
@@ -67,8 +78,9 @@ export const useCreateKnockoutBracket = () => {
         queryKey: queryKeys.knockoutBrackets.all,
       });
       if (result.data) {
+        const categoryId = getCategoryId(result.data);
         queryClient.invalidateQueries({
-          queryKey: queryKeys.knockoutBrackets.byContent(result.data.contentId),
+          queryKey: queryKeys.knockoutBrackets.byCategory(categoryId),
         });
       }
     },
@@ -149,8 +161,9 @@ export const useGenerateKnockoutBracket = () => {
     mutationFn: (data: GenerateKnockoutBracketRequest) =>
       knockoutBracketService.generateKnockoutBracket(data),
     onSuccess: (_result, data) => {
+      const categoryId = getCategoryId(data);
       queryClient.invalidateQueries({
-        queryKey: queryKeys.knockoutBrackets.byContent(data.contentId),
+        queryKey: queryKeys.knockoutBrackets.byCategory(categoryId),
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.knockoutBrackets.all,
@@ -169,8 +182,9 @@ export const useGenerateFromGroups = () => {
     mutationFn: (data: GenerateFromGroupsRequest) =>
       knockoutBracketService.generateFromGroups(data),
     onSuccess: (_result, data) => {
+      const categoryId = getCategoryId(data);
       queryClient.invalidateQueries({
-        queryKey: queryKeys.knockoutBrackets.byContent(data.contentId),
+        queryKey: queryKeys.knockoutBrackets.byCategory(categoryId),
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.knockoutBrackets.all,

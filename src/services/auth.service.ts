@@ -28,11 +28,13 @@ class AuthService {
     const firstName = user.firstName || "";
     const lastName = user.lastName || "";
     const fallbackDisplayName = `${firstName} ${lastName}`.trim();
+    const roles = Array.isArray(user.roles) ? user.roles : [];
 
     return {
       ...user,
       firstName,
       lastName,
+      roles,
       username: user.username || fallbackDisplayName || user.email,
     };
   }

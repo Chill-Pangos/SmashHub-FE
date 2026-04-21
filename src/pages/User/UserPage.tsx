@@ -16,6 +16,8 @@ export default function UserPage() {
     return null;
   }
 
+  const userRoles = user.roles ?? [];
+
   const displayName =
     `${user.firstName} ${user.lastName}`.trim() || user.username || user.email;
 
@@ -32,7 +34,7 @@ export default function UserPage() {
             </p>
             <div className="text-sm text-muted-foreground">
               {t("authFlow.userPage.currentRoles")}:{" "}
-              {getRoleNames(user.roles).join(", ") ||
+              {getRoleNames(userRoles).join(", ") ||
                 t("authFlow.userPage.defaultRole")}
             </div>
             <div className="flex flex-wrap gap-3">

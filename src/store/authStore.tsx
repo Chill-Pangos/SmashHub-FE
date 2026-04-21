@@ -24,11 +24,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const firstName = user.firstName || "";
     const lastName = user.lastName || "";
     const fallbackDisplayName = `${firstName} ${lastName}`.trim();
+    const roles = Array.isArray(user.roles) ? user.roles : [];
 
     return {
       ...user,
       firstName,
       lastName,
+      roles,
       username: user.username || fallbackDisplayName || user.email,
     };
   };
@@ -45,8 +47,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const refreshToken = authService.getRefreshToken();
 
       if (user && accessToken && refreshToken) {
+        const normalizedUser = normalizeAuthUser(user);
         setAuthState({
-          user,
+          user: normalizedUser,
           accessToken,
           refreshToken,
           isAuthenticated: true,

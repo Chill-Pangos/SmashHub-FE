@@ -68,8 +68,13 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  roles: number[];
+  roles?: number[];
   isEmailVerified: boolean;
+  password?: string;
+  gender?: string | null;
+  avatarUrl?: string | null;
+  dob?: string | null;
+  phoneNumber?: string | null;
   // Backward compatibility during incremental refactor of non-auth screens.
   username?: string;
   createdAt?: string;

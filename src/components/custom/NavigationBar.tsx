@@ -39,9 +39,11 @@ const NavigationBar = () => {
     await logout();
   };
 
+  const userRoles = user?.roles ?? [];
+
   const handleDashboard = () => {
     if (user) {
-      const dashboardRoute = getDefaultRouteForRoles(user.roles);
+      const dashboardRoute = getDefaultRouteForRoles(userRoles);
       const resolvedRoute = dashboardRoute === "/" ? "/user" : dashboardRoute;
       navigate(resolvedRoute);
     }
@@ -127,7 +129,7 @@ const NavigationBar = () => {
                         {user.email}
                       </p>
                       <div className="flex flex-wrap gap-1 mt-2">
-                        {getRoleNames(user.roles).map((roleName) => (
+                        {getRoleNames(userRoles).map((roleName) => (
                           <span
                             key={roleName}
                             className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary"

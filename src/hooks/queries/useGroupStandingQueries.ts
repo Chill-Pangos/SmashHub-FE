@@ -9,33 +9,44 @@ import type {
   CalculateStandingsRequest,
 } from "@/types";
 
+const getCategoryId = (data: { contentId: number; categoryId?: number }) =>
+  data.categoryId ?? data.contentId;
+
 // ==================== Query Hooks ====================
 
 /**
- * Hook để lấy group standings theo content ID
+ * Hook để lấy group standings theo category ID
+ */
+export const useGroupStandingsByCategory = (
+  categoryId: number,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: queryKeys.groupStandings.byCategory(categoryId),
+    queryFn: () => groupStandingService.getStandingsByCategory(categoryId),
+    enabled: (options?.enabled ?? true) && categoryId > 0,
+  });
+};
+
+/**
+ * @deprecated Use useGroupStandingsByCategory instead.
  */
 export const useGroupStandingsByContent = (
   contentId: number,
   options?: { enabled?: boolean },
-) => {
-  return useQuery({
-    queryKey: queryKeys.groupStandings.byContent(contentId),
-    queryFn: () => groupStandingService.getStandingsByContent(contentId),
-    enabled: (options?.enabled ?? true) && contentId > 0,
-  });
-};
+) => useGroupStandingsByCategory(contentId, options);
 
 /**
  * Hook để lấy qualified teams
  */
 export const useQualifiedTeams = (
-  contentId: number,
+  categoryId: number,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: [...queryKeys.groupStandings.byContent(contentId), "qualified"],
-    queryFn: () => groupStandingService.getQualifiedTeams(contentId),
-    enabled: (options?.enabled ?? true) && contentId > 0,
+    queryKey: [...queryKeys.groupStandings.byCategory(categoryId), "qualified"],
+    queryFn: () => groupStandingService.getQualifiedTeamsByCategory(categoryId),
+    enabled: (options?.enabled ?? true) && categoryId > 0,
   });
 };
 
@@ -51,8 +62,9 @@ export const useGeneratePlaceholders = () => {
     mutationFn: (data: GeneratePlaceholdersRequest) =>
       groupStandingService.generatePlaceholders(data),
     onSuccess: (_result, data) => {
+      const categoryId = getCategoryId(data);
       queryClient.invalidateQueries({
-        queryKey: queryKeys.groupStandings.byContent(data.contentId),
+        queryKey: queryKeys.groupStandings.byCategory(categoryId),
       });
     },
   });
@@ -78,8 +90,9 @@ export const useSaveAssignments = () => {
     mutationFn: (data: SaveAssignmentsRequest) =>
       groupStandingService.saveAssignments(data),
     onSuccess: (_result, data) => {
+      const categoryId = getCategoryId(data);
       queryClient.invalidateQueries({
-        queryKey: queryKeys.groupStandings.byContent(data.contentId),
+        queryKey: queryKeys.groupStandings.byCategory(categoryId),
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.groupStandings.all,
@@ -98,8 +111,9 @@ export const useRandomDrawAndSave = () => {
     mutationFn: (data: RandomDrawAndSaveRequest) =>
       groupStandingService.randomDrawAndSave(data),
     onSuccess: (_result, data) => {
+      const categoryId = getCategoryId(data);
       queryClient.invalidateQueries({
-        queryKey: queryKeys.groupStandings.byContent(data.contentId),
+        queryKey: queryKeys.groupStandings.byCategory(categoryId),
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.groupStandings.all,
@@ -118,8 +132,9 @@ export const useCalculateStandings = () => {
     mutationFn: (data: CalculateStandingsRequest) =>
       groupStandingService.calculateStandings(data),
     onSuccess: (_result, data) => {
+      const categoryId = getCategoryId(data);
       queryClient.invalidateQueries({
-        queryKey: queryKeys.groupStandings.byContent(data.contentId),
+        queryKey: queryKeys.groupStandings.byCategory(categoryId),
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.groupStandings.all,

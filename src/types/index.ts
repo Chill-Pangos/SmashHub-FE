@@ -11,3 +11,6 @@ export * from "./matchSet.types";
 export * from "./schedule.types";
 export * from "./tournamentReferee.types";
 export * from "./notification.types";
+export * from "./permission.types";
+export * from "./user.types";
+export * from "./pagination.types";
