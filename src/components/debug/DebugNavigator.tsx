@@ -123,74 +123,8 @@ const allRoutes: RouteInfo[] = [
   { path: "/referee", name: "Referee Dashboard", category: "Referee" },
   { path: "/referee/history", name: "Match History", category: "Referee" },
 
-  // Team Manager Routes
-  {
-    path: "/team-manager",
-    name: "Team Manager Dashboard",
-    category: "Team Manager",
-  },
-  { path: "/team-manager/my-team", name: "My Team", category: "Team Manager" },
-  {
-    path: "/team-manager/registration",
-    name: "Team Registration",
-    category: "Team Manager",
-  },
-  {
-    path: "/team-manager/tournaments",
-    name: "Team Tournaments",
-    category: "Team Manager",
-  },
-  {
-    path: "/team-manager/schedule",
-    name: "Team Schedule",
-    category: "Team Manager",
-  },
-
-  // Coach Routes
-  { path: "/coach", name: "Coach Dashboard", category: "Coach" },
-  { path: "/coach/athletes", name: "Coach Athletes", category: "Coach" },
-  { path: "/coach/tournaments", name: "Coach Tournaments", category: "Coach" },
-  { path: "/coach/schedule", name: "Coach Schedule", category: "Coach" },
-  { path: "/coach/training", name: "Training Plan", category: "Coach" },
-
-  // Athlete Routes
-  { path: "/athlete", name: "Athlete Dashboard", category: "Athlete" },
-  { path: "/athlete/profile", name: "Athlete Profile", category: "Athlete" },
-  {
-    path: "/athlete/tournaments",
-    name: "Athlete Tournaments",
-    category: "Athlete",
-  },
-  { path: "/athlete/schedule", name: "Athlete Schedule", category: "Athlete" },
-  {
-    path: "/athlete/match-history",
-    name: "Match History",
-    category: "Athlete",
-  },
-  { path: "/athlete/elo-stats", name: "ELO Statistics", category: "Athlete" },
-
-  // Spectator Routes
-  {
-    path: "/spectator",
-    name: "Spectator Dashboard",
-    category: "Spectator",
-  },
-  {
-    path: "/spectator/tournaments",
-    name: "Spectator Tournaments",
-    category: "Spectator",
-  },
-  {
-    path: "/spectator/schedule",
-    name: "Spectator Schedule",
-    category: "Spectator",
-  },
-  {
-    path: "/spectator/live-matches",
-    name: "Live Matches",
-    category: "Spectator",
-  },
-  { path: "/spectator/rankings", name: "Rankings", category: "Spectator" },
+  // User Routes
+  { path: "/user", name: "User Dashboard", category: "User" },
 ];
 
 export default function DebugNavigator() {
@@ -242,7 +176,7 @@ export default function DebugNavigator() {
   return (
     <>
       {/* Toggle Button - Fixed position */}
-     {/*  {!isOpen && (
+      {/*  {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-4 right-4 z-[9999] shadow-lg"

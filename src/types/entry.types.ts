@@ -30,6 +30,7 @@ export interface EntryMember {
 export interface Entry {
   id: number;
   contentId: number;
+  categoryId?: number;
   teamId: number;
   createdAt: string;
   updatedAt: string;
@@ -45,6 +46,12 @@ export interface Entry {
     type: TournamentContentType;
     tournamentId: number;
   };
+  category?: {
+    id: number;
+    name: string;
+    type: TournamentContentType;
+    tournamentId: number;
+  };
 }
 
 // ==================== Request Types ====================
@@ -54,6 +61,7 @@ export interface Entry {
  */
 export interface CreateEntryRequest {
   contentId: number;
+  categoryId?: number;
   teamId: number;
 }
 
@@ -62,6 +70,7 @@ export interface CreateEntryRequest {
  */
 export interface RegisterEntryRequest {
   contentId: number;
+  categoryId?: number;
   teamId: number;
   memberIds: number[];
 }
@@ -118,6 +127,7 @@ export interface ImportTeamEntryDto {
 export interface PreviewImportSingleEntriesRequest {
   file: File;
   contentId: number;
+  categoryId?: number;
 }
 
 /**
@@ -125,6 +135,7 @@ export interface PreviewImportSingleEntriesRequest {
  */
 export interface ConfirmImportSingleEntriesRequest {
   contentId: number;
+  categoryId?: number;
   entries: ImportSingleEntryDto[];
 }
 
@@ -134,6 +145,7 @@ export interface ConfirmImportSingleEntriesRequest {
 export interface PreviewImportDoubleEntriesRequest {
   file: File;
   contentId: number;
+  categoryId?: number;
 }
 
 /**
@@ -141,6 +153,7 @@ export interface PreviewImportDoubleEntriesRequest {
  */
 export interface ConfirmImportDoubleEntriesRequest {
   contentId: number;
+  categoryId?: number;
   entries: ImportDoubleEntryDto[];
 }
 
@@ -150,6 +163,7 @@ export interface ConfirmImportDoubleEntriesRequest {
 export interface PreviewImportTeamEntriesRequest {
   file: File;
   contentId: number;
+  categoryId?: number;
 }
 
 /**
@@ -157,6 +171,7 @@ export interface PreviewImportTeamEntriesRequest {
  */
 export interface ConfirmImportTeamEntriesRequest {
   contentId: number;
+  categoryId?: number;
   entries: ImportTeamEntryDto[];
 }
 

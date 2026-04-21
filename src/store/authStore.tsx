@@ -20,6 +20,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading: true,
   });
 
+  const normalizeAuthUser = (user: User): User => {
+    const firstName = user.firstName || "";
+    const lastName = user.lastName || "";
+    const fallbackDisplayName = `${firstName} ${lastName}`.trim();
+    const roles = Array.isArray(user.roles) ? user.roles : [];
+
+    return {
+      ...user,
+      firstName,
+      lastName,
+      roles,
+      username: user.username || fallbackDisplayName || user.email,
+    };
+  };
+
   // Initialize auth state from localStorage on mount
   useEffect(() => {
     checkAuth();
@@ -32,8 +47,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const refreshToken = authService.getRefreshToken();
 
       if (user && accessToken && refreshToken) {
+        const normalizedUser = normalizeAuthUser(user);
         setAuthState({
-          user,
+          user: normalizedUser,
           accessToken,
           refreshToken,
           isAuthenticated: true,
@@ -61,11 +77,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const login = (authData: AuthData) => {
-    authService.saveAuthData(authData);
+    const normalizedAuthData: AuthData = {
+      ...authData,
+      user: normalizeAuthUser(authData.user),
+    };
+
+    authService.saveAuthData(normalizedAuthData);
     setAuthState({
-      user: authData.user,
-      accessToken: authData.accessToken,
-      refreshToken: authData.refreshToken,
+      user: normalizedAuthData.user,
+      accessToken: normalizedAuthData.accessToken,
+      refreshToken: normalizedAuthData.refreshToken,
       isAuthenticated: true,
       isLoading: false,
     });
@@ -83,10 +104,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const updateUser = (user: User) => {
-    localStorage.setItem("user", JSON.stringify(user));
+    const normalizedUser = normalizeAuthUser(user);
+    localStorage.setItem("user", JSON.stringify(normalizedUser));
     setAuthState((prev) => ({
       ...prev,
-      user,
+      user: normalizedUser,
     }));
   };
 

@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
 import { Lock, Trophy, Loader2, Eye, EyeOff } from "lucide-react";
-import { useAuthOperations } from "@/hooks";
+import { useAuthOperations, useTranslation } from "@/hooks";
 import {
   validatePassword,
   validatePasswordConfirmation,
@@ -23,6 +23,7 @@ import {
 
 const ResetPassword = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const { resetPassword, loading } = useAuthOperations();
 
@@ -39,10 +40,10 @@ const ResetPassword = () => {
 
   useEffect(() => {
     if (!email || !otp) {
-      showToast.error("Thông tin không hợp lệ");
+      showToast.error(t("authFlow.resetPassword.invalidInfo"));
       navigate("/forgot-password");
     }
-  }, [email, otp, navigate]);
+  }, [email, otp, navigate, t]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -73,11 +74,11 @@ const ResetPassword = () => {
   const getPasswordStrengthText = (strength: PasswordStrength) => {
     switch (strength) {
       case PasswordStrength.WEAK:
-        return "Yếu";
+        return t("validation.passwordStrength.weak");
       case PasswordStrength.MEDIUM:
-        return "Trung bình";
+        return t("validation.passwordStrength.medium");
       case PasswordStrength.STRONG:
-        return "Mạnh";
+        return t("validation.passwordStrength.strong");
       default:
         return "";
     }
@@ -91,7 +92,7 @@ const ResetPassword = () => {
     e.preventDefault();
 
     if (!email || !otp) {
-      showToast.error("Thông tin không hợp lệ");
+      showToast.error(t("authFlow.resetPassword.invalidInfo"));
       return;
     }
 
@@ -99,7 +100,7 @@ const ResetPassword = () => {
     const passwordError = validatePassword(formData.newPassword);
     const confirmError = validatePasswordConfirmation(
       formData.newPassword,
-      formData.confirmPassword
+      formData.confirmPassword,
     );
 
     if (passwordError || confirmError) {
@@ -119,12 +120,12 @@ const ResetPassword = () => {
 
     if (result.success) {
       showToast.success(
-        "Đặt lại mật khẩu thành công",
-        "Bạn có thể đăng nhập với mật khẩu mới"
+        t("auth.passwordResetSuccess"),
+        t("authFlow.resetPassword.resetSuccessDescription"),
       );
       navigate("/signin");
     } else {
-      showToast.error("Đặt lại mật khẩu thất bại", result.error);
+      showToast.error(t("authFlow.resetPassword.resetFailed"), result.error);
     }
   };
 
@@ -136,34 +137,34 @@ const ResetPassword = () => {
             <Trophy className="h-12 w-12 text-primary" />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Đặt lại mật khẩu
+            {t("auth.resetPassword")}
           </h1>
           <p className="text-muted-foreground">
-            Nhập mật khẩu mới cho tài khoản của bạn
+            {t("authFlow.resetPassword.subtitle")}
           </p>
         </div>
 
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="text-2xl text-center text-card-foreground">
-              Mật khẩu mới
+              {t("authFlow.resetPassword.cardTitle")}
             </CardTitle>
             <CardDescription className="text-center">
-              Đảm bảo mật khẩu đủ mạnh và an toàn
+              {t("authFlow.resetPassword.cardDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <Label htmlFor="newPassword" className="text-sm font-medium">
-                  Mật khẩu mới
+                  {t("auth.newPassword")}
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="newPassword"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Nhập mật khẩu mới"
+                    placeholder={t("auth.enterNewPassword")}
                     className="pl-10 pr-10"
                     value={formData.newPassword}
                     onChange={handleChange}
@@ -184,10 +185,11 @@ const ResetPassword = () => {
                 {passwordStrength && (
                   <p
                     className={`text-sm ${getPasswordStrengthColor(
-                      passwordStrength
+                      passwordStrength,
                     )}`}
                   >
-                    Độ mạnh: {getPasswordStrengthText(passwordStrength)}
+                    {t("authFlow.passwordStrengthLabel")}:{" "}
+                    {getPasswordStrengthText(passwordStrength)}
                   </p>
                 )}
                 {errors.newPassword && (
@@ -202,14 +204,16 @@ const ResetPassword = () => {
                   htmlFor="confirmPassword"
                   className="text-sm font-medium"
                 >
-                  Xác nhận mật khẩu
+                  {t("auth.confirmPassword")}
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Nhập lại mật khẩu mới"
+                    placeholder={t(
+                      "authFlow.resetPassword.confirmPasswordPlaceholder",
+                    )}
                     className="pl-10 pr-10"
                     value={formData.confirmPassword}
                     onChange={handleChange}
@@ -243,10 +247,10 @@ const ResetPassword = () => {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Đang đặt lại...
+                    {t("authFlow.resetPassword.submitting")}
                   </>
                 ) : (
-                  "Đặt lại mật khẩu"
+                  t("auth.resetPassword")
                 )}
               </Button>
             </form>

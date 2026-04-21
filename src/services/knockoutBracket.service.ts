@@ -94,24 +94,36 @@ class KnockoutBracketService {
   }
 
   /**
-   * Get knockout brackets by content ID
-   * GET /api/knockout-brackets/content/:contentId
+   * Get knockout brackets by category ID
+   * GET /api/knockout-brackets/category/:categoryId
    *
-   * @param contentId Tournament content ID
-   * @returns Promise with knockout brackets
-   *
-   * @example
-   * const brackets = await knockoutBracketService.getKnockoutBracketsByContent(1);
+   * Falls back to legacy /content path during transition.
+   */
+  async getKnockoutBracketsByCategory(
+    categoryId: number,
+  ): Promise<GetKnockoutBracketsByContentResponse> {
+    try {
+      const response =
+        await axiosInstance.get<GetKnockoutBracketsByContentResponse>(
+          `${this.baseURL}/category/${categoryId}`,
+        );
+      return response.data;
+    } catch {
+      const response =
+        await axiosInstance.get<GetKnockoutBracketsByContentResponse>(
+          `${this.baseURL}/content/${categoryId}`,
+        );
+      return response.data;
+    }
+  }
+
+  /**
+   * @deprecated Use getKnockoutBracketsByCategory instead.
    */
   async getKnockoutBracketsByContent(
     contentId: number,
   ): Promise<GetKnockoutBracketsByContentResponse> {
-    const response =
-      await axiosInstance.get<GetKnockoutBracketsByContentResponse>(
-        `${this.baseURL}/content/${contentId}`,
-      );
-
-    return response.data;
+    return this.getKnockoutBracketsByCategory(contentId);
   }
 
   /**

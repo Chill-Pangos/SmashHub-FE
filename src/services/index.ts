@@ -13,3 +13,4 @@ export { default as matchSetService } from "./matchSet.service";
 export { default as scheduleService } from "./schedule.service";
 export { default as tournamentRefereeService } from "./tournamentReferee.service";
 export { default as notificationService } from "./notification.service";
+export { default as permissionService } from "./permission.service";

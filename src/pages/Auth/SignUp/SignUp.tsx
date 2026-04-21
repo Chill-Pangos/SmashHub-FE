@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ChangeEvent } from "react";
-import { useNavigate, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,16 +10,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Lock, Mail, Trophy, User, Loader2, UserCog } from "lucide-react";
+import { Lock, Mail, Trophy, User, Loader2 } from "lucide-react";
 import { useAuthOperations, useTranslation } from "@/hooks";
-import { useRole } from "@/store";
 import {
   validateRegisterForm,
   hasValidationErrors,
@@ -31,33 +23,17 @@ import {
 } from "@/utils";
 
 const SignUp = () => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const { register, loading, error: authError } = useAuthOperations();
-  const { isLoading: rolesLoading, getRegistrationRoles } = useRole();
   const [formData, setFormData] = useState<RegisterFormData>({
-    username: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
-    role: undefined, // Will be set when user selects
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-
-  // Get roles available for registration (excludes admin, organizer, etc.)
-  const registrationRoles = getRegistrationRoles();
-
-  // Helper function to get Vietnamese role name
-  const getRoleDisplayName = (roleName: string): string => {
-    const roleNameMap: Record<string, string> = {
-      spectator: "Người xem",
-      athlete: "Vận động viên",
-      coach: "Huấn luyện viên",
-      team_manager: "Trưởng đoàn",
-    };
-    return roleNameMap[roleName] || roleName;
-  };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -88,11 +64,11 @@ const SignUp = () => {
   const getPasswordStrengthText = (strength: PasswordStrength) => {
     switch (strength) {
       case PasswordStrength.WEAK:
-        return "Yếu";
+        return t("validation.passwordStrength.weak");
       case PasswordStrength.MEDIUM:
-        return "Trung bình";
+        return t("validation.passwordStrength.medium");
       case PasswordStrength.STRONG:
-        return "Mạnh";
+        return t("validation.passwordStrength.strong");
       default:
         return "";
     }
@@ -107,16 +83,7 @@ const SignUp = () => {
 
     // Check terms agreement
     if (!agreedToTerms) {
-      showToast.error(
-        "Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật",
-      );
-      return;
-    }
-
-    // Check if role is selected
-    if (!formData.role) {
-      showToast.error("Vui lòng chọn loại tài khoản");
-      setErrors((prev) => ({ ...prev, role: "Vui lòng chọn loại tài khoản" }));
+      showToast.error(t("authFlow.signUp.termsRequired"));
       return;
     }
 
@@ -129,25 +96,24 @@ const SignUp = () => {
 
     // Call register from useAuthOperations
     const result = await register({
-      username: formData.username,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
       email: formData.email,
       password: formData.password,
-      role: formData.role,
     });
 
     if (result.success && result.data) {
       // Show success message
       showToast.success(
-        "Đăng ký thành công",
-        `Chào mừng bạn đến với SmashHub, ${result.data.user.username}!`,
+        t("auth.registerSuccess"),
+        t("authFlow.signUp.welcomeDescription", {
+          name: `${result.data.user.firstName} ${result.data.user.lastName}`.trim(),
+        }),
       );
-
-      // Redirect to home page
-      navigate("/");
     } else {
       // Error is already set in authError state
       showToast.error(
-        "Đăng ký thất bại",
+        t("auth.registerFailed"),
         result.error || authError || undefined,
       );
     }
@@ -172,31 +138,55 @@ const SignUp = () => {
               {t("auth.signUp")}
             </CardTitle>
             <CardDescription className="text-center">
-              {t("placeholder.enterName")}
+              {t("authFlow.signUp.cardDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <form className="space-y-4" onSubmit={handleSubmit}>
-              <div className="space-y-2">
-                <Label htmlFor="username" className="text-card-foreground">
-                  {t("auth.fullName")}
-                </Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder={t("placeholder.enterName")}
-                    className="pl-10 bg-input border-border text-foreground"
-                    value={formData.username}
-                    onChange={handleChange}
-                    disabled={loading}
-                    required
-                  />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName" className="text-card-foreground">
+                    {t("validation.fields.firstName")}
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="firstName"
+                      type="text"
+                      placeholder={t("authFlow.signUp.firstNamePlaceholder")}
+                      className="pl-10 bg-input border-border text-foreground"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      disabled={loading}
+                      required
+                    />
+                  </div>
+                  {errors.firstName && (
+                    <p className="text-sm text-red-500">{errors.firstName}</p>
+                  )}
                 </div>
-                {errors.username && (
-                  <p className="text-sm text-red-500">{errors.username}</p>
-                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="lastName" className="text-card-foreground">
+                    {t("validation.fields.lastName")}
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="lastName"
+                      type="text"
+                      placeholder={t("authFlow.signUp.lastNamePlaceholder")}
+                      className="pl-10 bg-input border-border text-foreground"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      disabled={loading}
+                      required
+                    />
+                  </div>
+                  {errors.lastName && (
+                    <p className="text-sm text-red-500">{errors.lastName}</p>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -244,7 +234,7 @@ const SignUp = () => {
                       passwordStrength,
                     )}`}
                   >
-                    Độ mạnh mật khẩu:{" "}
+                    {t("authFlow.passwordStrengthLabel")}:{" "}
                     {getPasswordStrengthText(passwordStrength)}
                   </p>
                 )}
@@ -280,78 +270,6 @@ const SignUp = () => {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="role" className="text-card-foreground">
-                  Loại tài khoản <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={formData.role}
-                  onValueChange={(value) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      role: value as
-                        | "spectator"
-                        | "athlete"
-                        | "coach"
-                        | "team_manager",
-                    }));
-                    // Clear error when user selects role
-                    if (errors.role) {
-                      setErrors((prev) => {
-                        const newErrors = { ...prev };
-                        delete newErrors.role;
-                        return newErrors;
-                      });
-                    }
-                  }}
-                  disabled={loading || rolesLoading}
-                >
-                  <SelectTrigger className="w-full bg-input border-border text-foreground">
-                    <div className="flex items-center gap-2">
-                      <UserCog className="h-4 w-4 text-muted-foreground" />
-                      <SelectValue
-                        placeholder={t("placeholder.selectOption")}
-                      />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {rolesLoading ? (
-                      <div className="flex items-center justify-center py-4">
-                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                        <span className="ml-2 text-sm text-muted-foreground">
-                          {t("common.loading")}
-                        </span>
-                      </div>
-                    ) : registrationRoles.length > 0 ? (
-                      registrationRoles.map((role) => (
-                        <SelectItem key={role.id} value={role.name}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">
-                              {getRoleDisplayName(role.name)}
-                            </span>
-                            {role.description && (
-                              <span className="text-xs text-muted-foreground">
-                                {role.description}
-                              </span>
-                            )}
-                          </div>
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <div className="py-4 text-center text-sm text-muted-foreground">
-                        {t("message.noResultsFound")}
-                      </div>
-                    )}
-                  </SelectContent>
-                </Select>
-                {errors.role && (
-                  <p className="text-sm text-red-500">{errors.role}</p>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  Bạn có thể thay đổi loại tài khoản sau khi đăng ký
-                </p>
-              </div>
-
               <div className="flex items-center space-x-2">
                 <input
                   id="terms"
@@ -366,19 +284,19 @@ const SignUp = () => {
                   htmlFor="terms"
                   className="text-sm text-muted-foreground"
                 >
-                  Tôi đồng ý với{" "}
+                  {t("authFlow.signUp.termsPrefix")}{" "}
                   <NavLink
                     to="/terms"
                     className="text-primary hover:text-primary/80 transition-colors"
                   >
-                    Điều khoản dịch vụ
+                    {t("authFlow.signUp.termsOfService")}
                   </NavLink>{" "}
-                  và{" "}
+                  {t("authFlow.signUp.and")}{" "}
                   <NavLink
                     to="/privacy"
                     className="text-primary hover:text-primary/80 transition-colors"
                   >
-                    Chính sách bảo mật
+                    {t("authFlow.signUp.privacyPolicy")}
                   </NavLink>
                 </Label>
               </div>

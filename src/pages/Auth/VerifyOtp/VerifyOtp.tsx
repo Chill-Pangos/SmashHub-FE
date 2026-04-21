@@ -11,16 +11,22 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
 import { Trophy, Loader2, ArrowLeft } from "lucide-react";
-import { useAuthOperations } from "@/hooks";
+import { useAuthOperations, useTranslation } from "@/hooks";
 import { useAuth } from "@/store/useAuth";
 import { validateOTP, showToast } from "@/utils";
 
 const VerifyOtp = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const { verifyOtp, verifyEmailOtp, resendEmailVerification, loading } =
-    useAuthOperations();
+  const {
+    verifyOtp,
+    verifyEmailOtp,
+    resendEmailVerification,
+    forgotPassword,
+    loading,
+  } = useAuthOperations();
 
   const email = searchParams.get("email");
   const type = searchParams.get("type"); // 'password-reset' or 'email-verification'
@@ -31,10 +37,10 @@ const VerifyOtp = () => {
 
   useEffect(() => {
     if (!email) {
-      showToast.error("Email không hợp lệ");
+      showToast.error(t("authFlow.verifyOtp.invalidEmail"));
       navigate("/signin");
     }
-  }, [email, navigate]);
+  }, [email, navigate, t]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, "").slice(0, 6);
@@ -48,7 +54,7 @@ const VerifyOtp = () => {
     e.preventDefault();
 
     if (!email) {
-      setError("Email không hợp lệ");
+      setError(t("authFlow.verifyOtp.invalidEmail"));
       return;
     }
 
@@ -63,20 +69,23 @@ const VerifyOtp = () => {
     if (type === "email-verification") {
       // Email verification flow
       if (!user) {
-        setError("Không tìm thấy thông tin người dùng");
+        setError(t("authFlow.verifyOtp.userNotFound"));
         return;
       }
       const result = await verifyEmailOtp({ email, otp }, user);
 
       if (result.success) {
         showToast.success(
-          "Xác thực email thành công",
-          "Email của bạn đã được xác thực"
+          t("authFlow.verifyOtp.emailVerificationSuccessTitle"),
+          t("authFlow.verifyOtp.emailVerificationSuccessDescription"),
         );
         navigate("/");
       } else {
-        setError(result.error || "Mã OTP không chính xác");
-        showToast.error("Xác thực thất bại", result.error);
+        setError(result.error || t("authFlow.verifyOtp.otpInvalid"));
+        showToast.error(
+          t("authFlow.verifyOtp.verificationFailed"),
+          result.error,
+        );
       }
     } else {
       // Password reset flow
@@ -84,15 +93,18 @@ const VerifyOtp = () => {
 
       if (result.success) {
         showToast.success(
-          "Xác thực thành công",
-          "Bạn có thể đặt lại mật khẩu mới"
+          t("authFlow.verifyOtp.verificationSuccessTitle"),
+          t("authFlow.verifyOtp.verificationSuccessDescription"),
         );
         navigate(
-          `/reset-password?email=${encodeURIComponent(email)}&otp=${otp}`
+          `/reset-password?email=${encodeURIComponent(email)}&otp=${otp}`,
         );
       } else {
-        setError(result.error || "Mã OTP không chính xác");
-        showToast.error("Xác thực thất bại", result.error);
+        setError(result.error || t("authFlow.verifyOtp.otpInvalid"));
+        showToast.error(
+          t("authFlow.verifyOtp.verificationFailed"),
+          result.error,
+        );
       }
     }
   };
@@ -105,26 +117,44 @@ const VerifyOtp = () => {
     if (type === "email-verification") {
       const result = await resendEmailVerification({ email });
       if (result.success) {
-        showToast.success("Mã OTP mới đã được gửi", "Vui lòng kiểm tra email");
+        showToast.success(
+          t("authFlow.verifyOtp.resendSuccessTitle"),
+          t("authFlow.checkEmail"),
+        );
       } else {
-        showToast.error("Gửi lại thất bại", result.error);
+        showToast.error(
+          t("authFlow.verifyOtp.resendFailedTitle"),
+          result.error,
+        );
       }
     } else {
-      // Resend forgot password OTP - need to implement in useAuthOperations if needed
-      showToast.info("Vui lòng quay lại trang quên mật khẩu để gửi lại");
+      const result = await forgotPassword({ email });
+      if (result.success) {
+        showToast.success(
+          t("authFlow.verifyOtp.resendSuccessTitle"),
+          t("authFlow.checkEmail"),
+        );
+      } else {
+        showToast.error(
+          t("authFlow.verifyOtp.resendFailedTitle"),
+          result.error,
+        );
+      }
     }
 
     setResending(false);
   };
 
   const getTitle = () => {
-    return type === "email-verification" ? "Xác thực Email" : "Xác thực OTP";
+    return type === "email-verification"
+      ? t("authFlow.verifyOtp.titleEmail")
+      : t("authFlow.verifyOtp.titleOtp");
   };
 
   const getDescription = () => {
     return type === "email-verification"
-      ? `Nhập mã OTP đã được gửi đến ${email}`
-      : `Nhập mã OTP được gửi đến ${email} để đặt lại mật khẩu`;
+      ? t("authFlow.verifyOtp.descriptionEmail", { email })
+      : t("authFlow.verifyOtp.descriptionPasswordReset", { email });
   };
 
   return (
@@ -143,22 +173,22 @@ const VerifyOtp = () => {
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="text-2xl text-center text-card-foreground">
-              Nhập mã OTP
+              {t("authFlow.verifyOtp.enterOtpTitle")}
             </CardTitle>
             <CardDescription className="text-center">
-              Mã OTP gồm 6 chữ số
+              {t("authFlow.verifyOtp.otpDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <Label htmlFor="otp" className="text-sm font-medium">
-                  Mã OTP
+                  {t("auth.otpCode")}
                 </Label>
                 <Input
                   id="otp"
                   type="text"
-                  placeholder="123456"
+                  placeholder={t("authFlow.verifyOtp.otpPlaceholder")}
                   className="text-center text-2xl tracking-widest"
                   value={otp}
                   onChange={handleChange}
@@ -177,10 +207,10 @@ const VerifyOtp = () => {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Đang xác thực...
+                    {t("authFlow.verifyOtp.verifying")}
                   </>
                 ) : (
-                  "Xác thực"
+                  t("authFlow.verifyOtp.verifyButton")
                 )}
               </Button>
 
@@ -191,7 +221,9 @@ const VerifyOtp = () => {
                   disabled={resending}
                   className="text-sm text-primary hover:text-primary/80 font-medium transition-colors disabled:opacity-50"
                 >
-                  {resending ? "Đang gửi lại..." : "Gửi lại mã OTP"}
+                  {resending
+                    ? t("authFlow.verifyOtp.resending")
+                    : t("authFlow.verifyOtp.resendButton")}
                 </button>
               </div>
 
@@ -202,7 +234,7 @@ const VerifyOtp = () => {
                 onClick={() => navigate(-1)}
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Quay lại
+                {t("common.back")}
               </Button>
             </form>
           </CardContent>

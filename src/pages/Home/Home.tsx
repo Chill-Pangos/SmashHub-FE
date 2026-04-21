@@ -27,6 +27,11 @@ const Home = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  const displayName = user
+    ? `${user.firstName} ${user.lastName}`.trim() || user.username || user.email
+    : "";
+  const userRoles = user?.roles ?? [];
+
   const cardItems = [
     {
       title: t("tournamentManager.tournamentManager"),
@@ -61,15 +66,16 @@ const Home = () => {
   ];
 
   const handleDashboard = () => {
-    if (user && user.roles && user.roles.length > 0) {
-      const dashboardRoute = getDefaultRouteForRoles(user.roles);
+    if (userRoles.length > 0) {
+      const dashboardRoute = getDefaultRouteForRoles(userRoles);
+      const resolvedRoute = dashboardRoute === "/" ? "/user" : dashboardRoute;
       console.log(
         "Navigating to dashboard:",
-        dashboardRoute,
+        resolvedRoute,
         "with roles:",
-        user.roles,
+        userRoles,
       );
-      navigate(dashboardRoute);
+      navigate(resolvedRoute);
     } else {
       console.warn("Cannot navigate: user or roles not available", { user });
       navigate("/");
@@ -95,10 +101,10 @@ const Home = () => {
             {isAuthenticated && user && (
               <div className="mb-8 p-6 rounded-lg bg-primary/10 border border-primary/20 max-w-2xl mx-auto">
                 <h2 className="text-2xl font-bold text-foreground mb-2">
-                  {t("home.welcomeBack", { name: user.username })}
+                  {t("home.welcomeBack", { name: displayName })}
                 </h2>
                 <div className="flex flex-wrap gap-2 justify-center mb-4">
-                  {getRoleNames(user.roles).map((roleName) => (
+                  {getRoleNames(userRoles).map((roleName) => (
                     <span
                       key={roleName}
                       className="text-sm px-3 py-1 rounded-full bg-primary text-primary-foreground font-medium"
@@ -149,12 +155,12 @@ const Home = () => {
                   chiefRefereeRole?.id,
                 ].filter((id): id is number => id !== undefined);
 
-                return hasAnyRole(user.roles, allowedRoles);
+                return hasAnyRole(userRoles, allowedRoles);
               })() && (
                 <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
                   {(() => {
                     const adminRole = getRoleByName("admin");
-                    return adminRole && hasAnyRole(user.roles, [adminRole.id]);
+                    return adminRole && hasAnyRole(userRoles, [adminRole.id]);
                   })() && (
                     <Card
                       className="cursor-pointer hover:bg-accent transition-colors"
@@ -173,8 +179,7 @@ const Home = () => {
                   {(() => {
                     const organizerRole = getRoleByName("organizer");
                     return (
-                      organizerRole &&
-                      hasAnyRole(user.roles, [organizerRole.id])
+                      organizerRole && hasAnyRole(userRoles, [organizerRole.id])
                     );
                   })() && (
                     <Card
@@ -195,7 +200,7 @@ const Home = () => {
                     const chiefRefereeRole = getRoleByName("chief_referee");
                     return (
                       chiefRefereeRole &&
-                      hasAnyRole(user.roles, [chiefRefereeRole.id])
+                      hasAnyRole(userRoles, [chiefRefereeRole.id])
                     );
                   })() && (
                     <Card

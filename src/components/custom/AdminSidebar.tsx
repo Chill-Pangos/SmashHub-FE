@@ -2,16 +2,15 @@
 
 import {
   Trophy,
-  // Users, // COMMENTED OUT: Menu item hidden
+  Users,
   // Calendar, // COMMENTED OUT: Menu item hidden
-  // Award, // COMMENTED OUT: Menu item hidden
+  Award,
   BarChart3,
   Settings,
   LogOut,
   Menu,
 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
@@ -28,19 +27,16 @@ export default function AdminSidebar({
 }: SidebarProps) {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(true);
-  const navigate = useNavigate();
   const { logout } = useAuthOperations();
 
   const handleLogout = async () => {
     await logout();
-    navigate("/signin");
   };
 
   const menuItems = [
     { id: "overview", label: t("admin.systemDashboard"), icon: BarChart3 },
-    // COMMENTED OUT: These features use mock data, no API available
-    // { id: "users", label: t("admin.userManagement"), icon: Users },
-    // { id: "rbac", label: t("admin.rbacSettings"), icon: Award },
+    { id: "users", label: t("admin.userManagement"), icon: Users },
+    { id: "rbac", label: t("admin.rbacSettings"), icon: Award },
     // { id: "logs", label: t("admin.systemLogs"), icon: Calendar },
   ];
 

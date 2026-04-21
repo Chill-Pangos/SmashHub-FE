@@ -19,6 +19,7 @@ export interface GroupStandingEntry {
 export interface GroupStanding {
   id: number;
   contentId: number;
+  categoryId?: number;
   entryId: number;
   groupName: string;
   position: number | null;
@@ -61,6 +62,7 @@ export interface GroupAssignment {
  */
 export interface GeneratePlaceholdersRequest {
   contentId: number;
+  categoryId?: number;
 }
 
 /**
@@ -68,6 +70,7 @@ export interface GeneratePlaceholdersRequest {
  */
 export interface RandomDrawRequest {
   contentId: number;
+  categoryId?: number;
 }
 
 /**
@@ -75,6 +78,7 @@ export interface RandomDrawRequest {
  */
 export interface SaveAssignmentsRequest {
   contentId: number;
+  categoryId?: number;
   groupAssignments: GroupAssignment[];
 }
 
@@ -83,6 +87,7 @@ export interface SaveAssignmentsRequest {
  */
 export interface RandomDrawAndSaveRequest {
   contentId: number;
+  categoryId?: number;
 }
 
 /**
@@ -90,6 +95,7 @@ export interface RandomDrawAndSaveRequest {
  */
 export interface CalculateStandingsRequest {
   contentId: number;
+  categoryId?: number;
 }
 
 // ==================== Response Types ====================

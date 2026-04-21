@@ -3,6 +3,8 @@
  * Type definitions for role-related operations
  */
 
+import type { PaginatedResult, PaginationParams } from "./pagination.types";
+
 // ==================== Base Role Interface ====================
 
 /**
@@ -11,9 +13,9 @@
 export interface Role {
   id: number;
   name: string;
-  description?: string | null;
-  createdAt: string;
-  updatedAt: string;
+  description?: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
 }
 
 // ==================== Create Role ====================
@@ -53,7 +55,7 @@ export interface UpdateRoleRequest {
  */
 export type UpdateRoleResponse = [
   number, // Number of rows updated
-  Role[] // Array of updated role(s)
+  Role[], // Array of updated role(s)
 ];
 
 // ==================== Role Validation ====================
@@ -73,3 +75,9 @@ export interface RoleValidationErrors {
   name?: string;
   description?: string;
 }
+
+// ==================== Pagination Types ====================
+
+export interface RoleListParams extends PaginationParams {}
+
+export type PaginatedRolesResult = PaginatedResult<Role>;

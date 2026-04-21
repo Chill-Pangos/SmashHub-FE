@@ -10,6 +10,7 @@ import type {
   VerifyOtpRequest,
   ResetPasswordRequest,
   SendEmailVerificationRequest,
+  ResendEmailVerificationRequest,
   VerifyEmailOtpRequest,
   User,
 } from "@/types";
@@ -42,6 +43,16 @@ export const useAuthOperations = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const resolvePostAuthRoute = (roleIds: number[]) => {
+    const resolvedRoute = getDefaultRouteForRoles(roleIds);
+
+    if (!resolvedRoute || resolvedRoute === "/") {
+      return "/user";
+    }
+
+    return resolvedRoute;
+  };
+
   /**
    * Register a new user
    */
@@ -60,7 +71,9 @@ export const useAuthOperations = () => {
         // Save new auth data
         setAuthData(response.data);
         // Redirect based on user role
-        const redirectPath = getDefaultRouteForRoles(response.data.user.roles);
+        const redirectPath = resolvePostAuthRoute(
+          response.data.user.roles ?? [],
+        );
         navigate(redirectPath, { replace: true });
         return { success: true, data: response.data };
       }
@@ -91,11 +104,10 @@ export const useAuthOperations = () => {
       if (response.success) {
         // Save new auth data
         setAuthData(response.data);
-        // Debug log
-        console.log("Login success - User roles:", response.data.user.roles);
         // Redirect based on user role
-        const redirectPath = getDefaultRouteForRoles(response.data.user.roles);
-        console.log("Redirecting to:", redirectPath);
+        const redirectPath = resolvePostAuthRoute(
+          response.data.user.roles ?? [],
+        );
         navigate(redirectPath, { replace: true });
         return { success: true, data: response.data };
       }
@@ -128,7 +140,7 @@ export const useAuthOperations = () => {
       clearAuthData();
       setLoading(false);
       // Redirect to signin
-      navigate("/signin");
+      navigate("/signin", { replace: true });
     }
   };
 
@@ -236,7 +248,7 @@ export const useAuthOperations = () => {
     } catch (err) {
       const errorMessage = getErrorMessage(
         err,
-        "Failed to send verification email"
+        "Failed to send verification email",
       );
       setError(errorMessage);
       return { success: false, error: errorMessage };
@@ -250,7 +262,7 @@ export const useAuthOperations = () => {
    */
   const verifyEmailOtp = async (
     data: VerifyEmailOtpRequest,
-    currentUser: User
+    currentUser: User,
   ) => {
     try {
       setLoading(true);
@@ -276,7 +288,7 @@ export const useAuthOperations = () => {
    * Resend email verification OTP
    */
   const resendEmailVerification = async (
-    data: SendEmailVerificationRequest
+    data: ResendEmailVerificationRequest,
   ) => {
     try {
       setLoading(true);
@@ -290,7 +302,7 @@ export const useAuthOperations = () => {
     } catch (err) {
       const errorMessage = getErrorMessage(
         err,
-        "Failed to resend verification email"
+        "Failed to resend verification email",
       );
       setError(errorMessage);
       return { success: false, error: errorMessage };

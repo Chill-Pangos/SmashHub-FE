@@ -21,7 +21,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
@@ -50,12 +49,10 @@ export default function TournamentManagerSidebar({
     "management",
     "competition",
   ]);
-  const navigate = useNavigate();
   const { logout } = useAuthOperations();
 
   const handleLogout = async () => {
     await logout();
-    navigate("/signin");
   };
 
   const toggleGroup = (groupId: string) => {

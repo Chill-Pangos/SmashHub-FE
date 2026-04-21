@@ -93,29 +93,44 @@ class EntryService {
   }
 
   /**
-   * Get entries by content ID
-   * GET /api/entries/content/:contentId
+   * Get entries by category ID
+   * GET /api/entries/category/:categoryId
    *
-   * @param contentId Tournament content ID
-   * @param skip Number of records to skip (default: 0)
-   * @param limit Maximum number of records to return (default: 10)
-   * @returns Promise with array of entries for the content
-   *
-   * @example
-   * const entries = await entryService.getEntriesByContentId(1, 0, 50);
+   * Falls back to legacy /content path during transition.
+   */
+  async getEntriesByCategoryId(
+    categoryId: number,
+    skip: number = 0,
+    limit: number = 10,
+  ): Promise<Entry[]> {
+    try {
+      const response = await axiosInstance.get<Entry[]>(
+        `${this.baseURL}/category/${categoryId}`,
+        {
+          params: { skip, limit },
+        },
+      );
+      return response.data;
+    } catch {
+      const response = await axiosInstance.get<Entry[]>(
+        `${this.baseURL}/content/${categoryId}`,
+        {
+          params: { skip, limit },
+        },
+      );
+      return response.data;
+    }
+  }
+
+  /**
+   * @deprecated Use getEntriesByCategoryId instead.
    */
   async getEntriesByContentId(
     contentId: number,
     skip: number = 0,
     limit: number = 10,
   ): Promise<Entry[]> {
-    const response = await axiosInstance.get<Entry[]>(
-      `${this.baseURL}/content/${contentId}`,
-      {
-        params: { skip, limit },
-      },
-    );
-    return response.data;
+    return this.getEntriesByCategoryId(contentId, skip, limit);
   }
 
   /**

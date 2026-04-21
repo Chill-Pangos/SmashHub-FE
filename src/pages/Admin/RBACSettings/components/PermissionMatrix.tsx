@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -7,235 +8,229 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Check, X, Minus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
+import ServerPagination from "@/components/custom/ServerPagination";
+import {
+  useCreatePermission,
+  useDeletePermission,
+  usePermissionsPaginated,
+  useUpdatePermission,
+} from "@/hooks/queries";
+import type { Permission } from "@/types";
+import PermissionDialog, {
+  type PermissionDialogSubmitData,
+} from "./PermissionDialog";
+import { showApiError, showToast } from "@/utils/toast.utils";
 
-interface Permission {
-  category: string;
-  permissions: {
-    name: string;
-    admin: "full" | "partial" | "none";
-    tournamentManager: "full" | "partial" | "none";
-    chiefReferee: "full" | "partial" | "none";
-    delegation: "full" | "partial" | "none";
-  }[];
-}
+const getPermissionGroup = (name: string) => {
+  const [group] = name.includes(":") ? name.split(":") : name.split(".");
+  return group || "general";
+};
 
-const mockPermissions: Permission[] = [
-  {
-    category: "Quản lý người dùng",
-    permissions: [
-      {
-        name: "Xem danh sách người dùng",
-        admin: "full",
-        tournamentManager: "partial",
-        chiefReferee: "partial",
-        delegation: "none",
-      },
-      {
-        name: "Tạo/Sửa/Xóa người dùng",
-        admin: "full",
-        tournamentManager: "none",
-        chiefReferee: "none",
-        delegation: "none",
-      },
-      {
-        name: "Phân quyền người dùng",
-        admin: "full",
-        tournamentManager: "none",
-        chiefReferee: "none",
-        delegation: "none",
-      },
-    ],
-  },
-  {
-    category: "Quản lý giải đấu",
-    permissions: [
-      {
-        name: "Xem thông tin giải đấu",
-        admin: "full",
-        tournamentManager: "full",
-        chiefReferee: "full",
-        delegation: "partial",
-      },
-      {
-        name: "Tạo/Sửa giải đấu",
-        admin: "full",
-        tournamentManager: "full",
-        chiefReferee: "none",
-        delegation: "none",
-      },
-      {
-        name: "Xóa giải đấu",
-        admin: "full",
-        tournamentManager: "none",
-        chiefReferee: "none",
-        delegation: "none",
-      },
-    ],
-  },
-  {
-    category: "Quản lý trận đấu",
-    permissions: [
-      {
-        name: "Xem lịch thi đấu",
-        admin: "full",
-        tournamentManager: "full",
-        chiefReferee: "full",
-        delegation: "full",
-      },
-      {
-        name: "Tạo/Sửa lịch thi đấu",
-        admin: "full",
-        tournamentManager: "full",
-        chiefReferee: "partial",
-        delegation: "none",
-      },
-      {
-        name: "Nhập kết quả",
-        admin: "full",
-        tournamentManager: "none",
-        chiefReferee: "full",
-        delegation: "none",
-      },
-    ],
-  },
-  {
-    category: "Quản lý đoàn",
-    permissions: [
-      {
-        name: "Xem danh sách đoàn",
-        admin: "full",
-        tournamentManager: "full",
-        chiefReferee: "full",
-        delegation: "partial",
-      },
-      {
-        name: "Tạo/Sửa thông tin đoàn",
-        admin: "full",
-        tournamentManager: "full",
-        chiefReferee: "none",
-        delegation: "partial",
-      },
-      {
-        name: "Quản lý VĐV trong đoàn",
-        admin: "full",
-        tournamentManager: "partial",
-        chiefReferee: "none",
-        delegation: "full",
-      },
-    ],
-  },
-  {
-    category: "Báo cáo & Thống kê",
-    permissions: [
-      {
-        name: "Xem báo cáo",
-        admin: "full",
-        tournamentManager: "full",
-        chiefReferee: "full",
-        delegation: "partial",
-      },
-      {
-        name: "Xuất báo cáo",
-        admin: "full",
-        tournamentManager: "full",
-        chiefReferee: "partial",
-        delegation: "none",
-      },
-    ],
-  },
-];
-
-const PermissionIcon = ({ level }: { level: "full" | "partial" | "none" }) => {
-  switch (level) {
-    case "full":
-      return (
-        <div className="flex items-center justify-center">
-          <Check className="h-5 w-5 text-green-500" />
-        </div>
-      );
-    case "partial":
-      return (
-        <div className="flex items-center justify-center">
-          <Minus className="h-5 w-5 text-yellow-500" />
-        </div>
-      );
-    case "none":
-      return (
-        <div className="flex items-center justify-center">
-          <X className="h-5 w-5 text-red-500" />
-        </div>
-      );
+const formatPermissionDate = (value: string | Date) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
   }
+
+  return date.toLocaleString();
 };
 
 export default function PermissionMatrix() {
+  const { t } = useTranslation();
+  const [pagination, setPagination] = useState({ skip: 0, limit: 20 });
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
+  const [selectedPermission, setSelectedPermission] =
+    useState<Permission | null>(null);
+
+  const permissionsQuery = usePermissionsPaginated(
+    pagination.skip,
+    pagination.limit,
+  );
+  const createPermissionMutation = useCreatePermission();
+  const updatePermissionMutation = useUpdatePermission();
+  const deletePermissionMutation = useDeletePermission();
+
+  const permissions = permissionsQuery.data?.items ?? [];
+  const permissionsMeta = permissionsQuery.data?.meta;
+  const isSubmitting =
+    createPermissionMutation.isPending ||
+    updatePermissionMutation.isPending ||
+    deletePermissionMutation.isPending;
+
+  const sortedPermissions = useMemo(() => {
+    return [...permissions].sort((a, b) => a.name.localeCompare(b.name));
+  }, [permissions]);
+
+  const handleCreate = () => {
+    setDialogMode("create");
+    setSelectedPermission(null);
+    setDialogOpen(true);
+  };
+
+  const handleEdit = (permission: Permission) => {
+    setDialogMode("edit");
+    setSelectedPermission(permission);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = async (permission: Permission) => {
+    const confirmed = window.confirm(
+      t("admin.confirmDeletePermission", { name: permission.name }),
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await deletePermissionMutation.mutateAsync(permission.id);
+      showToast.success(t("admin.permissionDeletedSuccess"));
+    } catch (error) {
+      showApiError(error, t("admin.permissionDeleteFailed"));
+    }
+  };
+
+  const handleSubmit = async (data: PermissionDialogSubmitData) => {
+    try {
+      if (dialogMode === "create") {
+        await createPermissionMutation.mutateAsync({
+          name: data.name,
+        });
+        showToast.success(t("admin.permissionCreatedSuccess"));
+      } else if (selectedPermission) {
+        await updatePermissionMutation.mutateAsync({
+          id: selectedPermission.id,
+          data: {
+            name: data.name,
+          },
+        });
+        showToast.success(t("admin.permissionUpdatedSuccess"));
+      }
+
+      setDialogOpen(false);
+    } catch (error) {
+      showApiError(error, t("admin.permissionSaveFailed"));
+    }
+  };
+
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-xl font-semibold">Ma trận phân quyền</h2>
+          <h2 className="text-xl font-semibold">{t("admin.permissions")}</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Quyền hạn chi tiết của từng vai trò
+            {t("admin.permissionsDescription")}
           </p>
         </div>
-        <div className="flex items-center gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-green-500" />
-            <span>Toàn quyền</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Minus className="h-4 w-4 text-yellow-500" />
-            <span>Một phần</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <X className="h-4 w-4 text-red-500" />
-            <span>Không có</span>
-          </div>
-        </div>
+        <Button onClick={handleCreate} disabled={isSubmitting}>
+          <Plus className="h-4 w-4 mr-2" />
+          {t("admin.addPermission")}
+        </Button>
       </div>
 
       <div className="rounded-md border overflow-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[300px]">Chức năng</TableHead>
-              <TableHead className="text-center">Admin</TableHead>
-              <TableHead className="text-center">QLGĐ</TableHead>
-              <TableHead className="text-center">Tổng TT</TableHead>
-              <TableHead className="text-center">Đoàn</TableHead>
+              <TableHead>{t("admin.permissionName")}</TableHead>
+              <TableHead>{t("admin.permissionGroup")}</TableHead>
+              <TableHead>{t("admin.createdAt")}</TableHead>
+              <TableHead className="text-right">
+                {t("common.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockPermissions.map((category, catIndex) => (
-              <>
-                <TableRow key={`category-${catIndex}`} className="bg-muted/50">
-                  <TableCell colSpan={5} className="font-semibold">
-                    {category.category}
+            {permissionsQuery.isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={4}
+                  className="text-center text-muted-foreground"
+                >
+                  {t("common.loading")}
+                </TableCell>
+              </TableRow>
+            ) : sortedPermissions.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={4}
+                  className="text-center text-muted-foreground"
+                >
+                  {t("admin.noPermissionsFound")}
+                </TableCell>
+              </TableRow>
+            ) : (
+              sortedPermissions.map((permission) => (
+                <TableRow key={permission.id}>
+                  <TableCell className="font-medium">
+                    {permission.name}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">
+                      {getPermissionGroup(permission.name)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground text-sm">
+                    {formatPermissionDate(permission.createdAt)}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex justify-end items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEdit(permission)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-500"
+                        onClick={() => handleDelete(permission)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
-                {category.permissions.map((perm, permIndex) => (
-                  <TableRow key={`perm-${catIndex}-${permIndex}`}>
-                    <TableCell className="pl-8">{perm.name}</TableCell>
-                    <TableCell className="text-center">
-                      <PermissionIcon level={perm.admin} />
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <PermissionIcon level={perm.tournamentManager} />
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <PermissionIcon level={perm.chiefReferee} />
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <PermissionIcon level={perm.delegation} />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </>
-            ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
+
+      {permissionsMeta && (
+        <div className="mt-4">
+          <ServerPagination
+            skip={permissionsMeta.skip}
+            limit={permissionsMeta.limit}
+            total={permissionsMeta.total}
+            hasNext={permissionsMeta.hasNext}
+            hasPrevious={permissionsMeta.hasPrevious}
+            isLoading={permissionsQuery.isLoading}
+            onSkipChange={(nextSkip) =>
+              setPagination((prev) => ({ ...prev, skip: nextSkip }))
+            }
+            onLimitChange={(nextLimit) =>
+              setPagination({ skip: 0, limit: nextLimit })
+            }
+          />
+        </div>
+      )}
+
+      <PermissionDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        mode={dialogMode}
+        permission={selectedPermission}
+        isSubmitting={isSubmitting}
+        onSubmit={handleSubmit}
+      />
     </Card>
   );
 }

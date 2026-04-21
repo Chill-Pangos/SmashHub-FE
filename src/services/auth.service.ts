@@ -1,4 +1,4 @@
-import axiosInstance from '@/config/axiosConfig';
+import axiosInstance from "@/config/axiosConfig";
 import type {
   RegisterRequest,
   LoginRequest,
@@ -12,27 +12,47 @@ import type {
   ResendEmailVerificationRequest,
   AuthResponse,
   RefreshTokenResponse,
-  ProfileResponse,
   SuccessResponse,
   User,
   AuthData,
-} from '@/types';
+} from "@/types";
 
 /**
  * Authentication Service
  * Handles all authentication-related API calls
  */
 class AuthService {
-  private readonly AUTH_PREFIX = '/auth';
+  private readonly AUTH_PREFIX = "/auth";
+
+  private normalizeUser(user: User): User {
+    const firstName = user.firstName || "";
+    const lastName = user.lastName || "";
+    const fallbackDisplayName = `${firstName} ${lastName}`.trim();
+    const roles = Array.isArray(user.roles) ? user.roles : [];
+
+    return {
+      ...user,
+      firstName,
+      lastName,
+      roles,
+      username: user.username || fallbackDisplayName || user.email,
+    };
+  }
 
   /**
    * Register a new user
    * POST /api/auth/register
    */
   async register(data: RegisterRequest): Promise<AuthResponse> {
+    const registerPayload: RegisterRequest = {
+      ...data,
+      // TODO: Remove hardcoded role once backend no longer requires role in register payload.
+      role: "user",
+    };
+
     const response = await axiosInstance.post<AuthResponse>(
       `${this.AUTH_PREFIX}/register`,
-      data
+      registerPayload,
     );
     return response.data;
   }
@@ -44,7 +64,7 @@ class AuthService {
   async login(data: LoginRequest): Promise<AuthResponse> {
     const response = await axiosInstance.post<AuthResponse>(
       `${this.AUTH_PREFIX}/login`,
-      data
+      data,
     );
     return response.data;
   }
@@ -56,19 +76,7 @@ class AuthService {
   async refreshToken(data: RefreshTokenRequest): Promise<RefreshTokenResponse> {
     const response = await axiosInstance.post<RefreshTokenResponse>(
       `${this.AUTH_PREFIX}/refresh`,
-      data
-    );
-    return response.data;
-  }
-
-  /**
-   * Get user profile
-   * GET /api/auth/profile
-   * Requires: Authorization header with Bearer token
-   */
-  async getProfile(): Promise<ProfileResponse> {
-    const response = await axiosInstance.get<ProfileResponse>(
-      `${this.AUTH_PREFIX}/profile`
+      data,
     );
     return response.data;
   }
@@ -81,7 +89,7 @@ class AuthService {
   async changePassword(data: ChangePasswordRequest): Promise<SuccessResponse> {
     const response = await axiosInstance.post<SuccessResponse>(
       `${this.AUTH_PREFIX}/change-password`,
-      data
+      data,
     );
     return response.data;
   }
@@ -93,7 +101,7 @@ class AuthService {
   async forgotPassword(data: ForgotPasswordRequest): Promise<SuccessResponse> {
     const response = await axiosInstance.post<SuccessResponse>(
       `${this.AUTH_PREFIX}/forgot-password`,
-      data
+      data,
     );
     return response.data;
   }
@@ -105,7 +113,7 @@ class AuthService {
   async verifyOtp(data: VerifyOtpRequest): Promise<SuccessResponse> {
     const response = await axiosInstance.post<SuccessResponse>(
       `${this.AUTH_PREFIX}/verify-otp`,
-      data
+      data,
     );
     return response.data;
   }
@@ -117,7 +125,7 @@ class AuthService {
   async resetPassword(data: ResetPasswordRequest): Promise<SuccessResponse> {
     const response = await axiosInstance.post<SuccessResponse>(
       `${this.AUTH_PREFIX}/reset-password`,
-      data
+      data,
     );
     return response.data;
   }
@@ -129,19 +137,21 @@ class AuthService {
    */
   async logout(): Promise<SuccessResponse> {
     const response = await axiosInstance.post<SuccessResponse>(
-      `${this.AUTH_PREFIX}/logout`
+      `${this.AUTH_PREFIX}/logout`,
     );
     return response.data;
   }
 
   /**
    * Send email verification OTP
-   * POST /api/auth/send-email-verification
+   * POST /api/auth/send-email-verification-otp
    */
-  async sendEmailVerification(data: SendEmailVerificationRequest): Promise<SuccessResponse> {
+  async sendEmailVerification(
+    data: SendEmailVerificationRequest,
+  ): Promise<SuccessResponse> {
     const response = await axiosInstance.post<SuccessResponse>(
-      `${this.AUTH_PREFIX}/send-email-verification`,
-      data
+      `${this.AUTH_PREFIX}/send-email-verification-otp`,
+      data,
     );
     return response.data;
   }
@@ -153,19 +163,21 @@ class AuthService {
   async verifyEmailOtp(data: VerifyEmailOtpRequest): Promise<SuccessResponse> {
     const response = await axiosInstance.post<SuccessResponse>(
       `${this.AUTH_PREFIX}/verify-email-otp`,
-      data
+      data,
     );
     return response.data;
   }
 
   /**
    * Resend email verification OTP
-   * POST /api/auth/resend-email-verification
+   * POST /api/auth/resend-email-verification-otp
    */
-  async resendEmailVerification(data: ResendEmailVerificationRequest): Promise<SuccessResponse> {
+  async resendEmailVerification(
+    data: ResendEmailVerificationRequest,
+  ): Promise<SuccessResponse> {
     const response = await axiosInstance.post<SuccessResponse>(
-      `${this.AUTH_PREFIX}/resend-email-verification`,
-      data
+      `${this.AUTH_PREFIX}/resend-email-verification-otp`,
+      data,
     );
     return response.data;
   }
@@ -178,18 +190,20 @@ class AuthService {
   saveAuthData(
     userOrAuthData: User | AuthData,
     accessToken?: string,
-    refreshToken?: string
+    refreshToken?: string,
   ): void {
-    if ('user' in userOrAuthData) {
+    if ("user" in userOrAuthData) {
       // AuthData format
-      localStorage.setItem('user', JSON.stringify(userOrAuthData.user));
-      localStorage.setItem('accessToken', userOrAuthData.accessToken);
-      localStorage.setItem('refreshToken', userOrAuthData.refreshToken);
+      const normalizedUser = this.normalizeUser(userOrAuthData.user);
+      localStorage.setItem("user", JSON.stringify(normalizedUser));
+      localStorage.setItem("accessToken", userOrAuthData.accessToken);
+      localStorage.setItem("refreshToken", userOrAuthData.refreshToken);
     } else {
       // Individual parameters format
-      localStorage.setItem('user', JSON.stringify(userOrAuthData));
-      localStorage.setItem('accessToken', accessToken!);
-      localStorage.setItem('refreshToken', refreshToken!);
+      const normalizedUser = this.normalizeUser(userOrAuthData);
+      localStorage.setItem("user", JSON.stringify(normalizedUser));
+      localStorage.setItem("accessToken", accessToken!);
+      localStorage.setItem("refreshToken", refreshToken!);
     }
   }
 
@@ -197,24 +211,27 @@ class AuthService {
    * Helper: Clear auth data from localStorage
    */
   clearAuthData(): void {
-    localStorage.removeItem('user');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    localStorage.removeItem("user");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
   }
 
   /**
    * Helper: Get stored user data
    */
   getStoredUser(): User | null {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return null;
+
+    const parsedUser = JSON.parse(userStr) as User;
+    return this.normalizeUser(parsedUser);
   }
 
   /**
    * Helper: Check if user is authenticated
    */
   isAuthenticated(): boolean {
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = localStorage.getItem("accessToken");
     return !!accessToken;
   }
 
@@ -222,14 +239,14 @@ class AuthService {
    * Helper: Get stored access token
    */
   getAccessToken(): string | null {
-    return localStorage.getItem('accessToken');
+    return localStorage.getItem("accessToken");
   }
 
   /**
    * Helper: Get stored refresh token
    */
   getRefreshToken(): string | null {
-    return localStorage.getItem('refreshToken');
+    return localStorage.getItem("refreshToken");
   }
 }
 

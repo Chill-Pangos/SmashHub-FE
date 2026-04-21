@@ -3,7 +3,6 @@
 // Note: LayoutDashboard, AlertCircle, FileCheck, ScrollText removed (menu items hidden)
 import { Monitor, Shield, Settings, LogOut, Menu } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSwitcher from "./LanguageSwitcher";
 import NotificationDropdown from "./NotificationDropdown";
@@ -21,12 +20,10 @@ export default function ChiefRefereeSidebar({
 }: ChiefRefereeSidebarProps) {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(true);
-  const navigate = useNavigate();
   const { logout } = useAuthOperations();
 
   const handleLogout = async () => {
     await logout();
-    navigate("/signin");
   };
 
   const menuItems = [

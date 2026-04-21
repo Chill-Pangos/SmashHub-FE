@@ -1,5 +1,12 @@
 import axiosInstance from "@/config/axiosConfig";
-import type { User } from "@/types";
+import { parsePaginatedResponse } from "@/utils/pagination.utils";
+import type {
+  User,
+  CreateUserRequest,
+  UpdateUserRequest,
+  PaginatedUsersResult,
+  GetUsersPaginatedApiResponse,
+} from "@/types";
 
 /**
  * User Service
@@ -7,6 +14,52 @@ import type { User } from "@/types";
  */
 class UserService {
   private readonly baseURL = "/users";
+
+  private normalizeUser(user: User): User {
+    const firstName = user.firstName || "";
+    const lastName = user.lastName || "";
+    const fallbackDisplayName = `${firstName} ${lastName}`.trim();
+
+    return {
+      ...user,
+      firstName,
+      lastName,
+      isEmailVerified: Boolean(user.isEmailVerified),
+      roles: Array.isArray(user.roles) ? user.roles : [],
+      username: user.username || fallbackDisplayName || user.email,
+    };
+  }
+
+  /**
+   * Create a new user
+   * POST /api/users
+   */
+  async createUser(data: CreateUserRequest): Promise<User> {
+    const response = await axiosInstance.post<User>(this.baseURL, data);
+    return this.normalizeUser(response.data);
+  }
+
+  /**
+   * Get users in a pagination-ready shape.
+   * Supports both server pagination payloads and plain arrays.
+   */
+  async getUsersPaginated(
+    skip: number = 0,
+    limit: number = 10,
+  ): Promise<PaginatedUsersResult> {
+    const response = await axiosInstance.get<
+      GetUsersPaginatedApiResponse | User[]
+    >(this.baseURL, {
+      params: { skip, limit },
+    });
+
+    const parsed = parsePaginatedResponse<User>(response.data, { skip, limit });
+
+    return {
+      ...parsed,
+      items: parsed.items.map((user) => this.normalizeUser(user)),
+    };
+  }
 
   /**
    * Get all users with pagination
@@ -20,10 +73,8 @@ class UserService {
    * const users = await userService.getUsers(0, 50);
    */
   async getUsers(skip: number = 0, limit: number = 10): Promise<User[]> {
-    const response = await axiosInstance.get<User[]>(this.baseURL, {
-      params: { skip, limit },
-    });
-    return response.data;
+    const result = await this.getUsersPaginated(skip, limit);
+    return result.items;
   }
 
   /**
@@ -38,7 +89,51 @@ class UserService {
    */
   async getUserById(id: number): Promise<User> {
     const response = await axiosInstance.get<User>(`${this.baseURL}/${id}`);
-    return response.data;
+    return this.normalizeUser(response.data);
+  }
+
+  /**
+   * Update user by ID
+   * PUT /api/users/:id
+   */
+  async updateUser(id: number, data: UpdateUserRequest): Promise<User> {
+    const response = await axiosInstance.put<User>(
+      `${this.baseURL}/${id}`,
+      data,
+    );
+    return this.normalizeUser(response.data);
+  }
+
+  /**
+   * Delete user by ID
+   * DELETE /api/users/:id
+   */
+  async deleteUser(id: number): Promise<void> {
+    await axiosInstance.delete(`${this.baseURL}/${id}`);
+  }
+
+  /**
+   * Search users in a pagination-ready shape.
+   * Supports both server pagination payloads and plain arrays.
+   */
+  async searchUsersPaginated(
+    query: string,
+    skip: number = 0,
+    limit: number = 10,
+  ): Promise<PaginatedUsersResult> {
+    const response = await axiosInstance.get<unknown>(
+      `${this.baseURL}/search`,
+      {
+        params: { query, skip, limit },
+      },
+    );
+
+    const parsed = parsePaginatedResponse<User>(response.data, { skip, limit });
+
+    return {
+      ...parsed,
+      items: parsed.items.map((user) => this.normalizeUser(user)),
+    };
   }
 
   /**
@@ -58,10 +153,8 @@ class UserService {
     skip: number = 0,
     limit: number = 10,
   ): Promise<User[]> {
-    const response = await axiosInstance.get<User[]>(`${this.baseURL}/search`, {
-      params: { query, skip, limit },
-    });
-    return response.data;
+    const result = await this.searchUsersPaginated(query, skip, limit);
+    return result.items;
   }
 }
 

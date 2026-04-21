@@ -1,4 +1,7 @@
 import { toast } from "sonner";
+import i18n from "@/locales/i18n";
+
+const tToast = (key: string): string => i18n.t(key) as string;
 
 /**
  * Toast Utilities
@@ -69,7 +72,7 @@ export const showToast = {
       loading: string;
       success: string | ((data: T) => string);
       error: string | ((error: Error) => string);
-    }
+    },
   ) => {
     return toast.promise(promise, messages);
   },
@@ -78,11 +81,8 @@ export const showToast = {
 /**
  * Show API error with proper formatting
  */
-export const showApiError = (
-  error: unknown,
-  fallbackMessage = "Đã có lỗi xảy ra"
-) => {
-  let errorMessage = fallbackMessage;
+export const showApiError = (error: unknown, fallbackMessage?: string) => {
+  let errorMessage = fallbackMessage || tToast("toast.errors.INTERNAL_ERROR");
   let description: string | undefined;
 
   if (error && typeof error === "object") {
@@ -104,12 +104,15 @@ export const showApiError = (
       if (response.data?.error?.message) {
         errorMessage = getUserFriendlyMessage(
           response.data.error.code || "",
-          response.data.error.message
+          response.data.error.message,
         );
       }
       // Fallback to old format
       else if (response.data?.message) {
-        errorMessage = response.data.message;
+        errorMessage = getUserFriendlyMessage(
+          response.data.message,
+          response.data.message,
+        );
       }
     }
     // Handle Error object
@@ -134,61 +137,58 @@ export const showApiError = (
  * Based on error codes from AUTH_FLOW.md
  */
 export const ERROR_MESSAGES: Record<string, string> = {
-  // Authentication errors - Lỗi xác thực
-  INVALID_TOKEN: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
-  TOKEN_REVOKED: "Phiên đăng nhập đã bị vô hiệu hóa. Vui lòng đăng nhập lại.",
-  NO_TOKEN_PROVIDED: "Thiếu token xác thực. Vui lòng đăng nhập.",
-  INVALID_CREDENTIALS: "Email hoặc mật khẩu không chính xác.",
-  UNAUTHORIZED: "Bạn chưa đăng nhập. Vui lòng đăng nhập để tiếp tục.",
+  // Authentication errors
+  INVALID_TOKEN: "toast.errors.INVALID_TOKEN",
+  TOKEN_REVOKED: "toast.errors.TOKEN_REVOKED",
+  NO_TOKEN_PROVIDED: "toast.errors.NO_TOKEN_PROVIDED",
+  INVALID_CREDENTIALS: "toast.errors.INVALID_CREDENTIALS",
+  UNAUTHORIZED: "toast.errors.UNAUTHORIZED",
 
-  // Registration errors - Lỗi đăng ký
-  EMAIL_ALREADY_EXISTS: "Email này đã được đăng ký.",
-  USERNAME_ALREADY_EXISTS: "Tên người dùng đã tồn tại.",
-  ROLE_NOT_FOUND: "Vai trò không hợp lệ.",
+  // Registration errors
+  EMAIL_ALREADY_EXISTS: "toast.errors.EMAIL_ALREADY_EXISTS",
+  USERNAME_ALREADY_EXISTS: "toast.errors.USERNAME_ALREADY_EXISTS",
+  ROLE_NOT_FOUND: "toast.errors.ROLE_NOT_FOUND",
 
-  // Password errors - Lỗi mật khẩu
-  INVALID_OLD_PASSWORD: "Mật khẩu hiện tại không chính xác.",
-  SAME_PASSWORD: "Mật khẩu mới không được trùng với mật khẩu cũ.",
+  // Password errors
+  INVALID_OLD_PASSWORD: "toast.errors.INVALID_OLD_PASSWORD",
+  SAME_PASSWORD: "toast.errors.SAME_PASSWORD",
 
-  // OTP errors - Lỗi OTP
-  INVALID_OTP: "Mã xác thực không chính xác.",
-  EXPIRED_OTP: "Mã xác thực đã hết hạn. Vui lòng yêu cầu mã mới.",
+  // OTP errors
+  INVALID_OTP: "toast.errors.INVALID_OTP",
+  EXPIRED_OTP: "toast.errors.EXPIRED_OTP",
 
-  // Email verification - Xác thực email
-  EMAIL_NOT_VERIFIED: "Vui lòng xác thực email để tiếp tục.",
-  EMAIL_SEND_ERROR: "Không thể gửi email. Vui lòng thử lại sau.",
+  // Email verification
+  EMAIL_NOT_VERIFIED: "toast.errors.EMAIL_NOT_VERIFIED",
+  EMAIL_SEND_ERROR: "toast.errors.EMAIL_SEND_ERROR",
 
-  // User errors - Lỗi người dùng
-  USER_NOT_FOUND: "Không tìm thấy tài khoản người dùng.",
+  // User errors
+  USER_NOT_FOUND: "toast.errors.USER_NOT_FOUND",
 
-  // Generic errors - Lỗi chung
-  BAD_REQUEST: "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.",
-  FORBIDDEN: "Bạn không có quyền thực hiện hành động này.",
-  INTERNAL_ERROR: "Đã có lỗi xảy ra. Vui lòng thử lại sau.",
+  // Generic errors
+  BAD_REQUEST: "toast.errors.BAD_REQUEST",
+  FORBIDDEN: "toast.errors.FORBIDDEN",
+  INTERNAL_ERROR: "toast.errors.INTERNAL_ERROR",
 
-  // Network errors - Lỗi mạng
-  "Network Error": "Vui lòng kiểm tra kết nối internet của bạn.",
-  timeout: "Yêu cầu hết thời gian chờ. Vui lòng thử lại.",
+  // Network errors
+  "Network Error": "toast.errors.NETWORK_ERROR",
+  timeout: "toast.errors.TIMEOUT",
 
   // Legacy error messages (for backward compatibility)
-  "Token expired": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
-  "Invalid credentials": "Email hoặc mật khẩu không chính xác.",
-  "Email already exists": "Email này đã được đăng ký.",
-  "Invalid refresh token":
-    "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
-  "Refresh token expired":
-    "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
-  "Token blacklisted":
-    "Phiên đăng nhập đã bị vô hiệu hóa. Vui lòng đăng nhập lại.",
-  "Invalid old password": "Mật khẩu hiện tại không chính xác.",
-  "Password too weak": "Mật khẩu quá yếu. Vui lòng sử dụng mật khẩu mạnh hơn.",
-  "Invalid OTP": "Mã xác thực không chính xác.",
-  "OTP has expired": "Mã xác thực đã hết hạn. Vui lòng yêu cầu mã mới.",
-  "OTP already used": "Mã xác thực đã được sử dụng. Vui lòng yêu cầu mã mới.",
-  "User not found": "Không tìm thấy tài khoản người dùng.",
-  Unauthorized: "Bạn không có quyền thực hiện hành động này.",
-  Forbidden: "Truy cập bị từ chối.",
-  "Not Found": "Không tìm thấy tài nguyên.",
+  "Token expired": "toast.errors.INVALID_TOKEN",
+  "Invalid credentials": "toast.errors.INVALID_CREDENTIALS",
+  "Email already exists": "toast.errors.EMAIL_ALREADY_EXISTS",
+  "Invalid refresh token": "toast.errors.INVALID_TOKEN",
+  "Refresh token expired": "toast.errors.INVALID_TOKEN",
+  "Token blacklisted": "toast.errors.TOKEN_REVOKED",
+  "Invalid old password": "toast.errors.INVALID_OLD_PASSWORD",
+  "Password too weak": "toast.errors.PASSWORD_TOO_WEAK",
+  "Invalid OTP": "toast.errors.INVALID_OTP",
+  "OTP has expired": "toast.errors.EXPIRED_OTP",
+  "OTP already used": "toast.errors.OTP_ALREADY_USED",
+  "User not found": "toast.errors.USER_NOT_FOUND",
+  Unauthorized: "toast.errors.FORBIDDEN",
+  Forbidden: "toast.errors.ACCESS_DENIED",
+  "Not Found": "toast.errors.NOT_FOUND",
 };
 
 /**
@@ -197,18 +197,22 @@ export const ERROR_MESSAGES: Record<string, string> = {
  */
 export const getUserFriendlyMessage = (
   errorCodeOrMessage: string,
-  fallbackMessage?: string
+  fallbackMessage?: string,
 ): string => {
   // Try to match by error code first
   if (ERROR_MESSAGES[errorCodeOrMessage]) {
-    return ERROR_MESSAGES[errorCodeOrMessage];
+    return tToast(ERROR_MESSAGES[errorCodeOrMessage]);
   }
 
   // If no match and fallback provided, try fallback
   if (fallbackMessage && ERROR_MESSAGES[fallbackMessage]) {
-    return ERROR_MESSAGES[fallbackMessage];
+    return tToast(ERROR_MESSAGES[fallbackMessage]);
   }
 
   // Return the message as-is if no mapping found
-  return fallbackMessage || errorCodeOrMessage;
+  return (
+    fallbackMessage ||
+    errorCodeOrMessage ||
+    tToast("toast.errors.INTERNAL_ERROR")
+  );
 };
