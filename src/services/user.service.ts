@@ -4,9 +4,12 @@ import type {
   User,
   CreateUserRequest,
   UpdateUserRequest,
+  UpdateUserProfileRequest,
   PaginatedUsersResult,
   GetUsersPaginatedApiResponse,
 } from "@/types";
+
+type JsonRecord = Record<string, unknown>;
 
 /**
  * User Service
@@ -14,6 +17,41 @@ import type {
  */
 class UserService {
   private readonly baseURL = "/users";
+
+  private toObject(value: unknown): JsonRecord | null {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      return null;
+    }
+
+    return value as JsonRecord;
+  }
+
+  private toUser(value: unknown): User | null {
+    const obj = this.toObject(value);
+    if (!obj) {
+      return null;
+    }
+
+    if (typeof obj.id !== "number" || typeof obj.email !== "string") {
+      return null;
+    }
+
+    return obj as unknown as User;
+  }
+
+  private extractUserFromResponse(payload: unknown): User | null {
+    const rootUser = this.toUser(payload);
+    if (rootUser) {
+      return rootUser;
+    }
+
+    const root = this.toObject(payload);
+    if (!root) {
+      return null;
+    }
+
+    return this.toUser(root.data);
+  }
 
   private normalizeUser(user: User): User {
     const firstName = user.firstName || "";
@@ -97,11 +135,39 @@ class UserService {
    * PUT /api/users/:id
    */
   async updateUser(id: number, data: UpdateUserRequest): Promise<User> {
-    const response = await axiosInstance.put<User>(
+    const response = await axiosInstance.put<unknown>(
       `${this.baseURL}/${id}`,
       data,
     );
-    return this.normalizeUser(response.data);
+
+    const updatedUser = this.extractUserFromResponse(response.data);
+    if (updatedUser) {
+      return this.normalizeUser(updatedUser);
+    }
+
+    // Fallback for APIs that return only message/success without user payload.
+    return this.getUserById(id);
+  }
+
+  /**
+   * Update user profile by ID (self update)
+   * PUT /api/users/:id/profile
+   */
+  async updateUserProfile(
+    id: number,
+    data: UpdateUserProfileRequest,
+  ): Promise<User> {
+    const response = await axiosInstance.put<unknown>(
+      `${this.baseURL}/${id}/profile`,
+      data,
+    );
+
+    const updatedUser = this.extractUserFromResponse(response.data);
+    if (updatedUser) {
+      return this.normalizeUser(updatedUser);
+    }
+
+    return this.getUserById(id);
   }
 
   /**

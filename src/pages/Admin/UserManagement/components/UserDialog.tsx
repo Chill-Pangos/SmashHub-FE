@@ -24,8 +24,12 @@ export interface UserDialogSubmitData {
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
-  roleId: number;
+  password?: string;
+  roleId?: number;
+  avatarUrl?: string;
+  dob?: string;
+  phoneNumber?: string;
+  gender?: string;
 }
 
 interface UserDialogProps {
@@ -55,12 +59,25 @@ export default function UserDialog({
     email: "",
     password: "",
     roleId: "",
+    avatarUrl: "",
+    dob: "",
+    phoneNumber: "",
+    gender: "",
   });
 
   const firstUserRole = useMemo(
     () => (user?.roles?.length ? String(user.roles[0]) : ""),
     [user?.roles],
   );
+  const userDob = useMemo(
+    () => (user?.dob ? String(user.dob).slice(0, 10) : ""),
+    [user?.dob],
+  );
+  const userGender = useMemo(() => {
+    return user?.gender === "male" || user?.gender === "female"
+      ? user.gender
+      : "";
+  }, [user?.gender]);
 
   useEffect(() => {
     if (!open) {
@@ -74,6 +91,10 @@ export default function UserDialog({
         email: user.email ?? "",
         password: "",
         roleId: firstUserRole,
+        avatarUrl: user.avatarUrl ?? "",
+        dob: userDob,
+        phoneNumber: user.phoneNumber ?? "",
+        gender: userGender,
       });
       return;
     }
@@ -84,13 +105,17 @@ export default function UserDialog({
       email: "",
       password: "",
       roleId: "",
+      avatarUrl: "",
+      dob: "",
+      phoneNumber: "",
+      gender: "",
     });
-  }, [firstUserRole, mode, open, user]);
+  }, [firstUserRole, mode, open, user, userDob, userGender]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.roleId) {
+    if (mode === "create" && !formData.roleId) {
       return;
     }
 
@@ -98,8 +123,12 @@ export default function UserDialog({
       firstName: formData.firstName.trim(),
       lastName: formData.lastName.trim(),
       email: formData.email.trim(),
-      password: formData.password,
-      roleId: Number(formData.roleId),
+      password: formData.password.trim() || undefined,
+      roleId: formData.roleId ? Number(formData.roleId) : undefined,
+      avatarUrl: formData.avatarUrl.trim() || "",
+      dob: formData.dob,
+      phoneNumber: formData.phoneNumber.trim() || "",
+      gender: formData.gender || "",
     });
   };
 
@@ -165,45 +194,113 @@ export default function UserDialog({
               />
             </div>
 
+            <div className="grid gap-2">
+              <Label htmlFor="password">{t("auth.password")}</Label>
+              <Input
+                id="password"
+                type="password"
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    password: e.target.value,
+                  }))
+                }
+                placeholder={
+                  mode === "create"
+                    ? t("admin.passwordPlaceholder")
+                    : t("admin.passwordOptionalPlaceholder")
+                }
+                required={mode === "create"}
+                minLength={mode === "create" ? 6 : undefined}
+              />
+            </div>
+
             {mode === "create" && (
               <div className="grid gap-2">
-                <Label htmlFor="password">{t("auth.password")}</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      password: e.target.value,
-                    }))
+                <Label htmlFor="role">{t("admin.roles")}</Label>
+                <Select
+                  value={formData.roleId}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, roleId: value }))
                   }
-                  placeholder={t("admin.passwordPlaceholder")}
-                  required
-                  minLength={6}
-                />
+                >
+                  <SelectTrigger id="role">
+                    <SelectValue placeholder={t("admin.selectRole")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {roles.map((role) => (
+                      <SelectItem key={role.id} value={String(role.id)}>
+                        {role.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
 
             <div className="grid gap-2">
-              <Label htmlFor="role">{t("admin.roles")}</Label>
-              <Select
-                value={formData.roleId}
-                onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, roleId: value }))
+              <Label htmlFor="avatarUrl">{t("admin.avatarUrl")}</Label>
+              <Input
+                id="avatarUrl"
+                value={formData.avatarUrl}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    avatarUrl: e.target.value,
+                  }))
                 }
-              >
-                <SelectTrigger id="role">
-                  <SelectValue placeholder={t("admin.selectRole")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {roles.map((role) => (
-                    <SelectItem key={role.id} value={String(role.id)}>
-                      {role.name}
+                placeholder={t("admin.avatarUrlPlaceholder")}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-2">
+                <Label htmlFor="dob">{t("athlete.dateOfBirth")}</Label>
+                <Input
+                  id="dob"
+                  type="date"
+                  value={formData.dob}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, dob: e.target.value }))
+                  }
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="gender">{t("athlete.gender")}</Label>
+                <Select
+                  value={formData.gender}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, gender: value }))
+                  }
+                >
+                  <SelectTrigger id="gender">
+                    <SelectValue placeholder={t("admin.selectGender")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">{t("athlete.male")}</SelectItem>
+                    <SelectItem value="female">
+                      {t("athlete.female")}
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="phoneNumber">{t("auth.phoneNumber")}</Label>
+              <Input
+                id="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    phoneNumber: e.target.value,
+                  }))
+                }
+                placeholder={t("auth.phoneNumber")}
+              />
             </div>
           </div>
 
@@ -216,7 +313,12 @@ export default function UserDialog({
             >
               {t("common.cancel")}
             </Button>
-            <Button type="submit" disabled={isSubmitting || roles.length === 0}>
+            <Button
+              type="submit"
+              disabled={
+                isSubmitting || (mode === "create" && roles.length === 0)
+              }
+            >
               {mode === "create" ? t("admin.createUser") : t("common.save")}
             </Button>
           </DialogFooter>

@@ -1,7 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { userService } from "@/services";
 import { queryKeys } from "./queryKeys";
-import type { CreateUserRequest, UpdateUserRequest } from "@/types";
+import type {
+  CreateUserRequest,
+  UpdateUserRequest,
+  UpdateUserProfileRequest,
+} from "@/types";
 
 // ==================== Query Hooks ====================
 
@@ -129,6 +133,29 @@ export const useDeleteUser = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.users.all,
+      });
+    },
+  });
+};
+
+/**
+ * Hook để người dùng tự cập nhật profile
+ */
+export const useUpdateUserProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: UpdateUserProfileRequest;
+    }) => userService.updateUserProfile(id, data),
+    onSuccess: (updatedUser, { id }) => {
+      queryClient.setQueryData(queryKeys.users.detail(id), updatedUser);
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.users.lists(),
       });
     },
   });

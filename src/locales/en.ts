@@ -334,6 +334,7 @@ export default {
     athleteDetails: "Athlete Details",
     athleteProfile: "Athlete Profile",
     dateOfBirth: "Date of Birth",
+    avatarUrl: "Avatar URL",
     gender: "Gender",
     male: "Male",
     female: "Female",
@@ -373,6 +374,8 @@ export default {
     statsOverview: "Stats Overview",
     winsCount: "Wins",
     lossesCount: "Losses",
+    profileUpdatedSuccess: "Profile updated successfully",
+    profileUpdateFailed: "Failed to update profile",
     // Tournaments
     myTournaments: "My Tournaments",
     tournamentsParticipating: "Tournaments you are participating in",
@@ -503,7 +506,12 @@ export default {
     firstName: "First name",
     lastName: "Last name",
     selectRole: "Select role",
+    selectGender: "Select gender",
     passwordPlaceholder: "Enter password",
+    passwordOptionalPlaceholder: "Leave blank to keep current password",
+    avatarUrl: "Avatar URL",
+    avatarUrlPlaceholder: "https://example.com/avatar.png",
+    requiredCreateUserFields: "Please fill role and password to create user",
     noRolesFound: "No roles found",
     roleCreatedSuccess: "Role created successfully",
     roleUpdatedSuccess: "Role updated successfully",
@@ -542,7 +550,8 @@ export default {
       "Review information for all selected users",
     confirmDeleteSelectedUsers: "Delete {{count}} selected users?",
     usersDeletedSuccess: "Deleted {{count}} users successfully",
-    usersDeletePartial: "Deleted {{success}}/{{total}} users. {{failed}} failed.",
+    usersDeletePartial:
+      "Deleted {{success}}/{{total}} users. {{failed}} failed.",
   },
 
   // Tournament Manager

@@ -60,43 +60,60 @@ export default function UserViewDialog({
 
         <ScrollArea className="max-h-[60vh] pr-3">
           {users.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t("admin.noUsersFound")}</p>
+            <p className="text-sm text-muted-foreground">
+              {t("admin.noUsersFound")}
+            </p>
           ) : (
             <div className="space-y-3">
               {users.map((user) => (
                 <Card key={user.id} className="p-4">
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div>
-                      <p className="text-xs text-muted-foreground">{t("auth.fullName")}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t("auth.fullName")}
+                      </p>
                       <p className="font-medium">
                         {user.firstName} {user.lastName}
                       </p>
                     </div>
 
                     <div>
-                      <p className="text-xs text-muted-foreground">{t("auth.email")}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t("auth.email")}
+                      </p>
                       <p className="font-medium break-all">{user.email}</p>
                     </div>
 
                     <div>
-                      <p className="text-xs text-muted-foreground">{t("admin.roles")}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t("admin.roles")}
+                      </p>
                       <div className="mt-1 flex flex-wrap gap-1">
                         {(user.roles ?? []).length > 0 ? (
                           (user.roles ?? []).map((roleId) => (
-                            <Badge key={`${user.id}-${roleId}`} variant="secondary">
+                            <Badge
+                              key={`${user.id}-${roleId}`}
+                              variant="secondary"
+                            >
                               {rolesById[roleId] ?? `#${roleId}`}
                             </Badge>
                           ))
                         ) : (
-                          <span className="text-sm text-muted-foreground">-</span>
+                          <span className="text-sm text-muted-foreground">
+                            -
+                          </span>
                         )}
                       </div>
                     </div>
 
                     <div>
-                      <p className="text-xs text-muted-foreground">{t("auth.verifyEmail")}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t("auth.verifyEmail")}
+                      </p>
                       {user.isEmailVerified ? (
-                        <Badge className="mt-1 bg-green-500">{t("admin.verified")}</Badge>
+                        <Badge className="mt-1 bg-green-500">
+                          {t("admin.verified")}
+                        </Badge>
                       ) : (
                         <Badge className="mt-1" variant="outline">
                           {t("admin.unverified")}
@@ -105,12 +122,54 @@ export default function UserViewDialog({
                     </div>
 
                     <div>
-                      <p className="text-xs text-muted-foreground">{t("admin.createdAt")}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t("athlete.gender")}
+                      </p>
+                      <p className="text-sm">
+                        {user.gender === "male"
+                          ? t("athlete.male")
+                          : user.gender === "female"
+                            ? t("athlete.female")
+                            : user.gender || "-"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        {t("athlete.dateOfBirth")}
+                      </p>
+                      <p className="text-sm">{formatDate(user.dob)}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        {t("auth.phoneNumber")}
+                      </p>
+                      <p className="text-sm break-all">
+                        {user.phoneNumber || "-"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        {t("admin.avatarUrl")}
+                      </p>
+                      <p className="text-sm break-all">
+                        {user.avatarUrl || "-"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        {t("admin.createdAt")}
+                      </p>
                       <p className="text-sm">{formatDate(user.createdAt)}</p>
                     </div>
 
                     <div>
-                      <p className="text-xs text-muted-foreground">{t("admin.userId")}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t("admin.userId")}
+                      </p>
                       <p className="text-sm">#{user.id}</p>
                     </div>
                   </div>
@@ -121,7 +180,11 @@ export default function UserViewDialog({
         </ScrollArea>
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
             {t("common.close")}
           </Button>
         </DialogFooter>

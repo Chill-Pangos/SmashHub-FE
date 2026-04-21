@@ -5,14 +5,100 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { TrendingUp, Edit, Save } from "lucide-react";
+import { useUpdateUserProfile } from "@/hooks/queries";
 import { useAuth } from "@/store/useAuth";
-import { useState } from "react";
+import { showApiError, showToast } from "@/utils/toast.utils";
+import { useEffect, useMemo, useState } from "react";
+
+const toDateInputValue = (value?: string | null) => {
+  if (!value) {
+    return "";
+  }
+
+  return String(value).slice(0, 10);
+};
+
+const toNullable = (value?: string) => {
+  const trimmed = value?.trim() ?? "";
+  return trimmed ? trimmed : null;
+};
 
 export default function AthleteProfile() {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
+  const updateUserProfileMutation = useUpdateUserProfile();
   const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    avatarUrl: "",
+    dob: "",
+    phoneNumber: "",
+    gender: "",
+  });
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    setFormData({
+      avatarUrl: user.avatarUrl ?? "",
+      dob: toDateInputValue(user.dob),
+      phoneNumber: user.phoneNumber ?? "",
+      gender:
+        user.gender === "male" || user.gender === "female" ? user.gender : "",
+    });
+  }, [user]);
+
+  const displayName = useMemo(() => {
+    if (!user) {
+      return "";
+    }
+
+    return (
+      `${user.firstName} ${user.lastName}`.trim() || user.username || user.email
+    );
+  }, [user]);
+
+  if (!user) {
+    return null;
+  }
+
+  const handleSaveProfile = async () => {
+    try {
+      const updatedUser = await updateUserProfileMutation.mutateAsync({
+        id: user.id,
+        data: {
+          avatarUrl: toNullable(formData.avatarUrl),
+          dob: toNullable(formData.dob),
+          phoneNumber: toNullable(formData.phoneNumber),
+          gender: toNullable(formData.gender),
+        },
+      });
+
+      updateUser(updatedUser);
+      showToast.success(t("athlete.profileUpdatedSuccess"));
+      setIsEditing(false);
+    } catch (error) {
+      showApiError(error, t("athlete.profileUpdateFailed"));
+    }
+  };
+
+  const handleEditClick = () => {
+    if (isEditing) {
+      void handleSaveProfile();
+      return;
+    }
+
+    setIsEditing(true);
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -26,7 +112,8 @@ export default function AthleteProfile() {
         </div>
         <Button
           variant={isEditing ? "default" : "outline"}
-          onClick={() => setIsEditing(!isEditing)}
+          onClick={handleEditClick}
+          disabled={updateUserProfileMutation.isPending}
         >
           {isEditing ? (
             <>
@@ -48,13 +135,13 @@ export default function AthleteProfile() {
           <CardContent className="pt-6">
             <div className="flex flex-col items-center text-center">
               <Avatar className="h-24 w-24 mb-4">
-                <AvatarImage src="" />
+                <AvatarImage src={formData.avatarUrl || user.avatarUrl || ""} />
                 <AvatarFallback className="text-2xl">
-                  {user?.username?.[0]?.toUpperCase()}
+                  {displayName[0]?.toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <h3 className="text-xl font-semibold">{user?.username}</h3>
-              <p className="text-muted-foreground">{user?.email}</p>
+              <h3 className="text-xl font-semibold">{displayName}</h3>
+              <p className="text-muted-foreground">{user.email}</p>
               <Badge className="mt-2">{t("athlete.athlete")}</Badge>
               <div className="mt-4 p-4 bg-muted rounded-lg w-full">
                 <p className="text-sm text-muted-foreground">
@@ -74,22 +161,81 @@ export default function AthleteProfile() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username">{t("athlete.username")}</Label>
-              <Input
-                id="username"
-                value={user?.username || ""}
-                disabled={!isEditing}
-              />
+              <Input id="username" value={displayName} disabled />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">{t("auth.email")}</Label>
-              <Input id="email" value={user?.email || ""} disabled />
+              <Input id="email" value={user.email} disabled />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="avatarUrl">{t("athlete.avatarUrl")}</Label>
+              <Input
+                id="avatarUrl"
+                value={formData.avatarUrl}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    avatarUrl: e.target.value,
+                  }))
+                }
+                disabled={!isEditing}
+                placeholder="https://example.com/avatar.png"
+              />
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="dob">{t("athlete.dateOfBirth")}</Label>
+                <Input
+                  id="dob"
+                  type="date"
+                  value={formData.dob}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, dob: e.target.value }))
+                  }
+                  disabled={!isEditing}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="gender">{t("athlete.gender")}</Label>
+                <Select
+                  value={formData.gender}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, gender: value }))
+                  }
+                  disabled={!isEditing}
+                >
+                  <SelectTrigger id="gender">
+                    <SelectValue placeholder={t("common.select")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">{t("athlete.male")}</SelectItem>
+                    <SelectItem value="female">
+                      {t("athlete.female")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phoneNumber">{t("auth.phoneNumber")}</Label>
+              <Input
+                id="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    phoneNumber: e.target.value,
+                  }))
+                }
+                disabled={!isEditing}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="emailVerified">{t("athlete.emailStatus")}</Label>
               <Input
                 id="emailVerified"
                 value={
-                  user?.isEmailVerified
+                  user.isEmailVerified
                     ? t("athlete.verified")
                     : t("athlete.notVerified")
                 }

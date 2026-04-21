@@ -31,12 +31,22 @@ export interface UpdateUserRequest {
   firstName?: string;
   lastName?: string;
   email?: string;
+  password?: string;
   gender?: string | null;
   avatarUrl?: string | null;
   dob?: string | null;
   phoneNumber?: string | null;
-  isEmailVerified?: boolean;
-  roles?: number[];
+}
+
+/**
+ * Request body for self profile update
+ * PUT /api/users/:id/profile
+ */
+export interface UpdateUserProfileRequest {
+  avatarUrl?: string | null;
+  dob?: string | null;
+  phoneNumber?: string | null;
+  gender?: string | null;
 }
 
 /**

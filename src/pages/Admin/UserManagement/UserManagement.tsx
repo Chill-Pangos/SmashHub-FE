@@ -3,10 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Search, Plus, RefreshCw } from "lucide-react";
-import UserBulkActions from "./components/UserBulkActions";
+import { UserBulkActions } from "./components";
 import UserTable from "./components/UserTable";
 import UserDialog, { type UserDialogSubmitData } from "./components/UserDialog";
-import UserViewDialog from "./components/UserViewDialog";
+import { UserViewDialog } from "./components";
 import ServerPagination from "@/components/custom/ServerPagination";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
@@ -14,11 +14,22 @@ import {
   useDeleteUser,
   useRoles,
   useSearchUsersPaginated,
+  useUpdateUserProfile,
   useUpdateUser,
   useUsersPaginated,
 } from "@/hooks/queries";
 import type { AdminUser } from "@/types";
 import { showApiError, showToast } from "@/utils/toast.utils";
+
+const toNullable = (value?: string) => {
+  const trimmed = value?.trim() ?? "";
+  return trimmed ? trimmed : null;
+};
+
+const toOptional = (value?: string) => {
+  const trimmed = value?.trim() ?? "";
+  return trimmed ? trimmed : undefined;
+};
 
 export default function UserManagement() {
   const { t } = useTranslation();
@@ -49,6 +60,7 @@ export default function UserManagement() {
 
   const createUserMutation = useCreateUser();
   const updateUserMutation = useUpdateUser();
+  const updateUserProfileMutation = useUpdateUserProfile();
   const deleteUserMutation = useDeleteUser();
 
   const activeUsersQuery = isSearching ? searchUsersQuery : usersQuery;
@@ -87,7 +99,9 @@ export default function UserManagement() {
   }, [roles]);
 
   const isSubmitting =
-    createUserMutation.isPending || updateUserMutation.isPending;
+    createUserMutation.isPending ||
+    updateUserMutation.isPending ||
+    updateUserProfileMutation.isPending;
 
   const isLoading = activeUsersQuery.isLoading;
   const isDeleting = deleteUserMutation.isPending;
@@ -146,7 +160,9 @@ export default function UserManagement() {
     }
 
     if (successCount > 0) {
-      showToast.success(t("admin.usersDeletedSuccess", { count: successCount }));
+      showToast.success(
+        t("admin.usersDeletedSuccess", { count: successCount }),
+      );
     }
 
     if (failedCount > 0) {
@@ -196,20 +212,43 @@ export default function UserManagement() {
         firstName: payload.firstName,
         lastName: payload.lastName,
         email: payload.email,
-        roles: [payload.roleId],
       };
 
       if (dialogMode === "create") {
+        if (!payload.roleId || !payload.password) {
+          showToast.warning(t("admin.requiredCreateUserFields"));
+          return;
+        }
+
         await createUserMutation.mutateAsync({
           ...baseData,
           password: payload.password,
+          roles: [payload.roleId],
+          avatarUrl: toOptional(payload.avatarUrl),
+          dob: toOptional(payload.dob),
+          phoneNumber: toOptional(payload.phoneNumber),
+          gender: toOptional(payload.gender),
         });
         showToast.success(t("admin.userCreatedSuccess"));
       } else if (selectedUser) {
         await updateUserMutation.mutateAsync({
           id: selectedUser.id,
-          data: baseData,
+          data: {
+            ...baseData,
+            password: toOptional(payload.password),
+          },
         });
+
+        await updateUserProfileMutation.mutateAsync({
+          id: selectedUser.id,
+          data: {
+            avatarUrl: toNullable(payload.avatarUrl),
+            dob: toNullable(payload.dob),
+            phoneNumber: toNullable(payload.phoneNumber),
+            gender: toNullable(payload.gender),
+          },
+        });
+
         showToast.success(t("admin.userUpdatedSuccess"));
       }
 

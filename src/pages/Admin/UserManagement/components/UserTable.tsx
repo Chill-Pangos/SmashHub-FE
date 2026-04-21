@@ -91,7 +91,9 @@ export default function UserTable({
           <TableRow>
             <TableHead className="w-[40px]">
               <Checkbox
-                checked={allSelected ? true : someSelected ? "indeterminate" : false}
+                checked={
+                  allSelected ? true : someSelected ? "indeterminate" : false
+                }
                 onCheckedChange={(checked) => handleSelectAll(checked === true)}
                 disabled={isLoading || users.length === 0}
                 aria-label={t("common.selectAll")}
