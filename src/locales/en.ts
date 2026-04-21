@@ -530,6 +530,19 @@ export default {
     permissionUpdatedSuccess: "Permission updated successfully",
     permissionSaveFailed: "Failed to save permission",
     createdAt: "Created At",
+    userId: "User ID",
+    userDetails: "User details",
+    userDetailsDescription: "View detailed information for a user",
+    usersSelected: "{{count}} users selected",
+    viewSelectedUsers: "View selected",
+    deleteSelectedUsers: "Delete selected",
+    clearSelection: "Clear selection",
+    selectedUsersDetails: "{{count}} selected users",
+    selectedUsersDetailsDescription:
+      "Review information for all selected users",
+    confirmDeleteSelectedUsers: "Delete {{count}} selected users?",
+    usersDeletedSuccess: "Deleted {{count}} users successfully",
+    usersDeletePartial: "Deleted {{success}}/{{total}} users. {{failed}} failed.",
   },
 
   // Tournament Manager

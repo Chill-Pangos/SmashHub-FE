@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -9,14 +10,18 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Edit, Trash2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Edit, Eye, Trash2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { AdminUser } from "@/types";
 
 interface UserTableProps {
   users: AdminUser[];
   rolesById: Record<number, string>;
+  selectedUserIds: number[];
   isLoading?: boolean;
+  onSelectionChange: (ids: number[]) => void;
+  onView: (user: AdminUser) => void;
   onEdit: (user: AdminUser) => void;
   onDelete: (user: AdminUser) => void;
 }
@@ -43,17 +48,55 @@ const getInitials = (firstName: string, lastName: string) => {
 export default function UserTable({
   users,
   rolesById,
+  selectedUserIds,
   isLoading,
+  onSelectionChange,
+  onView,
   onEdit,
   onDelete,
 }: UserTableProps) {
   const { t } = useTranslation();
+  const selectedUserIdSet = useMemo(
+    () => new Set(selectedUserIds),
+    [selectedUserIds],
+  );
+
+  const allSelected =
+    users.length > 0 && users.every((user) => selectedUserIdSet.has(user.id));
+  const someSelected =
+    users.some((user) => selectedUserIdSet.has(user.id)) && !allSelected;
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      onSelectionChange(users.map((user) => user.id));
+      return;
+    }
+
+    onSelectionChange([]);
+  };
+
+  const handleSelectUser = (userId: number, checked: boolean) => {
+    if (checked) {
+      onSelectionChange(Array.from(new Set([...selectedUserIds, userId])));
+      return;
+    }
+
+    onSelectionChange(selectedUserIds.filter((id) => id !== userId));
+  };
 
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-[40px]">
+              <Checkbox
+                checked={allSelected ? true : someSelected ? "indeterminate" : false}
+                onCheckedChange={(checked) => handleSelectAll(checked === true)}
+                disabled={isLoading || users.length === 0}
+                aria-label={t("common.selectAll")}
+              />
+            </TableHead>
             <TableHead>{t("admin.users")}</TableHead>
             <TableHead>{t("auth.email")}</TableHead>
             <TableHead>{t("admin.roles")}</TableHead>
@@ -66,7 +109,7 @@ export default function UserTable({
           {isLoading ? (
             <TableRow>
               <TableCell
-                colSpan={6}
+                colSpan={7}
                 className="text-center text-muted-foreground"
               >
                 {t("common.loading")}
@@ -75,7 +118,7 @@ export default function UserTable({
           ) : users.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={6}
+                colSpan={7}
                 className="text-center text-muted-foreground"
               >
                 {t("admin.noUsersFound")}
@@ -84,6 +127,15 @@ export default function UserTable({
           ) : (
             users.map((user) => (
               <TableRow key={user.id}>
+                <TableCell>
+                  <Checkbox
+                    checked={selectedUserIdSet.has(user.id)}
+                    onCheckedChange={(checked) =>
+                      handleSelectUser(user.id, checked === true)
+                    }
+                    aria-label={`${t("common.select")}: ${user.email}`}
+                  />
+                </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar>
@@ -132,6 +184,15 @@ export default function UserTable({
                     <Button
                       variant="ghost"
                       size="icon"
+                      aria-label={t("common.view")}
+                      onClick={() => onView(user)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t("common.edit")}
                       onClick={() => onEdit(user)}
                     >
                       <Edit className="h-4 w-4" />
@@ -139,6 +200,7 @@ export default function UserTable({
                     <Button
                       variant="ghost"
                       size="icon"
+                      aria-label={t("common.delete")}
                       className="text-red-500"
                       onClick={() => onDelete(user)}
                     >

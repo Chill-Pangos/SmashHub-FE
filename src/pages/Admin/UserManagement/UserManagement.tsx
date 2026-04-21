@@ -1,10 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Search, Plus, RefreshCw } from "lucide-react";
+import UserBulkActions from "./components/UserBulkActions";
 import UserTable from "./components/UserTable";
 import UserDialog, { type UserDialogSubmitData } from "./components/UserDialog";
+import UserViewDialog from "./components/UserViewDialog";
 import ServerPagination from "@/components/custom/ServerPagination";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
@@ -25,6 +27,9 @@ export default function UserManagement() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
+  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [usersToView, setUsersToView] = useState<AdminUser[]>([]);
 
   const normalizedSearch = searchQuery.trim();
   const isSearching = normalizedSearch.length > 0;
@@ -56,6 +61,24 @@ export default function UserManagement() {
 
   const roles = rolesQuery.data ?? [];
 
+  const selectedUserIdSet = useMemo(
+    () => new Set(selectedUserIds),
+    [selectedUserIds],
+  );
+  const selectedUsers = useMemo(
+    () => users.filter((user) => selectedUserIdSet.has(user.id)),
+    [users, selectedUserIdSet],
+  );
+
+  useEffect(() => {
+    const availableUserIds = new Set(users.map((user) => user.id));
+
+    setSelectedUserIds((prev) => {
+      const next = prev.filter((id) => availableUserIds.has(id));
+      return next.length === prev.length ? prev : next;
+    });
+  }, [users]);
+
   const rolesById = useMemo(() => {
     return roles.reduce<Record<number, string>>((acc, role) => {
       acc[role.id] = role.name;
@@ -67,6 +90,7 @@ export default function UserManagement() {
     createUserMutation.isPending || updateUserMutation.isPending;
 
   const isLoading = activeUsersQuery.isLoading;
+  const isDeleting = deleteUserMutation.isPending;
 
   const handleEdit = (user: AdminUser) => {
     setSelectedUser(user);
@@ -85,10 +109,79 @@ export default function UserManagement() {
 
     try {
       await deleteUserMutation.mutateAsync(user.id);
+      setSelectedUserIds((prev) => prev.filter((id) => id !== user.id));
       showToast.success(t("admin.userDeletedSuccess"));
     } catch (error) {
       showApiError(error, t("admin.userDeleteFailed"));
     }
+  };
+
+  const handleDeleteSelected = async () => {
+    const total = selectedUserIds.length;
+
+    if (total === 0) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      t("admin.confirmDeleteSelectedUsers", { count: total }),
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    let successCount = 0;
+    let failedCount = 0;
+    let latestError: unknown = null;
+
+    for (const userId of selectedUserIds) {
+      try {
+        await deleteUserMutation.mutateAsync(userId);
+        successCount += 1;
+      } catch (error) {
+        failedCount += 1;
+        latestError = error;
+      }
+    }
+
+    if (successCount > 0) {
+      showToast.success(t("admin.usersDeletedSuccess", { count: successCount }));
+    }
+
+    if (failedCount > 0) {
+      if (successCount === 0 && latestError) {
+        showApiError(latestError, t("admin.userDeleteFailed"));
+      } else {
+        showToast.warning(
+          t("admin.usersDeletePartial", {
+            success: successCount,
+            total,
+            failed: failedCount,
+          }),
+        );
+      }
+    }
+
+    setSelectedUserIds([]);
+  };
+
+  const handleView = (user: AdminUser) => {
+    setUsersToView([user]);
+    setViewDialogOpen(true);
+  };
+
+  const handleViewSelected = () => {
+    if (selectedUsers.length === 0) {
+      return;
+    }
+
+    setUsersToView(selectedUsers);
+    setViewDialogOpen(true);
+  };
+
+  const handleSelectionChange = (ids: number[]) => {
+    setSelectedUserIds(Array.from(new Set(ids)));
   };
 
   const handleCreate = () => {
@@ -169,10 +262,21 @@ export default function UserManagement() {
           </div>
         </div>
 
+        <UserBulkActions
+          selectedCount={selectedUserIds.length}
+          isLoading={isDeleting}
+          onViewSelected={handleViewSelected}
+          onDeleteSelected={handleDeleteSelected}
+          onClearSelection={() => setSelectedUserIds([])}
+        />
+
         <UserTable
           users={users}
           rolesById={rolesById}
+          selectedUserIds={selectedUserIds}
           isLoading={isLoading || rolesQuery.isLoading}
+          onSelectionChange={handleSelectionChange}
+          onView={handleView}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
@@ -205,6 +309,13 @@ export default function UserManagement() {
         roles={roles}
         isSubmitting={isSubmitting}
         onSubmit={handleSubmit}
+      />
+
+      <UserViewDialog
+        open={viewDialogOpen}
+        onOpenChange={setViewDialogOpen}
+        users={usersToView}
+        rolesById={rolesById}
       />
     </div>
   );

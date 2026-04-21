@@ -529,6 +529,20 @@ export default {
     permissionUpdatedSuccess: "Đã cập nhật quyền",
     permissionSaveFailed: "Không thể lưu quyền",
     createdAt: "Ngày tạo",
+    userId: "Mã người dùng",
+    userDetails: "Chi tiết người dùng",
+    userDetailsDescription: "Xem thông tin chi tiết của người dùng",
+    usersSelected: "Đã chọn {{count}} người dùng",
+    viewSelectedUsers: "Xem đã chọn",
+    deleteSelectedUsers: "Xóa đã chọn",
+    clearSelection: "Bỏ chọn",
+    selectedUsersDetails: "{{count}} người dùng đã chọn",
+    selectedUsersDetailsDescription:
+      "Xem thông tin của toàn bộ người dùng đã chọn",
+    confirmDeleteSelectedUsers: "Xóa {{count}} người dùng đã chọn?",
+    usersDeletedSuccess: "Đã xóa thành công {{count}} người dùng",
+    usersDeletePartial:
+      "Đã xóa {{success}}/{{total}} người dùng. Thất bại: {{failed}}.",
   },
 
   // Tournament Manager
