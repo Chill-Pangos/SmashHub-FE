@@ -10,6 +10,7 @@ import ResultCorrection from "@/pages/TournamentManager/ResultCorrection/ResultC
 import ReportsCenter from "@/pages/TournamentManager/ReportsCenter/ReportsCenter";
 import DelegationAccountManagement from "@/pages/TournamentManager/DelegationAccountManagement/DelegationAccountManagement";
 import MatchManagement from "@/pages/TournamentManager/MatchManagement/MatchManagement";
+import TournamentFullFlowPage from "@/pages/TournamentManager/TournamentFullFlow/TournamentFullFlowPage";
 
 interface TournamentManagerRoutesProps {
   organizerRoleId: number;
@@ -69,6 +70,14 @@ export default function TournamentManagerRoutes({
           element={
             <RoleGuard allowedRoles={[organizerRoleId]}>
               <RefereeAssignment />
+            </RoleGuard>
+          }
+        />
+        <Route
+          path="full-flow"
+          element={
+            <RoleGuard allowedRoles={[organizerRoleId]}>
+              <TournamentFullFlowPage />
             </RoleGuard>
           }
         />

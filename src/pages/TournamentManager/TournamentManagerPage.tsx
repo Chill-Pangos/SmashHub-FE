@@ -10,6 +10,7 @@ import MatchManagement from "./MatchManagement/MatchManagement";
 // import ResultCorrection from "./ResultCorrection/ResultCorrection"; // COMMENTED OUT: Uses mock data
 // import ReportsCenter from "./ReportsCenter/ReportsCenter"; // COMMENTED OUT: Uses mock data
 import DelegationAccountManagement from "./DelegationAccountManagement/DelegationAccountManagement";
+import TournamentFullFlowPage from "./TournamentFullFlow/TournamentFullFlowPage";
 
 export default function TournamentManagerPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -30,6 +31,8 @@ export default function TournamentManagerPage() {
         return <ScheduleGenerator />;
       case "matches":
         return <MatchManagement />;
+      case "full-flow":
+        return <TournamentFullFlowPage />;
       // COMMENTED OUT: These features use mock data, no API available
       // case "results":
       //   return <ResultCorrection />;

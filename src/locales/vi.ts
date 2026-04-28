@@ -510,7 +510,8 @@ export default {
     passwordOptionalPlaceholder: "Để trống nếu không đổi mật khẩu",
     avatarUrl: "Đường dẫn ảnh đại diện",
     avatarUrlPlaceholder: "https://example.com/avatar.png",
-    requiredCreateUserFields: "Vui lòng chọn vai trò và nhập mật khẩu để tạo người dùng",
+    requiredCreateUserFields:
+      "Vui lòng chọn vai trò và nhập mật khẩu để tạo người dùng",
     noRolesFound: "Không tìm thấy vai trò",
     roleCreatedSuccess: "Đã tạo vai trò",
     roleUpdatedSuccess: "Đã cập nhật vai trò",
@@ -558,6 +559,208 @@ export default {
     tournamentManager: "Quản lý giải đấu",
     tournamentDashboard: "Bảng điều khiển giải đấu",
     setupWizard: "Thiết lập giải đấu",
+    quickActions: {
+      title: "Thao tác nhanh",
+      fullFlow: {
+        title: "Luồng giải đấu toàn phần",
+        description: "Theo dõi đầy đủ setup đến hoàn tất",
+      },
+      createTournament: {
+        title: "Tạo giải đấu mới",
+        description: "Bắt đầu quy trình tạo giải đấu",
+      },
+      addDelegation: {
+        title: "Thêm đoàn thi đấu",
+        description: "Đăng ký đoàn tham gia mới",
+      },
+      scheduleMatches: {
+        title: "Lên lịch thi đấu",
+        description: "Sắp xếp lịch trận theo nội dung",
+      },
+      assignReferees: {
+        title: "Phân công trọng tài",
+        description: "Gán trọng tài cho các trận",
+      },
+      enterResults: {
+        title: "Nhập kết quả",
+        description: "Cập nhật kết quả thi đấu",
+      },
+      exportReport: {
+        title: "Xuất báo cáo",
+        description: "Tạo báo cáo thống kê nhanh",
+      },
+    },
+    fullFlow: {
+      navLabel: "Luồng đầy đủ",
+      title: "Luồng hoạt động đầy đủ của giải đấu",
+      description:
+        "Bản đồ vận hành end-to-end cho organizer từ khởi tạo, đăng ký, chuẩn bị, điều hành đến hoàn tất giải đấu.",
+      labels: {
+        steps: "Các bước",
+        prerequisites: "Điều kiện tiên quyết",
+        autoTriggers: "Tự động kích hoạt",
+        apis: "API",
+        expandStep: "Mở rộng bước",
+        collapseStep: "Thu gọn bước",
+        auto: "AUTO",
+      },
+      filters: {
+        tournamentId: "Tournament ID để lấy snapshot theo giải",
+        categoryId: "Category ID để lấy snapshot theo hạng mục",
+        refresh: "Làm mới dữ liệu",
+        refreshing: "Đang làm mới...",
+      },
+      snapshot: {
+        tournaments: "Giải đấu",
+        referees: "Trọng tài",
+        entries: "Entries",
+        schedules: "Lịch thi đấu",
+        pendingMatches: "Trận chờ duyệt",
+        groupStandings: "Dữ liệu bảng",
+        knockoutBrackets: "Nhánh Knockout",
+        qualifiedTeams: "Đội đi tiếp",
+        loading: "Đang tải dữ liệu snapshot...",
+        error: "Có {{count}} nguồn dữ liệu lỗi, vui lòng kiểm tra API.",
+      },
+      meta: {
+        docsBased: "Dựa trên API docs",
+        organizerFlow: "Dành cho Organizer",
+        endToEnd: "Setup -> Completion",
+      },
+      actors: {
+        organizer: "Organizer",
+        playerCaptain: "VĐV / Đội trưởng",
+        organizerAndCaptain: "Organizer + Đội trưởng",
+        organizerAndPlayer: "Organizer + Người chơi",
+        organizerAndSystem: "Organizer + Hệ thống",
+        referee: "Trọng tài",
+        refereeAndChief: "Trọng tài + Tổng trọng tài",
+        systemAdmin: "Hệ thống / Admin",
+        organizerAndAudience: "Organizer + Khán giả",
+        audienceAndAthlete: "Khán giả + VĐV",
+      },
+      prerequisites: {
+        entriesConfirmed: "Tất cả entry cần xác nhận lineup.",
+        paymentsConfirmed:
+          "Thanh toán phải được xác nhận trước khi generate lịch.",
+      },
+      autoTriggers: {
+        elo: "ELO tự động cập nhật sau khi duyệt kết quả match.",
+        groupStandingSync:
+          "Bảng điểm vòng bảng tự đồng bộ theo match đã duyệt.",
+        knockoutAdvance: "Nhánh knockout tự đẩy đội thắng vào vòng tiếp theo.",
+      },
+      notes: {
+        teamMatchesOnly:
+          "Endpoint này chủ yếu áp dụng cho nội dung thi đấu đồng đội.",
+      },
+      tips: {
+        wrapUp:
+          "Khi đóng giải, nên lưu snapshot số liệu standings/ELO để đối soát báo cáo.",
+      },
+      phases: {
+        setup: {
+          title: "1) Setup",
+          description: "Khởi tạo giải, hạng mục, trọng tài và cấu hình lịch.",
+        },
+        registration: {
+          title: "2) Registration",
+          description:
+            "Mở đăng ký entry, chốt lineup và kiểm duyệt thanh toán.",
+        },
+        preparation: {
+          title: "3) Preparation",
+          description:
+            "Đóng đăng ký, bốc thăm vòng bảng và generate lịch thi đấu.",
+        },
+        execution: {
+          title: "4) Execution",
+          description:
+            "Điều hành trận đấu, duyệt kết quả và trigger downstream.",
+        },
+        completion: {
+          title: "5) Completion",
+          description: "Công bố standings, ELO và tổng hợp dữ liệu sau giải.",
+        },
+      },
+      steps: {
+        createTournament: {
+          title: "Tạo giải đấu",
+          description:
+            "Tạo tournament và đọc lại thông tin để xác thực mốc thời gian, địa điểm, nội dung.",
+        },
+        setupCategories: {
+          title: "Thiết lập hạng mục",
+          description:
+            "Tạo và chỉnh sửa tournament categories để chốt format thi đấu.",
+        },
+        assignRefereesAndConfig: {
+          title: "Mời trọng tài và cấu hình lịch",
+          description:
+            "Gửi lời mời trọng tài và thiết lập schedule-config ngay từ đầu.",
+        },
+        entryRegistration: {
+          title: "Đăng ký entries",
+          description:
+            "Mở flow đăng ký cá nhân/đội, xử lý join request và bổ sung thành viên.",
+        },
+        lineupAndEligibility: {
+          title: "Chốt lineup và điều kiện",
+          description:
+            "Xác nhận lineup chính thức, rà soát eligibility và disqualify nếu cần.",
+        },
+        paymentReview: {
+          title: "Kiểm duyệt thanh toán",
+          description:
+            "Tiếp nhận payment, upload proof và xác nhận/từ chối từ phía organizer.",
+        },
+        statusTransition: {
+          title: "Chuyển trạng thái giải",
+          description:
+            "Preview thay đổi trạng thái theo thời gian và trigger cập nhật trạng thái giải.",
+        },
+        groupDraw: {
+          title: "Bốc thăm và gán bảng",
+          description:
+            "Sinh placeholders, random draw hoặc lưu assignment thủ công cho vòng bảng.",
+        },
+        scheduleGeneration: {
+          title: "Generate lịch thi đấu",
+          description:
+            "Tạo lịch complete/group/knockout dựa trên dữ liệu entry đã hợp lệ.",
+        },
+        startMatch: {
+          title: "Khởi động trận đấu",
+          description:
+            "Bắt đầu match, tạo sub-matches (nếu team format) và ghi điểm từng set.",
+        },
+        finalizeResult: {
+          title: "Finalize và duyệt kết quả",
+          description:
+            "Referee finalize, chief referee approve/reject sau khi xem ELO preview.",
+        },
+        operationalNotify: {
+          title: "Thông báo vận hành",
+          description:
+            "Gửi thông báo/event real-time phục vụ điều phối hoặc cảnh báo hệ thống.",
+        },
+        publishStandings: {
+          title: "Công bố standings",
+          description:
+            "Xuất dữ liệu vòng bảng và knockout tree/standings cho người xem.",
+        },
+        eloAndHistory: {
+          title: "ELO và lịch sử thi đấu",
+          description:
+            "Hiển thị leaderboard ELO, lịch sử ELO và lịch sử trận của VĐV.",
+        },
+        wrapUp: {
+          title: "Tổng kết sau giải",
+          description:
+            "Đối soát dữ liệu schedule, match hoàn thành và payment statistics.",
+        },
+      },
+    },
     generateReport: "Tạo báo cáo",
     exportReport: "Xuất báo cáo",
     statistics: "Thống kê",

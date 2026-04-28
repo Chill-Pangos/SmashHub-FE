@@ -48,11 +48,22 @@ export default function TournamentDashboard({
     },
   ];
   const handleQuickAction = (action: string) => {
-    if (onNavigateTo && action === "create-tournament") {
-      onNavigateTo("setup-wizard");
-    } else {
+    if (!onNavigateTo) {
       console.log("Quick action:", action);
+      return;
     }
+
+    if (action === "create-tournament") {
+      onNavigateTo("setup-wizard");
+      return;
+    }
+
+    if (action === "full-flow") {
+      onNavigateTo("full-flow");
+      return;
+    }
+
+    console.log("Quick action:", action);
   };
 
   return (

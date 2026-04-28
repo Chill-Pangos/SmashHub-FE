@@ -559,6 +559,211 @@ export default {
     tournamentManager: "Tournament Manager",
     tournamentDashboard: "Tournament Dashboard",
     setupWizard: "Setup Wizard",
+    quickActions: {
+      title: "Quick Actions",
+      fullFlow: {
+        title: "Full Tournament Flow",
+        description: "Track the complete setup-to-closure workflow",
+      },
+      createTournament: {
+        title: "Create Tournament",
+        description: "Start a new tournament setup",
+      },
+      addDelegation: {
+        title: "Add Delegation",
+        description: "Register a new delegation",
+      },
+      scheduleMatches: {
+        title: "Generate Schedules",
+        description: "Arrange match schedules by category",
+      },
+      assignReferees: {
+        title: "Assign Referees",
+        description: "Map referees to matches",
+      },
+      enterResults: {
+        title: "Enter Results",
+        description: "Update match outcomes",
+      },
+      exportReport: {
+        title: "Export Reports",
+        description: "Generate quick statistics reports",
+      },
+    },
+    fullFlow: {
+      navLabel: "Full Flow",
+      title: "Complete Tournament Operating Flow",
+      description:
+        "Organizer-focused end-to-end operating map from setup and registration to execution and tournament closure.",
+      labels: {
+        steps: "Steps",
+        prerequisites: "Prerequisites",
+        autoTriggers: "Auto Triggers",
+        apis: "APIs",
+        expandStep: "Expand step",
+        collapseStep: "Collapse step",
+        auto: "AUTO",
+      },
+      filters: {
+        tournamentId: "Tournament ID for tournament snapshot",
+        categoryId: "Category ID for category snapshot",
+        refresh: "Refresh data",
+        refreshing: "Refreshing...",
+      },
+      snapshot: {
+        tournaments: "Tournaments",
+        referees: "Referees",
+        entries: "Entries",
+        schedules: "Schedules",
+        pendingMatches: "Pending Matches",
+        groupStandings: "Group Standings",
+        knockoutBrackets: "Knockout Brackets",
+        qualifiedTeams: "Qualified Teams",
+        loading: "Loading snapshot data...",
+        error: "{{count}} data sources failed. Please check API endpoints.",
+      },
+      meta: {
+        docsBased: "Based on API docs",
+        organizerFlow: "Organizer flow",
+        endToEnd: "Setup -> Completion",
+      },
+      actors: {
+        organizer: "Organizer",
+        playerCaptain: "Player / Captain",
+        organizerAndCaptain: "Organizer + Captain",
+        organizerAndPlayer: "Organizer + Player",
+        organizerAndSystem: "Organizer + System",
+        referee: "Referee",
+        refereeAndChief: "Referee + Chief Referee",
+        systemAdmin: "System / Admin",
+        organizerAndAudience: "Organizer + Audience",
+        audienceAndAthlete: "Audience + Athlete",
+      },
+      prerequisites: {
+        entriesConfirmed: "All entries must have confirmed lineups.",
+        paymentsConfirmed:
+          "Payments must be confirmed before schedule generation.",
+      },
+      autoTriggers: {
+        elo: "ELO is updated automatically after result approval.",
+        groupStandingSync:
+          "Group standings are synced automatically after approved matches.",
+        knockoutAdvance:
+          "Knockout brackets auto-advance winners to next rounds.",
+      },
+      notes: {
+        teamMatchesOnly:
+          "This endpoint is primarily used for team-format matches.",
+      },
+      tips: {
+        wrapUp:
+          "At tournament closure, keep a standings/ELO snapshot for report reconciliation.",
+      },
+      phases: {
+        setup: {
+          title: "1) Setup",
+          description:
+            "Initialize tournament, categories, referee assignments, and schedule config.",
+        },
+        registration: {
+          title: "2) Registration",
+          description:
+            "Handle entries, lineup confirmation, and payment reviews.",
+        },
+        preparation: {
+          title: "3) Preparation",
+          description:
+            "Close registration, draw groups, and generate full schedules.",
+        },
+        execution: {
+          title: "4) Execution",
+          description:
+            "Run matches, approve results, and trigger downstream updates.",
+        },
+        completion: {
+          title: "5) Completion",
+          description:
+            "Publish standings, ELO outputs, and final post-tournament summaries.",
+        },
+      },
+      steps: {
+        createTournament: {
+          title: "Create Tournament",
+          description:
+            "Create the tournament and re-read detail endpoints to validate timeline and metadata.",
+        },
+        setupCategories: {
+          title: "Configure Categories",
+          description:
+            "Create and update tournament categories to lock match formats.",
+        },
+        assignRefereesAndConfig: {
+          title: "Invite Referees and Set Schedule Config",
+          description:
+            "Send referee invitations and define schedule-config constraints early.",
+        },
+        entryRegistration: {
+          title: "Entry Registration",
+          description:
+            "Run single/team entry flows, join requests, and membership changes.",
+        },
+        lineupAndEligibility: {
+          title: "Lineup and Eligibility Validation",
+          description:
+            "Confirm final lineups, verify eligibility, and disqualify invalid entries.",
+        },
+        paymentReview: {
+          title: "Payment Review",
+          description:
+            "Create payments, collect proof, and confirm/reject from organizer side.",
+        },
+        statusTransition: {
+          title: "Tournament Status Transition",
+          description:
+            "Preview timeline-driven changes and trigger status recalculation.",
+        },
+        groupDraw: {
+          title: "Group Draw and Assignment",
+          description:
+            "Generate placeholders, run random draws, or persist manual assignments.",
+        },
+        scheduleGeneration: {
+          title: "Schedule Generation",
+          description:
+            "Generate complete/group/knockout schedules from validated entry states.",
+        },
+        startMatch: {
+          title: "Start Matches",
+          description:
+            "Start matches, create sub-matches for team format, and record set scores.",
+        },
+        finalizeResult: {
+          title: "Finalize and Approve Results",
+          description:
+            "Referees finalize outcomes, chief referee approves/rejects after ELO preview.",
+        },
+        operationalNotify: {
+          title: "Operational Notifications",
+          description:
+            "Broadcast operational messages and custom events for live coordination.",
+        },
+        publishStandings: {
+          title: "Publish Standings",
+          description:
+            "Expose group standings and knockout trees/final placements.",
+        },
+        eloAndHistory: {
+          title: "ELO and Match History",
+          description:
+            "Show leaderboard, ELO histories, and athlete match histories.",
+        },
+        wrapUp: {
+          title: "Tournament Wrap-up",
+          description:
+            "Reconcile schedule, completed matches, and payment statistics.",
+        },
+      },
+    },
     generateReport: "Generate Report",
     exportReport: "Export Report",
     statistics: "Statistics",
