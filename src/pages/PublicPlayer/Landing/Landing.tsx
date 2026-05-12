@@ -46,7 +46,8 @@ export default function Landing() {
       label: "Referee Portal",
       description: "Match control and approvals.",
       path: "/referee",
-      visible: refereeRoleIds.length > 0 && hasAnyRole(userRoles, refereeRoleIds),
+      visible:
+        refereeRoleIds.length > 0 && hasAnyRole(userRoles, refereeRoleIds),
     },
     {
       key: "admin",

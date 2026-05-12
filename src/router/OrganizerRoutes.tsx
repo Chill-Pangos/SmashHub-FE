@@ -19,7 +19,9 @@ interface OrganizerRoutesProps {
  * Organizer Routes
  * Routes for tournament organizers
  */
-export default function OrganizerRoutes({ organizerRoleId }: OrganizerRoutesProps) {
+export default function OrganizerRoutes({
+  organizerRoleId,
+}: OrganizerRoutesProps) {
   return (
     <>
       <Route
@@ -36,10 +38,7 @@ export default function OrganizerRoutes({ organizerRoleId }: OrganizerRoutesProp
           element={<TournamentForm />}
         />
         <Route path="/organizer/categories" element={<CategoryManagement />} />
-        <Route
-          path="/organizer/schedule-config"
-          element={<ScheduleConfig />}
-        />
+        <Route path="/organizer/schedule-config" element={<ScheduleConfig />} />
         <Route path="/organizer/entries" element={<EntriesManagement />} />
         <Route path="/organizer/bulk-import" element={<BulkImport />} />
         <Route path="/organizer/finance" element={<FinanceVerification />} />
