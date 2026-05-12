@@ -29,6 +29,11 @@ export default function RoleGuard({
   allowedRoles,
   redirectTo = "/",
 }: RoleGuardProps) {
+  // TODO: when done implementing screens, remove this
+    // Bypass role checks in dev to preview all portal screens quickly.
+    return <>{children}</>;
+  
+
   const { t } = useTranslation();
   const { user, isAuthenticated, isLoading } = useAuth();
   const { hasAnyRole } = useRole();

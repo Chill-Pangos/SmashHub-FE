@@ -14,7 +14,7 @@ import OrganizerRoutes from "./OrganizerRoutes";
  * Routes are only rendered if the role exists in the database
  */
 export default function AppRouter() {
-  const { getRoleByName, isLoading, error, fetchRoles } = useRole();
+  const { getRoleByName, isLoading, error, fetchRoles, roles } = useRole();
 
   // Get role objects from API using getRoleByName()
   // Returns Role object with { id, name, description } or undefined if not found
@@ -42,7 +42,7 @@ export default function AppRouter() {
         })}
 
       {/* Loading state for role-protected routes while role list is being fetched */}
-      {isLoading && (
+      {isLoading && roles.length === 0 && (
         <>
           <Route path="/admin/*" element={<RoleLoadingScreen />} />
           <Route path="/referee/*" element={<RoleLoadingScreen />} />
@@ -51,7 +51,7 @@ export default function AppRouter() {
       )}
 
       {/* Error state for role-protected routes when role list fails to load */}
-      {error && (
+      {error && roles.length === 0 && (
         <>
           <Route
             path="/admin/*"
