@@ -7,6 +7,8 @@ import type {
   TournamentSearchFilters,
   TournamentSearchResponse,
   TournamentStatus,
+  UpcomingTournamentStatusChangesResponse,
+  UpdateTournamentStatusesResponse,
 } from "@/types/tournament.types";
 
 /**
@@ -41,9 +43,17 @@ class TournamentService {
    * });
    */
   async createTournament(
-    data: CreateTournamentRequest
+    data: CreateTournamentRequest,
   ): Promise<CreateTournamentResponse> {
-    const response = await axiosInstance.post<Tournament>(this.baseURL, data);
+    const { contents, ...rest } = data;
+    const payload = {
+      ...rest,
+      categories: data.categories ?? contents,
+    };
+    const response = await axiosInstance.post<Tournament>(
+      this.baseURL,
+      payload,
+    );
 
     // Transform axios response to ApiResponse format
     return {
@@ -66,7 +76,7 @@ class TournamentService {
    */
   async getAllTournaments(
     skip: number = 0,
-    limit: number = 10
+    limit: number = 10,
   ): Promise<Tournament[]> {
     const response = await axiosInstance.get<Tournament[]>(this.baseURL, {
       params: { skip, limit },
@@ -94,11 +104,11 @@ class TournamentService {
    * console.log(`Found ${result.total} tournaments`);
    */
   async searchTournaments(
-    filters: TournamentSearchFilters
+    filters: TournamentSearchFilters,
   ): Promise<TournamentSearchResponse> {
     const response = await axiosInstance.get<TournamentSearchResponse>(
       `${this.baseURL}/search`,
-      { params: filters }
+      { params: filters },
     );
     return response.data;
   }
@@ -115,7 +125,7 @@ class TournamentService {
    */
   async getTournamentById(id: number): Promise<Tournament> {
     const response = await axiosInstance.get<Tournament>(
-      `${this.baseURL}/${id}`
+      `${this.baseURL}/${id}`,
     );
     return response.data;
   }
@@ -135,11 +145,11 @@ class TournamentService {
   async getTournamentsByStatus(
     status: TournamentStatus,
     skip: number = 0,
-    limit: number = 10
+    limit: number = 10,
   ): Promise<Tournament[]> {
     const response = await axiosInstance.get<Tournament[]>(
       `${this.baseURL}/status/${status}`,
-      { params: { skip, limit } }
+      { params: { skip, limit } },
     );
     return response.data;
   }
@@ -160,12 +170,43 @@ class TournamentService {
    */
   async updateTournament(
     id: number,
-    data: UpdateTournamentRequest
+    data: UpdateTournamentRequest,
   ): Promise<Tournament> {
+    const { contents, ...rest } = data;
+    const payload = {
+      ...rest,
+      categories: data.categories ?? contents,
+    };
     const response = await axiosInstance.put<Tournament>(
       `${this.baseURL}/${id}`,
-      data
+      payload,
     );
+    return response.data;
+  }
+
+  /**
+   * Manually trigger tournament status updates
+   * POST /api/tournaments/update-statuses
+   */
+  async updateTournamentStatuses(): Promise<UpdateTournamentStatusesResponse> {
+    const response = await axiosInstance.post<UpdateTournamentStatusesResponse>(
+      `${this.baseURL}/update-statuses`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Preview upcoming tournament status changes
+   * GET /api/tournaments/upcoming-changes
+   */
+  async getUpcomingTournamentStatusChanges(
+    hours: number = 24,
+  ): Promise<UpcomingTournamentStatusChangesResponse> {
+    const response =
+      await axiosInstance.get<UpcomingTournamentStatusChangesResponse>(
+        `${this.baseURL}/upcoming-changes`,
+        { params: { hours } },
+      );
     return response.data;
   }
 

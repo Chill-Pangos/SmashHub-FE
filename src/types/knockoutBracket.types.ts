@@ -39,6 +39,8 @@ export interface KnockoutBracket {
   updatedAt: string;
 }
 
+export type KnockoutBracketTree = Record<string, unknown>;
+
 // ==================== Request Types ====================
 
 /**
@@ -104,6 +106,11 @@ export interface AdvanceWinnerRequest {
   winnerEntryId: number;
 }
 
+export interface ValidateKnockoutBracketRequest {
+  categoryId?: number;
+  bracketId?: number;
+}
+
 // ==================== Response Types ====================
 
 /**
@@ -152,3 +159,15 @@ export type GenerateFromGroupsResponse = ApiResponse<KnockoutBracket[]>;
  * Advance winner response
  */
 export type AdvanceWinnerResponse = ApiResponse<KnockoutBracket>;
+
+export type GetKnockoutBracketTreeResponse = ApiResponse<KnockoutBracketTree>;
+export type GetKnockoutStandingsResponse = ApiResponse<KnockoutBracket[]>;
+
+export interface ValidateKnockoutBracketResponse {
+  success: boolean;
+  message: string;
+  data: {
+    valid: boolean;
+    issues?: string[];
+  };
+}

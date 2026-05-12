@@ -17,6 +17,27 @@ export const queryKeys = {
     detail: (id: number) => [...queryKeys.tournaments.details(), id] as const,
     byStatus: (status: string) =>
       [...queryKeys.tournaments.all, "status", status] as const,
+    upcomingChanges: (hours?: number) =>
+      [...queryKeys.tournaments.all, "upcomingChanges", hours] as const,
+    updateStatuses: () =>
+      [...queryKeys.tournaments.all, "updateStatuses"] as const,
+  },
+
+  // ==================== Tournament Category Keys ====================
+  tournamentCategories: {
+    all: ["tournamentCategories"] as const,
+    lists: () => [...queryKeys.tournamentCategories.all, "list"] as const,
+    list: (filters?: { skip?: number; limit?: number }) =>
+      [...queryKeys.tournamentCategories.lists(), filters] as const,
+    details: () => [...queryKeys.tournamentCategories.all, "detail"] as const,
+    detail: (id: number) =>
+      [...queryKeys.tournamentCategories.details(), id] as const,
+    byTournament: (tournamentId: number) =>
+      [
+        ...queryKeys.tournamentCategories.all,
+        "tournament",
+        tournamentId,
+      ] as const,
   },
 
   // ==================== Team Keys ====================
@@ -62,6 +83,17 @@ export const queryKeys = {
       [...queryKeys.entries.all, "team", teamId] as const,
     byTournament: (tournamentId: number) =>
       [...queryKeys.entries.all, "tournament", tournamentId] as const,
+    members: (entryId: number, filters?: { skip?: number; limit?: number }) =>
+      [...queryKeys.entries.all, "members", entryId, filters] as const,
+    joinRequests: (
+      entryId: number,
+      filters?: { status?: string; skip?: number; limit?: number },
+    ) => [...queryKeys.entries.all, "joinRequests", entryId, filters] as const,
+    eligible: (categoryId: number) =>
+      [...queryKeys.entries.all, "eligible", categoryId] as const,
+    myEntries: () => [...queryKeys.entries.all, "me"] as const,
+    myRole: (entryId: number) =>
+      [...queryKeys.entries.all, "myRole", entryId] as const,
   },
 
   // ==================== Match Keys ====================
@@ -96,6 +128,14 @@ export const queryKeys = {
   },
 
   // ==================== Schedule Keys ====================
+  scheduleConfigs: {
+    all: ["scheduleConfigs"] as const,
+    defaults: () => [...queryKeys.scheduleConfigs.all, "defaults"] as const,
+    byTournament: (tournamentId: number) =>
+      [...queryKeys.scheduleConfigs.all, "tournament", tournamentId] as const,
+  },
+
+  // ==================== Schedule Keys ====================
   schedules: {
     all: ["schedules"] as const,
     lists: () => [...queryKeys.schedules.all, "list"] as const,
@@ -117,8 +157,13 @@ export const queryKeys = {
     details: () => [...queryKeys.groupStandings.all, "detail"] as const,
     detail: (id: number) =>
       [...queryKeys.groupStandings.details(), id] as const,
-    byCategory: (categoryId: number) =>
-      [...queryKeys.groupStandings.all, "category", categoryId] as const,
+    byCategory: (categoryId: number, filters?: { groupName?: string }) =>
+      [
+        ...queryKeys.groupStandings.all,
+        "category",
+        categoryId,
+        filters,
+      ] as const,
     byContent: (contentId: number) =>
       queryKeys.groupStandings.byCategory(contentId),
     bySchedule: (scheduleId: number) =>
@@ -140,6 +185,10 @@ export const queryKeys = {
       [...queryKeys.knockoutBrackets.all, "category", categoryId] as const,
     byContent: (contentId: number) =>
       queryKeys.knockoutBrackets.byCategory(contentId),
+    tree: (categoryId: number) =>
+      [...queryKeys.knockoutBrackets.all, "tree", categoryId] as const,
+    standings: (categoryId: number) =>
+      [...queryKeys.knockoutBrackets.all, "standings", categoryId] as const,
   },
 
   // ==================== Tournament Referee Keys ====================
@@ -159,6 +208,13 @@ export const queryKeys = {
         ...queryKeys.tournamentReferees.all,
         "tournament",
         tournamentId,
+      ] as const,
+    invitations: (tournamentId: number, status?: string) =>
+      [
+        ...queryKeys.tournamentReferees.all,
+        "invitations",
+        tournamentId,
+        status,
       ] as const,
     availableChiefReferees: () =>
       [...queryKeys.tournamentReferees.all, "availableChiefReferees"] as const,
@@ -215,6 +271,12 @@ export const queryKeys = {
     unread: () => [...queryKeys.notifications.all, "unread"] as const,
     byUser: (userId: number) =>
       [...queryKeys.notifications.all, "user", userId] as const,
+    connectedUsers: () =>
+      [...queryKeys.notifications.all, "connectedUsers"] as const,
+    serviceStatus: () =>
+      [...queryKeys.notifications.all, "serviceStatus"] as const,
+    userStatus: (userId: string) =>
+      [...queryKeys.notifications.all, "userStatus", userId] as const,
   },
 } as const;
 

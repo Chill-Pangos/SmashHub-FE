@@ -7,6 +7,8 @@ import type {
   GetKnockoutBracketResponse,
   GetKnockoutBracketsResponse,
   GetKnockoutBracketsByContentResponse,
+  GetKnockoutBracketTreeResponse,
+  GetKnockoutStandingsResponse,
   DeleteKnockoutBracketResponse,
   GenerateKnockoutBracketRequest,
   GenerateKnockoutBracketResponse,
@@ -14,6 +16,8 @@ import type {
   GenerateFromGroupsResponse,
   AdvanceWinnerRequest,
   AdvanceWinnerResponse,
+  ValidateKnockoutBracketRequest,
+  ValidateKnockoutBracketResponse,
 } from "@/types/knockoutBracket.types";
 
 /**
@@ -113,6 +117,46 @@ class KnockoutBracketService {
         await axiosInstance.get<GetKnockoutBracketsByContentResponse>(
           `${this.baseURL}/content/${categoryId}`,
         );
+      return response.data;
+    }
+  }
+
+  /**
+   * Get knockout bracket tree by category ID
+   * GET /api/knockout-brackets/category/{categoryId}/tree
+   */
+  async getKnockoutBracketTreeByCategory(
+    categoryId: number,
+  ): Promise<GetKnockoutBracketTreeResponse> {
+    try {
+      const response = await axiosInstance.get<GetKnockoutBracketTreeResponse>(
+        `${this.baseURL}/category/${categoryId}/tree`,
+      );
+      return response.data;
+    } catch {
+      const response = await axiosInstance.get<GetKnockoutBracketTreeResponse>(
+        `${this.baseURL}/content/${categoryId}/tree`,
+      );
+      return response.data;
+    }
+  }
+
+  /**
+   * Get knockout standings by category ID
+   * GET /api/knockout-brackets/category/{categoryId}/standings
+   */
+  async getKnockoutStandingsByCategory(
+    categoryId: number,
+  ): Promise<GetKnockoutStandingsResponse> {
+    try {
+      const response = await axiosInstance.get<GetKnockoutStandingsResponse>(
+        `${this.baseURL}/category/${categoryId}/standings`,
+      );
+      return response.data;
+    } catch {
+      const response = await axiosInstance.get<GetKnockoutStandingsResponse>(
+        `${this.baseURL}/content/${categoryId}/standings`,
+      );
       return response.data;
     }
   }
@@ -240,6 +284,20 @@ class KnockoutBracketService {
       data,
     );
 
+    return response.data;
+  }
+
+  /**
+   * Validate knockout brackets
+   * POST /api/knockout-brackets/validate
+   */
+  async validateKnockoutBrackets(
+    data: ValidateKnockoutBracketRequest,
+  ): Promise<ValidateKnockoutBracketResponse> {
+    const response = await axiosInstance.post<ValidateKnockoutBracketResponse>(
+      `${this.baseURL}/validate`,
+      data,
+    );
     return response.data;
   }
 }

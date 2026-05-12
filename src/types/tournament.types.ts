@@ -30,6 +30,8 @@ export interface TournamentContent {
   maxEntries: number;
   maxSets: number;
   racketCheck: boolean;
+  teamFormat?: string | null;
+  entryFee?: number | null;
   // Optional fields
   numberOfSingles?: number | null;
   numberOfDoubles?: number | null;
@@ -52,6 +54,8 @@ export interface CreateTournamentContentRequest {
   maxEntries: number;
   maxSets: number;
   racketCheck: boolean;
+  teamFormat?: string | null;
+  entryFee?: number | null;
   numberOfSingles?: number | null;
   numberOfDoubles?: number | null;
   minAge?: number | null;
@@ -79,6 +83,7 @@ export interface Tournament {
   createdAt: string;
   updatedAt: string;
   contents?: TournamentContent[];
+  categories?: TournamentCategory[];
 }
 
 /**
@@ -91,6 +96,7 @@ export interface CreateTournamentRequest {
   location: string;
   status?: TournamentStatus;
   numberOfTables?: number;
+  categories?: CreateTournamentCategoryRequest[];
   contents?: CreateTournamentContentRequest[];
 }
 
@@ -104,6 +110,7 @@ export interface UpdateTournamentRequest {
   location?: string;
   status?: TournamentStatus;
   numberOfTables?: number;
+  categories?: CreateTournamentCategoryRequest[];
   contents?: CreateTournamentContentRequest[];
 }
 
@@ -135,6 +142,69 @@ export interface TournamentSearchFilters {
 export interface TournamentSearchResponse {
   tournaments: Tournament[];
   total: number;
+}
+
+// ==================== Tournament Categories ====================
+
+export type TournamentCategoryType = TournamentContentType;
+
+export interface TournamentCategory {
+  id?: number;
+  tournamentId: number;
+  name: string;
+  type: TournamentCategoryType;
+  maxEntries: number;
+  maxSets: number;
+  teamFormat?: string | null;
+  entryFee?: number | null;
+  numberOfSingles?: number | null;
+  numberOfDoubles?: number | null;
+  minAge?: number | null;
+  maxAge?: number | null;
+  minElo?: number | null;
+  maxElo?: number | null;
+  gender?: Gender | null;
+  isGroupStage?: boolean;
+  racketCheck?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateTournamentCategoryRequest {
+  tournamentId: number;
+  name: string;
+  type: TournamentCategoryType;
+  maxEntries: number;
+  maxSets: number;
+  teamFormat?: string | null;
+  entryFee?: number | null;
+  numberOfSingles?: number | null;
+  numberOfDoubles?: number | null;
+  minAge?: number | null;
+  maxAge?: number | null;
+  minElo?: number | null;
+  maxElo?: number | null;
+  gender?: Gender | null;
+  isGroupStage?: boolean;
+  racketCheck?: boolean;
+}
+
+export interface UpdateTournamentCategoryRequest {
+  name?: string;
+  type?: TournamentCategoryType;
+  maxEntries?: number;
+  maxSets?: number;
+  teamFormat?: string | null;
+  entryFee?: number | null;
+  numberOfSingles?: number | null;
+  numberOfDoubles?: number | null;
+  minAge?: number | null;
+  maxAge?: number | null;
+  minElo?: number | null;
+  maxElo?: number | null;
+  gender?: Gender | null;
+  isGroupStage?: boolean;
+  racketCheck?: boolean;
 }
 
 // ==================== Response Types ====================
@@ -173,6 +243,32 @@ export type UpdateTournamentResponse = ApiResponse<Tournament>;
  * Delete tournament response
  */
 export type DeleteTournamentResponse = ApiResponse<void>;
+
+export type CreateTournamentCategoryResponse = ApiResponse<TournamentCategory>;
+export type GetTournamentCategoryResponse = ApiResponse<TournamentCategory>;
+export type GetTournamentCategoriesResponse = ApiResponse<TournamentCategory[]>;
+export type UpdateTournamentCategoryResponse = ApiResponse<TournamentCategory>;
+export type DeleteTournamentCategoryResponse = ApiResponse<void>;
+
+export interface TournamentStatusChangePreview {
+  tournamentId: number;
+  previousStatus?: TournamentStatus;
+  nextStatus?: TournamentStatus;
+  changeAt?: string;
+}
+
+export type UpcomingTournamentStatusChangesResponse = ApiResponse<
+  TournamentStatusChangePreview[]
+>;
+
+export interface UpdateTournamentStatusesResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    updated?: number;
+    tournaments?: Tournament[];
+  };
+}
 
 // ==================== Validation Helpers ====================
 

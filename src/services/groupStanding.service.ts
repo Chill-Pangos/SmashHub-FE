@@ -12,6 +12,7 @@ import type {
   CalculateStandingsResponse,
   GetStandingsByContentResponse,
   GetQualifiedTeamsResponse,
+  SyncStandingsResponse,
 } from "@/types/groupStanding.types";
 
 /**
@@ -133,11 +134,24 @@ class GroupStandingService {
    */
   async getStandingsByCategory(
     categoryId: number,
+    options?: { groupName?: string },
   ): Promise<GetStandingsByContentResponse> {
     const response = await axiosInstance.get<GetStandingsByContentResponse>(
       `${this.baseURL}/${categoryId}`,
+      { params: options },
     );
 
+    return response.data;
+  }
+
+  /**
+   * Sync standings after match completion
+   * POST /api/group-standings/matches/{matchId}/sync
+   */
+  async syncStandings(matchId: number): Promise<SyncStandingsResponse> {
+    const response = await axiosInstance.post<SyncStandingsResponse>(
+      `${this.baseURL}/matches/${matchId}/sync`,
+    );
     return response.data;
   }
 
