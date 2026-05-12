@@ -124,6 +124,8 @@ export default {
     home: "Home",
     dashboard: "Dashboard",
     tournaments: "Tournaments",
+    brackets: "Brackets",
+    elo: "ELO",
     schedule: "Schedule",
     matches: "Matches",
     teams: "Teams",

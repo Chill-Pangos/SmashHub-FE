@@ -1,0 +1,2072 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmashHub API Flowchart</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Sora:wght@300;400;600;700;800&display=swap');
+
+  :root {
+    --bg: #0a0d12;
+    --bg2: #0f1318;
+    --bg3: #141920;
+    --panel: #161c24;
+    --border: #1e2833;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --accent5: #ef4444;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BG */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper { position: relative; z-index: 1; }
+
+  /* HEADER */
+  header {
+    padding: 32px 40px 24px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(0,212,255,0.05) 0%, transparent 100%);
+    display: flex; align-items: center; gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    font-size: 22px; font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  .logo span { font-weight: 300; opacity: 0.6; }
+
+  header p {
+    color: var(--text-muted); font-size: 13px;
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* PHASE TABS */
+  .tabs {
+    display: flex; gap: 4px; padding: 20px 40px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+
+  .tab {
+    padding: 8px 18px; border-radius: 6px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
+    cursor: pointer; white-space: nowrap;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .tab:hover { border-color: var(--border); background: var(--bg3); }
+  .tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
+  .tab[data-phase="auth"] { --c: #00d4ff; }
+  .tab[data-phase="tournament"] { --c: #7c3aed; }
+  .tab[data-phase="entry"] { --c: #10b981; }
+  .tab[data-phase="payment"] { --c: #f59e0b; }
+  .tab[data-phase="schedule"] { --c: #06b6d4; }
+  .tab[data-phase="match"] { --c: #ef4444; }
+  .tab[data-phase="elo"] { --c: #8b5cf6; }
+  .tab[data-phase="management"] { --c: #f97316; }
+  .tab[data-phase="all"] { --c: #e2e8f0; }
+  .tab.active { background: var(--c); color: #000; border-color: var(--c); }
+
+  /* MAIN LAYOUT */
+  .main { display: flex; height: calc(100vh - 140px); }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 280px; min-width: 280px;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 20px 0;
+    background: var(--bg2);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .sidebar-section { margin-bottom: 8px; }
+  .sidebar-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--text-muted);
+    padding: 6px 20px;
+  }
+
+  .flow-item {
+    padding: 10px 20px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+  }
+  .flow-item:hover { background: var(--bg3); }
+  .flow-item.active {
+    background: rgba(0,212,255,0.06);
+    border-left-color: var(--accent);
+  }
+  .flow-item .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .flow-item .name { font-size: 13px; font-weight: 500; }
+  .flow-item .count {
+    margin-left: auto; font-size: 10px; font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted); background: var(--bg3);
+    padding: 1px 6px; border-radius: 10px;
+  }
+
+  /* CONTENT */
+  .content {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: 32px 40px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  /* FLOW SECTION */
+  .flow-section { display: none; }
+  .flow-section.active { display: block; }
+
+  .flow-header {
+    display: flex; align-items: flex-start;
+    gap: 16px; margin-bottom: 32px;
+  }
+
+  .phase-badge {
+    padding: 6px 14px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; white-space: nowrap;
+  }
+
+  .flow-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+  .flow-desc { font-size: 14px; color: var(--text-dim); margin-top: 6px; line-height: 1.6; }
+
+  /* FLOW NODES */
+  .flow-nodes { display: flex; flex-direction: column; gap: 0; }
+
+  .flow-row {
+    display: flex; align-items: stretch; gap: 0;
+    position: relative;
+  }
+
+  /* CONNECTOR LINE */
+  .flow-connector {
+    display: flex; flex-direction: column;
+    align-items: center; width: 40px; flex-shrink: 0;
+    padding: 0;
+  }
+  .connector-line {
+    width: 2px; background: var(--border);
+    flex: 1; min-height: 20px;
+  }
+  .connector-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    border: 2px solid; flex-shrink: 0;
+    background: var(--bg);
+    margin: 0;
+  }
+
+  /* NODE CARD */
+  .node-card {
+    flex: 1; margin: 6px 0;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .node-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 3px; height: 100%;
+    border-radius: 10px 0 0 10px;
+  }
+  .node-card:hover {
+    border-color: var(--node-color, var(--accent));
+    transform: translateX(3px);
+    box-shadow: -4px 0 20px rgba(0,0,0,0.3);
+  }
+  .node-card.expanded {
+    border-color: var(--node-color, var(--accent));
+    background: var(--bg3);
+  }
+
+  .node-top { display: flex; align-items: center; gap: 10px; }
+
+  .node-step {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted);
+    background: var(--bg2); padding: 2px 7px;
+    border-radius: 4px; flex-shrink: 0;
+  }
+
+  .node-title { font-size: 14px; font-weight: 700; flex: 1; }
+
+  .node-role {
+    font-size: 10px; padding: 2px 8px; border-radius: 10px;
+    font-weight: 600; letter-spacing: 0.3px; flex-shrink: 0;
+  }
+
+  .toggle-btn {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg2); color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .node-card.expanded .toggle-btn {
+    background: var(--node-color, var(--accent));
+    border-color: var(--node-color, var(--accent));
+    color: #000;
+    transform: rotate(45deg);
+  }
+
+  .node-desc {
+    font-size: 12px; color: var(--text-dim);
+    margin-top: 6px; margin-left: 0;
+    line-height: 1.5;
+  }
+
+  .node-apis {
+    display: none; margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    flex-direction: column; gap: 6px;
+  }
+  .node-card.expanded .node-apis { display: flex; }
+
+  .api-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px;
+    background: var(--bg2); border-radius: 7px;
+    border: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    transition: background 0.15s;
+    cursor: default;
+  }
+  .api-row:hover { background: rgba(0,212,255,0.04); }
+
+  .method {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+    padding: 2px 7px; border-radius: 4px; flex-shrink: 0;
+    min-width: 46px; text-align: center;
+  }
+  .method.GET { background: rgba(16,185,129,0.15); color: #10b981; }
+  .method.POST { background: rgba(0,212,255,0.15); color: #00d4ff; }
+  .method.PUT { background: rgba(245,158,11,0.15); color: #f59e0b; }
+  .method.DELETE { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .method.PATCH { background: rgba(124,58,237,0.15); color: #7c3aed; }
+
+  .api-path { color: var(--text); font-size: 12px; flex: 1; }
+  .api-path .param { color: var(--accent); }
+
+  .api-note {
+    font-size: 10px; color: var(--text-muted);
+    font-family: 'Sora', sans-serif;
+    margin-left: auto; white-space: nowrap;
+  }
+
+  .api-auto {
+    font-size: 10px; background: rgba(124,58,237,0.15);
+    color: #a78bfa; padding: 1px 6px; border-radius: 3px;
+    font-family: 'Sora', sans-serif; font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* BRANCH NODE */
+  .branch-row {
+    display: flex; gap: 12px; margin: 0; flex: 1;
+  }
+  .branch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .branch-card {
+    flex: 1; background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+    cursor: pointer; transition: all 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .branch-card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 100%; height: 2px;
+  }
+  .branch-card:hover { border-color: var(--node-color); }
+  .branch-card.expanded { border-color: var(--node-color); background: var(--bg3); }
+
+  .branch-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+    text-transform: uppercase; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .branch-label .icon { font-size: 14px; }
+  .branch-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .branch-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+
+  .branch-apis {
+    display: none; margin-top: 12px;
+    padding-top: 12px; border-top: 1px solid var(--border);
+    flex-direction: column; gap: 5px;
+  }
+  .branch-card.expanded .branch-apis { display: flex; }
+
+  /* STATUS FLOW */
+  .status-flow {
+    display: flex; align-items: center; gap: 0;
+    padding: 20px 0; flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .status-chip {
+    padding: 6px 14px; border-radius: 20px;
+    font-size: 11px; font-weight: 600;
+    border: 1px solid;
+  }
+  .status-arrow {
+    font-size: 12px; color: var(--text-muted); padding: 0 8px;
+  }
+
+  /* AUTO TRIGGER BOX */
+  .auto-triggers {
+    background: rgba(124,58,237,0.08);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 10px; padding: 14px 16px;
+    margin-top: 8px;
+  }
+  .auto-triggers-title {
+    font-size: 11px; font-weight: 700; color: #a78bfa;
+    letter-spacing: 0.5px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .auto-trigger-item {
+    font-size: 12px; color: var(--text-dim);
+    padding: 3px 0;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .auto-trigger-item::before {
+    content: '✦'; color: #a78bfa; font-size: 8px;
+  }
+
+  /* TIP BOX */
+  .tip-box {
+    background: rgba(16,185,129,0.06);
+    border: 1px solid rgba(16,185,129,0.2);
+    border-radius: 8px; padding: 12px 16px;
+    font-size: 12px; color: #6ee7b7;
+    margin-top: 8px; line-height: 1.6;
+  }
+  .tip-box strong { color: #10b981; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ALL FLOWS GRID */
+  .all-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px; margin-bottom: 32px;
+  }
+  .mini-flow {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .mini-flow:hover { border-color: var(--mini-color); transform: translateY(-2px); }
+  .mini-flow-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .mini-flow-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--mini-color); }
+  .mini-flow-title { font-size: 14px; font-weight: 700; }
+  .mini-flow-count { font-size: 10px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-left: auto; }
+  .mini-flow-steps { display: flex; flex-direction: column; gap: 3px; }
+  .mini-step { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+  .mini-step::before { content: '→'; color: var(--mini-color); font-size: 10px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<header>
+  <div class="logo">SmashHub <span>API</span></div>
+  <div style="font-size:13px;color:var(--text-dim)">Interactive API Flowchart — 150+ endpoints</div>
+  <p>v1.0 · 2024-04-22</p>
+</header>
+
+<div class="tabs" id="tabs">
+  <div class="tab active" data-phase="all" onclick="switchPhase('all',this)">🗺 Tổng quan</div>
+  <div class="tab" data-phase="auth" onclick="switchPhase('auth',this)">🔐 Auth</div>
+  <div class="tab" data-phase="tournament" onclick="switchPhase('tournament',this)">🏆 Tournament</div>
+  <div class="tab" data-phase="entry" onclick="switchPhase('entry',this)">📝 Entry</div>
+  <div class="tab" data-phase="payment" onclick="switchPhase('payment',this)">💳 Payment</div>
+  <div class="tab" data-phase="schedule" onclick="switchPhase('schedule',this)">📅 Schedule</div>
+  <div class="tab" data-phase="match" onclick="switchPhase('match',this)">⚽ Match</div>
+  <div class="tab" data-phase="elo" onclick="switchPhase('elo',this)">📊 ELO</div>
+  <div class="tab" data-phase="referee" onclick="switchPhase('referee',this)">👨‍⚖️ Referee</div>
+  <div class="tab" data-phase="management" onclick="switchPhase('management',this)">🛠 Management</div>
+  <div class="tab" data-phase="fullflow" onclick="switchPhase('fullflow',this)">🔄 Full Flow</div>
+</div>
+
+<div class="main">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="content" id="content"></div>
+</div>
+
+</div>
+
+<script>
+const phases = {
+  all: {
+    label: 'Tổng quan', color: '#e2e8f0',
+    flows: [
+      { id:'auth', name:'Authentication', color:'#00d4ff', steps:['Register / Login','Email Verification','Password Reset','Token Refresh'] },
+      { id:'tournament', name:'Tournament', color:'#7c3aed', steps:['Create Tournament','Manage Categories','Status Lifecycle','Config Schedule'] },
+      { id:'entry', name:'Entry Registration', color:'#10b981', steps:['Register Entry','Manage Team','Confirm Lineup','Bulk Import'] },
+      { id:'payment', name:'Payment', color:'#f59e0b', steps:['Create Payment','Upload Proof','Confirm/Reject','Refund'] },
+      { id:'schedule', name:'Schedule & Bracket', color:'#06b6d4', steps:['Generate Schedule','Group Stage Draw','Manage Groups','Knockout Bracket'] },
+      { id:'match', name:'Match Management', color:'#ef4444', steps:['Start Match','Record Scores','Finalize Results','Approve Match'] },
+      { id:'elo', name:'ELO Rating', color:'#8b5cf6', steps:['Preview ELO','Auto Calculate','View Leaderboard','History Tracking'] },
+      { id:'referee', name:'Referee', color:'#f97316', steps:['Invite Referee','Accept/Reject','Manage Roles','Remove Referee'] },
+      { id:'management', name:'Management', color:'#f97316', steps:['Users','Roles','Permissions','Notifications'] },
+    ]
+  },
+
+  auth: {
+    label: '🔐 Authentication', color: '#00d4ff',
+    flows: [
+      { id: 'register', name: 'Đăng ký tài khoản', desc: 'Tạo tài khoản mới, xác thực email' },
+      { id: 'login', name: 'Đăng nhập', desc: 'Lấy JWT token để truy cập API' },
+      { id: 'verify', name: 'Xác thực Email', desc: 'Gửi & xác nhận OTP email' },
+      { id: 'forgot', name: 'Quên mật khẩu', desc: 'Flow reset password qua OTP' },
+      { id: 'profile', name: 'Cập nhật Profile', desc: 'Cập nhật avatar, DOB, phone, gender' },
+    ]
+  },
+
+  tournament: {
+    label: '🏆 Tournament', color: '#7c3aed',
+    flows: [
+      { id: 'create_tourn', name: 'Tạo Tournament', desc: 'Tạo giải đấu với categories & ngày tháng' },
+      { id: 'manage_cat', name: 'Quản lý Categories', desc: 'CRUD categories trong tournament' },
+      { id: 'status_cycle', name: 'Status Lifecycle', desc: 'Điều hướng trạng thái tournament' },
+      { id: 'schedule_cfg', name: 'Schedule Config', desc: 'Cấu hình format thi đấu' },
+    ]
+  },
+
+  entry: {
+    label: '📝 Entry Registration', color: '#10b981',
+    flows: [
+      { id: 'single_reg', name: 'Đăng ký đơn (Singles)', desc: 'Một người tự đăng ký' },
+      { id: 'team_reg', name: 'Đăng ký đội (Team)', desc: 'Tạo đội, thêm thành viên' },
+      { id: 'join_req', name: 'Join Request Flow', desc: 'Xin vào đội và phê duyệt' },
+      { id: 'bulk_import', name: 'Bulk Import', desc: 'Import danh sách hàng loạt qua preview/confirm' },
+      { id: 'disqualify', name: 'Disqualify Entries', desc: 'Loại entries không hợp lệ' },
+    ]
+  },
+
+  payment: {
+    label: '💳 Payment', color: '#f59e0b',
+    flows: [
+      { id: 'cash_pay', name: 'Thanh toán tiền mặt', desc: 'Ghi nhận thanh toán cash trực tiếp' },
+      { id: 'online_pay', name: 'Thanh toán Online/Bank', desc: 'Upload proof rồi chờ xác nhận' },
+      { id: 'confirm_pay', name: 'Xác nhận / Từ chối', desc: 'Organizer duyệt hoặc từ chối payment' },
+      { id: 'refund', name: 'Hoàn tiền', desc: 'Refund payment cho entry' },
+    ]
+  },
+
+  schedule: {
+    label: '📅 Schedule & Bracket', color: '#06b6d4',
+    flows: [
+      { id: 'gen_schedule', name: 'Generate Schedule', desc: 'Tạo lịch thi đấu đầy đủ' },
+      { id: 'group_draw', name: 'Group Stage Draw', desc: 'Bốc thăm và phân nhóm' },
+      { id: 'group_manage', name: 'Quản lý Group Stage', desc: 'Tính điểm và xem BXH nhóm' },
+      { id: 'knockout', name: 'Knockout Bracket', desc: 'Tạo và quản lý nhánh đấu loại' },
+    ]
+  },
+
+  match: {
+    label: '⚽ Match Management', color: '#ef4444',
+    flows: [
+      { id: 'singles_match', name: 'Trận Singles/Doubles', desc: 'Flow thi đấu đơn/đôi, ghi set scores' },
+      { id: 'team_match', name: 'Trận Team (Sub-matches)', desc: 'Flow thi đấu đồng đội với sub-matches' },
+      { id: 'approve_match', name: 'Duyệt kết quả', desc: 'Chief referee phê duyệt, auto-trigger ELO + bracket' },
+      { id: 'view_match', name: 'Xem lịch & lịch sử', desc: 'Tra cứu lịch thi đấu và kết quả' },
+    ]
+  },
+
+  elo: {
+    label: '📊 ELO Rating', color: '#8b5cf6',
+    flows: [
+      { id: 'elo_preview', name: 'Preview ELO', desc: 'Xem trước thay đổi ELO trước khi approve' },
+      { id: 'elo_auto', name: 'Auto ELO Update', desc: 'ELO tự động tính sau khi approve match' },
+      { id: 'elo_view', name: 'Leaderboard & History', desc: 'Xem bảng xếp hạng và lịch sử ELO' },
+    ]
+  },
+
+  referee: {
+    label: '👨‍⚖️ Referee', color: '#f97316',
+    flows: [
+      { id: 'invite_ref', name: 'Mời Referee', desc: 'Organizer gửi lời mời, referee xác nhận' },
+      { id: 'manage_ref', name: 'Quản lý Referee', desc: 'Thay đổi role, xóa referee' },
+    ]
+  },
+
+  management: {
+    label: '🛠 Management', color: '#f97316',
+    flows: [
+      { id: 'user_mgmt', name: 'Users & Profile', desc: 'Quản lý users và profile' },
+      { id: 'access_mgmt', name: 'Roles & Permissions', desc: 'Quản lý role, permission, mapping' },
+      { id: 'notification_mgmt', name: 'Notifications', desc: 'Gửi thông báo, kiểm tra trạng thái kết nối' },
+    ]
+  },
+
+  fullflow: {
+    label: '🔄 Full Tournament Flow', color: '#e2e8f0',
+    flows: [
+      { id: 'phase1', name: 'Phase 1: Setup', desc: 'Tạo tournament, cấu hình, mời referee' },
+      { id: 'phase2', name: 'Phase 2: Registration', desc: 'Đăng ký entries, thanh toán' },
+      { id: 'phase3', name: 'Phase 3: Preparation', desc: 'Đóng đăng ký, generate schedule' },
+      { id: 'phase4', name: 'Phase 4: Execution', desc: 'Chạy các trận, ghi điểm, duyệt kết quả' },
+      { id: 'phase5', name: 'Phase 5: Completion', desc: 'Xem kết quả, bảng xếp hạng' },
+    ]
+  }
+};
+
+// FLOW CONTENT DATA
+const flowContent = {
+  // ALL VIEW - handled separately
+
+  // AUTH
+  register: {
+    title: 'Đăng ký tài khoản mới',
+    desc: 'Flow hoàn chỉnh từ đăng ký → xác thực email → đăng nhập lần đầu',
+    color: '#00d4ff', role: 'User', roleColor: 'rgba(0,212,255,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Tạo tài khoản',
+        desc: 'Gửi thông tin đăng ký — email, password, tên',
+        apis: [{ method:'POST', path:'/auth/register', note:'Tạo user mới' }]
+      },
+      {
+        step: '02', title: 'Gửi OTP xác thực email',
+        desc: 'Hệ thống gửi mã OTP vào email đăng ký',
+        apis: [{ method:'POST', path:'/auth/send-email-verification-otp', note:'Gửi OTP' }]
+      },
+      {
+        step: '03', title: 'Xác nhận OTP',
+        desc: 'Nhập mã OTP nhận được để kích hoạt tài khoản',
+        apis: [{ method:'POST', path:'/auth/verify-email-otp', note:'Xác nhận OTP' }]
+      },
+      {
+        step: '04', title: 'Đăng nhập',
+        desc: 'Lấy accessToken + refreshToken',
+        apis: [{ method:'POST', path:'/auth/login', note:'→ JWT token' }]
+      },
+    ]
+  },
+
+  login: {
+    title: 'Đăng nhập & Quản lý Token',
+    desc: 'Lấy JWT, refresh khi hết hạn, đăng xuất',
+    color: '#00d4ff', role: 'User', roleColor: 'rgba(0,212,255,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Đăng nhập',
+        desc: 'Trả về accessToken (ngắn hạn) và refreshToken (dài hạn)',
+        apis: [{ method:'POST', path:'/auth/login', note:'→ { accessToken, refreshToken }' }]
+      },
+      {
+        step: '02', title: 'Sử dụng API',
+        desc: 'Đính kèm token vào header của mọi request',
+        apis: [{ method:'GET', path:'/users/{id}', note:'Header: Bearer <token>' }]
+      },
+      {
+        step: '03', title: 'Refresh Token',
+        desc: 'Khi accessToken hết hạn (401), dùng refreshToken để lấy token mới',
+        apis: [{ method:'POST', path:'/auth/refresh', note:'→ Token mới' }]
+      },
+      {
+        step: '04', title: 'Đổi mật khẩu',
+        desc: 'Người dùng tự đổi khi đã đăng nhập',
+        apis: [{ method:'POST', path:'/auth/change-password', note:'Cần token hợp lệ' }]
+      },
+    ]
+  },
+
+  verify: {
+    title: 'Xác thực Email',
+    desc: 'Gửi lại OTP và xác nhận email',
+    color: '#00d4ff', role: 'User', roleColor: 'rgba(0,212,255,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Yêu cầu gửi OTP',
+        apis: [{ method:'POST', path:'/auth/send-email-verification-otp', note:'Gửi OTP' }]
+      },
+      {
+        step: '02', title: 'Xác nhận OTP',
+        apis: [{ method:'POST', path:'/auth/verify-email-otp', note:'Kích hoạt email' }]
+      },
+    ]
+  },
+
+  forgot: {
+    title: 'Quên mật khẩu (OTP Reset)',
+    desc: 'Flow 3 bước: yêu cầu reset → xác thực OTP → đặt mật khẩu mới',
+    color: '#00d4ff', role: 'User', roleColor: 'rgba(0,212,255,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Yêu cầu reset password',
+        desc: 'Nhập email để nhận OTP',
+        apis: [{ method:'POST', path:'/auth/forgot-password', note:'Gửi OTP đến email' }]
+      },
+      {
+        step: '02', title: 'Xác nhận OTP',
+        desc: 'Nhập OTP để xác minh danh tính',
+        apis: [{ method:'POST', path:'/auth/verify-otp', note:'Xác nhận OTP' }]
+      },
+      {
+        step: '03', title: 'Đặt mật khẩu mới',
+        desc: 'Nhập mật khẩu mới để hoàn tất',
+        apis: [{ method:'POST', path:'/auth/reset-password', note:'Mật khẩu mới' }]
+      },
+    ]
+  },
+
+  profile: {
+    title: 'Quản lý User & Profile',
+    desc: 'Cập nhật thông tin cá nhân, quản lý users (admin)',
+    color: '#00d4ff', role: 'User / Admin', roleColor: 'rgba(0,212,255,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Xem thông tin user',
+        apis: [
+          { method:'GET', path:'/users', note:'Danh sách (admin)' },
+          { method:'GET', path:'/users/{id}', note:'Chi tiết user' },
+        ]
+      },
+      {
+        step: '02', title: 'Cập nhật profile',
+        desc: 'Cập nhật avatar, ngày sinh, số điện thoại, giới tính',
+        apis: [{ method:'PUT', path:'/users/{id}/profile', note:'avatar, DOB, phone, gender' }]
+      },
+      {
+        step: '03', title: 'Admin quản lý users',
+        apis: [
+          { method:'POST', path:'/users', note:'Tạo user (admin)' },
+          { method:'PUT', path:'/users/{id}', note:'Cập nhật user' },
+          { method:'DELETE', path:'/users/{id}', note:'Xóa user' },
+        ]
+      },
+    ]
+  },
+
+  // TOURNAMENT
+  create_tourn: {
+    title: 'Tạo Tournament',
+    desc: 'Tạo giải đấu với categories và cấu hình ngày tháng',
+    color: '#7c3aed', role: 'Organizer', roleColor: 'rgba(124,58,237,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Tạo tournament',
+        desc: 'Bao gồm categories, dates, và cấu hình cơ bản\n⚠️ Giữ: registrationStart < registrationEnd < bracketGen < startDate',
+        apis: [{ method:'POST', path:'/tournaments', note:'+ categories + dates' }]
+      },
+      {
+        step: '02', title: 'Xem & Tìm kiếm',
+        apis: [
+          { method:'GET', path:'/tournaments', note:'Danh sách (paginated)' },
+          { method:'GET', path:'/tournaments/search', note:'Tìm kiếm với filters' },
+          { method:'GET', path:'/tournaments/{id}', note:'Chi tiết + categories' },
+        ]
+      },
+      {
+        step: '03', title: 'Chỉnh sửa & Xóa',
+        apis: [
+          { method:'PUT', path:'/tournaments/{id}', note:'Cập nhật' },
+          { method:'DELETE', path:'/tournaments/{id}', note:'Xóa' },
+        ]
+      },
+    ],
+    tip: '💡 Luôn kiểm tra GET /tournaments/upcoming-changes trước khi gọi update-statuses để preview trạng thái thay đổi.'
+  },
+
+  manage_cat: {
+    title: 'Quản lý Tournament Categories',
+    desc: 'CRUD các hạng mục thi đấu trong một tournament',
+    color: '#7c3aed', role: 'Organizer', roleColor: 'rgba(124,58,237,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Tạo & Xem Categories',
+        apis: [
+          { method:'POST', path:'/tournament-categories', note:'Tạo category' },
+          { method:'GET', path:'/tournament-categories', note:'Tất cả categories' },
+          { method:'GET', path:'/tournament-categories/tournament/{id}', note:'Theo tournament' },
+          { method:'GET', path:'/tournament-categories/{id}', note:'Chi tiết' },
+        ]
+      },
+      {
+        step: '02', title: 'Cập nhật & Xóa',
+        apis: [
+          { method:'PUT', path:'/tournament-categories/{id}', note:'Cập nhật' },
+          { method:'DELETE', path:'/tournament-categories/{id}', note:'Xóa' },
+        ]
+      },
+    ]
+  },
+
+  status_cycle: {
+    title: 'Tournament Status Lifecycle',
+    desc: 'Vòng đời trạng thái tournament từ upcoming → completed',
+    color: '#7c3aed', role: 'System / Organizer', roleColor: 'rgba(124,58,237,0.15)',
+    statusFlow: [
+      { label:'upcoming', color:'#64748b', border:'#64748b' },
+      { label:'registration_open', color:'#10b981', border:'#10b981' },
+      { label:'registration_closed', color:'#f59e0b', border:'#f59e0b' },
+      { label:'brackets_generated', color:'#06b6d4', border:'#06b6d4' },
+      { label:'ongoing', color:'#ef4444', border:'#ef4444' },
+      { label:'completed', color:'#8b5cf6', border:'#8b5cf6' },
+    ],
+    nodes: [
+      {
+        step: '01', title: 'Preview trạng thái sắp thay đổi',
+        desc: 'Xem trước những tournament nào sẽ đổi trạng thái',
+        apis: [{ method:'GET', path:'/tournaments/upcoming-changes', note:'Preview changes' }]
+      },
+      {
+        step: '02', title: 'Trigger cập nhật trạng thái',
+        desc: 'Tự động chuyển trạng thái dựa trên ngày tháng',
+        apis: [{ method:'POST', path:'/tournaments/update-statuses', note:'Trigger status changes' }]
+      },
+    ]
+  },
+
+  schedule_cfg: {
+    title: 'Schedule Configuration',
+    desc: 'Cấu hình format thi đấu: group stage, knockout, team size',
+    color: '#7c3aed', role: 'Organizer', roleColor: 'rgba(124,58,237,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Tạo cấu hình',
+        apis: [
+          { method:'POST', path:'/schedule-configs', note:'Tạo config' },
+          { method:'GET', path:'/schedule-configs/defaults', note:'Default values' },
+          { method:'POST', path:'/schedule-configs/{id}/schedule-config/preview-create', note:'Preview tạo config' },
+        ]
+      },
+      {
+        step: '02', title: 'Quản lý config theo tournament',
+        apis: [
+          { method:'GET', path:'/schedule-configs/{id}/schedule-config', note:'Lấy config' },
+          { method:'PATCH', path:'/schedule-configs/{id}/schedule-config', note:'Cập nhật config' },
+          { method:'POST', path:'/schedule-configs/{id}/schedule-config/validate', note:'Validate' },
+          { method:'POST', path:'/schedule-configs/{id}/schedule-config/preview-update', note:'Preview cập nhật' },
+          { method:'DELETE', path:'/schedule-configs/{id}/schedule-config', note:'Xóa config' },
+        ]
+      },
+    ]
+  },
+
+  // ENTRY
+  single_reg: {
+    title: 'Đăng ký đơn (Singles/Doubles)',
+    desc: 'Flow đăng ký cho cá nhân hoặc cặp đôi',
+    color: '#10b981', role: 'Player', roleColor: 'rgba(16,185,129,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Đăng ký entry',
+        apis: [{ method:'POST', path:'/entries/register', note:'entryType: single/double' }]
+      },
+      {
+        step: '02', title: 'Xem entries của mình',
+        apis: [
+          { method:'GET', path:'/entries/me', note:'Entries của user' },
+          { method:'GET', path:'/entries/{id}/my-role', note:'Role trong entry' },
+        ]
+      },
+      {
+        step: '03', title: 'Xác nhận lineup',
+        apis: [{ method:'POST', path:'/entries/{id}/confirm-lineup', note:'Khóa danh sách' }]
+      },
+      {
+        step: '04', title: 'Quản lý entry',
+        apis: [
+          { method:'GET', path:'/entries/{id}', note:'Chi tiết' },
+          { method:'PUT', path:'/entries/{id}', note:'Cập nhật' },
+          { method:'DELETE', path:'/entries/{id}', note:'Xóa entry' },
+        ]
+      },
+    ]
+  },
+
+  team_reg: {
+    title: 'Đăng ký đội (Team)',
+    desc: 'Tạo đội, thêm thành viên, confirm lineup',
+    color: '#10b981', role: 'Captain / Member', roleColor: 'rgba(16,185,129,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Captain tạo đội',
+        apis: [{ method:'POST', path:'/entries/register', note:'entryType: team, teamName' }]
+      },
+      {
+        step: '02', title: 'Thêm / Xóa thành viên',
+        apis: [
+          { method:'POST', path:'/entries/{id}/add-member', note:'Thêm member' },
+          { method:'POST', path:'/entries/{id}/remove-member', note:'Xóa member' },
+          { method:'GET', path:'/entries/{id}/members', note:'Danh sách members' },
+        ]
+      },
+      {
+        step: '03', title: 'Cài đặt đội',
+        apis: [
+          { method:'POST', path:'/entries/{id}/set-required-members', note:'Số lượng tối thiểu' },
+          { method:'POST', path:'/entries/{id}/transfer-captaincy', note:'Chuyển captain' },
+          { method:'POST', path:'/entries/{id}/leave', note:'Member rời đội' },
+        ]
+      },
+      {
+        step: '04', title: 'Xác nhận lineup',
+        apis: [{ method:'POST', path:'/entries/{id}/confirm-lineup', note:'⚠️ Bắt buộc trước schedule gen' }]
+      },
+    ]
+  },
+
+  join_req: {
+    title: 'Join Request Flow',
+    desc: 'Xin vào đội và captain phê duyệt',
+    color: '#10b981', role: 'Player / Captain', roleColor: 'rgba(16,185,129,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Xem join requests',
+        apis: [{ method:'GET', path:'/entries/{id}/join-requests', note:'Danh sách requests' }]
+      },
+      {
+        step: '02', title: 'Captain phê duyệt',
+        apis: [{ method:'POST', path:'/entries/join-requests/{id}/respond', note:'accept / reject' }]
+      },
+    ]
+  },
+
+  bulk_import: {
+    title: 'Bulk Import Entries',
+    desc: 'Import danh sách đăng ký hàng loạt — preview trước khi xác nhận',
+    color: '#10b981', role: 'Organizer', roleColor: 'rgba(16,185,129,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Preview import',
+        desc: 'Kiểm tra dữ liệu trước khi thực sự import',
+        apis: [
+          { method:'POST', path:'/entries/import/preview', note:'Singles preview' },
+          { method:'POST', path:'/entries/import/double/preview', note:'Doubles preview' },
+        ]
+      },
+      {
+        step: '02', title: 'Confirm import',
+        desc: 'Xác nhận sau khi đã review preview',
+        apis: [
+          { method:'POST', path:'/entries/import/confirm', note:'Singles import' },
+          { method:'POST', path:'/entries/import/double/confirm', note:'Doubles import' },
+        ]
+      },
+    ],
+    tip: '💡 Luôn gọi preview trước để phát hiện dữ liệu lỗi trước khi commit.'
+  },
+
+  disqualify: {
+    title: 'Entries Eligibility & Disqualify',
+    desc: 'Kiểm tra entries hợp lệ và loại entries không đủ điều kiện',
+    color: '#10b981', role: 'Organizer', roleColor: 'rgba(16,185,129,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Xem entries hợp lệ',
+        apis: [
+          { method:'GET', path:'/entries/category/{id}', note:'Tất cả entries' },
+          { method:'GET', path:'/entries/category/{id}/eligible', note:'Chỉ entries hợp lệ' },
+        ]
+      },
+      {
+        step: '02', title: 'Loại entries không hợp lệ',
+        apis: [{ method:'POST', path:'/entries/category/{id}/disqualify', note:'Disqualify invalid entries' }]
+      },
+    ]
+  },
+
+  // PAYMENT
+  cash_pay: {
+    title: 'Thanh toán tiền mặt',
+    desc: 'Ghi nhận thanh toán cash trực tiếp tại chỗ',
+    color: '#f59e0b', role: 'Organizer / Staff', roleColor: 'rgba(245,158,11,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Tạo payment record',
+        apis: [{ method:'POST', path:'/payments', note:'{ entryId, amount }' }]
+      },
+      {
+        step: '02', title: 'Ghi nhận cash',
+        apis: [{ method:'POST', path:'/payments/cash', note:'Cash payment ngay' }]
+      },
+      {
+        step: '03', title: 'Xác nhận payment',
+        apis: [{ method:'POST', path:'/payments/{id}/confirm', note:'Approve' }]
+      },
+    ]
+  },
+
+  online_pay: {
+    title: 'Thanh toán Online / Chuyển khoản',
+    desc: 'Upload bằng chứng thanh toán, chờ organizer xác nhận',
+    color: '#f59e0b', role: 'Player → Organizer', roleColor: 'rgba(245,158,11,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Player tạo payment',
+        apis: [
+          { method:'POST', path:'/payments', note:'Tạo payment' },
+          { method:'POST', path:'/payments/online', note:'Online payment type' },
+        ]
+      },
+      {
+        step: '02', title: 'Upload proof',
+        desc: 'Upload hình ảnh bằng chứng chuyển khoản',
+        apis: [{ method:'PUT', path:'/payments/{id}/proof', note:'Ảnh chứng minh' }]
+      },
+      {
+        step: '03', title: 'Organizer xem & xác nhận',
+        apis: [
+          { method:'GET', path:'/payments/pending/{id}', note:'Pending payments' },
+          { method:'GET', path:'/payments/{id}', note:'Chi tiết payment' },
+          { method:'POST', path:'/payments/{id}/confirm', note:'✅ Approve' },
+          { method:'POST', path:'/payments/{id}/reject', note:'❌ Reject' },
+        ]
+      },
+    ]
+  },
+
+  confirm_pay: {
+    title: 'Xem & Quản lý Payments',
+    desc: 'Organizer xem tổng quan payments và thống kê',
+    color: '#f59e0b', role: 'Organizer', roleColor: 'rgba(245,158,11,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Xem payments theo scope',
+        apis: [
+          { method:'GET', path:'/payments/entry/{id}', note:'Theo entry' },
+          { method:'GET', path:'/payments/category/{id}', note:'Theo category' },
+          { method:'GET', path:'/payments/category/{id}/stats', note:'Thống kê' },
+        ]
+      },
+    ]
+  },
+
+  refund: {
+    title: 'Hoàn tiền',
+    desc: 'Refund payment cho entry đã thanh toán',
+    color: '#f59e0b', role: 'Organizer', roleColor: 'rgba(245,158,11,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Yêu cầu refund',
+        apis: [{ method:'POST', path:'/payments/{id}/refund', note:'Refund payment' }]
+      },
+    ]
+  },
+
+  // SCHEDULE
+  gen_schedule: {
+    title: 'Generate Schedule',
+    desc: 'Tạo lịch thi đấu — cần tất cả entries confirmed + paid',
+    color: '#06b6d4', role: 'Organizer', roleColor: 'rgba(6,182,212,0.15)',
+    nodes: [
+      {
+        step: '01', title: '⚠️ Điều kiện trước khi generate',
+        desc: 'Tất cả entries phải confirmed lineup + payment confirmed',
+        apis: [
+          { method:'GET', path:'/entries/category/{id}/eligible', note:'Kiểm tra entries' },
+          { method:'GET', path:'/payments/category/{id}/stats', note:'Kiểm tra payments' },
+        ]
+      },
+      {
+        step: '02', title: 'Generate options',
+        apis: [
+          { method:'POST', path:'/schedules/generate-complete', note:'Group + Knockout' },
+          { method:'POST', path:'/schedules/generate-group-stage', note:'Chỉ group stage' },
+          { method:'POST', path:'/schedules/generate-knockout-only', note:'Chỉ knockout' },
+          { method:'POST', path:'/schedules/generate-knockout-stage', note:'Knockout từ group' },
+        ]
+      },
+      {
+        step: '03', title: 'Xem & Quản lý schedules',
+        apis: [
+          { method:'GET', path:'/schedules', note:'Danh sách' },
+          { method:'GET', path:'/schedules/{id}', note:'Chi tiết' },
+          { method:'GET', path:'/schedules/category/{id}', note:'Theo category + stage' },
+          { method:'PUT', path:'/schedules/{id}', note:'Cập nhật' },
+          { method:'DELETE', path:'/schedules/{id}', note:'Xóa' },
+        ]
+      },
+    ],
+    tip: '💡 Tất cả entries phải có confirmed payment trước khi generate schedule!'
+  },
+
+  group_draw: {
+    title: 'Group Stage Draw',
+    desc: 'Bốc thăm và phân nhóm cho vòng bảng',
+    color: '#06b6d4', role: 'Organizer', roleColor: 'rgba(6,182,212,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Tạo groups (placeholder)',
+        apis: [{ method:'POST', path:'/group-standings/generate-placeholders', note:'Tạo nhóm trống' }]
+      },
+      {
+        step: '02', title: 'Bốc thăm ngẫu nhiên',
+        apis: [{ method:'POST', path:'/group-standings/random-draw', note:'Auto phân nhóm' }]
+      },
+      {
+        step: 'OR', title: 'Phân nhóm thủ công',
+        apis: [{ method:'POST', path:'/group-standings/save-assignments', note:'Manual assignment' }]
+      },
+    ]
+  },
+
+  group_manage: {
+    title: 'Quản lý Group Stage',
+    desc: 'Tính điểm vòng bảng, xem BXH nhóm, xác định đội đi tiếp',
+    color: '#06b6d4', role: 'System / Referee', roleColor: 'rgba(6,182,212,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Xem BXH nhóm',
+        apis: [
+          { method:'GET', path:'/group-standings/{categoryId}', note:'BXH theo nhóm' },
+          { method:'GET', path:'/group-standings/{categoryId}/qualified', note:'Đội đi tiếp' },
+        ]
+      },
+      {
+        step: '02', title: 'Tính điểm (auto hoặc manual)',
+        apis: [
+          { method:'POST', path:'/group-standings/calculate', note:'Tính lại standings' },
+          { method:'POST', path:'/group-standings/matches/{id}/sync', note:'Auto sau approve', auto: true },
+        ]
+      },
+    ],
+    tip: '💡 group-standings/matches/{id}/sync được gọi tự động sau khi chief referee approve match!'
+  },
+
+  knockout: {
+    title: 'Knockout Bracket',
+    desc: 'Tạo nhánh đấu loại, xem cấu trúc, tự động advance winners',
+    color: '#06b6d4', role: 'System / Organizer', roleColor: 'rgba(6,182,212,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Tạo knockout bracket',
+        apis: [
+          { method:'POST', path:'/knockout-brackets/generate', note:'Tạo bracket' },
+          { method:'POST', path:'/knockout-brackets/generate-from-group-stage', note:'Từ group stage' },
+          { method:'POST', path:'/schedules/update-knockout', note:'Cập nhật entries bracket' },
+        ]
+      },
+      {
+        step: '02', title: 'Validate & Xem bracket',
+        apis: [
+          { method:'POST', path:'/knockout-brackets/validate', note:'Validate' },
+          { method:'GET', path:'/knockout-brackets/category/{id}/tree', note:'Cấu trúc bracket' },
+          { method:'GET', path:'/knockout-brackets/category/{id}/standings', note:'BXH knockout' },
+          { method:'GET', path:'/knockout-brackets/category/{id}/entry', note:'Theo tên entry' },
+        ]
+      },
+      {
+        step: '03', title: 'Advance winner (auto)',
+        apis: [{ method:'POST', path:'/knockout-brackets/advance-winner', note:'Auto sau approve', auto: true }]
+      },
+    ],
+    tip: '💡 Knockout advancement tự động xảy ra sau khi chief referee approve match!'
+  },
+
+  // MATCH
+  singles_match: {
+    title: 'Trận Singles / Doubles',
+    desc: 'Flow thi đấu đơn/đôi: bắt đầu → ghi set scores → nộp kết quả',
+    color: '#ef4444', role: 'Referee → Chief', roleColor: 'rgba(239,68,68,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Bắt đầu trận',
+        apis: [{ method:'POST', path:'/matches/{id}/start', note:'{ refereeId, assistantRefereeId }' }]
+      },
+      {
+        step: '02', title: 'Ghi điểm từng set',
+        apis: [
+          { method:'POST', path:'/match-sets', note:'{ setNumber, teamA_score, teamB_score }' },
+          { method:'PUT', path:'/match-sets/{id}', note:'Sửa điểm' },
+          { method:'GET', path:'/match-sets/sub-match/{id}', note:'Xem sets' },
+        ]
+      },
+      {
+        step: '03', title: 'Preview ELO',
+        apis: [{ method:'GET', path:'/matches/{id}/elo-preview', note:'Xem trước thay đổi ELO' }]
+      },
+      {
+        step: '04', title: 'Nộp kết quả',
+        apis: [{ method:'POST', path:'/matches/{id}/finalize', note:'{ winnerId, scores }' }]
+      },
+    ]
+  },
+
+  team_match: {
+    title: 'Trận Team (Sub-matches)',
+    desc: 'Flow thi đấu đồng đội với nhiều sub-matches',
+    color: '#ef4444', role: 'Referee', roleColor: 'rgba(239,68,68,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Bắt đầu trận chính',
+        apis: [{ method:'POST', path:'/matches/{id}/start', note:'Bắt đầu match' }]
+      },
+      {
+        step: '02', title: 'Tạo sub-matches',
+        apis: [{ method:'POST', path:'/sub-matches/create-from-format', note:'{ matchId, format: "3v3" }' }]
+      },
+      {
+        step: '03', title: 'Chạy từng sub-match',
+        apis: [
+          { method:'POST', path:'/sub-matches/{id}/assign-players', note:'Phân players' },
+          { method:'POST', path:'/sub-matches/{id}/start', note:'Bắt đầu sub-match' },
+          { method:'POST', path:'/match-sets', note:'Ghi set scores' },
+          { method:'POST', path:'/sub-matches/{id}/finalize', note:'{ winnerTeam: "A" }' },
+        ]
+      },
+      {
+        step: '04', title: 'Xem players sub-match',
+        apis: [
+          { method:'GET', path:'/sub-match-players/sub-match/{id}', note:'Tất cả players' },
+          { method:'GET', path:'/sub-match-players/sub-match/{id}/team/{team}', note:'Theo team A/B' },
+        ]
+      },
+      {
+        step: '05', title: 'Nộp kết quả trận chính',
+        apis: [{ method:'POST', path:'/matches/{id}/finalize', note:'Kết quả tổng' }]
+      },
+    ]
+  },
+
+  approve_match: {
+    title: 'Duyệt kết quả Match',
+    desc: 'Chief referee approve → auto trigger ELO + standings + bracket',
+    color: '#ef4444', role: 'Chief Referee', roleColor: 'rgba(239,68,68,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Xem pending matches',
+        apis: [
+          { method:'GET', path:'/matches/pending', note:'Chờ duyệt' },
+          { method:'GET', path:'/matches/{id}/pending-with-elo', note:'Với ELO preview' },
+        ]
+      },
+      {
+        step: '02', title: 'Approve hoặc Reject',
+        apis: [
+          { method:'POST', path:'/matches/{id}/approve', note:'✅ Duyệt kết quả' },
+          { method:'POST', path:'/matches/{id}/reject', note:'❌ Từ chối' },
+        ]
+      },
+    ],
+    autoTriggers: [
+      'ELO tự động tính toán và cập nhật cho cả 2 player/team',
+      'Group standings tự động sync (nếu là vòng bảng)',
+      'Knockout bracket tự động advance winner (nếu là knockout)',
+    ]
+  },
+
+  view_match: {
+    title: 'Xem lịch thi đấu & Lịch sử',
+    desc: 'Tra cứu matches của athlete và trạng thái',
+    color: '#ef4444', role: 'Player / Public', roleColor: 'rgba(239,68,68,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Lịch thi đấu của athlete',
+        apis: [
+          { method:'GET', path:'/matches/athlete/{id}/upcoming', note:'Sắp tới' },
+          { method:'GET', path:'/matches/athlete/{id}/history', note:'Lịch sử' },
+        ]
+      },
+      {
+        step: '02', title: 'Xem matches theo filter',
+        apis: [
+          { method:'GET', path:'/matches', note:'Tất cả' },
+          { method:'GET', path:'/matches/status/{status}', note:'Theo status' },
+          { method:'GET', path:'/matches/schedule/{id}', note:'Theo schedule' },
+          { method:'GET', path:'/matches/{id}', note:'Chi tiết' },
+        ]
+      },
+    ]
+  },
+
+  // ELO
+  elo_preview: {
+    title: 'Preview ELO trước khi Approve',
+    desc: 'Xem trước thay đổi ELO để đảm bảo kết quả chính xác',
+    color: '#8b5cf6', role: 'Chief Referee', roleColor: 'rgba(139,92,246,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Xem ELO preview',
+        apis: [{ method:'GET', path:'/matches/{id}/elo-preview', note:'Thay đổi dự kiến' }]
+      },
+      {
+        step: '02', title: 'Xem pending với ELO',
+        apis: [{ method:'GET', path:'/matches/{id}/pending-with-elo', note:'Match + ELO data' }]
+      },
+    ],
+    tip: '💡 Luôn verify ELO preview trước khi approve match để tránh sai sót!'
+  },
+
+  elo_auto: {
+    title: 'Auto ELO Update Flow',
+    desc: 'ELO tự động tính sau approve — không cần gọi manual',
+    color: '#8b5cf6', role: 'System (Auto)', roleColor: 'rgba(139,92,246,0.15)',
+    nodes: [
+      {
+        step: 'AUTO', title: 'Tự động sau approve match',
+        desc: 'Sau POST /matches/{id}/approve thành công',
+        apis: [
+          { method:'POST', path:'/elo-scores', note:'Tạo ELO entry', auto: true },
+          { method:'POST', path:'/elo-histories', note:'Ghi lịch sử thay đổi', auto: true },
+        ]
+      },
+      {
+        step: '01', title: 'Admin quản lý ELO (nếu cần)',
+        apis: [
+          { method:'GET', path:'/elo-scores', note:'Tất cả scores' },
+          { method:'PUT', path:'/elo-scores/{id}', note:'Admin sửa (khẩn cấp)' },
+          { method:'DELETE', path:'/elo-scores/{id}', note:'Xóa' },
+        ]
+      },
+    ]
+  },
+
+  elo_view: {
+    title: 'Xem Leaderboard & Lịch sử ELO',
+    desc: 'Bảng xếp hạng ELO và lịch sử thay đổi rating',
+    color: '#8b5cf6', role: 'Public', roleColor: 'rgba(139,92,246,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Leaderboard',
+        apis: [{ method:'GET', path:'/elo-scores/leaderboard', note:'BXH ELO' }]
+      },
+      {
+        step: '02', title: 'Lịch sử ELO',
+        apis: [
+          { method:'GET', path:'/elo-histories/user/{id}', note:'Lịch sử của user' },
+          { method:'GET', path:'/elo-histories/match/{id}', note:'ELO changes của match' },
+          { method:'GET', path:'/elo-histories', note:'Tất cả history' },
+        ]
+      },
+    ]
+  },
+
+  // REFEREE
+  invite_ref: {
+    title: 'Mời & Xác nhận Referee',
+    desc: 'Organizer gửi lời mời, referee chấp nhận hoặc từ chối',
+    color: '#f97316', role: 'Organizer → Referee', roleColor: 'rgba(249,115,22,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Organizer mời referee',
+        apis: [{ method:'POST', path:'/tournament-referees/invite', note:'Gửi lời mời' }]
+      },
+      {
+        step: '02', title: 'Referee phản hồi',
+        apis: [
+          { method:'POST', path:'/tournament-referees/accept-invitation', note:'✅ Chấp nhận' },
+          { method:'POST', path:'/tournament-referees/reject-invitation', note:'❌ Từ chối' },
+        ]
+      },
+      {
+        step: '03', title: 'Organizer quản lý lời mời',
+        apis: [
+          { method:'POST', path:'/tournament-referees/cancel-invitation', note:'Hủy lời mời' },
+          { method:'GET', path:'/tournament-referees/tournament/{id}/invitations', note:'Xem invitations' },
+        ]
+      },
+    ],
+    tip: '💡 Mỗi tournament chỉ được có 1 chief referee. Players không được làm referee trong cùng tournament.'
+  },
+
+  manage_ref: {
+    title: 'Quản lý Referees',
+    desc: 'Xem, thay đổi role, xóa referee khỏi tournament',
+    color: '#f97316', role: 'Organizer', roleColor: 'rgba(249,115,22,0.15)',
+    nodes: [
+      {
+        step: '01', title: 'Xem referees',
+        apis: [{ method:'GET', path:'/tournament-referees/tournament/{id}', note:'Danh sách referees' }]
+      },
+      {
+        step: '02', title: 'Quản lý',
+        apis: [
+          { method:'POST', path:'/tournament-referees/update-role', note:'Đổi role (chief/assistant)' },
+          { method:'POST', path:'/tournament-referees/remove', note:'Xóa referee' },
+        ]
+      },
+    ]
+  },
+
+  // MANAGEMENT
+  user_mgmt: {
+    title: 'Users & Profile Management',
+    desc: 'Admin quản lý users và cập nhật profile theo API thực tế.',
+    color: '#f97316', role: 'Admin', roleColor: 'rgba(249,115,22,0.15)',
+    branches: [
+      {
+        role: 'Admin', roleColor: 'rgba(249,115,22,0.18)',
+        icon: '👤',
+        title: 'User administration',
+        desc: 'Tạo, xem, cập nhật và xóa user.',
+        apis: [
+          { method:'POST', path:'/users', note:'Tạo user' },
+          { method:'GET', path:'/users', note:'Danh sách users' },
+          { method:'GET', path:'/users/{id}', note:'Chi tiết user' },
+          { method:'PUT', path:'/users/{id}', note:'Cập nhật user' },
+          { method:'DELETE', path:'/users/{id}', note:'Xóa user' },
+        ]
+      },
+      {
+        role: 'Authenticated user', roleColor: 'rgba(249,115,22,0.18)',
+        icon: '🪪',
+        title: 'Profile branch',
+        desc: 'Cập nhật avatar, dob, phoneNumber và gender.',
+        apis: [
+          { method:'PUT', path:'/users/{id}/profile', note:'Cập nhật profile' },
+        ]
+      },
+    ],
+    nodes: [
+      {
+        step: '01', title: 'Admin quản lý user',
+        desc: 'Quản trị viên tạo và chỉnh sửa tài khoản người dùng.',
+        role: 'Admin', roleColor: 'rgba(249,115,22,0.18)',
+        apis: [
+          { method:'POST', path:'/users', note:'Tạo user' },
+          { method:'GET', path:'/users', note:'Danh sách users' },
+          { method:'GET', path:'/users/{id}', note:'Xem user' },
+          { method:'PUT', path:'/users/{id}', note:'Cập nhật user' },
+          { method:'DELETE', path:'/users/{id}', note:'Xóa user' },
+        ]
+      },
+      {
+        step: '02', title: 'User tự cập nhật profile',
+        desc: 'Người dùng tự chỉnh avatar và thông tin cá nhân của mình.',
+        role: 'User', roleColor: 'rgba(249,115,22,0.18)',
+        apis: [{ method:'PUT', path:'/users/{id}/profile', note:'avatar, dob, phoneNumber, gender' }]
+      },
+    ]
+  },
+
+  access_mgmt: {
+    title: 'Roles, Permissions & Assignments',
+    desc: 'Thiết lập role/permission và mapping cho user/role.',
+    color: '#f97316', role: 'Admin', roleColor: 'rgba(249,115,22,0.15)',
+    branches: [
+      {
+        role: 'Admin', roleColor: 'rgba(249,115,22,0.18)',
+        icon: '🔐',
+        title: 'Role & permission setup',
+        desc: 'Quản lý role, permission và quan hệ giữa chúng.',
+        apis: [
+          { method:'POST', path:'/roles', note:'Tạo role' },
+          { method:'GET', path:'/roles', note:'Danh sách roles' },
+          { method:'PUT', path:'/roles/{id}', note:'Cập nhật role' },
+          { method:'DELETE', path:'/roles/{id}', note:'Xóa role' },
+          { method:'POST', path:'/permissions', note:'Tạo permission' },
+          { method:'GET', path:'/permissions', note:'Danh sách permissions' },
+          { method:'POST', path:'/role-permissions', note:'Gán permission cho role' },
+          { method:'POST', path:'/user-roles', note:'Gán role cho user' },
+        ]
+      },
+    ],
+    nodes: [
+      {
+        step: '01', title: 'Quản lý roles',
+        role: 'Admin', roleColor: 'rgba(249,115,22,0.18)',
+        apis: [
+          { method:'POST', path:'/roles', note:'Tạo role' },
+          { method:'GET', path:'/roles', note:'Xem roles' },
+          { method:'GET', path:'/roles/name/{name}', note:'Tìm role theo tên' },
+          { method:'PUT', path:'/roles/{id}', note:'Cập nhật role' },
+          { method:'DELETE', path:'/roles/{id}', note:'Xóa role' },
+        ]
+      },
+      {
+        step: '02', title: 'Quản lý permissions',
+        role: 'Admin', roleColor: 'rgba(249,115,22,0.18)',
+        apis: [
+          { method:'POST', path:'/permissions', note:'Tạo permission' },
+          { method:'GET', path:'/permissions', note:'Xem permissions' },
+          { method:'GET', path:'/permissions/{id}', note:'Chi tiết permission' },
+          { method:'PUT', path:'/permissions/{id}', note:'Cập nhật permission' },
+          { method:'DELETE', path:'/permissions/{id}', note:'Xóa permission' },
+        ]
+      },
+      {
+        step: '03', title: 'Gán role/permission',
+        role: 'Admin', roleColor: 'rgba(249,115,22,0.18)',
+        apis: [
+          { method:'POST', path:'/role-permissions', note:'Gán permission cho role' },
+          { method:'GET', path:'/role-permissions/role/{roleId}', note:'Permissions theo role' },
+          { method:'GET', path:'/role-permissions/permission/{permissionId}', note:'Roles theo permission' },
+          { method:'GET', path:'/role-permissions/check', note:'Kiểm tra mapping' },
+          { method:'DELETE', path:'/role-permissions/{roleId}/{permissionId}', note:'Bỏ gán' },
+          { method:'POST', path:'/user-roles', note:'Gán role cho user' },
+          { method:'GET', path:'/user-roles/user/{userId}', note:'Roles theo user' },
+          { method:'GET', path:'/user-roles/role/{roleId}', note:'Users theo role' },
+        ]
+      },
+    ]
+  },
+
+  notification_mgmt: {
+    title: 'Notifications',
+    desc: 'Gửi thông báo real-time và kiểm tra trạng thái kết nối.',
+    color: '#f97316', role: 'Admin / System', roleColor: 'rgba(249,115,22,0.15)',
+    branches: [
+      {
+        role: 'Admin / System', roleColor: 'rgba(249,115,22,0.18)',
+        icon: '📡',
+        title: 'Notification operations',
+        desc: 'Gửi notification, phát event và quản lý trạng thái socket.',
+        apis: [
+          { method:'POST', path:'/notifications/send', note:'Gửi notification' },
+          { method:'POST', path:'/notifications/event', note:'Gửi custom event' },
+          { method:'GET', path:'/notifications/connected-users', note:'Xem connected users' },
+          { method:'GET', path:'/notifications/status/{userId}', note:'Kiểm tra trạng thái' },
+          { method:'POST', path:'/notifications/disconnect/{userId}', note:'Ngắt kết nối user' },
+          { method:'GET', path:'/notifications/status', note:'Service status' },
+        ]
+      },
+    ],
+    nodes: [
+      {
+        step: '01', title: 'Gửi notification hoặc event',
+        role: 'Admin / System', roleColor: 'rgba(249,115,22,0.18)',
+        apis: [
+          { method:'POST', path:'/notifications/send', note:'Push notification' },
+          { method:'POST', path:'/notifications/event', note:'Custom event' },
+        ]
+      },
+      {
+        step: '02', title: 'Theo dõi kết nối realtime',
+        role: 'Admin / System', roleColor: 'rgba(249,115,22,0.18)',
+        apis: [
+          { method:'GET', path:'/notifications/connected-users', note:'Connected users' },
+          { method:'GET', path:'/notifications/status/{userId}', note:'User connected?' },
+          { method:'POST', path:'/notifications/disconnect/{userId}', note:'Disconnect user' },
+          { method:'GET', path:'/notifications/status', note:'Health status' },
+        ]
+      },
+    ]
+  },
+
+  // FULL FLOW
+  phase1: {
+    title: 'Phase 1: Tournament Setup',
+    desc: 'Organizer tạo tournament, cấu hình, và mời referees',
+    color: '#7c3aed', role: 'Organizer', roleColor: 'rgba(124,58,237,0.15)',
+    branches: [
+      {
+        role: 'Organizer', roleColor: 'rgba(124,58,237,0.18)',
+        icon: '👑',
+        title: 'Organizer branch',
+        desc: 'Đăng nhập, tạo tournament, cấu hình ScheduleConfig và quản lý invitations.',
+        apis: [
+          { method:'POST', path:'/auth/login', note:'Lấy JWT token' },
+          { method:'POST', path:'/tournaments', note:'Tạo tournament' },
+          { method:'POST', path:'/schedule-configs', note:'Tạo config' },
+          { method:'POST', path:'/tournament-referees/invite', note:'Mời referee' },
+        ]
+      },
+      {
+        role: 'Referee', roleColor: 'rgba(249,115,22,0.18)',
+        icon: '🧑‍⚖️',
+        title: 'Referee branch',
+        desc: 'Nhận và phản hồi lời mời tham gia tournament.',
+        apis: [
+          { method:'POST', path:'/tournament-referees/accept-invitation', note:'Chấp nhận lời mời' },
+          { method:'POST', path:'/tournament-referees/reject-invitation', note:'Từ chối lời mời' },
+        ]
+      },
+    ],
+    nodes: [
+      {
+        step: '1.1', title: 'Organizer đăng nhập',
+        desc: 'Organizer xác thực để lấy quyền thao tác tournament.',
+        role: 'Organizer', roleColor: 'rgba(124,58,237,0.18)',
+        apis: [{ method:'POST', path:'/auth/login', note:'Lấy JWT token' }]
+      },
+      {
+        step: '1.2', title: 'Tạo tournament và categories',
+        desc: 'Organizer tạo giải đấu, khai báo categories và thông tin cơ bản của tournament.',
+        role: 'Organizer', roleColor: 'rgba(124,58,237,0.18)',
+        apis: [
+          { method:'POST', path:'/tournaments', note:'+ categories' },
+          { method:'GET', path:'/tournaments/{id}', note:'Kiểm tra lại tournament vừa tạo' },
+        ]
+      },
+      {
+        step: '1.3', title: 'Cấu hình schedule cho tournament',
+        desc: 'Organizer tạo ScheduleConfig riêng để quản lý dates, số bàn và khung giờ thi đấu.',
+        role: 'Organizer', roleColor: 'rgba(124,58,237,0.18)',
+        apis: [
+          { method:'POST', path:'/schedule-configs', note:'Tạo config' },
+          { method:'GET', path:'/schedule-configs/defaults', note:'Xem default values' },
+          { method:'GET', path:'/schedule-configs/{id}/schedule-config', note:'Xem config đã lưu' },
+          { method:'POST', path:'/schedule-configs/{id}/schedule-config/preview-create', note:'Preview config mới' },
+          { method:'POST', path:'/schedule-configs/{id}/schedule-config/preview-update', note:'Preview cập nhật' },
+          { method:'POST', path:'/schedule-configs/{id}/schedule-config/validate', note:'Kiểm tra tính hợp lệ' },
+          { method:'PATCH', path:'/schedule-configs/{id}/schedule-config', note:'Cập nhật config' },
+          { method:'DELETE', path:'/schedule-configs/{id}/schedule-config', note:'Xóa config' },
+        ]
+      },
+      {
+        step: '1.4', title: 'Mời và xác nhận referees',
+        desc: 'Organizer gửi lời mời, referee chấp nhận hoặc từ chối theo từng invitation.',
+        role: 'Organizer / Referee', roleColor: 'rgba(249,115,22,0.18)',
+        apis: [
+          { method:'POST', path:'/tournament-referees/invite', note:'Mời chief + assistants' },
+          { method:'GET', path:'/tournament-referees/tournament/{id}/invitations', note:'Xem lời mời' },
+          { method:'POST', path:'/tournament-referees/accept-invitation', note:'Referee accept' },
+          { method:'POST', path:'/tournament-referees/reject-invitation', note:'Referee reject' },
+        ]
+      },
+    ]
+  },
+
+  phase2: {
+    title: 'Phase 2: Registration',
+    desc: 'Players đăng ký và thanh toán',
+    color: '#10b981', role: 'Player', roleColor: 'rgba(16,185,129,0.15)',
+    branches: [
+      {
+        role: 'Player', roleColor: 'rgba(16,185,129,0.18)',
+        icon: '🧑',
+        title: 'Player branch',
+        desc: 'Tìm giải, đăng ký entry và upload proof thanh toán.',
+        apis: [
+          { method:'GET', path:'/tournaments', note:'Tìm giải đấu' },
+          { method:'POST', path:'/entries/register', note:'Đăng ký tham gia' },
+          { method:'POST', path:'/payments', note:'Tạo payment' },
+          { method:'PUT', path:'/payments/{id}/proof', note:'Upload proof' },
+        ]
+      },
+      {
+        role: 'Captain', roleColor: 'rgba(16,185,129,0.18)',
+        icon: '🛡️',
+        title: 'Captain branch',
+        desc: 'Quản lý team, thêm thành viên và xác nhận lineup.',
+        apis: [
+          { method:'POST', path:'/entries/{id}/add-member', note:'Thêm thành viên' },
+          { method:'POST', path:'/entries/{id}/confirm-lineup', note:'Xác nhận lineup' },
+        ]
+      },
+      {
+        role: 'Organizer', roleColor: 'rgba(245,158,11,0.18)',
+        icon: '🧾',
+        title: 'Organizer branch',
+        desc: 'Duyệt hoặc từ chối payment của player.',
+        apis: [
+          { method:'POST', path:'/payments/{id}/confirm', note:'Duyệt payment' },
+          { method:'POST', path:'/payments/{id}/reject', note:'Từ chối payment' },
+        ]
+      },
+    ],
+    nodes: [
+      {
+        step: '2.1', title: 'Player đăng nhập và chọn tournament',
+        desc: 'Player dùng tài khoản của mình để tìm tournament và bắt đầu đăng ký entry.',
+        role: 'Player', roleColor: 'rgba(16,185,129,0.18)',
+        apis: [
+          { method:'POST', path:'/auth/login', note:'' },
+          { method:'GET', path:'/tournaments', note:'Tìm giải đấu' },
+          { method:'POST', path:'/entries/register', note:'Đăng ký tham gia' },
+        ]
+      },
+      {
+        step: '2.2', title: '(Team) Captain hoàn thiện đội',
+        desc: 'Captain thêm/xóa thành viên, rồi xác nhận lineup trước khi khóa đăng ký.',
+        role: 'Captain', roleColor: 'rgba(16,185,129,0.18)',
+        apis: [
+          { method:'POST', path:'/entries/{id}/add-member', note:'Thêm thành viên' },
+          { method:'POST', path:'/entries/{id}/confirm-lineup', note:'Xác nhận lineup' },
+        ]
+      },
+      {
+        step: '2.3', title: 'Player thanh toán, organizer duyệt',
+        desc: 'Player tạo payment và upload proof, organizer xác nhận hoặc từ chối payment.',
+        role: 'Player / Organizer', roleColor: 'rgba(245,158,11,0.18)',
+        apis: [
+          { method:'POST', path:'/payments', note:'Tạo payment' },
+          { method:'PUT', path:'/payments/{id}/proof', note:'Upload bằng chứng' },
+          { method:'POST', path:'/payments/{id}/confirm', note:'Organizer confirm' },
+          { method:'POST', path:'/payments/{id}/reject', note:'Organizer reject' },
+        ]
+      },
+    ]
+  },
+
+  phase3: {
+    title: 'Phase 3: Preparation',
+    desc: 'Đóng đăng ký, bốc thăm, generate lịch thi đấu',
+    color: '#06b6d4', role: 'Organizer', roleColor: 'rgba(6,182,212,0.15)',
+    branches: [
+      {
+        role: 'System', roleColor: 'rgba(100,116,139,0.18)',
+        icon: '⚙️',
+        title: 'System branch',
+        desc: 'Tự động chuyển tournament sang registration_closed theo mốc thời gian.',
+        apis: [{ method:'POST', path:'/tournaments/update-statuses', note:'→ registration_closed' }]
+      },
+      {
+        role: 'Organizer', roleColor: 'rgba(6,182,212,0.18)',
+        icon: '🎲',
+        title: 'Draw branch',
+        desc: 'Bốc thăm nhóm và lưu gán nhóm cho vòng bảng.',
+        apis: [
+          { method:'POST', path:'/group-standings/generate-placeholders', note:'Tạo nhóm trống' },
+          { method:'POST', path:'/group-standings/random-draw', note:'Auto bốc thăm' },
+          { method:'POST', path:'/group-standings/save-assignments', note:'Lưu gán nhóm thủ công' },
+        ]
+      },
+      {
+        role: 'Organizer', roleColor: 'rgba(6,182,212,0.18)',
+        icon: '🗓️',
+        title: 'Schedule branch',
+        desc: 'Generate lịch cho group stage và knockout sau khi dữ liệu đã sẵn sàng.',
+        apis: [
+          { method:'POST', path:'/schedules/generate-complete', note:'Group + Knockout' },
+          { method:'POST', path:'/schedules/generate-group-stage', note:'Chỉ vòng bảng' },
+          { method:'POST', path:'/schedules/generate-knockout-only', note:'Chỉ knockout' },
+        ]
+      },
+    ],
+    nodes: [
+      {
+        step: '3.1', title: 'Hệ thống đóng đăng ký',
+        desc: 'Hệ thống hoặc organizer chạy update-statuses để chuyển tournament sang registration_closed.',
+        role: 'System', roleColor: 'rgba(100,116,139,0.18)',
+        apis: [{ method:'POST', path:'/tournaments/update-statuses', note:'→ registration_closed' }]
+      },
+      {
+        step: '3.2', title: 'Organizer bốc thăm nhóm',
+        desc: 'Organizer tạo placeholders, draw ngẫu nhiên hoặc phân nhóm thủ công cho vòng bảng.',
+        role: 'Organizer', roleColor: 'rgba(6,182,212,0.18)',
+        apis: [
+          { method:'POST', path:'/group-standings/generate-placeholders', note:'' },
+          { method:'POST', path:'/group-standings/random-draw', note:'Auto bốc thăm' },
+          { method:'POST', path:'/group-standings/save-assignments', note:'Lưu gán nhóm thủ công' },
+        ]
+      },
+      {
+        step: '3.3', title: 'Generate lịch thi đấu',
+        desc: 'Organizer sinh lịch cho group stage và knockout sau khi dữ liệu đăng ký đã hoàn tất.',
+        role: 'Organizer', roleColor: 'rgba(6,182,212,0.18)',
+        apis: [
+          { method:'POST', path:'/schedules/generate-complete', note:'Group + Knockout' },
+          { method:'POST', path:'/schedules/generate-group-stage', note:'Chỉ vòng bảng' },
+          { method:'POST', path:'/schedules/generate-knockout-only', note:'Chỉ knockout' },
+        ]
+      },
+    ]
+  },
+
+  phase4: {
+    title: 'Phase 4: Match Execution',
+    desc: 'Chạy trận, ghi điểm, approve kết quả',
+    color: '#ef4444', role: 'Referee → Chief', roleColor: 'rgba(239,68,68,0.15)',
+    branches: [
+      {
+        role: 'Referee', roleColor: 'rgba(239,68,68,0.18)',
+        icon: '🏁',
+        title: 'Referee branch',
+        desc: 'Start match, nhập score, finalize kết quả.',
+        apis: [
+          { method:'POST', path:'/matches/{id}/start', note:'Bắt đầu trận' },
+          { method:'POST', path:'/match-sets', note:'Ghi điểm set' },
+          { method:'POST', path:'/sub-matches/create-from-format', note:'Team sub-matches' },
+          { method:'POST', path:'/matches/{id}/finalize', note:'Nộp kết quả' },
+        ]
+      },
+      {
+        role: 'Chief Referee', roleColor: 'rgba(239,68,68,0.18)',
+        icon: '✅',
+        title: 'Chief referee branch',
+        desc: 'Duyệt hoặc từ chối match đã nộp.',
+        apis: [
+          { method:'GET', path:'/matches/pending', note:'Danh sách chờ duyệt' },
+          { method:'GET', path:'/matches/{id}/pending-with-elo', note:'Xem kèm ELO preview' },
+          { method:'POST', path:'/matches/{id}/approve', note:'Approve kết quả' },
+          { method:'POST', path:'/matches/{id}/reject', note:'Reject kết quả' },
+        ]
+      },
+    ],
+    nodes: [
+      {
+        step: '4.1', title: 'Referee bắt đầu trận',
+        desc: 'Referee nhận trận, start match và bắt đầu ghi nhận diễn biến.',
+        role: 'Referee', roleColor: 'rgba(239,68,68,0.18)',
+        apis: [{ method:'POST', path:'/matches/{id}/start', note:'{ refereeId }' }]
+      },
+      {
+        step: '4.2', title: 'Referee ghi điểm từng set',
+        desc: 'Referee nhập set scores hoặc tạo sub-matches đối với team match.',
+        role: 'Referee', roleColor: 'rgba(239,68,68,0.18)',
+        apis: [
+          { method:'POST', path:'/match-sets', note:'Singles/Doubles: ghi set' },
+          { method:'POST', path:'/sub-matches/create-from-format', note:'Team: tạo sub-matches' },
+          { method:'POST', path:'/sub-matches/{id}/finalize', note:'Hoàn thành sub-match' },
+        ]
+      },
+      {
+        step: '4.3', title: 'Chief referee duyệt kết quả',
+        desc: 'Chief referee xem pending match, duyệt hoặc từ chối; hệ thống tự sync dữ liệu liên quan.',
+        role: 'Chief Referee / System', roleColor: 'rgba(239,68,68,0.18)',
+        apis: [
+          { method:'GET', path:'/matches/{id}/elo-preview', note:'Preview ELO' },
+          { method:'POST', path:'/matches/{id}/finalize', note:'Referee nộp kết quả' },
+          { method:'POST', path:'/matches/{id}/approve', note:'Chief approve → Auto ELO+BXH' },
+          { method:'POST', path:'/matches/{id}/reject', note:'Từ chối kết quả' },
+        ]
+      },
+    ],
+    autoTriggers: [
+      'ELO cập nhật tự động',
+      'Group standings sync tự động',
+      'Knockout bracket advance tự động',
+    ]
+  },
+
+  phase5: {
+    title: 'Phase 5: Completion & Results',
+    desc: 'Xem kết quả, bảng xếp hạng, lịch sử',
+    color: '#8b5cf6', role: 'Public', roleColor: 'rgba(139,92,246,0.15)',
+    branches: [
+      {
+        role: 'Public / Organizer', roleColor: 'rgba(139,92,246,0.18)',
+        icon: '📣',
+        title: 'Tournament results branch',
+        desc: 'Xem BXH, standings và kết quả cuối cùng của tournament.',
+        apis: [
+          { method:'GET', path:'/knockout-brackets/category/{id}/standings', note:'Kết quả knockout' },
+          { method:'GET', path:'/group-standings/{categoryId}', note:'BXH vòng bảng' },
+        ]
+      },
+      {
+        role: 'Player', roleColor: 'rgba(139,92,246,0.18)',
+        icon: '📊',
+        title: 'Player results branch',
+        desc: 'Tra cứu lịch sử match, ELO và leaderboard cá nhân.',
+        apis: [
+          { method:'GET', path:'/elo-scores/leaderboard', note:'BXH ELO tổng' },
+          { method:'GET', path:'/matches/athlete/{id}/history', note:'Lịch sử của player' },
+          { method:'GET', path:'/elo-histories/user/{id}', note:'Lịch sử ELO' },
+        ]
+      },
+    ],
+    nodes: [
+      {
+        step: '5.1', title: 'Xem kết quả tournament',
+        desc: 'Public, player và organizer xem kết quả cuối cùng của tournament.',
+        role: 'Public / Organizer', roleColor: 'rgba(139,92,246,0.18)',
+        apis: [
+          { method:'GET', path:'/knockout-brackets/category/{id}/standings', note:'Kết quả knockout' },
+          { method:'GET', path:'/group-standings/{categoryId}', note:'BXH vòng bảng' },
+        ]
+      },
+      {
+        step: '5.2', title: 'Xem kết quả cá nhân và ELO',
+        desc: 'Player tra cứu lịch sử match, ELO score và thống kê cá nhân.',
+        role: 'Player', roleColor: 'rgba(139,92,246,0.18)',
+        apis: [
+          { method:'GET', path:'/elo-scores/leaderboard', note:'BXH ELO tổng' },
+          { method:'GET', path:'/matches/athlete/{id}/history', note:'Lịch sử của player' },
+          { method:'GET', path:'/elo-histories/user/{id}', note:'Lịch sử ELO' },
+        ]
+      },
+    ]
+  },
+};
+
+let currentPhase = 'all';
+let currentFlow = null;
+
+function switchPhase(phase, el) {
+  currentPhase = phase;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderSidebar();
+  renderContent();
+}
+
+function renderSidebar() {
+  const sb = document.getElementById('sidebar');
+  const phase = phases[currentPhase];
+  if (!phase) { sb.innerHTML = ''; return; }
+
+  if (currentPhase === 'all') {
+    sb.innerHTML = `<div class="sidebar-section"><div class="sidebar-title">Modules</div>` +
+      phase.flows.map(f => `
+        <div class="flow-item" onclick="switchPhaseByName('${f.id}')" id="sb-${f.id}">
+          <div class="dot" style="background:${f.color}"></div>
+          <div class="name">${f.name}</div>
+          <div class="count">${f.steps.length} steps</div>
+        </div>
+      `).join('') + `</div>`;
+    return;
+  }
+
+  sb.innerHTML = `<div class="sidebar-section"><div class="sidebar-title">${phase.label}</div>` +
+    phase.flows.map(f => `
+      <div class="flow-item ${currentFlow === f.id ? 'active' : ''}" onclick="showFlow('${f.id}')" id="sb-${f.id}">
+        <div class="dot" style="background:${phase.color}"></div>
+        <div class="name">${f.name}</div>
+      </div>
+    `).join('') + `</div>`;
+}
+
+function renderContent() {
+  if (currentPhase === 'all') {
+    renderAllView();
+    return;
+  }
+  if (currentFlow) {
+    renderFlow(currentFlow);
+  } else {
+    // show first flow
+    const phase = phases[currentPhase];
+    if (phase && phase.flows.length) {
+      showFlow(phase.flows[0].id);
+    }
+  }
+}
+
+function renderAllView() {
+  const content = document.getElementById('content');
+  const phase = phases.all;
+  content.innerHTML = `
+    <div style="margin-bottom:28px">
+      <div style="font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px">SmashHub API — Tổng quan</div>
+      <div style="font-size:14px;color:var(--text-dim);line-height:1.6">150+ endpoints được tổ chức theo 9 modules chính. Click vào module để xem chi tiết API flow.</div>
+    </div>
+    <div class="all-grid">
+      ${phase.flows.map(f => `
+        <div class="mini-flow" style="--mini-color:${f.color}" onclick="switchPhaseByName('${f.id}')">
+          <div class="mini-flow-header">
+            <div class="mini-flow-dot"></div>
+            <div class="mini-flow-title">${f.name}</div>
+            <div class="mini-flow-count">${f.steps.length} flows</div>
+          </div>
+          <div class="mini-flow-steps">
+            ${f.steps.map(s => `<div class="mini-step">${s}</div>`).join('')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div style="margin-top:8px;margin-bottom:16px">
+      <div style="font-size:16px;font-weight:700;margin-bottom:12px">⏱️ Status Progressions</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        ${renderStatusBar('Tournament', [
+          {label:'upcoming',color:'#64748b'},{label:'registration_open',color:'#10b981'},
+          {label:'registration_closed',color:'#f59e0b'},{label:'brackets_generated',color:'#06b6d4'},
+          {label:'ongoing',color:'#ef4444'},{label:'completed',color:'#8b5cf6'}
+        ])}
+        ${renderStatusBar('Match', [
+          {label:'pending',color:'#64748b'},{label:'ongoing',color:'#06b6d4'},
+          {label:'pending_approval',color:'#f59e0b'},{label:'completed',color:'#10b981'}
+        ])}
+        ${renderStatusBar('Payment', [
+          {label:'pending',color:'#64748b'},{label:'confirmed',color:'#10b981'},
+          {label:'rejected',color:'#ef4444'},{label:'refunded',color:'#8b5cf6'}
+        ])}
+        ${renderStatusBar('Entry', [
+          {label:'pending',color:'#64748b'},{label:'confirmed',color:'#10b981'},
+          {label:'cancelled',color:'#ef4444'},{label:'disqualified',color:'#f59e0b'}
+        ])}
+      </div>
+    </div>
+  `;
+}
+
+function renderStatusBar(title, items) {
+  return `
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px">
+      <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px">${title}</div>
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:0">
+        ${items.map((item, i) => `
+          <div style="padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;color:${item.color};border:1px solid ${item.color};background:${item.color}18">${item.label}</div>
+          ${i < items.length-1 ? '<span style="color:var(--text-muted);padding:0 8px;font-size:12px">→</span>' : ''}
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function switchPhaseByName(id) {
+  const tabMap = {
+    auth: 'auth', tournament: 'tournament', entry: 'entry', payment: 'payment',
+    schedule: 'schedule', match: 'match', elo: 'elo', referee: 'referee',
+    user_mgmt: 'management', access_mgmt: 'management', notification_mgmt: 'management'
+  };
+  const phase = tabMap[id] || id;
+  const tab = document.querySelector(`.tab[data-phase="${phase}"]`);
+  if (tab) {
+    currentFlow = null;
+    switchPhase(phase, tab);
+  }
+}
+
+function showFlow(flowId) {
+  currentFlow = flowId;
+  document.querySelectorAll('.flow-item').forEach(el => el.classList.remove('active'));
+  const sb = document.getElementById(`sb-${flowId}`);
+  if (sb) sb.classList.add('active');
+  renderFlow(flowId);
+}
+
+function renderFlow(flowId) {
+  const data = flowContent[flowId];
+  if (!data) return;
+  const content = document.getElementById('content');
+
+  const branchHtml = data.branches ? `
+    <div class="branch-grid">
+      ${data.branches.map(branch => `
+        <div class="branch-card" style="--node-color:${branch.roleColor || data.color};border-color:${branch.roleColor || data.color}">
+          <div class="branch-label" style="color:${branch.roleColor || data.color}"><span class="icon">${branch.icon || '◈'}</span>${branch.role}</div>
+          <div class="branch-title">${branch.title}</div>
+          <div class="branch-desc">${branch.desc}</div>
+          <div class="branch-apis" style="display:flex">
+            ${branch.apis.map(api => renderApiRow(api)).join('')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  ` : '';
+
+  const statusHtml = data.statusFlow ? `
+    <div class="status-flow">
+      ${data.statusFlow.map((s, i) => `
+        <div class="status-chip" style="color:${s.color};border-color:${s.border};background:${s.color}15">${s.label}</div>
+        ${i < data.statusFlow.length-1 ? '<span class="status-arrow">→</span>' : ''}
+      `).join('')}
+    </div>
+  ` : '';
+
+  const nodesHtml = data.nodes.map((node, idx) => `
+    <div class="flow-row">
+      <div class="flow-connector">
+        ${idx > 0 ? '<div class="connector-line"></div>' : '<div style="flex:1"></div>'}
+        <div class="connector-dot" style="border-color:${data.color};background:${data.color}22"></div>
+        <div class="connector-line"></div>
+      </div>
+      <div class="node-card" style="--node-color:${data.color}" onclick="toggleNode(this)">
+        <div class="node-card::before" style="background:${data.color}"></div>
+        <div style="position:absolute;top:0;left:0;width:3px;height:100%;background:${data.color};border-radius:10px 0 0 10px;opacity:0.5"></div>
+        <div class="node-top">
+          <div class="node-step">${node.step}</div>
+          <div class="node-title">${node.title}</div>
+          <div class="node-role" style="background:${node.roleColor || data.roleColor};color:${data.color}">${node.role || data.role}</div>
+          <div class="toggle-btn">+</div>
+        </div>
+        ${node.desc ? `<div class="node-desc">${node.desc}</div>` : ''}
+        <div class="node-apis">
+          ${node.apis.map(api => renderApiRow(api)).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  const autoHtml = data.autoTriggers ? `
+    <div class="auto-triggers">
+      <div class="auto-triggers-title">✦ Auto-triggered sau khi approve</div>
+      ${data.autoTriggers.map(t => `<div class="auto-trigger-item">${t}</div>`).join('')}
+    </div>
+  ` : '';
+
+  const tipHtml = data.tip ? `<div class="tip-box">${data.tip}</div>` : '';
+
+  content.innerHTML = `
+    <div class="flow-header">
+      <div>
+        <div class="flow-title">${data.title}</div>
+        <div class="flow-desc">${data.desc}</div>
+      </div>
+    </div>
+    ${branchHtml}
+    ${statusHtml}
+    <div class="flow-nodes">
+      ${nodesHtml}
+      <div class="flow-row">
+        <div class="flow-connector">
+          <div class="connector-line"></div>
+          <div style="width:2px;flex:1"></div>
+        </div>
+        <div style="flex:1"></div>
+      </div>
+    </div>
+    ${autoHtml}
+    ${tipHtml}
+  `;
+}
+
+function renderApiRow(api) {
+  const pathHtml = api.path.replace(/\{([^}]+)\}/g, '<span class="param">{$1}</span>');
+  const autoHtml = api.auto ? `<span class="api-auto">AUTO</span>` : '';
+  const noteHtml = api.note ? `<span class="api-note">${api.note}</span>` : '';
+  return `
+    <div class="api-row">
+      <span class="method ${api.method}">${api.method}</span>
+      <span class="api-path">/api${pathHtml}</span>
+      ${autoHtml}
+      ${noteHtml}
+    </div>
+  `;
+}
+
+function toggleNode(card) {
+  card.classList.toggle('expanded');
+}
+
+// Init
+renderSidebar();
+renderAllView();
+</script>
+</body>
+</html>

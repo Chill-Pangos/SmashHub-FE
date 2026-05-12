@@ -1,10 +1,8 @@
 import { Route } from "react-router-dom";
 import RoleGuard from "@/components/custom/RoleGuard";
-import AdminPage from "@/pages/Admin/Admin";
-import SystemDashboard from "@/pages/Admin/SystemDashboard/SystemDashboard";
 import UserManagement from "@/pages/Admin/UserManagement/UserManagement";
-import RBACSettings from "@/pages/Admin/RBACSettings/RBACSettings";
-import SystemLogs from "@/pages/Admin/SystemLogs/SystemLogs";
+import RolesPermissions from "@/pages/Admin/RolesPermissions/RolesPermissions";
+import NotificationCenter from "@/pages/Admin/NotificationCenter/NotificationCenter";
 
 interface AdminRoutesProps {
   adminRoleId: number;
@@ -21,51 +19,34 @@ export default function AdminRoutes({ adminRoleId }: AdminRoutesProps) {
         path="/admin"
         element={
           <RoleGuard allowedRoles={[adminRoleId]}>
-            <AdminPage />
+            <UserManagement />
           </RoleGuard>
         }
-      >
-        <Route
-          index
-          element={
-            <RoleGuard allowedRoles={[adminRoleId]}>
-              <SystemDashboard />
-            </RoleGuard>
-          }
-        />
-        <Route
-          path="dashboard"
-          element={
-            <RoleGuard allowedRoles={[adminRoleId]}>
-              <SystemDashboard />
-            </RoleGuard>
-          }
-        />
-        <Route
-          path="users"
-          element={
-            <RoleGuard allowedRoles={[adminRoleId]}>
-              <UserManagement />
-            </RoleGuard>
-          }
-        />
-        <Route
-          path="rbac"
-          element={
-            <RoleGuard allowedRoles={[adminRoleId]}>
-              <RBACSettings />
-            </RoleGuard>
-          }
-        />
-        <Route
-          path="logs"
-          element={
-            <RoleGuard allowedRoles={[adminRoleId]}>
-              <SystemLogs />
-            </RoleGuard>
-          }
-        />
-      </Route>
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <RoleGuard allowedRoles={[adminRoleId]}>
+            <UserManagement />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/admin/roles"
+        element={
+          <RoleGuard allowedRoles={[adminRoleId]}>
+            <RolesPermissions />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/admin/notifications"
+        element={
+          <RoleGuard allowedRoles={[adminRoleId]}>
+            <NotificationCenter />
+          </RoleGuard>
+        }
+      />
     </>
   );
 }

@@ -4,12 +4,9 @@ import NotFound from "@/pages/NotFound/NotFound";
 import RoleLoadingScreen from "@/components/custom/RoleLoadingScreen";
 import RoleErrorScreen from "@/components/custom/RoleErrorScreen";
 import PublicRoutes from "./PublicRoutes";
-import ProtectedRoutes from "./ProtectedRoutes";
 import AdminRoutes from "./AdminRoutes";
-import TournamentManagerRoutes from "./TournamentManagerRoutes";
-import ChiefRefereeRoutes from "./ChiefRefereeRoutes"; // RE-ENABLED: MatchSupervision uses React Query
 import RefereeRoutes from "./RefereeRoutes";
-import UserRoutes from "@/router/UserRoutes";
+import OrganizerRoutes from "./OrganizerRoutes";
 
 /**
  * AppRouter - Main application router
@@ -23,44 +20,33 @@ export default function AppRouter() {
   // Returns Role object with { id, name, description } or undefined if not found
   const adminRole = getRoleByName("admin");
   const organizerRole = getRoleByName("organizer");
-  const chiefRefereeRole = getRoleByName("chief_referee"); // RE-ENABLED: MatchSupervision uses React Query
+  const chiefRefereeRole = getRoleByName("chief_referee");
   const refereeRole = getRoleByName("referee");
-  const userRole = getRoleByName("user");
 
   return (
     <Routes>
       {/* Public routes - accessible without authentication */}
       {PublicRoutes()}
 
-      {/* Protected routes - require authentication but no specific role */}
-      {ProtectedRoutes()}
-
       {/* Admin routes - only render if admin role exists in database */}
       {adminRole && AdminRoutes({ adminRoleId: adminRole.id })}
 
-      {/* Tournament Manager routes - only render if organizer role exists */}
-      {organizerRole &&
-        TournamentManagerRoutes({ organizerRoleId: organizerRole.id })}
+      {/* Organizer routes - only render if organizer role exists */}
+      {organizerRole && OrganizerRoutes({ organizerRoleId: organizerRole.id })}
 
-      {/* Chief Referee routes - RE-ENABLED: MatchSupervision uses React Query */}
-      {/* Note: dashboard/complaint/dispute/decision tabs are hidden (mock data) */}
-      {chiefRefereeRole &&
-        ChiefRefereeRoutes({ chiefRefereeRoleId: chiefRefereeRole.id })}
-
-      {/* Referee routes - only render if referee role exists */}
-      {refereeRole && RefereeRoutes({ refereeRoleId: refereeRole.id })}
-
-      {/* User routes - only render if user role exists */}
-      {userRole && UserRoutes({ userRoleId: userRole.id })}
+      {/* Referee routes - render if referee or chief referee role exists */}
+      {(refereeRole || chiefRefereeRole) &&
+        RefereeRoutes({
+          refereeRoleId: refereeRole?.id ?? chiefRefereeRole?.id ?? 0,
+          chiefRefereeRoleId: chiefRefereeRole?.id,
+        })}
 
       {/* Loading state for role-protected routes while role list is being fetched */}
       {isLoading && (
         <>
           <Route path="/admin/*" element={<RoleLoadingScreen />} />
-          <Route path="/tournament-manager/*" element={<RoleLoadingScreen />} />
-          <Route path="/chief-referee/*" element={<RoleLoadingScreen />} />
           <Route path="/referee/*" element={<RoleLoadingScreen />} />
-          <Route path="/user/*" element={<RoleLoadingScreen />} />
+          <Route path="/organizer/*" element={<RoleLoadingScreen />} />
         </>
       )}
 
@@ -72,19 +58,11 @@ export default function AppRouter() {
             element={<RoleErrorScreen error={error} onRetry={fetchRoles} />}
           />
           <Route
-            path="/tournament-manager/*"
-            element={<RoleErrorScreen error={error} onRetry={fetchRoles} />}
-          />
-          <Route
-            path="/chief-referee/*"
+            path="/organizer/*"
             element={<RoleErrorScreen error={error} onRetry={fetchRoles} />}
           />
           <Route
             path="/referee/*"
-            element={<RoleErrorScreen error={error} onRetry={fetchRoles} />}
-          />
-          <Route
-            path="/user/*"
             element={<RoleErrorScreen error={error} onRetry={fetchRoles} />}
           />
         </>

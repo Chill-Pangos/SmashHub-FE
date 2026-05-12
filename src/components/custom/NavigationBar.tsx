@@ -21,9 +21,9 @@ import type { User as AuthUser } from "@/types";
 
 const getNavItems = (t: (key: string) => string) => [
   { name: t("nav.home"), to: "/" },
-  { name: t("nav.rankings"), to: "/rankings" },
   { name: t("nav.tournaments"), to: "/tournaments" },
-  { name: t("nav.athletes"), to: "/players" },
+  { name: t("nav.brackets"), to: "/brackets" },
+  { name: t("nav.elo"), to: "/elo" },
 ];
 
 const NavigationBar = () => {
@@ -44,8 +44,7 @@ const NavigationBar = () => {
   const handleDashboard = () => {
     if (user) {
       const dashboardRoute = getDefaultRouteForRoles(userRoles);
-      const resolvedRoute = dashboardRoute === "/" ? "/user" : dashboardRoute;
-      navigate(resolvedRoute);
+      navigate(dashboardRoute);
     }
   };
 

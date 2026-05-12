@@ -56,9 +56,9 @@ const NotFound = () => {
                 asChild
                 className="w-full bg-transparent"
               >
-                <NavLink to="/rankings">
+                <NavLink to="/elo">
                   <Search className="w-4 h-4 mr-2" />
-                  {t("nav.rankings")}
+                  {t("nav.elo")}
                 </NavLink>
               </Button>
             </div>

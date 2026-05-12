@@ -123,6 +123,8 @@ export default {
     home: "Trang chủ",
     dashboard: "Bảng điều khiển",
     tournaments: "Giải đấu",
+    brackets: "Nhánh đấu",
+    elo: "ELO",
     schedule: "Lịch thi đấu",
     matches: "Trận đấu",
     teams: "Đội",

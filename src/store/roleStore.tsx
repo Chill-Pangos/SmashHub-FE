@@ -14,10 +14,10 @@ interface RoleProviderProps {
 // Route mapping by role name (database names)
 const ROLE_ROUTES: Record<string, string> = {
   admin: "/admin",
-  organizer: "/tournament-manager",
-  chief_referee: "/chief-referee",
+  organizer: "/organizer",
+  chief_referee: "/referee",
   referee: "/referee",
-  user: "/user",
+  user: "/",
 };
 
 // Priority mapping by role name (higher = more important)

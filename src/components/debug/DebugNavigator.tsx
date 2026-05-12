@@ -12,7 +12,7 @@ interface RouteInfo {
 
 const allRoutes: RouteInfo[] = [
   // Public Routes
-  { path: "/", name: "Home", category: "Public" },
+  { path: "/", name: "Landing", category: "Public" },
   { path: "/signin", name: "Sign In", category: "Auth" },
   { path: "/signup", name: "Sign Up", category: "Auth" },
   { path: "/forgot-password", name: "Forgot Password", category: "Auth" },
@@ -20,111 +20,116 @@ const allRoutes: RouteInfo[] = [
   { path: "/reset-password", name: "Reset Password", category: "Auth" },
   { path: "/verify-email", name: "Email Verification", category: "Auth" },
   { path: "/change-password", name: "Change Password", category: "Auth" },
-  { path: "/tournaments", name: "Public Tournaments", category: "Public" },
-  { path: "/scoreboard", name: "Master Scoreboard", category: "Public" },
+  { path: "/tournaments", name: "Tournament Listing", category: "Public" },
+  {
+    path: "/tournaments/1",
+    name: "Tournament Detail",
+    category: "Public",
+  },
+  {
+    path: "/tournaments/1/register",
+    name: "Entry Registration",
+    category: "Public",
+  },
+  { path: "/team", name: "Team Management", category: "Public" },
+  { path: "/checkout", name: "Checkout", category: "Public" },
+  { path: "/matches", name: "Match Center", category: "Public" },
+  { path: "/brackets", name: "Brackets & Standings", category: "Public" },
+  { path: "/elo", name: "ELO Leaderboard", category: "Public" },
+  { path: "/elo/history", name: "ELO History", category: "Public" },
+  { path: "/profile", name: "User Profile", category: "Public" },
 
   // Admin Routes
-  { path: "/admin", name: "Admin Dashboard", category: "Admin" },
-  { path: "/admin/dashboard", name: "System Dashboard", category: "Admin" },
+  { path: "/admin", name: "User Management", category: "Admin" },
   { path: "/admin/users", name: "User Management", category: "Admin" },
-  { path: "/admin/rbac", name: "RBAC Settings", category: "Admin" },
-  { path: "/admin/logs", name: "System Logs", category: "Admin" },
+  { path: "/admin/roles", name: "Roles & Permissions", category: "Admin" },
   {
     path: "/admin/notifications",
-    name: "Notification Management",
+    name: "Notification Center",
     category: "Admin",
   },
 
-  // Tournament Manager Routes
+  // Organizer Routes
+  { path: "/organizer", name: "Organizer Dashboard", category: "Organizer" },
   {
-    path: "/tournament-manager",
-    name: "Tournament Dashboard",
-    category: "Tournament Manager",
+    path: "/organizer/tournaments/new",
+    name: "Tournament Form",
+    category: "Organizer",
   },
   {
-    path: "/tournament-manager/dashboard",
-    name: "Tournament Dashboard",
-    category: "Tournament Manager",
+    path: "/organizer/tournaments/1/edit",
+    name: "Tournament Edit",
+    category: "Organizer",
   },
   {
-    path: "/tournament-manager/setup",
-    name: "Tournament Setup Wizard",
-    category: "Tournament Manager",
+    path: "/organizer/categories",
+    name: "Category Management",
+    category: "Organizer",
   },
   {
-    path: "/tournament-manager/list",
-    name: "Tournament List",
-    category: "Tournament Manager",
+    path: "/organizer/schedule-config",
+    name: "Schedule Config",
+    category: "Organizer",
+  },
+  { path: "/organizer/entries", name: "Entries", category: "Organizer" },
+  {
+    path: "/organizer/bulk-import",
+    name: "Bulk Import",
+    category: "Organizer",
   },
   {
-    path: "/tournament-manager/delegations",
-    name: "Delegation Management",
-    category: "Tournament Manager",
+    path: "/organizer/finance",
+    name: "Finance & Verification",
+    category: "Organizer",
   },
   {
-    path: "/tournament-manager/referees",
-    name: "Referee Assignment",
-    category: "Tournament Manager",
+    path: "/organizer/draw",
+    name: "Group Stage Draw",
+    category: "Organizer",
   },
   {
-    path: "/tournament-manager/scheduling",
-    name: "Schedule Generator",
-    category: "Tournament Manager",
+    path: "/organizer/schedule-generation",
+    name: "Schedule Generation",
+    category: "Organizer",
   },
   {
-    path: "/tournament-manager/matches",
-    name: "Match Management",
-    category: "Tournament Manager",
-  },
-  {
-    path: "/tournament-manager/results",
-    name: "Result Correction",
-    category: "Tournament Manager",
-  },
-  {
-    path: "/tournament-manager/reports",
-    name: "Reports Center",
-    category: "Tournament Manager",
-  },
-  {
-    path: "/tournament-manager/delegation-accounts",
-    name: "Delegation Accounts",
-    category: "Tournament Manager",
-  },
-
-  // Chief Referee Routes
-  {
-    path: "/chief-referee",
-    name: "Match Supervision",
-    category: "Chief Referee",
-  },
-  {
-    path: "/chief-referee/dashboard",
-    name: "Chief Referee Dashboard",
-    category: "Chief Referee",
-  },
-  {
-    path: "/chief-referee/complaints",
-    name: "Complaint Board",
-    category: "Chief Referee",
-  },
-  {
-    path: "/chief-referee/disputes",
-    name: "Dispute Resolution",
-    category: "Chief Referee",
-  },
-  {
-    path: "/chief-referee/decisions",
-    name: "Decision Log",
-    category: "Chief Referee",
+    path: "/organizer/referees",
+    name: "Referee Management",
+    category: "Organizer",
   },
 
   // Referee Routes
-  { path: "/referee", name: "Referee Dashboard", category: "Referee" },
-  { path: "/referee/history", name: "Match History", category: "Referee" },
-
-  // User Routes
-  { path: "/user", name: "User Dashboard", category: "User" },
+  { path: "/referee", name: "Invitations", category: "Referee" },
+  {
+    path: "/referee/invitations",
+    name: "Invitations",
+    category: "Referee",
+  },
+  {
+    path: "/referee/assigned",
+    name: "Assigned Matches",
+    category: "Referee",
+  },
+  {
+    path: "/referee/live",
+    name: "Live Score Controller",
+    category: "Referee",
+  },
+  {
+    path: "/referee/submit",
+    name: "Match Submission",
+    category: "Referee",
+  },
+  {
+    path: "/referee/approvals",
+    name: "Match Approval Dashboard",
+    category: "Referee",
+  },
+  {
+    path: "/referee/approvals/1",
+    name: "Approval Detail & ELO Preview",
+    category: "Referee",
+  },
 ];
 
 export default function DebugNavigator() {
