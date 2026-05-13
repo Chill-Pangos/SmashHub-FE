@@ -116,6 +116,9 @@ export default {
     otpSent: "Mã OTP đã được gửi",
     invalidCredentials: "Email hoặc mật khẩu không đúng",
     accountLocked: "Tài khoản đã bị khóa",
+    brandDescription: "Hệ thống quản lý bóng bàn chuyên nghiệp, phân tích và thực thi giải đấu cấp cao.",
+    welcomeBack: "Chào mừng trở lại",
+    enterCredentials: "Nhập thông tin đăng nhập để truy cập bảng điều khiển chuyên nghiệp.",
   },
 
   // Navigation

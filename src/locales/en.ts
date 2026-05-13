@@ -117,6 +117,9 @@ export default {
     otpSent: "OTP sent",
     invalidCredentials: "Invalid email or password",
     accountLocked: "Account locked",
+    brandDescription: "The elite ecosystem for professional table tennis management, analytics, and high-stakes tournament execution.",
+    welcomeBack: "Welcome Back",
+    enterCredentials: "Enter your credentials to access the pro dashboard.",
   },
 
   // Navigation
