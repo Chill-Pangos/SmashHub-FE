@@ -1499,7 +1499,7 @@ export default {
     operationFailed: "Thao tác thất bại",
     networkError: "Lỗi kết nối mạng",
     serverError: "Lỗi máy chủ",
-    notFound: "Không tìm thấy",
+    notFound: "Không tìm thấy tài nguyên",
     accessDenied: "Không có quyền truy cập",
     sessionExpired: "Phiên đăng nhập đã hết hạn",
     pleaseTryAgain: "Vui lòng thử lại",
@@ -1583,7 +1583,7 @@ export default {
     signUp: {
       termsRequired:
         "Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật",
-      welcomeDescription: "Chào mừng bạn đến với SmashHub, {{name}}!",
+      welcomeDescription: "Chào mừng bạn đến với SmashHub!",
       cardDescription: "Tạo tài khoản để tiếp tục",
       firstNamePlaceholder: "Nhập họ",
       lastNamePlaceholder: "Nhập tên",

@@ -1,16 +1,11 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
-import { Trophy, Eye, EyeOff, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useNavigate, NavLink } from "react-router-dom";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+  Eye, EyeOff, Loader2, Lock, KeyRound, CheckCircle2, Circle,
+  LayoutDashboard, Trophy, BarChart2, Swords, Wallet,
+  Settings, HelpCircle, LogOut, Bell, UserCircle2,
+  ArrowLeft, ShieldCheck, Info,
+} from "lucide-react";
 import { useAuth } from "@/store/useAuth";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -29,6 +24,15 @@ interface ChangePasswordFormData {
   confirmPassword: string;
 }
 
+const navItems = [
+  { icon: LayoutDashboard, label: "Dashboard",       to: "/" },
+  { icon: Trophy,          label: "Tournaments",     to: "/tournaments" },
+  { icon: BarChart2,       label: "Rankings",        to: "/rankings" },
+  { icon: Swords,          label: "Referees",        to: "/referees" },
+  { icon: Wallet,          label: "Financials",      to: "/financials" },
+  { icon: Settings,        label: "System Settings", to: "/settings", active: true },
+];
+
 const ChangePassword = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -36,300 +40,386 @@ const ChangePassword = () => {
   const { changePassword, loading } = useAuthOperations();
 
   const [formData, setFormData] = useState<ChangePasswordFormData>({
-    oldPassword: "",
-    newPassword: "",
-    confirmPassword: "",
+    oldPassword: "", newPassword: "", confirmPassword: "",
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
-  const [showOldPassword, setShowOldPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showOld, setShowOld]         = useState(false);
+  const [showNew, setShowNew]         = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      showToast.error(t("toast.errors.UNAUTHORIZED"));
-      navigate("/signin", { replace: true });
-    }
-  }, [isAuthenticated, navigate, t]);
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     showToast.error(t("toast.errors.UNAUTHORIZED"));
+  //     navigate("/signin", { replace: true });
+  //   }
+  // }, [isAuthenticated, navigate, t]);
 
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (!isAuthenticated) return null;
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
-    // Clear error when user starts typing
-    if (errors[id]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[id];
-        return newErrors;
-      });
-    }
+    if (errors[id]) setErrors((prev) => { const n = { ...prev }; delete n[id]; return n; });
   };
 
-  const getPasswordStrengthColor = (strength: PasswordStrength) => {
-    switch (strength) {
-      case PasswordStrength.WEAK:
-        return "text-red-500";
-      case PasswordStrength.MEDIUM:
-        return "text-yellow-500";
-      case PasswordStrength.STRONG:
-        return "text-green-500";
-      default:
-        return "text-muted-foreground";
-    }
-  };
+  const passwordStrength = formData.newPassword ? checkPasswordStrength(formData.newPassword) : null;
 
-  const getPasswordStrengthText = (strength: PasswordStrength) => {
-    switch (strength) {
-      case PasswordStrength.WEAK:
-        return t("validation.passwordStrength.weak");
-      case PasswordStrength.MEDIUM:
-        return t("validation.passwordStrength.medium");
-      case PasswordStrength.STRONG:
-        return t("validation.passwordStrength.strong");
-      default:
-        return "";
-    }
-  };
+  const pw = formData.newPassword;
+  const hasMinLength  = pw.length >= 12;
+  const hasSymbol     = /[^a-zA-Z0-9]/.test(pw);
+  const hasNumber     = /\d/.test(pw);
 
-  const passwordStrength = formData.newPassword
-    ? checkPasswordStrength(formData.newPassword)
-    : null;
+  const Chip = ({ met, label }: { met: boolean; label: string }) => (
+    <div
+      className="flex items-center gap-1 px-2 py-1 rounded"
+      style={{
+        background: met
+          ? "linear-gradient(to right, rgba(87,27,193,0.2), rgba(0,242,255,0.2))"
+          : "#2e3637",
+        border: met ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(255,255,255,0.05)",
+      }}
+    >
+      {met
+        ? <CheckCircle2 className="w-3.5 h-3.5" style={{ color: "#00f2ff" }} />
+        : <Circle className="w-3.5 h-3.5" style={{ color: "#849495" }} />
+      }
+      <span
+        className="text-xs font-bold tracking-widest uppercase"
+        style={{ color: met ? "#dce4e4" : "#849495" }}
+      >
+        {label}
+      </span>
+    </div>
+  );
+
+  const strengthColor =
+    passwordStrength === PasswordStrength.WEAK   ? "#ffb4ab" :
+    passwordStrength === PasswordStrength.MEDIUM ? "#e8c423" : "#4ade80";
+
+  const strengthText =
+    passwordStrength === PasswordStrength.WEAK   ? t("validation.passwordStrength.weak")   :
+    passwordStrength === PasswordStrength.MEDIUM ? t("validation.passwordStrength.medium") :
+                                                    t("validation.passwordStrength.strong");
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!formData.oldPassword) { setErrors({ oldPassword: t("validation.auth.oldPasswordRequired") }); return; }
+    const newErr     = validatePassword(formData.newPassword);
+    const confirmErr = validatePasswordConfirmation(formData.newPassword, formData.confirmPassword);
+    if (newErr || confirmErr) { setErrors({ newPassword: newErr || "", confirmPassword: confirmErr || "" }); return; }
+    if (formData.oldPassword === formData.newPassword) { setErrors({ newPassword: t("validation.auth.newPasswordMustDiffer") }); return; }
 
-    // Validate old password
-    if (!formData.oldPassword) {
-      setErrors({ oldPassword: t("validation.auth.oldPasswordRequired") });
-      return;
-    }
-
-    // Validate new password
-    const newPasswordError = validatePassword(formData.newPassword);
-    const confirmError = validatePasswordConfirmation(
-      formData.newPassword,
-      formData.confirmPassword,
-    );
-
-    if (newPasswordError || confirmError) {
-      setErrors({
-        newPassword: newPasswordError || "",
-        confirmPassword: confirmError || "",
-      });
-      return;
-    }
-
-    // Check if new password is different from old
-    if (formData.oldPassword === formData.newPassword) {
-      setErrors({
-        newPassword: t("validation.auth.newPasswordMustDiffer"),
-      });
-      return;
-    }
-
-    // Call change password
-    const result = await changePassword({
-      oldPassword: formData.oldPassword,
-      newPassword: formData.newPassword,
-    });
-
+    const result = await changePassword({ oldPassword: formData.oldPassword, newPassword: formData.newPassword });
     if (result.success) {
-      showToast.success(
-        t("auth.passwordChangeSuccess"),
-        t("authFlow.changePassword.successDescription"),
-      );
-      // Navigate to signin after success
-      setTimeout(() => {
-        navigate("/signin");
-      }, 1500);
+      showToast.success(t("auth.passwordChangeSuccess"), t("authFlow.changePassword.successDescription"));
+      setTimeout(() => navigate("/signin"), 1500);
     } else {
-      setErrors({
-        oldPassword: result.error || t("authFlow.changePassword.failed"),
-      });
+      setErrors({ oldPassword: result.error || t("authFlow.changePassword.failed") });
       showToast.error(t("authFlow.changePassword.failed"), result.error);
     }
   };
 
+  // Shared input style
+  const inputStyle = (hasErr?: boolean): React.CSSProperties => ({
+    width: "100%",
+    background: "#232b2c",
+    border: `1px solid ${hasErr ? "#ffb4ab" : "rgba(58,73,75,0.3)"}`,
+    borderRadius: "8px",
+    color: "#dce4e4",
+    fontFamily: "'Sora', sans-serif",
+    fontSize: "16px",
+    padding: "12px 44px 12px 44px",
+    outline: "none",
+    transition: "all 0.2s",
+  });
+
+  const onFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.border = "1px solid #00f2ff";
+    e.currentTarget.style.boxShadow = "0 0 15px rgba(0,242,255,0.15)";
+  };
+  const onBlur = (e: React.FocusEvent<HTMLInputElement>, hasErr?: boolean) => {
+    e.currentTarget.style.border = `1px solid ${hasErr ? "#ffb4ab" : "rgba(58,73,75,0.3)"}`;
+    e.currentTarget.style.boxShadow = "none";
+  };
+
+  const glassPanel: React.CSSProperties = {
+    background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)",
+    backdropFilter: "blur(24px)",
+    border: "1px solid rgba(255,255,255,0.1)",
+  };
+
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="max-w-md mx-auto">
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <Trophy className="h-12 w-12 text-primary" />
+    <div className="flex min-h-screen" style={{ backgroundColor: "#0d1515", fontFamily: "'Sora', sans-serif", color: "#dce4e4" }}>
+
+      {/* ── Sidebar ── */}
+      <aside
+        className="hidden md:flex flex-col fixed left-0 top-0 h-screen w-[280px] z-50 py-8 gap-4"
+        style={{ background: "rgba(25,33,34,0.6)", backdropFilter: "blur(24px)", borderRight: "1px solid rgba(255,255,255,0.05)" }}
+      >
+        {/* Profile */}
+        <div className="px-6 mb-6">
+          <div className="flex items-center gap-4 mb-5">
+            <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={glassPanel}>
+              <ShieldCheck className="w-6 h-6" style={{ color: "#00f2ff" }} />
+            </div>
+            <div>
+              <p className="font-semibold text-sm" style={{ color: "#dce4e4" }}>Pro Circuit Admin</p>
+              <p className="text-xs" style={{ color: "#849495" }}>Elite Tier</p>
+            </div>
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            {t("auth.changePassword")}
-          </h1>
-          <p className="text-muted-foreground">
-            {t("authFlow.changePassword.subtitle")}
-          </p>
+          <button
+            className="w-full py-3 rounded-lg text-xs font-bold tracking-widest uppercase transition-all duration-300"
+            style={{ background: "#00f2ff", color: "#080f10", boxShadow: "0 0 15px rgba(0,242,255,0.3)" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 25px rgba(0,242,255,0.5)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 15px rgba(0,242,255,0.3)"; }}
+          >
+            Create Tournament
+          </button>
         </div>
 
-        <Card className="bg-card border-border">
-          <CardHeader>
-            <CardTitle className="text-2xl text-center text-card-foreground">
-              {t("auth.changePassword")}
-            </CardTitle>
-            <CardDescription className="text-center">
-              {t("authFlow.changePassword.cardDescription")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              {/* Old Password */}
-              <div className="space-y-2">
-                <Label htmlFor="oldPassword">{t("auth.currentPassword")}</Label>
+        {/* Nav */}
+        <nav className="flex-1 flex flex-col gap-1 px-3">
+          {navItems.map(({ icon: Icon, label, to, active }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-bold tracking-widest uppercase transition-all duration-200 group"
+              style={{
+                background: active ? "rgba(0,242,255,0.08)" : "transparent",
+                borderLeft: active ? "3px solid #00dbe7" : "3px solid transparent",
+                color: active ? "#00dbe7" : "#b9cacb",
+              }}
+              onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLAnchorElement).style.background = "rgba(255,255,255,0.04)"; }}
+              onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; }}
+            >
+              <Icon className="w-4 h-4 flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* Bottom */}
+        <div className="px-3 flex flex-col gap-1" style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "16px" }}>
+          {[{ icon: HelpCircle, label: "Help", to: "/help" }, { icon: LogOut, label: "Logout", to: "/signout" }].map(({ icon: Icon, label, to }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-bold tracking-widest uppercase transition-colors group"
+              style={{ color: "#849495" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#dce4e4"; (e.currentTarget as HTMLAnchorElement).style.background = "rgba(255,255,255,0.04)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#849495"; (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; }}
+            >
+              <Icon className="w-4 h-4 flex-shrink-0" />
+              {label}
+            </NavLink>
+          ))}
+        </div>
+      </aside>
+
+      {/* ── Top Nav ── */}
+      <header
+        className="fixed top-0 right-0 z-40 h-16 flex items-center justify-end px-8 gap-3"
+        style={{ left: "280px", background: "rgba(13,21,21,0.8)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}
+      >
+        {[{ icon: Bell }, { icon: UserCircle2, active: true }].map(({ icon: Icon, active }, i) => (
+          <button
+            key={i}
+            className="w-10 h-10 rounded-full flex items-center justify-center transition-all"
+            style={{
+              ...glassPanel,
+              color: active ? "#00dbe7" : "#b9cacb",
+              borderBottom: active ? "2px solid #00dbe7" : undefined,
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 15px rgba(0,242,255,0.3)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "none"; }}
+          >
+            <Icon className="w-5 h-5" />
+          </button>
+        ))}
+      </header>
+
+      {/* ── Main ── */}
+      <main className="flex-1 md:ml-[280px] pt-24 pb-12 px-6 md:px-12 flex flex-col items-center">
+        <div className="w-full max-w-2xl">
+
+          {/* Breadcrumb */}
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 mb-4 text-xs font-bold tracking-widest uppercase transition-colors"
+            style={{ color: "#849495" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#00f2ff"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#849495"; }}
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Settings
+          </button>
+
+          {/* Page title */}
+          <h1 className="text-5xl font-bold tracking-tight mb-2" style={{ color: "#dce4e4" }}>Security</h1>
+          <p className="text-base mb-8" style={{ color: "#b9cacb" }}>
+            Manage your account credentials and security preferences.
+          </p>
+
+          {/* Form Card */}
+          <div className="rounded-xl p-8 relative overflow-hidden mb-6" style={glassPanel}>
+            {/* Accent glow */}
+            <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full pointer-events-none" style={{ background: "rgba(0,242,255,0.08)", filter: "blur(50px)" }} />
+
+            <h2 className="text-2xl font-semibold mb-1 flex items-center gap-3 relative z-10" style={{ color: "#00f2ff" }}>
+              <Lock className="w-6 h-6" />
+              Change Password
+            </h2>
+            <div className="mb-6 mt-4" style={{ height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)" }} />
+
+            <form className="flex flex-col gap-5 relative z-10" onSubmit={handleSubmit}>
+
+              {/* Current Password */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold tracking-widest uppercase" style={{ color: "#b9cacb" }}>
+                  {t("auth.currentPassword") || "Current Password"}
+                </label>
                 <div className="relative">
-                  <Input
+                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors" style={{ color: "#849495" }} />
+                  <input
                     id="oldPassword"
-                    type={showOldPassword ? "text" : "password"}
+                    type={showOld ? "text" : "password"}
+                    placeholder={t("authFlow.changePassword.oldPasswordPlaceholder") || "Enter current password"}
                     value={formData.oldPassword}
                     onChange={handleChange}
-                    placeholder={t(
-                      "authFlow.changePassword.oldPasswordPlaceholder",
-                    )}
-                    className={
-                      errors.oldPassword ? "border-red-500 pr-10" : "pr-10"
-                    }
                     disabled={loading}
                     required
+                    style={inputStyle(!!errors.oldPassword)}
+                    onFocus={onFocus}
+                    onBlur={(e) => onBlur(e, !!errors.oldPassword)}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowOldPassword(!showOldPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  <button type="button" onClick={() => setShowOld(!showOld)} className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors" style={{ color: "#849495" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#00f2ff")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "#849495")}
                   >
-                    {showOldPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showOld ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {errors.oldPassword && (
-                  <p className="text-sm text-red-500">{errors.oldPassword}</p>
-                )}
+                {errors.oldPassword && <p className="text-xs" style={{ color: "#ffb4ab" }}>{errors.oldPassword}</p>}
               </div>
 
               {/* New Password */}
-              <div className="space-y-2">
-                <Label htmlFor="newPassword">{t("auth.newPassword")}</Label>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold tracking-widest uppercase" style={{ color: "#b9cacb" }}>
+                  {t("auth.newPassword") || "New Password"}
+                </label>
                 <div className="relative">
-                  <Input
+                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: "#849495" }} />
+                  <input
                     id="newPassword"
-                    type={showNewPassword ? "text" : "password"}
+                    type={showNew ? "text" : "password"}
+                    placeholder={t("auth.enterNewPassword") || "Enter new password"}
                     value={formData.newPassword}
                     onChange={handleChange}
-                    placeholder={t("auth.enterNewPassword")}
-                    className={
-                      errors.newPassword ? "border-red-500 pr-10" : "pr-10"
-                    }
                     disabled={loading}
                     required
+                    style={inputStyle(!!errors.newPassword)}
+                    onFocus={onFocus}
+                    onBlur={(e) => onBlur(e, !!errors.newPassword)}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors" style={{ color: "#849495" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#00f2ff")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "#849495")}
                   >
-                    {showNewPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showNew ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {formData.newPassword && passwordStrength && (
-                  <p
-                    className={`text-sm ${getPasswordStrengthColor(
-                      passwordStrength,
-                    )}`}
-                  >
-                    {t("authFlow.passwordStrengthLabel")}:{" "}
-                    {getPasswordStrengthText(passwordStrength)}
+                {passwordStrength && (
+                  <p className="text-xs font-medium" style={{ color: strengthColor }}>
+                    {t("authFlow.passwordStrengthLabel")}: {strengthText}
                   </p>
                 )}
-                {errors.newPassword && (
-                  <p className="text-sm text-red-500">{errors.newPassword}</p>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  {t("authFlow.changePassword.passwordRequirements")}
+                {errors.newPassword && <p className="text-xs" style={{ color: "#ffb4ab" }}>{errors.newPassword}</p>}
+                <p className="text-sm" style={{ color: "#849495" }}>
+                  {t("authFlow.changePassword.passwordRequirements") ||
+                    "Must be at least 12 characters, include a number and a special character."}
                 </p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  <Chip met={hasMinLength} label="12+ CHARS" />
+                  <Chip met={hasSymbol}    label="SYMBOL" />
+                  <Chip met={hasNumber}    label="NUMBER" />
+                </div>
               </div>
 
               {/* Confirm Password */}
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">
-                  {t("authFlow.changePassword.confirmNewPassword")}
-                </Label>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold tracking-widest uppercase" style={{ color: "#b9cacb" }}>
+                  {t("authFlow.changePassword.confirmNewPassword") || "Confirm New Password"}
+                </label>
                 <div className="relative">
-                  <Input
+                  <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: "#849495" }} />
+                  <input
                     id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
+                    type={showConfirm ? "text" : "password"}
+                    placeholder={t("authFlow.changePassword.confirmPasswordPlaceholder") || "Confirm new password"}
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    placeholder={t(
-                      "authFlow.changePassword.confirmPasswordPlaceholder",
-                    )}
-                    className={
-                      errors.confirmPassword ? "border-red-500 pr-10" : "pr-10"
-                    }
                     disabled={loading}
                     required
+                    style={inputStyle(!!errors.confirmPassword)}
+                    onFocus={onFocus}
+                    onBlur={(e) => onBlur(e, !!errors.confirmPassword)}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors" style={{ color: "#849495" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#00f2ff")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "#849495")}
                   >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {errors.confirmPassword && (
-                  <p className="text-sm text-red-500">
-                    {errors.confirmPassword}
-                  </p>
-                )}
+                {errors.confirmPassword && <p className="text-xs" style={{ color: "#ffb4ab" }}>{errors.confirmPassword}</p>}
               </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-                size="lg"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t("authFlow.changePassword.submitting")}
-                  </>
-                ) : (
-                  t("auth.changePassword")
-                )}
-              </Button>
-            </form>
-
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">
+              {/* Buttons */}
+              <div className="flex gap-3 justify-end mt-2">
                 <button
+                  type="button"
                   onClick={() => navigate(-1)}
-                  className="text-primary hover:text-primary/80 font-medium transition-colors"
+                  className="px-6 py-3 rounded-lg text-xs font-bold tracking-widest uppercase transition-all duration-200"
+                  style={{ ...glassPanel, color: "#dce4e4" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 15px rgba(0,242,255,0.2)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "none"; }}
                 >
-                  {t("common.back")}
+                  {t("common.cancel") || "Cancel"}
                 </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-6 py-3 rounded-lg text-xs font-bold tracking-widest uppercase flex items-center gap-2 transition-all duration-300"
+                  style={{
+                    background: loading ? "#1a3030" : "#00f2ff",
+                    color: loading ? "#849495" : "#080f10",
+                    cursor: loading ? "not-allowed" : "pointer",
+                    boxShadow: "0 0 15px rgba(0,242,255,0.3)",
+                  }}
+                  onMouseEnter={(e) => { if (!loading) (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 25px rgba(0,242,255,0.5)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 15px rgba(0,242,255,0.3)"; }}
+                >
+                  {loading ? <><Loader2 className="w-4 h-4 animate-spin" />{t("authFlow.changePassword.submitting") || "Updating..."}</> : (t("auth.changePassword") || "Update Password")}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Session Management Info */}
+          <div
+            className="rounded-lg p-5 flex gap-4 items-start"
+            style={{ background: "#151d1e", border: "1px solid rgba(58,73,75,0.2)" }}
+          >
+            <Info className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: "#e8c423" }} />
+            <div>
+              <h3 className="font-semibold mb-1" style={{ color: "#dce4e4" }}>Session Management</h3>
+              <p className="text-sm" style={{ color: "#b9cacb" }}>
+                Changing your password will immediately sign you out of all other active sessions across devices.
               </p>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
