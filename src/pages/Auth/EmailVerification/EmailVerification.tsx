@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Mail, ArrowLeft, Loader2, MailCheck, RefreshCw } from "lucide-react";
 import { useAuth } from "@/store";
 import { useAuthOperations, useTranslation } from "@/hooks";
@@ -8,10 +8,13 @@ import { showToast } from "@/utils";
 const EmailVerification = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { sendEmailVerification, loading } = useAuthOperations();
   const [emailSent, setEmailSent] = useState(false);
   const [resending, setResending] = useState(false);
+  const email = user?.email || searchParams.get("email") || "";
+  const hasEmail = Boolean(email);
 
   // useEffect(() => {
   //   // Redirect if not authenticated
@@ -30,16 +33,18 @@ const EmailVerification = () => {
 
   const handleSendVerification = async (e?: FormEvent) => {
     e?.preventDefault();
-    if (!user?.email) {
+    if (!email) {
       showToast.error(t("authFlow.emailVerification.emailNotFound"));
       return;
     }
-    const result = await sendEmailVerification({ email: user.email });
+    const result = await sendEmailVerification({ email });
     if (result.success) {
       setEmailSent(true);
       showToast.success(t("auth.otpSent"), t("authFlow.checkEmail"));
       setTimeout(() => {
-        navigate(`/verify-otp?email=${encodeURIComponent(user.email)}&type=email-verification`);
+        navigate(
+          `/verify-otp?email=${encodeURIComponent(email)}&type=email-verification`,
+        );
       }, 1500);
     } else {
       showToast.error(t("authFlow.emailVerification.sendFailed"), result.error);
@@ -47,9 +52,9 @@ const EmailVerification = () => {
   };
 
   const handleResend = async () => {
-    if (!user?.email) return;
+    if (!email) return;
     setResending(true);
-    const result = await sendEmailVerification({ email: user.email });
+    const result = await sendEmailVerification({ email });
     if (result.success) {
       showToast.success(t("auth.otpSent"), t("authFlow.checkEmail"));
     } else {
@@ -57,8 +62,6 @@ const EmailVerification = () => {
     }
     setResending(false);
   };
-
-  if (!user) return null;
 
   return (
     <div
@@ -68,11 +71,23 @@ const EmailVerification = () => {
       {/* Ambient glows */}
       <div
         className="fixed top-1/4 left-1/4 pointer-events-none rounded-full"
-        style={{ width: "500px", height: "500px", background: "radial-gradient(circle, rgba(0,219,231,0.06) 0%, transparent 70%)", filter: "blur(80px)" }}
+        style={{
+          width: "500px",
+          height: "500px",
+          background:
+            "radial-gradient(circle, rgba(0,219,231,0.06) 0%, transparent 70%)",
+          filter: "blur(80px)",
+        }}
       />
       <div
         className="fixed bottom-1/4 right-1/4 pointer-events-none rounded-full"
-        style={{ width: "400px", height: "400px", background: "radial-gradient(circle, rgba(87,27,193,0.06) 0%, transparent 70%)", filter: "blur(80px)" }}
+        style={{
+          width: "400px",
+          height: "400px",
+          background:
+            "radial-gradient(circle, rgba(87,27,193,0.06) 0%, transparent 70%)",
+          filter: "blur(80px)",
+        }}
       />
 
       <main className="w-full max-w-[420px] relative z-10">
@@ -80,7 +95,8 @@ const EmailVerification = () => {
           className="rounded-xl p-8 flex flex-col items-center text-center"
           style={{
             backdropFilter: "blur(24px)",
-            background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)",
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)",
             border: "1px solid rgba(255,255,255,0.10)",
             boxShadow: "0 25px 50px rgba(0,0,0,0.5)",
           }}
@@ -88,10 +104,12 @@ const EmailVerification = () => {
           {/* Status badge */}
           <div
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-6 text-xs font-bold tracking-widest uppercase text-white"
-            style={{ background: "linear-gradient(to right, #571bc1, #00dbe7)" }}
+            style={{
+              background: "linear-gradient(to right, #571bc1, #00dbe7)",
+            }}
           >
             <span style={{ fontSize: "14px" }}>⚡</span>
-            Awaiting Verification
+            {t("authFlow.emailVerification.statusBadge")}
           </div>
 
           {/* Icon */}
@@ -109,15 +127,16 @@ const EmailVerification = () => {
           {/* Title & description */}
           <h2 className="text-3xl font-bold mb-3" style={{ color: "#dce4e4" }}>
             {emailSent
-              ? (t("authFlow.emailVerification.emailSentTitle") || "Secure Link Sent")
-              : (t("authFlow.emailVerification.cardTitle") || "Verify Your Email")}
+              ? t("authFlow.emailVerification.emailSentTitle")
+              : t("authFlow.emailVerification.cardTitle")}
           </h2>
-          <p className="text-sm leading-relaxed mb-6" style={{ color: "#b9cacb", maxWidth: "300px" }}>
+          <p
+            className="text-sm leading-relaxed mb-6"
+            style={{ color: "#b9cacb", maxWidth: "300px" }}
+          >
             {emailSent
-              ? (t("authFlow.emailVerification.emailSentDescription") ||
-                  "Access protocol initiated. A verification payload has been transmitted to your secure inbox.")
-              : (t("authFlow.emailVerification.unverifiedDescription") ||
-                  "Send a verification link to your registered email address to activate your Pro Circuit account.")}
+              ? t("authFlow.emailVerification.emailSentDescription")
+              : t("authFlow.emailVerification.unverifiedDescription")}
           </p>
 
           {/* Email display chip */}
@@ -128,9 +147,15 @@ const EmailVerification = () => {
               border: "1px solid #3a494b",
             }}
           >
-            <Mail className="w-4 h-4 flex-shrink-0" style={{ color: "#00dbe7" }} />
-            <span className="text-sm font-semibold truncate" style={{ color: "#00dbe7" }}>
-              {user.email}
+            <Mail
+              className="w-4 h-4 flex-shrink-0"
+              style={{ color: "#00dbe7" }}
+            />
+            <span
+              className="text-sm font-semibold truncate"
+              style={{ color: "#00dbe7" }}
+            >
+              {hasEmail ? email : t("authFlow.emailVerification.emailNotFound")}
             </span>
           </div>
 
@@ -147,26 +172,50 @@ const EmailVerification = () => {
                   color: loading ? "#849495" : "#080f10",
                   cursor: loading ? "not-allowed" : "pointer",
                 }}
-                onMouseEnter={(e) => { if (!loading) (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 20px rgba(0,242,255,0.4)"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "none"; }}
+                onMouseEnter={(e) => {
+                  if (!loading)
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                      "0 0 20px rgba(0,242,255,0.4)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                    "none";
+                }}
               >
                 {loading ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" />{t("authFlow.emailVerification.sending") || "Sending..."}</>
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {t("authFlow.emailVerification.sending")}
+                  </>
                 ) : (
-                  <><Mail className="w-4 h-4" />{t("authFlow.emailVerification.sendButton") || "Open Mail Client"}</>
+                  <>
+                    <Mail className="w-4 h-4" />
+                    {t("authFlow.emailVerification.sendButton")}
+                  </>
                 )}
               </button>
             ) : (
               <>
                 <a
-                  href={`mailto:${user.email}`}
+                  href={hasEmail ? `mailto:${email}` : "#"}
                   className="w-full py-4 rounded-lg text-base font-semibold flex items-center justify-center gap-2 transition-all duration-300"
-                  style={{ background: "#00f2ff", color: "#080f10" }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 20px rgba(0,242,255,0.4)"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "none"; }}
+                  style={{
+                    background: "#00f2ff",
+                    color: "#080f10",
+                    opacity: hasEmail ? 1 : 0.5,
+                    pointerEvents: hasEmail ? "auto" : "none",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.boxShadow =
+                      "0 0 20px rgba(0,242,255,0.4)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.boxShadow =
+                      "none";
+                  }}
                 >
                   <Mail className="w-4 h-4" />
-                  Open Mail Client
+                  {t("authFlow.emailVerification.openMailClient")}
                 </a>
 
                 <button
@@ -180,13 +229,27 @@ const EmailVerification = () => {
                     color: resending ? "#849495" : "#dce4e4",
                     cursor: resending ? "not-allowed" : "pointer",
                   }}
-                  onMouseEnter={(e) => { if (!resending) (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.07)"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.03)"; }}
+                  onMouseEnter={(e) => {
+                    if (!resending)
+                      (e.currentTarget as HTMLButtonElement).style.background =
+                        "rgba(255,255,255,0.07)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background =
+                      "rgba(255,255,255,0.03)";
+                  }}
                 >
-                  {resending
-                    ? <><Loader2 className="w-4 h-4 animate-spin" />Resending...</>
-                    : <><RefreshCw className="w-4 h-4" />{t("authFlow.emailVerification.resend") || "Resend Payload"}</>
-                  }
+                  {resending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {t("authFlow.emailVerification.resending")}
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="w-4 h-4" />
+                      {t("authFlow.emailVerification.resendButton")}
+                    </>
+                  )}
                 </button>
               </>
             )}
@@ -206,7 +269,7 @@ const EmailVerification = () => {
               onMouseLeave={(e) => (e.currentTarget.style.color = "#849495")}
             >
               <ArrowLeft className="w-4 h-4" />
-              RETURN TO LOGIN
+              {t("authFlow.backToSignIn")}
             </button>
           </div>
         </div>
