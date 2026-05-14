@@ -407,7 +407,6 @@ export const useRespondJoinRequest = () => {
   return useMutation({
     mutationFn: ({
       joinRequestId,
-      entryId,
       data,
     }: {
       joinRequestId: number;
