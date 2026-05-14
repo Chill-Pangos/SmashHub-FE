@@ -103,29 +103,36 @@ const SignIn = () => {
             opacity: 0.35,
           }}
         />
-        {/* Gradient overlays */}
+
+       {/* Gradient overlays — Tối ưu độ trong suốt cho Light Mode */}
+        {/* Light mode overlays */}
+        {/* Đệm nhẹ từ trái sang cho khu vực đặt Text brand */}
         <div
           className="absolute inset-0 transition-opacity duration-500 ease-in-out opacity-100 dark:opacity-0"
           style={{
             background:
-              "linear-gradient(to right, rgba(244,247,247,0.72) 0%, rgba(244,247,247,0.34) 50%, rgba(244,247,247,0.06) 100%)",
+              "linear-gradient(to right, rgba(244,247,247,0.65) 0%, rgba(244,247,247,0.2) 35%, transparent 80%)",
           }}
         />
+        {/* Đệm từ dưới lên để làm nổi bật chữ SmashHub ở góc trái */}
         <div
           className="absolute inset-0 transition-opacity duration-500 ease-in-out opacity-100 dark:opacity-0"
           style={{
             background:
-              "linear-gradient(to top, rgba(244,247,247,0.70) 0%, rgba(244,247,247,0.10) 58%, transparent 100%)",
+              "linear-gradient(to top, rgba(244,247,247,0.85) 0%, rgba(244,247,247,0.05) 40%, transparent 100%)",
           }}
         />
+        {/* Dải vuốt lề phải: Chuyển tiếp mượt mà vào background form */}
         <div
           className="absolute inset-y-0 right-0 transition-opacity duration-500 ease-in-out opacity-100 dark:opacity-0"
           style={{
-            width: "160px",
+            width: "200px",
             background:
-              "linear-gradient(to right, rgba(244,247,247,0) 0%, rgba(244,247,247,0.40) 55%, rgba(244,247,247,0.68) 100%)",
+              "linear-gradient(to right, rgba(244,247,247,0) 0%, rgba(244,247,247,0.8) 65%, rgba(244,247,247,1) 100%)",
           }}
         />
+
+        {/* Dark mode overlays */}
         <div
           className="absolute inset-0 transition-opacity duration-500 ease-in-out opacity-0 dark:opacity-100"
           style={{
@@ -143,7 +150,7 @@ const SignIn = () => {
         <div
           className="absolute inset-y-0 right-0 transition-opacity duration-500 ease-in-out opacity-0 dark:opacity-100"
           style={{
-            width: "160px",
+            width: "200px",
             background:
               "linear-gradient(to right, rgba(13,21,21,0) 0%, rgba(13,21,21,0.7) 55%, rgba(13,21,21,1) 100%)",
           }}
@@ -395,7 +402,6 @@ const SignIn = () => {
                     e.currentTarget.style.boxShadow =
                       "0 0 15px rgba(0,242,255,0.15)";
                     e.currentTarget.style.background = "var(--secondary)";
-                    // also color icon
                     const icon = e.currentTarget
                       .previousElementSibling as SVGElement;
                     if (icon) icon.style.color = "var(--primary)";
