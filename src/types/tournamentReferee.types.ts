@@ -6,6 +6,10 @@ import type { ApiResponse } from "./auth.types";
  * Tournament referee role enum
  */
 export type TournamentRefereeRole = "main" | "assistant";
+export type TournamentRefereeRoleV2 = "referee" | "chief";
+export type TournamentRefereeRoleAll =
+  | TournamentRefereeRole
+  | TournamentRefereeRoleV2;
 
 // ==================== Tournament Referee ====================
 
@@ -36,7 +40,7 @@ export interface TournamentReferee {
   id: number;
   tournamentId: number;
   refereeId: number;
-  role: TournamentRefereeRole;
+  role: TournamentRefereeRoleAll;
   isAvailable: boolean;
   createdAt: string;
   updatedAt: string;
@@ -50,8 +54,27 @@ export interface TournamentReferee {
 export interface AssignedReferee {
   id: number;
   refereeId: number;
-  role: TournamentRefereeRole;
+  role: TournamentRefereeRoleAll;
   isAvailable: boolean;
+}
+
+export type TournamentRefereeInvitationStatus =
+  | "pending"
+  | "accepted"
+  | "rejected"
+  | "cancelled";
+
+export interface TournamentRefereeInvitation {
+  id: number;
+  tournamentId: number;
+  refereeId: number;
+  role: TournamentRefereeRoleAll;
+  status: TournamentRefereeInvitationStatus;
+  rejectionReason?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  referee?: RefereeUser;
+  tournament?: TournamentInfo;
 }
 
 // ==================== Request Types ====================
@@ -62,7 +85,37 @@ export interface AssignedReferee {
 export interface CreateTournamentRefereeRequest {
   tournamentId: number;
   refereeId: number;
-  role: TournamentRefereeRole;
+  role: TournamentRefereeRoleAll;
+}
+
+export interface InviteRefereeRequest {
+  tournamentId: number;
+  refereeId: number;
+  role: TournamentRefereeRoleAll;
+}
+
+export interface AcceptInvitationRequest {
+  invitationId: number;
+}
+
+export interface RejectInvitationRequest {
+  invitationId: number;
+  rejectionReason?: string;
+}
+
+export interface CancelInvitationRequest {
+  invitationId: number;
+}
+
+export interface RemoveRefereeRequest {
+  tournamentId: number;
+  refereeId: number;
+}
+
+export interface UpdateRefereeRoleRequest {
+  tournamentId: number;
+  refereeId: number;
+  role: TournamentRefereeRoleAll;
 }
 
 /**
@@ -77,7 +130,7 @@ export interface AssignRefereesRequest {
  * Update tournament referee request
  */
 export interface UpdateTournamentRefereeRequest {
-  role?: TournamentRefereeRole;
+  role?: TournamentRefereeRoleAll;
   isAvailable?: boolean;
 }
 
@@ -94,6 +147,42 @@ export interface UpdateAvailabilityRequest {
  * Create tournament referee response
  */
 export interface CreateTournamentRefereeResponse {
+  success: boolean;
+  message: string;
+  data: TournamentReferee;
+}
+
+export interface InviteRefereeResponse {
+  success: boolean;
+  message: string;
+  data: TournamentRefereeInvitation;
+}
+
+export interface AcceptInvitationResponse {
+  success: boolean;
+  message: string;
+  data: TournamentReferee;
+}
+
+export interface RejectInvitationResponse {
+  success: boolean;
+  message: string;
+  data: TournamentRefereeInvitation;
+}
+
+export interface CancelInvitationResponse {
+  success: boolean;
+  message: string;
+  data: TournamentRefereeInvitation;
+}
+
+export interface RemoveRefereeResponse {
+  success: boolean;
+  message: string;
+  data?: TournamentReferee;
+}
+
+export interface UpdateRefereeRoleResponse {
   success: boolean;
   message: string;
   data: TournamentReferee;
@@ -128,6 +217,11 @@ export interface GetAllTournamentRefereesResponse {
 export interface GetRefereesByTournamentResponse {
   data: TournamentReferee[];
   total: number;
+}
+
+export interface GetInvitationsByTournamentResponse {
+  data: TournamentRefereeInvitation[];
+  total?: number;
 }
 
 /**

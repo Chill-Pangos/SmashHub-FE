@@ -2,10 +2,23 @@ import axiosInstance from "@/config/axiosConfig";
 import type {
   CreateTournamentRefereeRequest,
   CreateTournamentRefereeResponse,
+  InviteRefereeRequest,
+  InviteRefereeResponse,
+  AcceptInvitationRequest,
+  AcceptInvitationResponse,
+  RejectInvitationRequest,
+  RejectInvitationResponse,
+  CancelInvitationRequest,
+  CancelInvitationResponse,
+  RemoveRefereeRequest,
+  RemoveRefereeResponse,
+  UpdateRefereeRoleRequest,
+  UpdateRefereeRoleResponse,
   AssignRefereesRequest,
   AssignRefereesResponse,
   GetAllTournamentRefereesResponse,
   GetRefereesByTournamentResponse,
+  GetInvitationsByTournamentResponse,
   GetAvailableRefereesResponse,
   GetAvailableChiefRefereesResponse,
   GetTournamentRefereeResponse,
@@ -61,6 +74,90 @@ class TournamentRefereeService {
   ): Promise<CreateTournamentRefereeResponse> {
     const response = await axiosInstance.post<CreateTournamentRefereeResponse>(
       this.baseURL,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Invite referee to tournament
+   * POST /api/tournament-referees/invite
+   */
+  async inviteReferee(
+    data: InviteRefereeRequest,
+  ): Promise<InviteRefereeResponse> {
+    const response = await axiosInstance.post<InviteRefereeResponse>(
+      `${this.baseURL}/invite`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Accept invitation
+   * POST /api/tournament-referees/accept-invitation
+   */
+  async acceptInvitation(
+    data: AcceptInvitationRequest,
+  ): Promise<AcceptInvitationResponse> {
+    const response = await axiosInstance.post<AcceptInvitationResponse>(
+      `${this.baseURL}/accept-invitation`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Reject invitation
+   * POST /api/tournament-referees/reject-invitation
+   */
+  async rejectInvitation(
+    data: RejectInvitationRequest,
+  ): Promise<RejectInvitationResponse> {
+    const response = await axiosInstance.post<RejectInvitationResponse>(
+      `${this.baseURL}/reject-invitation`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Cancel invitation
+   * POST /api/tournament-referees/cancel-invitation
+   */
+  async cancelInvitation(
+    data: CancelInvitationRequest,
+  ): Promise<CancelInvitationResponse> {
+    const response = await axiosInstance.post<CancelInvitationResponse>(
+      `${this.baseURL}/cancel-invitation`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Remove referee from tournament
+   * POST /api/tournament-referees/remove
+   */
+  async removeReferee(
+    data: RemoveRefereeRequest,
+  ): Promise<RemoveRefereeResponse> {
+    const response = await axiosInstance.post<RemoveRefereeResponse>(
+      `${this.baseURL}/remove`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Update referee role within tournament
+   * POST /api/tournament-referees/update-role
+   */
+  async updateRefereeRole(
+    data: UpdateRefereeRoleRequest,
+  ): Promise<UpdateRefereeRoleResponse> {
+    const response = await axiosInstance.post<UpdateRefereeRoleResponse>(
+      `${this.baseURL}/update-role`,
       data,
     );
     return response.data;
@@ -139,6 +236,22 @@ class TournamentRefereeService {
       `${this.baseURL}/tournament/${tournamentId}`,
       { params: { skip, limit } },
     );
+    return response.data;
+  }
+
+  /**
+   * Get invitations by tournament
+   * GET /api/tournament-referees/tournament/{tournamentId}/invitations
+   */
+  async getInvitationsByTournament(
+    tournamentId: number,
+    status?: string,
+  ): Promise<GetInvitationsByTournamentResponse> {
+    const response =
+      await axiosInstance.get<GetInvitationsByTournamentResponse>(
+        `${this.baseURL}/tournament/${tournamentId}/invitations`,
+        { params: status ? { status } : undefined },
+      );
     return response.data;
   }
 

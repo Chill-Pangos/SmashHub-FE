@@ -54,6 +54,34 @@ export interface Entry {
   };
 }
 
+// ==================== Entry Flow Types ====================
+
+export type EntryJoinRequestStatus = "pending" | "approved" | "rejected";
+
+export interface EntryJoinRequest {
+  id: number;
+  entryId: number;
+  userId: number;
+  status: EntryJoinRequestStatus;
+  rejectionReason?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  user?: {
+    id: number;
+    username?: string;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+  };
+}
+
+export type EntryRole = "captain" | "member" | "pending" | "none";
+
+export interface EntryWithRole {
+  entry: Entry;
+  role: EntryRole;
+}
+
 // ==================== Request Types ====================
 
 /**
@@ -80,6 +108,33 @@ export interface RegisterEntryRequest {
  */
 export interface UpdateEntryRequest {
   memberIds?: number[];
+}
+
+export interface AddEntryMemberRequest {
+  newMemberId: number;
+}
+
+export interface RemoveEntryMemberRequest {
+  memberId: number;
+}
+
+export interface SetRequiredMembersRequest {
+  count: number;
+}
+
+export interface TransferCaptaincyRequest {
+  newCaptainId: number;
+}
+
+export interface RespondJoinRequestRequest {
+  action: "approve" | "reject";
+  rejectionReason?: string;
+}
+
+export interface DisqualifyEntriesRequest {
+  entryIds?: number[];
+  entryId?: number;
+  reason?: string;
 }
 
 // ==================== Import Types ====================
@@ -204,6 +259,45 @@ export interface ImportEntriesConfirmResult {
     created: number;
     entries: Entry[];
   };
+}
+
+// ==================== Flow Response Types ====================
+
+export interface EntryMembersResponse {
+  members: EntryMember[];
+  count?: number;
+  skip?: number;
+  limit?: number;
+  pagination?: {
+    total?: number;
+    page?: number;
+    limit?: number;
+    totalPages?: number;
+    hasNextPage?: boolean;
+    hasPrevPage?: boolean;
+  };
+}
+
+export interface EntryJoinRequestsResponse {
+  requests: EntryJoinRequest[];
+  count?: number;
+  skip?: number;
+  limit?: number;
+}
+
+export interface EntryEligibilityResponse {
+  eligibleEntries: Entry[];
+  ineligibleEntries: Entry[];
+}
+
+export interface EntryRoleResponse {
+  entryId: number;
+  role: EntryRole;
+}
+
+export interface MyEntriesResponse {
+  entries: EntryWithRole[];
+  count?: number;
 }
 
 // ==================== Response Types ====================

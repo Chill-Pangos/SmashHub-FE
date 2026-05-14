@@ -116,6 +116,11 @@ export default {
     otpSent: "Mã OTP đã được gửi",
     invalidCredentials: "Email hoặc mật khẩu không đúng",
     accountLocked: "Tài khoản đã bị khóa",
+    brandDescription:
+      "Hệ thống quản lý bóng bàn chuyên nghiệp, phân tích và thực thi giải đấu cấp cao.",
+    welcomeBack: "Chào mừng trở lại",
+    enterCredentials:
+      "Nhập thông tin đăng nhập để truy cập bảng điều khiển chuyên nghiệp.",
   },
 
   // Navigation
@@ -123,6 +128,8 @@ export default {
     home: "Trang chủ",
     dashboard: "Bảng điều khiển",
     tournaments: "Giải đấu",
+    brackets: "Nhánh đấu",
+    elo: "ELO",
     schedule: "Lịch thi đấu",
     matches: "Trận đấu",
     teams: "Đội",
@@ -332,6 +339,7 @@ export default {
     athleteDetails: "Chi tiết vận động viên",
     athleteProfile: "Hồ sơ vận động viên",
     dateOfBirth: "Ngày sinh",
+    avatarUrl: "Đường dẫn ảnh đại diện",
     gender: "Giới tính",
     male: "Nam",
     female: "Nữ",
@@ -371,6 +379,8 @@ export default {
     statsOverview: "Thống kê tổng quan",
     winsCount: "Số trận thắng",
     lossesCount: "Số trận thua",
+    profileUpdatedSuccess: "Đã cập nhật hồ sơ",
+    profileUpdateFailed: "Không thể cập nhật hồ sơ",
     // Tournaments
     myTournaments: "Giải đấu của tôi",
     tournamentsParticipating: "Các giải đấu bạn đang tham gia",
@@ -502,7 +512,13 @@ export default {
     firstName: "Tên",
     lastName: "Họ",
     selectRole: "Chọn vai trò",
+    selectGender: "Chọn giới tính",
     passwordPlaceholder: "Nhập mật khẩu",
+    passwordOptionalPlaceholder: "Để trống nếu không đổi mật khẩu",
+    avatarUrl: "Đường dẫn ảnh đại diện",
+    avatarUrlPlaceholder: "https://example.com/avatar.png",
+    requiredCreateUserFields:
+      "Vui lòng chọn vai trò và nhập mật khẩu để tạo người dùng",
     noRolesFound: "Không tìm thấy vai trò",
     roleCreatedSuccess: "Đã tạo vai trò",
     roleUpdatedSuccess: "Đã cập nhật vai trò",
@@ -550,6 +566,208 @@ export default {
     tournamentManager: "Quản lý giải đấu",
     tournamentDashboard: "Bảng điều khiển giải đấu",
     setupWizard: "Thiết lập giải đấu",
+    quickActions: {
+      title: "Thao tác nhanh",
+      fullFlow: {
+        title: "Luồng giải đấu toàn phần",
+        description: "Theo dõi đầy đủ setup đến hoàn tất",
+      },
+      createTournament: {
+        title: "Tạo giải đấu mới",
+        description: "Bắt đầu quy trình tạo giải đấu",
+      },
+      addDelegation: {
+        title: "Thêm đoàn thi đấu",
+        description: "Đăng ký đoàn tham gia mới",
+      },
+      scheduleMatches: {
+        title: "Lên lịch thi đấu",
+        description: "Sắp xếp lịch trận theo nội dung",
+      },
+      assignReferees: {
+        title: "Phân công trọng tài",
+        description: "Gán trọng tài cho các trận",
+      },
+      enterResults: {
+        title: "Nhập kết quả",
+        description: "Cập nhật kết quả thi đấu",
+      },
+      exportReport: {
+        title: "Xuất báo cáo",
+        description: "Tạo báo cáo thống kê nhanh",
+      },
+    },
+    fullFlow: {
+      navLabel: "Luồng đầy đủ",
+      title: "Luồng hoạt động đầy đủ của giải đấu",
+      description:
+        "Bản đồ vận hành end-to-end cho organizer từ khởi tạo, đăng ký, chuẩn bị, điều hành đến hoàn tất giải đấu.",
+      labels: {
+        steps: "Các bước",
+        prerequisites: "Điều kiện tiên quyết",
+        autoTriggers: "Tự động kích hoạt",
+        apis: "API",
+        expandStep: "Mở rộng bước",
+        collapseStep: "Thu gọn bước",
+        auto: "AUTO",
+      },
+      filters: {
+        tournamentId: "Tournament ID để lấy snapshot theo giải",
+        categoryId: "Category ID để lấy snapshot theo hạng mục",
+        refresh: "Làm mới dữ liệu",
+        refreshing: "Đang làm mới...",
+      },
+      snapshot: {
+        tournaments: "Giải đấu",
+        referees: "Trọng tài",
+        entries: "Entries",
+        schedules: "Lịch thi đấu",
+        pendingMatches: "Trận chờ duyệt",
+        groupStandings: "Dữ liệu bảng",
+        knockoutBrackets: "Nhánh Knockout",
+        qualifiedTeams: "Đội đi tiếp",
+        loading: "Đang tải dữ liệu snapshot...",
+        error: "Có {{count}} nguồn dữ liệu lỗi, vui lòng kiểm tra API.",
+      },
+      meta: {
+        docsBased: "Dựa trên API docs",
+        organizerFlow: "Dành cho Organizer",
+        endToEnd: "Setup -> Completion",
+      },
+      actors: {
+        organizer: "Organizer",
+        playerCaptain: "VĐV / Đội trưởng",
+        organizerAndCaptain: "Organizer + Đội trưởng",
+        organizerAndPlayer: "Organizer + Người chơi",
+        organizerAndSystem: "Organizer + Hệ thống",
+        referee: "Trọng tài",
+        refereeAndChief: "Trọng tài + Tổng trọng tài",
+        systemAdmin: "Hệ thống / Admin",
+        organizerAndAudience: "Organizer + Khán giả",
+        audienceAndAthlete: "Khán giả + VĐV",
+      },
+      prerequisites: {
+        entriesConfirmed: "Tất cả entry cần xác nhận lineup.",
+        paymentsConfirmed:
+          "Thanh toán phải được xác nhận trước khi generate lịch.",
+      },
+      autoTriggers: {
+        elo: "ELO tự động cập nhật sau khi duyệt kết quả match.",
+        groupStandingSync:
+          "Bảng điểm vòng bảng tự đồng bộ theo match đã duyệt.",
+        knockoutAdvance: "Nhánh knockout tự đẩy đội thắng vào vòng tiếp theo.",
+      },
+      notes: {
+        teamMatchesOnly:
+          "Endpoint này chủ yếu áp dụng cho nội dung thi đấu đồng đội.",
+      },
+      tips: {
+        wrapUp:
+          "Khi đóng giải, nên lưu snapshot số liệu standings/ELO để đối soát báo cáo.",
+      },
+      phases: {
+        setup: {
+          title: "1) Setup",
+          description: "Khởi tạo giải, hạng mục, trọng tài và cấu hình lịch.",
+        },
+        registration: {
+          title: "2) Registration",
+          description:
+            "Mở đăng ký entry, chốt lineup và kiểm duyệt thanh toán.",
+        },
+        preparation: {
+          title: "3) Preparation",
+          description:
+            "Đóng đăng ký, bốc thăm vòng bảng và generate lịch thi đấu.",
+        },
+        execution: {
+          title: "4) Execution",
+          description:
+            "Điều hành trận đấu, duyệt kết quả và trigger downstream.",
+        },
+        completion: {
+          title: "5) Completion",
+          description: "Công bố standings, ELO và tổng hợp dữ liệu sau giải.",
+        },
+      },
+      steps: {
+        createTournament: {
+          title: "Tạo giải đấu",
+          description:
+            "Tạo tournament và đọc lại thông tin để xác thực mốc thời gian, địa điểm, nội dung.",
+        },
+        setupCategories: {
+          title: "Thiết lập hạng mục",
+          description:
+            "Tạo và chỉnh sửa tournament categories để chốt format thi đấu.",
+        },
+        assignRefereesAndConfig: {
+          title: "Mời trọng tài và cấu hình lịch",
+          description:
+            "Gửi lời mời trọng tài và thiết lập schedule-config ngay từ đầu.",
+        },
+        entryRegistration: {
+          title: "Đăng ký entries",
+          description:
+            "Mở flow đăng ký cá nhân/đội, xử lý join request và bổ sung thành viên.",
+        },
+        lineupAndEligibility: {
+          title: "Chốt lineup và điều kiện",
+          description:
+            "Xác nhận lineup chính thức, rà soát eligibility và disqualify nếu cần.",
+        },
+        paymentReview: {
+          title: "Kiểm duyệt thanh toán",
+          description:
+            "Tiếp nhận payment, upload proof và xác nhận/từ chối từ phía organizer.",
+        },
+        statusTransition: {
+          title: "Chuyển trạng thái giải",
+          description:
+            "Preview thay đổi trạng thái theo thời gian và trigger cập nhật trạng thái giải.",
+        },
+        groupDraw: {
+          title: "Bốc thăm và gán bảng",
+          description:
+            "Sinh placeholders, random draw hoặc lưu assignment thủ công cho vòng bảng.",
+        },
+        scheduleGeneration: {
+          title: "Generate lịch thi đấu",
+          description:
+            "Tạo lịch complete/group/knockout dựa trên dữ liệu entry đã hợp lệ.",
+        },
+        startMatch: {
+          title: "Khởi động trận đấu",
+          description:
+            "Bắt đầu match, tạo sub-matches (nếu team format) và ghi điểm từng set.",
+        },
+        finalizeResult: {
+          title: "Finalize và duyệt kết quả",
+          description:
+            "Referee finalize, chief referee approve/reject sau khi xem ELO preview.",
+        },
+        operationalNotify: {
+          title: "Thông báo vận hành",
+          description:
+            "Gửi thông báo/event real-time phục vụ điều phối hoặc cảnh báo hệ thống.",
+        },
+        publishStandings: {
+          title: "Công bố standings",
+          description:
+            "Xuất dữ liệu vòng bảng và knockout tree/standings cho người xem.",
+        },
+        eloAndHistory: {
+          title: "ELO và lịch sử thi đấu",
+          description:
+            "Hiển thị leaderboard ELO, lịch sử ELO và lịch sử trận của VĐV.",
+        },
+        wrapUp: {
+          title: "Tổng kết sau giải",
+          description:
+            "Đối soát dữ liệu schedule, match hoàn thành và payment statistics.",
+        },
+      },
+    },
     generateReport: "Tạo báo cáo",
     exportReport: "Xuất báo cáo",
     statistics: "Thống kê",
@@ -1283,13 +1501,23 @@ export default {
     operationFailed: "Thao tác thất bại",
     networkError: "Lỗi kết nối mạng",
     serverError: "Lỗi máy chủ",
-    notFound: "Không tìm thấy",
+    notFound: "Không tìm thấy tài nguyên",
     accessDenied: "Không có quyền truy cập",
     sessionExpired: "Phiên đăng nhập đã hết hạn",
     pleaseTryAgain: "Vui lòng thử lại",
     noResultsFound: "Không tìm thấy kết quả",
     loadingData: "Đang tải dữ liệu...",
     processingRequest: "Đang xử lý yêu cầu...",
+  },
+
+  // Trang 404
+  notFoundPage: {
+    badge: "CẢNH BÁO HỆ THỐNG",
+    title: "Mất tín hiệu",
+    description:
+      "Khu vực được yêu cầu hiện đang ngoại tuyến hoặc không tồn tại trong cơ sở dữ liệu Pro Circuit. Vui lòng kiểm tra lại tọa độ và thử lại.",
+    primaryAction: "Quay lại bảng điều khiển",
+    secondaryAction: "Liên hệ hỗ trợ",
   },
 
   // Toast / API Errors
@@ -1367,7 +1595,7 @@ export default {
     signUp: {
       termsRequired:
         "Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật",
-      welcomeDescription: "Chào mừng bạn đến với SmashHub, {{name}}!",
+      welcomeDescription: "Chào mừng bạn đến với SmashHub!",
       cardDescription: "Tạo tài khoản để tiếp tục",
       firstNamePlaceholder: "Nhập họ",
       lastNamePlaceholder: "Nhập tên",
@@ -1384,6 +1612,9 @@ export default {
       sending: "Đang gửi...",
       sendOtpButton: "Gửi mã xác thực",
       otpSentSuccess: "Mã OTP đã được gửi đến email của bạn!",
+      brandTagline: "Khôi phục Pro Circuit",
+      supportPrompt: "Cần hỗ trợ khẩn cấp?",
+      supportLink: "Liên hệ hỗ trợ",
       rememberPassword: "Nhớ mật khẩu?",
     },
     verifyOtp: {
@@ -1397,6 +1628,8 @@ export default {
       verificationSuccessDescription: "Bạn có thể đặt lại mật khẩu mới",
       resendSuccessTitle: "Mã OTP mới đã được gửi",
       resendFailedTitle: "Gửi lại thất bại",
+      headerTitle: "Mã xác thực",
+      brandTagline: "Truy cập Pro Circuit",
       titleEmail: "Xác thực Email",
       titleOtp: "Xác thực OTP",
       descriptionEmail: "Nhập mã OTP đã được gửi đến {{email}}",
@@ -1407,23 +1640,34 @@ export default {
       otpPlaceholder: "123456",
       verifying: "Đang xác thực...",
       verifyButton: "Xác thực",
+      countdownRemaining: "Còn {{time}}",
+      countdownExpired: "Mã đã hết hạn",
       resending: "Đang gửi lại...",
       resendButton: "Gửi lại mã OTP",
+      resendPrompt: "Không nhận được mã?",
     },
     resetPassword: {
       invalidInfo: "Thông tin không hợp lệ",
       resetSuccessDescription: "Bạn có thể đăng nhập với mật khẩu mới",
       resetFailed: "Đặt lại mật khẩu thất bại",
+      headerTitle: "Đặt lại bảo mật",
       subtitle: "Nhập mật khẩu mới cho tài khoản của bạn",
       cardTitle: "Mật khẩu mới",
       cardDescription: "Đảm bảo mật khẩu đủ mạnh và an toàn",
       confirmPasswordPlaceholder: "Nhập lại mật khẩu mới",
       submitting: "Đang đặt lại...",
+      submitButton: "Khởi tạo cập nhật",
+      requirements: {
+        length: "12+ KÝ TỰ",
+        symbol: "KÝ TỰ ĐẶC BIỆT",
+        number: "CHỮ SỐ",
+      },
     },
     emailVerification: {
       alreadyVerified: "Email của bạn đã được xác thực",
       emailNotFound: "Không tìm thấy thông tin email",
       sendFailed: "Gửi email thất bại",
+      statusBadge: "Đang chờ xác thực",
       subtitle: "Xác thực email để sử dụng đầy đủ tính năng",
       cardTitle: "Xác thực email của bạn",
       unverifiedTitle: "Email chưa được xác thực",
@@ -1431,6 +1675,9 @@ export default {
         "Vui lòng xác thực email để sử dụng tất cả các tính năng của SmashHub.",
       sending: "Đang gửi...",
       sendButton: "Gửi mã xác thực",
+      openMailClient: "Mở ứng dụng email",
+      resending: "Đang gửi lại...",
+      resendButton: "Gửi lại mã xác thực",
       skipForNow: "Bỏ qua, xác thực sau",
       emailSentTitle: "Email đã được gửi!",
       emailSentDescription: "Mã OTP đã được gửi đến email của bạn.",

@@ -155,3 +155,8 @@ export interface QualifiedTeam {
 }
 
 export type GetQualifiedTeamsResponse = ApiResponse<QualifiedTeam[]>;
+
+/**
+ * Sync standings response
+ */
+export type SyncStandingsResponse = ApiResponse<GroupStanding[]>;

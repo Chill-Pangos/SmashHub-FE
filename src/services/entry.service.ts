@@ -4,11 +4,23 @@ import type {
   CreateEntryRequest,
   RegisterEntryRequest,
   UpdateEntryRequest,
+  AddEntryMemberRequest,
+  RemoveEntryMemberRequest,
+  SetRequiredMembersRequest,
+  TransferCaptaincyRequest,
+  RespondJoinRequestRequest,
+  DisqualifyEntriesRequest,
   ConfirmImportSingleEntriesRequest,
   ConfirmImportDoubleEntriesRequest,
   ConfirmImportTeamEntriesRequest,
   ImportEntriesPreviewResult,
   ImportEntriesConfirmResult,
+  EntryMembersResponse,
+  EntryJoinRequestsResponse,
+  EntryJoinRequestStatus,
+  EntryEligibilityResponse,
+  EntryRoleResponse,
+  MyEntriesResponse,
 } from "@/types/entry.types";
 
 /**
@@ -93,6 +105,188 @@ class EntryService {
   }
 
   /**
+   * Get entry members
+   * GET /api/entries/{entryId}/members
+   */
+  async getEntryMembers(
+    entryId: number,
+    skip: number = 0,
+    limit: number = 10,
+  ): Promise<EntryMembersResponse> {
+    const response = await axiosInstance.get<EntryMembersResponse>(
+      `${this.baseURL}/${entryId}/members`,
+      { params: { skip, limit } },
+    );
+    return response.data;
+  }
+
+  /**
+   * Add member to entry
+   * POST /api/entries/{entryId}/add-member
+   */
+  async addEntryMember(
+    entryId: number,
+    data: AddEntryMemberRequest,
+  ): Promise<Entry> {
+    const response = await axiosInstance.post<Entry>(
+      `${this.baseURL}/${entryId}/add-member`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Remove member from entry
+   * POST /api/entries/{entryId}/remove-member
+   */
+  async removeEntryMember(
+    entryId: number,
+    data: RemoveEntryMemberRequest,
+  ): Promise<Entry> {
+    const response = await axiosInstance.post<Entry>(
+      `${this.baseURL}/${entryId}/remove-member`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Leave entry
+   * POST /api/entries/{entryId}/leave
+   */
+  async leaveEntry(entryId: number): Promise<Entry> {
+    const response = await axiosInstance.post<Entry>(
+      `${this.baseURL}/${entryId}/leave`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Set required member count
+   * POST /api/entries/{entryId}/set-required-members
+   */
+  async setRequiredMembers(
+    entryId: number,
+    data: SetRequiredMembersRequest,
+  ): Promise<Entry> {
+    const response = await axiosInstance.post<Entry>(
+      `${this.baseURL}/${entryId}/set-required-members`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Transfer captaincy
+   * POST /api/entries/{entryId}/transfer-captaincy
+   */
+  async transferCaptaincy(
+    entryId: number,
+    data: TransferCaptaincyRequest,
+  ): Promise<Entry> {
+    const response = await axiosInstance.post<Entry>(
+      `${this.baseURL}/${entryId}/transfer-captaincy`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Get join requests for entry
+   * GET /api/entries/{entryId}/join-requests
+   */
+  async getJoinRequests(
+    entryId: number,
+    options?: {
+      status?: EntryJoinRequestStatus;
+      skip?: number;
+      limit?: number;
+    },
+  ): Promise<EntryJoinRequestsResponse> {
+    const response = await axiosInstance.get<EntryJoinRequestsResponse>(
+      `${this.baseURL}/${entryId}/join-requests`,
+      { params: options },
+    );
+    return response.data;
+  }
+
+  /**
+   * Respond to join request
+   * POST /api/entries/join-requests/{joinRequestId}/respond
+   */
+  async respondJoinRequest(
+    joinRequestId: number,
+    data: RespondJoinRequestRequest,
+  ): Promise<Entry> {
+    const response = await axiosInstance.post<Entry>(
+      `${this.baseURL}/join-requests/${joinRequestId}/respond`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Confirm entry lineup
+   * POST /api/entries/{entryId}/confirm-lineup
+   */
+  async confirmLineup(entryId: number): Promise<Entry> {
+    const response = await axiosInstance.post<Entry>(
+      `${this.baseURL}/${entryId}/confirm-lineup`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Get eligible entries by category
+   * GET /api/entries/category/{categoryId}/eligible
+   */
+  async getEligibleEntriesByCategory(
+    categoryId: number,
+  ): Promise<EntryEligibilityResponse> {
+    const response = await axiosInstance.get<EntryEligibilityResponse>(
+      `${this.baseURL}/category/${categoryId}/eligible`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Disqualify entries by category
+   * POST /api/entries/category/{categoryId}/disqualify
+   */
+  async disqualifyEntriesByCategory(
+    categoryId: number,
+    data: DisqualifyEntriesRequest,
+  ): Promise<Entry[]> {
+    const response = await axiosInstance.post<Entry[]>(
+      `${this.baseURL}/category/${categoryId}/disqualify`,
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Get current user entries
+   * GET /api/entries/me
+   */
+  async getMyEntries(): Promise<MyEntriesResponse> {
+    const response = await axiosInstance.get<MyEntriesResponse>(
+      `${this.baseURL}/me`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Get current user role in entry
+   * GET /api/entries/{entryId}/my-role
+   */
+  async getMyRole(entryId: number): Promise<EntryRoleResponse> {
+    const response = await axiosInstance.get<EntryRoleResponse>(
+      `${this.baseURL}/${entryId}/my-role`,
+    );
+    return response.data;
+  }
+
+  /**
    * Get entries by category ID
    * GET /api/entries/category/:categoryId
    *
@@ -102,21 +296,27 @@ class EntryService {
     categoryId: number,
     skip: number = 0,
     limit: number = 10,
+    filters?: {
+      isFull?: boolean;
+      isAcceptingMembers?: boolean;
+      captainName?: string;
+    },
   ): Promise<Entry[]> {
+    const params = {
+      skip,
+      limit,
+      ...filters,
+    };
     try {
       const response = await axiosInstance.get<Entry[]>(
         `${this.baseURL}/category/${categoryId}`,
-        {
-          params: { skip, limit },
-        },
+        { params },
       );
       return response.data;
     } catch {
       const response = await axiosInstance.get<Entry[]>(
         `${this.baseURL}/content/${categoryId}`,
-        {
-          params: { skip, limit },
-        },
+        { params },
       );
       return response.data;
     }
@@ -251,16 +451,29 @@ class EntryService {
     formData.append("file", file);
     formData.append("contentId", contentId.toString());
 
-    const response = await axiosInstance.post<ImportEntriesPreviewResult>(
-      `${this.baseURL}/import-double/preview`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
+    try {
+      const response = await axiosInstance.post<ImportEntriesPreviewResult>(
+        `${this.baseURL}/import/double/preview`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         },
-      },
-    );
-    return response.data;
+      );
+      return response.data;
+    } catch {
+      const response = await axiosInstance.post<ImportEntriesPreviewResult>(
+        `${this.baseURL}/import-double/preview`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      return response.data;
+    }
   }
 
   /**
@@ -280,11 +493,19 @@ class EntryService {
   async confirmImportDoubleEntries(
     data: ConfirmImportDoubleEntriesRequest,
   ): Promise<ImportEntriesConfirmResult> {
-    const response = await axiosInstance.post<ImportEntriesConfirmResult>(
-      `${this.baseURL}/import-double/confirm`,
-      data,
-    );
-    return response.data;
+    try {
+      const response = await axiosInstance.post<ImportEntriesConfirmResult>(
+        `${this.baseURL}/import/double/confirm`,
+        data,
+      );
+      return response.data;
+    } catch {
+      const response = await axiosInstance.post<ImportEntriesConfirmResult>(
+        `${this.baseURL}/import-double/confirm`,
+        data,
+      );
+      return response.data;
+    }
   }
 
   /**
@@ -307,16 +528,29 @@ class EntryService {
     formData.append("file", file);
     formData.append("contentId", contentId.toString());
 
-    const response = await axiosInstance.post<ImportEntriesPreviewResult>(
-      `${this.baseURL}/import-team/preview`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
+    try {
+      const response = await axiosInstance.post<ImportEntriesPreviewResult>(
+        `${this.baseURL}/import/team/preview`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         },
-      },
-    );
-    return response.data;
+      );
+      return response.data;
+    } catch {
+      const response = await axiosInstance.post<ImportEntriesPreviewResult>(
+        `${this.baseURL}/import-team/preview`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      return response.data;
+    }
   }
 
   /**
@@ -336,11 +570,19 @@ class EntryService {
   async confirmImportTeamEntries(
     data: ConfirmImportTeamEntriesRequest,
   ): Promise<ImportEntriesConfirmResult> {
-    const response = await axiosInstance.post<ImportEntriesConfirmResult>(
-      `${this.baseURL}/import-team/confirm`,
-      data,
-    );
-    return response.data;
+    try {
+      const response = await axiosInstance.post<ImportEntriesConfirmResult>(
+        `${this.baseURL}/import/team/confirm`,
+        data,
+      );
+      return response.data;
+    } catch {
+      const response = await axiosInstance.post<ImportEntriesConfirmResult>(
+        `${this.baseURL}/import-team/confirm`,
+        data,
+      );
+      return response.data;
+    }
   }
 }
 

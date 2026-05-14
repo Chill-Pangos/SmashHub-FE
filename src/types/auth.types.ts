@@ -73,7 +73,7 @@ export interface User {
   password?: string;
   gender?: string | null;
   avatarUrl?: string | null;
-  dob?: string | null;
+  dob?: string | undefined;
   phoneNumber?: string | null;
   // Backward compatibility during incremental refactor of non-auth screens.
   username?: string;

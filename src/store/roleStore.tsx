@@ -14,10 +14,10 @@ interface RoleProviderProps {
 // Route mapping by role name (database names)
 const ROLE_ROUTES: Record<string, string> = {
   admin: "/admin",
-  organizer: "/tournament-manager",
-  chief_referee: "/chief-referee",
+  organizer: "/organizer",
+  chief_referee: "/referee",
   referee: "/referee",
-  user: "/user",
+  user: "/",
 };
 
 // Priority mapping by role name (higher = more important)
@@ -37,6 +37,46 @@ const ROLE_DISPLAY_NAMES: Record<string, string> = {
   referee: "Trọng tài",
   user: "Người dùng",
 };
+
+// TODO: Remove fallback roles once the role API is stable.
+const FALLBACK_TIMESTAMP = new Date().toISOString();
+const FALLBACK_ROLES: Role[] = [
+  {
+    id: 1,
+    name: "admin",
+    description: "Fallback admin role",
+    createdAt: FALLBACK_TIMESTAMP,
+    updatedAt: FALLBACK_TIMESTAMP,
+  },
+  {
+    id: 2,
+    name: "organizer",
+    description: "Fallback organizer role",
+    createdAt: FALLBACK_TIMESTAMP,
+    updatedAt: FALLBACK_TIMESTAMP,
+  },
+  {
+    id: 3,
+    name: "chief_referee",
+    description: "Fallback chief referee role",
+    createdAt: FALLBACK_TIMESTAMP,
+    updatedAt: FALLBACK_TIMESTAMP,
+  },
+  {
+    id: 4,
+    name: "referee",
+    description: "Fallback referee role",
+    createdAt: FALLBACK_TIMESTAMP,
+    updatedAt: FALLBACK_TIMESTAMP,
+  },
+  {
+    id: 5,
+    name: "user",
+    description: "Fallback user role",
+    createdAt: FALLBACK_TIMESTAMP,
+    updatedAt: FALLBACK_TIMESTAMP,
+  },
+];
 
 export const RoleProvider: React.FC<RoleProviderProps> = ({ children }) => {
   const [roleState, setRoleState] = useState<RoleState>({
@@ -61,11 +101,11 @@ export const RoleProvider: React.FC<RoleProviderProps> = ({ children }) => {
       });
     } catch (err) {
       console.error("Failed to fetch roles:", err);
-      setRoleState({
-        roles: [],
+      setRoleState((prev) => ({
+        roles: prev.roles.length > 0 ? prev.roles : FALLBACK_ROLES,
         isLoading: false,
-        error: "Không thể tải danh sách vai trò",
-      });
+        error: "Không thể tải danh sách vai trò. Đang dùng dữ liệu tạm.",
+      }));
     }
   };
 

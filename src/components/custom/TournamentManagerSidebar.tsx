@@ -6,6 +6,7 @@ import {
   Calendar,
   UserPlus,
   CalendarCheck,
+  Workflow,
   // Edit, // COMMENTED OUT: Menu item hidden
   // FileText, // COMMENTED OUT: Menu item hidden
   Key,
@@ -104,6 +105,11 @@ export default function TournamentManagerSidebar({
       label: t("match.matches"),
       icon: ClipboardList,
       items: [
+        {
+          id: "full-flow",
+          label: t("tournamentManager.fullFlow.navLabel"),
+          icon: Workflow,
+        },
         {
           id: "scheduling",
           label: t("schedule.scheduleGenerator"),

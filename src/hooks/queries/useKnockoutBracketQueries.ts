@@ -8,6 +8,7 @@ import type {
   GenerateKnockoutBracketRequest,
   GenerateFromGroupsRequest,
   AdvanceWinnerRequest,
+  ValidateKnockoutBracketRequest,
 } from "@/types";
 
 const getCategoryId = (data: { contentId: number; categoryId?: number }) =>
@@ -50,6 +51,36 @@ export const useKnockoutBracketsByCategory = (
     queryKey: queryKeys.knockoutBrackets.byCategory(categoryId),
     queryFn: () =>
       knockoutBracketService.getKnockoutBracketsByCategory(categoryId),
+    enabled: (options?.enabled ?? true) && categoryId > 0,
+  });
+};
+
+/**
+ * Hook to get knockout bracket tree by category
+ */
+export const useKnockoutBracketTreeByCategory = (
+  categoryId: number,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: queryKeys.knockoutBrackets.tree(categoryId),
+    queryFn: () =>
+      knockoutBracketService.getKnockoutBracketTreeByCategory(categoryId),
+    enabled: (options?.enabled ?? true) && categoryId > 0,
+  });
+};
+
+/**
+ * Hook to get knockout standings by category
+ */
+export const useKnockoutStandingsByCategory = (
+  categoryId: number,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: queryKeys.knockoutBrackets.standings(categoryId),
+    queryFn: () =>
+      knockoutBracketService.getKnockoutStandingsByCategory(categoryId),
     enabled: (options?.enabled ?? true) && categoryId > 0,
   });
 };
@@ -207,5 +238,15 @@ export const useAdvanceWinner = () => {
         queryKey: queryKeys.knockoutBrackets.all,
       });
     },
+  });
+};
+
+/**
+ * Hook to validate knockout brackets
+ */
+export const useValidateKnockoutBrackets = () => {
+  return useMutation({
+    mutationFn: (data: ValidateKnockoutBracketRequest) =>
+      knockoutBracketService.validateKnockoutBrackets(data),
   });
 };

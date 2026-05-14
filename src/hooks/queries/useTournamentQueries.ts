@@ -64,6 +64,20 @@ export const useTournamentsByStatus = (
   });
 };
 
+/**
+ * Hook to preview upcoming tournament status changes
+ */
+export const useUpcomingTournamentStatusChanges = (
+  hours = 24,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: queryKeys.tournaments.upcomingChanges(hours),
+    queryFn: () => tournamentService.getUpcomingTournamentStatusChanges(hours),
+    enabled: options?.enabled ?? true,
+  });
+};
+
 // ==================== Mutation Hooks ====================
 
 /**
@@ -159,6 +173,22 @@ export const useDeleteTournament = () => {
     },
     onSettled: () => {
       // Refetch to ensure consistency
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tournaments.all,
+      });
+    },
+  });
+};
+
+/**
+ * Hook to trigger tournament status updates
+ */
+export const useUpdateTournamentStatuses = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => tournamentService.updateTournamentStatuses(),
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.tournaments.all,
       });

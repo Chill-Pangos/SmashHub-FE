@@ -4,6 +4,12 @@ import { queryKeys } from "./queryKeys";
 import type {
   TournamentReferee,
   CreateTournamentRefereeRequest,
+  InviteRefereeRequest,
+  AcceptInvitationRequest,
+  RejectInvitationRequest,
+  CancelInvitationRequest,
+  RemoveRefereeRequest,
+  UpdateRefereeRoleRequest,
   AssignRefereesRequest,
   UpdateTournamentRefereeRequest,
   UpdateAvailabilityRequest,
@@ -14,9 +20,7 @@ import type {
 /**
  * Hook để lấy danh sách tổng trọng tài sẵn sàng
  */
-export const useAvailableChiefReferees = (
-  options?: { enabled?: boolean },
-) => {
+export const useAvailableChiefReferees = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: queryKeys.tournamentReferees.availableChiefReferees(),
     queryFn: () => tournamentRefereeService.getAvailableChiefReferees(),
@@ -79,6 +83,22 @@ export const useRefereesByTournament = (
 };
 
 /**
+ * Hook to get invitations by tournament
+ */
+export const useTournamentRefereeInvitations = (
+  tournamentId: number,
+  status?: string,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: queryKeys.tournamentReferees.invitations(tournamentId, status),
+    queryFn: () =>
+      tournamentRefereeService.getInvitationsByTournament(tournamentId, status),
+    enabled: (options?.enabled ?? true) && tournamentId > 0,
+  });
+};
+
+/**
  * Hook để lấy available referees cho tournament
  */
 export const useAvailableReferees = (
@@ -120,6 +140,120 @@ export const useCreateTournamentReferee = () => {
           ),
         });
       }
+    },
+  });
+};
+
+/**
+ * Hook to invite referee
+ */
+export const useInviteReferee = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: InviteRefereeRequest) =>
+      tournamentRefereeService.inviteReferee(data),
+    onSuccess: (_result, data) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tournamentReferees.invitations(data.tournamentId),
+      });
+    },
+  });
+};
+
+/**
+ * Hook to accept invitation
+ */
+export const useAcceptRefereeInvitation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: AcceptInvitationRequest) =>
+      tournamentRefereeService.acceptInvitation(data),
+    onSuccess: (result) => {
+      const tournamentId = result.data?.tournamentId;
+      if (tournamentId) {
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.tournamentReferees.byTournament(tournamentId),
+        });
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.tournamentReferees.invitations(tournamentId),
+        });
+      }
+    },
+  });
+};
+
+/**
+ * Hook to reject invitation
+ */
+export const useRejectRefereeInvitation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: RejectInvitationRequest) =>
+      tournamentRefereeService.rejectInvitation(data),
+    onSuccess: (result) => {
+      const tournamentId = result.data?.tournamentId;
+      if (tournamentId) {
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.tournamentReferees.invitations(tournamentId),
+        });
+      }
+    },
+  });
+};
+
+/**
+ * Hook to cancel invitation
+ */
+export const useCancelRefereeInvitation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CancelInvitationRequest) =>
+      tournamentRefereeService.cancelInvitation(data),
+    onSuccess: (result) => {
+      const tournamentId = result.data?.tournamentId;
+      if (tournamentId) {
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.tournamentReferees.invitations(tournamentId),
+        });
+      }
+    },
+  });
+};
+
+/**
+ * Hook to remove referee from tournament
+ */
+export const useRemoveReferee = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: RemoveRefereeRequest) =>
+      tournamentRefereeService.removeReferee(data),
+    onSuccess: (_result, data) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tournamentReferees.byTournament(data.tournamentId),
+      });
+    },
+  });
+};
+
+/**
+ * Hook to update referee role
+ */
+export const useUpdateRefereeRole = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: UpdateRefereeRoleRequest) =>
+      tournamentRefereeService.updateRefereeRole(data),
+    onSuccess: (_result, data) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tournamentReferees.byTournament(data.tournamentId),
+      });
     },
   });
 };

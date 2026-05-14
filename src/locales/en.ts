@@ -117,6 +117,10 @@ export default {
     otpSent: "OTP sent",
     invalidCredentials: "Invalid email or password",
     accountLocked: "Account locked",
+    brandDescription:
+      "The elite ecosystem for professional table tennis management, analytics, and high-stakes tournament execution.",
+    welcomeBack: "Welcome Back",
+    enterCredentials: "Enter your credentials to access the pro dashboard.",
   },
 
   // Navigation
@@ -124,6 +128,8 @@ export default {
     home: "Home",
     dashboard: "Dashboard",
     tournaments: "Tournaments",
+    brackets: "Brackets",
+    elo: "ELO",
     schedule: "Schedule",
     matches: "Matches",
     teams: "Teams",
@@ -334,6 +340,7 @@ export default {
     athleteDetails: "Athlete Details",
     athleteProfile: "Athlete Profile",
     dateOfBirth: "Date of Birth",
+    avatarUrl: "Avatar URL",
     gender: "Gender",
     male: "Male",
     female: "Female",
@@ -373,6 +380,8 @@ export default {
     statsOverview: "Stats Overview",
     winsCount: "Wins",
     lossesCount: "Losses",
+    profileUpdatedSuccess: "Profile updated successfully",
+    profileUpdateFailed: "Failed to update profile",
     // Tournaments
     myTournaments: "My Tournaments",
     tournamentsParticipating: "Tournaments you are participating in",
@@ -503,7 +512,12 @@ export default {
     firstName: "First name",
     lastName: "Last name",
     selectRole: "Select role",
+    selectGender: "Select gender",
     passwordPlaceholder: "Enter password",
+    passwordOptionalPlaceholder: "Leave blank to keep current password",
+    avatarUrl: "Avatar URL",
+    avatarUrlPlaceholder: "https://example.com/avatar.png",
+    requiredCreateUserFields: "Please fill role and password to create user",
     noRolesFound: "No roles found",
     roleCreatedSuccess: "Role created successfully",
     roleUpdatedSuccess: "Role updated successfully",
@@ -542,7 +556,8 @@ export default {
       "Review information for all selected users",
     confirmDeleteSelectedUsers: "Delete {{count}} selected users?",
     usersDeletedSuccess: "Deleted {{count}} users successfully",
-    usersDeletePartial: "Deleted {{success}}/{{total}} users. {{failed}} failed.",
+    usersDeletePartial:
+      "Deleted {{success}}/{{total}} users. {{failed}} failed.",
   },
 
   // Tournament Manager
@@ -550,6 +565,211 @@ export default {
     tournamentManager: "Tournament Manager",
     tournamentDashboard: "Tournament Dashboard",
     setupWizard: "Setup Wizard",
+    quickActions: {
+      title: "Quick Actions",
+      fullFlow: {
+        title: "Full Tournament Flow",
+        description: "Track the complete setup-to-closure workflow",
+      },
+      createTournament: {
+        title: "Create Tournament",
+        description: "Start a new tournament setup",
+      },
+      addDelegation: {
+        title: "Add Delegation",
+        description: "Register a new delegation",
+      },
+      scheduleMatches: {
+        title: "Generate Schedules",
+        description: "Arrange match schedules by category",
+      },
+      assignReferees: {
+        title: "Assign Referees",
+        description: "Map referees to matches",
+      },
+      enterResults: {
+        title: "Enter Results",
+        description: "Update match outcomes",
+      },
+      exportReport: {
+        title: "Export Reports",
+        description: "Generate quick statistics reports",
+      },
+    },
+    fullFlow: {
+      navLabel: "Full Flow",
+      title: "Complete Tournament Operating Flow",
+      description:
+        "Organizer-focused end-to-end operating map from setup and registration to execution and tournament closure.",
+      labels: {
+        steps: "Steps",
+        prerequisites: "Prerequisites",
+        autoTriggers: "Auto Triggers",
+        apis: "APIs",
+        expandStep: "Expand step",
+        collapseStep: "Collapse step",
+        auto: "AUTO",
+      },
+      filters: {
+        tournamentId: "Tournament ID for tournament snapshot",
+        categoryId: "Category ID for category snapshot",
+        refresh: "Refresh data",
+        refreshing: "Refreshing...",
+      },
+      snapshot: {
+        tournaments: "Tournaments",
+        referees: "Referees",
+        entries: "Entries",
+        schedules: "Schedules",
+        pendingMatches: "Pending Matches",
+        groupStandings: "Group Standings",
+        knockoutBrackets: "Knockout Brackets",
+        qualifiedTeams: "Qualified Teams",
+        loading: "Loading snapshot data...",
+        error: "{{count}} data sources failed. Please check API endpoints.",
+      },
+      meta: {
+        docsBased: "Based on API docs",
+        organizerFlow: "Organizer flow",
+        endToEnd: "Setup -> Completion",
+      },
+      actors: {
+        organizer: "Organizer",
+        playerCaptain: "Player / Captain",
+        organizerAndCaptain: "Organizer + Captain",
+        organizerAndPlayer: "Organizer + Player",
+        organizerAndSystem: "Organizer + System",
+        referee: "Referee",
+        refereeAndChief: "Referee + Chief Referee",
+        systemAdmin: "System / Admin",
+        organizerAndAudience: "Organizer + Audience",
+        audienceAndAthlete: "Audience + Athlete",
+      },
+      prerequisites: {
+        entriesConfirmed: "All entries must have confirmed lineups.",
+        paymentsConfirmed:
+          "Payments must be confirmed before schedule generation.",
+      },
+      autoTriggers: {
+        elo: "ELO is updated automatically after result approval.",
+        groupStandingSync:
+          "Group standings are synced automatically after approved matches.",
+        knockoutAdvance:
+          "Knockout brackets auto-advance winners to next rounds.",
+      },
+      notes: {
+        teamMatchesOnly:
+          "This endpoint is primarily used for team-format matches.",
+      },
+      tips: {
+        wrapUp:
+          "At tournament closure, keep a standings/ELO snapshot for report reconciliation.",
+      },
+      phases: {
+        setup: {
+          title: "1) Setup",
+          description:
+            "Initialize tournament, categories, referee assignments, and schedule config.",
+        },
+        registration: {
+          title: "2) Registration",
+          description:
+            "Handle entries, lineup confirmation, and payment reviews.",
+        },
+        preparation: {
+          title: "3) Preparation",
+          description:
+            "Close registration, draw groups, and generate full schedules.",
+        },
+        execution: {
+          title: "4) Execution",
+          description:
+            "Run matches, approve results, and trigger downstream updates.",
+        },
+        completion: {
+          title: "5) Completion",
+          description:
+            "Publish standings, ELO outputs, and final post-tournament summaries.",
+        },
+      },
+      steps: {
+        createTournament: {
+          title: "Create Tournament",
+          description:
+            "Create the tournament and re-read detail endpoints to validate timeline and metadata.",
+        },
+        setupCategories: {
+          title: "Configure Categories",
+          description:
+            "Create and update tournament categories to lock match formats.",
+        },
+        assignRefereesAndConfig: {
+          title: "Invite Referees and Set Schedule Config",
+          description:
+            "Send referee invitations and define schedule-config constraints early.",
+        },
+        entryRegistration: {
+          title: "Entry Registration",
+          description:
+            "Run single/team entry flows, join requests, and membership changes.",
+        },
+        lineupAndEligibility: {
+          title: "Lineup and Eligibility Validation",
+          description:
+            "Confirm final lineups, verify eligibility, and disqualify invalid entries.",
+        },
+        paymentReview: {
+          title: "Payment Review",
+          description:
+            "Create payments, collect proof, and confirm/reject from organizer side.",
+        },
+        statusTransition: {
+          title: "Tournament Status Transition",
+          description:
+            "Preview timeline-driven changes and trigger status recalculation.",
+        },
+        groupDraw: {
+          title: "Group Draw and Assignment",
+          description:
+            "Generate placeholders, run random draws, or persist manual assignments.",
+        },
+        scheduleGeneration: {
+          title: "Schedule Generation",
+          description:
+            "Generate complete/group/knockout schedules from validated entry states.",
+        },
+        startMatch: {
+          title: "Start Matches",
+          description:
+            "Start matches, create sub-matches for team format, and record set scores.",
+        },
+        finalizeResult: {
+          title: "Finalize and Approve Results",
+          description:
+            "Referees finalize outcomes, chief referee approves/rejects after ELO preview.",
+        },
+        operationalNotify: {
+          title: "Operational Notifications",
+          description:
+            "Broadcast operational messages and custom events for live coordination.",
+        },
+        publishStandings: {
+          title: "Publish Standings",
+          description:
+            "Expose group standings and knockout trees/final placements.",
+        },
+        eloAndHistory: {
+          title: "ELO and Match History",
+          description:
+            "Show leaderboard, ELO histories, and athlete match histories.",
+        },
+        wrapUp: {
+          title: "Tournament Wrap-up",
+          description:
+            "Reconcile schedule, completed matches, and payment statistics.",
+        },
+      },
+    },
     generateReport: "Generate Report",
     exportReport: "Export Report",
     statistics: "Statistics",
@@ -1143,6 +1363,16 @@ export default {
     processingRequest: "Processing request...",
   },
 
+  // Not Found Page
+  notFoundPage: {
+    badge: "System Alert",
+    title: "Signal Lost",
+    description:
+      "The requested sector is currently offline or does not exist within the Pro Circuit database. Verify your coordinates and try again.",
+    primaryAction: "Return to Dashboard",
+    secondaryAction: "Contact Support",
+  },
+
   // Toast / API Errors
   toast: {
     errors: {
@@ -1216,7 +1446,7 @@ export default {
     passwordStrengthLabel: "Password strength",
     signUp: {
       termsRequired: "Please agree to the Terms of Service and Privacy Policy",
-      welcomeDescription: "Welcome to SmashHub, {{name}}!",
+      welcomeDescription: "Welcome to SmashHub!",
       cardDescription: "Create your account to continue",
       firstNamePlaceholder: "Enter first name",
       lastNamePlaceholder: "Enter last name",
@@ -1233,6 +1463,9 @@ export default {
       sending: "Sending...",
       sendOtpButton: "Send verification code",
       otpSentSuccess: "OTP code has been sent to your email!",
+      brandTagline: "Pro Circuit Recovery",
+      supportPrompt: "Need urgent access?",
+      supportLink: "Contact Support",
       rememberPassword: "Remember your password?",
     },
     verifyOtp: {
@@ -1247,6 +1480,8 @@ export default {
       verificationSuccessDescription: "You can now reset your password",
       resendSuccessTitle: "A new OTP has been sent",
       resendFailedTitle: "Resend failed",
+      headerTitle: "Verification Code",
+      brandTagline: "Pro Circuit Access",
       titleEmail: "Verify Email",
       titleOtp: "Verify OTP",
       descriptionEmail: "Enter the OTP sent to {{email}}",
@@ -1257,23 +1492,34 @@ export default {
       otpPlaceholder: "123456",
       verifying: "Verifying...",
       verifyButton: "Verify",
+      countdownRemaining: "{{time}} remaining",
+      countdownExpired: "Code expired",
       resending: "Resending...",
       resendButton: "Resend OTP",
+      resendPrompt: "Didn't receive a code?",
     },
     resetPassword: {
       invalidInfo: "Invalid information",
       resetSuccessDescription: "You can now sign in with your new password",
       resetFailed: "Password reset failed",
+      headerTitle: "Secure Reset",
       subtitle: "Enter a new password for your account",
       cardTitle: "New password",
       cardDescription: "Make sure your password is strong and secure",
       confirmPasswordPlaceholder: "Re-enter your new password",
       submitting: "Resetting...",
+      submitButton: "Initialize Update",
+      requirements: {
+        length: "12+ CHARS",
+        symbol: "SYMBOL",
+        number: "NUMBER",
+      },
     },
     emailVerification: {
       alreadyVerified: "Your email is already verified",
       emailNotFound: "Email information not found",
       sendFailed: "Failed to send verification email",
+      statusBadge: "Awaiting Verification",
       subtitle: "Verify your email to unlock all features",
       cardTitle: "Verify your email",
       unverifiedTitle: "Email not verified",
@@ -1281,6 +1527,9 @@ export default {
         "Please verify your email to use all SmashHub features.",
       sending: "Sending...",
       sendButton: "Send verification code",
+      openMailClient: "Open Mail Client",
+      resending: "Resending...",
+      resendButton: "Resend verification code",
       skipForNow: "Skip, verify later",
       emailSentTitle: "Verification email sent!",
       emailSentDescription: "OTP code has been sent to your email.",

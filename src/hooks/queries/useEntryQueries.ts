@@ -6,6 +6,13 @@ import type {
   CreateEntryRequest,
   RegisterEntryRequest,
   UpdateEntryRequest,
+  AddEntryMemberRequest,
+  RemoveEntryMemberRequest,
+  SetRequiredMembersRequest,
+  TransferCaptaincyRequest,
+  RespondJoinRequestRequest,
+  DisqualifyEntriesRequest,
+  EntryJoinRequestStatus,
   ConfirmImportSingleEntriesRequest,
   ConfirmImportDoubleEntriesRequest,
   ConfirmImportTeamEntriesRequest,
@@ -44,12 +51,105 @@ export const useEntriesByCategory = (
   categoryId: number,
   skip = 0,
   limit = 10,
-  options?: { enabled?: boolean },
+  options?: {
+    enabled?: boolean;
+    isFull?: boolean;
+    isAcceptingMembers?: boolean;
+    captainName?: string;
+  },
 ) => {
   return useQuery({
     queryKey: queryKeys.entries.byCategory(categoryId),
-    queryFn: () => entryService.getEntriesByCategoryId(categoryId, skip, limit),
+    queryFn: () =>
+      entryService.getEntriesByCategoryId(categoryId, skip, limit, {
+        isFull: options?.isFull,
+        isAcceptingMembers: options?.isAcceptingMembers,
+        captainName: options?.captainName,
+      }),
     enabled: (options?.enabled ?? true) && categoryId > 0,
+  });
+};
+
+/**
+ * Hook to get entry members
+ */
+export const useEntryMembers = (
+  entryId: number,
+  skip = 0,
+  limit = 10,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: queryKeys.entries.members(entryId, { skip, limit }),
+    queryFn: () => entryService.getEntryMembers(entryId, skip, limit),
+    enabled: (options?.enabled ?? true) && entryId > 0,
+  });
+};
+
+/**
+ * Hook to get join requests for an entry
+ */
+export const useEntryJoinRequests = (
+  entryId: number,
+  options?: {
+    status?: EntryJoinRequestStatus;
+    skip?: number;
+    limit?: number;
+    enabled?: boolean;
+  },
+) => {
+  return useQuery({
+    queryKey: queryKeys.entries.joinRequests(entryId, {
+      status: options?.status,
+      skip: options?.skip,
+      limit: options?.limit,
+    }),
+    queryFn: () =>
+      entryService.getJoinRequests(entryId, {
+        status: options?.status,
+        skip: options?.skip,
+        limit: options?.limit,
+      }),
+    enabled: (options?.enabled ?? true) && entryId > 0,
+  });
+};
+
+/**
+ * Hook to get eligible entries by category
+ */
+export const useEligibleEntriesByCategory = (
+  categoryId: number,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: queryKeys.entries.eligible(categoryId),
+    queryFn: () => entryService.getEligibleEntriesByCategory(categoryId),
+    enabled: (options?.enabled ?? true) && categoryId > 0,
+  });
+};
+
+/**
+ * Hook to get current user entries
+ */
+export const useMyEntries = (options?: { enabled?: boolean }) => {
+  return useQuery({
+    queryKey: queryKeys.entries.myEntries(),
+    queryFn: () => entryService.getMyEntries(),
+    enabled: options?.enabled ?? true,
+  });
+};
+
+/**
+ * Hook to get current user role in entry
+ */
+export const useMyEntryRole = (
+  entryId: number,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: queryKeys.entries.myRole(entryId),
+    queryFn: () => entryService.getMyRole(entryId),
+    enabled: (options?.enabled ?? true) && entryId > 0,
   });
 };
 
@@ -163,6 +263,215 @@ export const useDeleteEntry = () => {
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.entries.all,
+      });
+    },
+  });
+};
+
+/**
+ * Hook to add member to entry
+ */
+export const useAddEntryMember = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      entryId,
+      data,
+    }: {
+      entryId: number;
+      data: AddEntryMemberRequest;
+    }) => entryService.addEntryMember(entryId, data),
+    onSuccess: (entry, { entryId }) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.detail(entryId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.members(entryId),
+      });
+      const categoryId = getCategoryId(entry);
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.byCategory(categoryId),
+      });
+    },
+  });
+};
+
+/**
+ * Hook to remove member from entry
+ */
+export const useRemoveEntryMember = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      entryId,
+      data,
+    }: {
+      entryId: number;
+      data: RemoveEntryMemberRequest;
+    }) => entryService.removeEntryMember(entryId, data),
+    onSuccess: (entry, { entryId }) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.detail(entryId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.members(entryId),
+      });
+      const categoryId = getCategoryId(entry);
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.byCategory(categoryId),
+      });
+    },
+  });
+};
+
+/**
+ * Hook to leave entry
+ */
+export const useLeaveEntry = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (entryId: number) => entryService.leaveEntry(entryId),
+    onSuccess: (_entry, entryId) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.detail(entryId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.myEntries(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.all,
+      });
+    },
+  });
+};
+
+/**
+ * Hook to set required members
+ */
+export const useSetRequiredMembers = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      entryId,
+      data,
+    }: {
+      entryId: number;
+      data: SetRequiredMembersRequest;
+    }) => entryService.setRequiredMembers(entryId, data),
+    onSuccess: (_entry, { entryId }) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.detail(entryId),
+      });
+    },
+  });
+};
+
+/**
+ * Hook to transfer captaincy
+ */
+export const useTransferCaptaincy = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      entryId,
+      data,
+    }: {
+      entryId: number;
+      data: TransferCaptaincyRequest;
+    }) => entryService.transferCaptaincy(entryId, data),
+    onSuccess: (_entry, { entryId }) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.detail(entryId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.members(entryId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.myRole(entryId),
+      });
+    },
+  });
+};
+
+/**
+ * Hook to respond to join request
+ */
+export const useRespondJoinRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      joinRequestId,
+      data,
+    }: {
+      joinRequestId: number;
+      entryId?: number;
+      data: RespondJoinRequestRequest;
+    }) => entryService.respondJoinRequest(joinRequestId, data),
+    onSuccess: (_entry, { entryId }) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.all,
+      });
+      if (entryId) {
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.entries.joinRequests(entryId),
+        });
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.entries.detail(entryId),
+        });
+      }
+    },
+  });
+};
+
+/**
+ * Hook to confirm entry lineup
+ */
+export const useConfirmLineup = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (entryId: number) => entryService.confirmLineup(entryId),
+    onSuccess: (entry, entryId) => {
+      const categoryId = getCategoryId(entry);
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.detail(entryId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.all,
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.byCategory(categoryId),
+      });
+    },
+  });
+};
+
+/**
+ * Hook to disqualify entries by category
+ */
+export const useDisqualifyEntries = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      categoryId,
+      data,
+    }: {
+      categoryId: number;
+      data: DisqualifyEntriesRequest;
+    }) => entryService.disqualifyEntriesByCategory(categoryId, data),
+    onSuccess: (_entries, { categoryId }) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.byCategory(categoryId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.eligible(categoryId),
       });
     },
   });

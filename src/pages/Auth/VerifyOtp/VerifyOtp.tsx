@@ -1,19 +1,19 @@
-import { useState, useEffect, type FormEvent, type ChangeEvent } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@radix-ui/react-label";
-import { Trophy, Loader2, ArrowLeft } from "lucide-react";
+  useState,
+  useEffect,
+  useRef,
+  type KeyboardEvent,
+  type ClipboardEvent,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Trophy, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { useAuthOperations, useTranslation } from "@/hooks";
 import { useAuth } from "@/store/useAuth";
 import { validateOTP, showToast } from "@/utils";
+
+const COUNTDOWN_SECONDS = 180; // 3 minutes
 
 const VerifyOtp = () => {
   const navigate = useNavigate();
@@ -29,51 +29,102 @@ const VerifyOtp = () => {
   } = useAuthOperations();
 
   const email = searchParams.get("email");
-  const type = searchParams.get("type"); // 'password-reset' or 'email-verification'
+  const type = searchParams.get("type");
 
-  const [otp, setOtp] = useState("");
+  const [digits, setDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [error, setError] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
+  const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  // useEffect(() => {
+  //   if (!email) {
+  //     showToast.error(t("authFlow.verifyOtp.invalidEmail"));
+  //     navigate("/signin");
+  //   }
+  // Countdown timer
   useEffect(() => {
-    if (!email) {
-      showToast.error(t("authFlow.verifyOtp.invalidEmail"));
-      navigate("/signin");
-    }
-  }, [email, navigate, t]);
+    if (countdown <= 0) return;
+    const interval = setInterval(() => {
+      setCountdown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [countdown]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
-    setOtp(value);
-    if (error) {
-      setError(null);
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
+
+  const focusInput = (index: number) => {
+    inputRefs.current[index]?.focus();
+  };
+
+  const handleDigitChange = (index: number, value: string) => {
+    const digit = value.replace(/\D/g, "").slice(-1);
+    const newDigits = [...digits];
+    newDigits[index] = digit;
+    setDigits(newDigits);
+    if (error) setError(null);
+    if (digit && index < 5) {
+      focusInput(index + 1);
     }
   };
 
+  const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace") {
+      if (digits[index]) {
+        const newDigits = [...digits];
+        newDigits[index] = "";
+        setDigits(newDigits);
+      } else if (index > 0) {
+        focusInput(index - 1);
+      }
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      focusInput(index - 1);
+    } else if (e.key === "ArrowRight" && index < 5) {
+      focusInput(index + 1);
+    }
+  };
+
+  const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
+    if (!pasted) return;
+    const newDigits = [...digits];
+    pasted.split("").forEach((char, i) => {
+      if (i < 6) newDigits[i] = char;
+    });
+    setDigits(newDigits);
+    focusInput(Math.min(pasted.length, 5));
+  };
+
+  const otp = digits.join("");
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     if (!email) {
       setError(t("authFlow.verifyOtp.invalidEmail"));
       return;
     }
-
-    // Validate OTP
     const validationError = validateOTP(otp);
     if (validationError) {
       setError(validationError);
       return;
     }
 
-    // Verify based on type
     if (type === "email-verification") {
-      // Email verification flow
       if (!user) {
         setError(t("authFlow.verifyOtp.userNotFound"));
         return;
       }
       const result = await verifyEmailOtp({ email, otp }, user);
-
       if (result.success) {
         showToast.success(
           t("authFlow.verifyOtp.emailVerificationSuccessTitle"),
@@ -88,9 +139,7 @@ const VerifyOtp = () => {
         );
       }
     } else {
-      // Password reset flow
       const result = await verifyOtp({ email, otp });
-
       if (result.success) {
         showToast.success(
           t("authFlow.verifyOtp.verificationSuccessTitle"),
@@ -111,135 +160,325 @@ const VerifyOtp = () => {
 
   const handleResend = async () => {
     if (!email) return;
-
     setResending(true);
-
-    if (type === "email-verification") {
-      const result = await resendEmailVerification({ email });
-      if (result.success) {
-        showToast.success(
-          t("authFlow.verifyOtp.resendSuccessTitle"),
-          t("authFlow.checkEmail"),
-        );
-      } else {
-        showToast.error(
-          t("authFlow.verifyOtp.resendFailedTitle"),
-          result.error,
-        );
-      }
+    const resendFn =
+      type === "email-verification" ? resendEmailVerification : forgotPassword;
+    const result = await resendFn({ email });
+    if (result.success) {
+      setCountdown(COUNTDOWN_SECONDS);
+      showToast.success(
+        t("authFlow.verifyOtp.resendSuccessTitle"),
+        t("authFlow.checkEmail"),
+      );
     } else {
-      const result = await forgotPassword({ email });
-      if (result.success) {
-        showToast.success(
-          t("authFlow.verifyOtp.resendSuccessTitle"),
-          t("authFlow.checkEmail"),
-        );
-      } else {
-        showToast.error(
-          t("authFlow.verifyOtp.resendFailedTitle"),
-          result.error,
-        );
-      }
+      showToast.error(t("authFlow.verifyOtp.resendFailedTitle"), result.error);
     }
-
     setResending(false);
   };
 
-  const getTitle = () => {
-    return type === "email-verification"
-      ? t("authFlow.verifyOtp.titleEmail")
-      : t("authFlow.verifyOtp.titleOtp");
-  };
-
-  const getDescription = () => {
-    return type === "email-verification"
-      ? t("authFlow.verifyOtp.descriptionEmail", { email })
-      : t("authFlow.verifyOtp.descriptionPasswordReset", { email });
-  };
+  const isComplete = otp.length === 6;
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="max-w-md mx-auto">
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <Trophy className="h-12 w-12 text-primary" />
-          </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            {getTitle()}
+    <div
+      className="min-h-screen flex items-center justify-center relative overflow-hidden px-4"
+      style={{ backgroundColor: "var(--background)" }}
+    >
+      {/* Ambient glows */}
+      <div
+        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full pointer-events-none"
+        style={{
+          background: "var(--auth-ambient-primary)",
+          filter: "blur(40px)",
+        }}
+      />
+      <div
+        className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full pointer-events-none"
+        style={{
+          background: "var(--auth-ambient-accent)",
+          filter: "blur(40px)",
+        }}
+      />
+
+      <main className="w-full max-w-lg relative z-10 flex flex-col items-center">
+        {/* Brand */}
+        <div className="mb-12 text-center flex flex-col items-center gap-2">
+          <Trophy
+            className="w-12 h-12"
+            style={{ color: "var(--accent)" }}
+            strokeWidth={1.5}
+          />
+          <h1
+            className="text-5xl font-bold tracking-tight"
+            style={{ color: "var(--accent)", fontFamily: "'Sora', sans-serif" }}
+          >
+            SmashHub
           </h1>
-          <p className="text-muted-foreground">{getDescription()}</p>
+          <span
+            className="text-xs font-bold tracking-widest uppercase mt-1"
+            style={{
+              color: "var(--muted-foreground)",
+              fontFamily: "'Sora', sans-serif",
+            }}
+          >
+            {t("authFlow.verifyOtp.brandTagline")}
+          </span>
         </div>
 
-        <Card className="bg-card border-border">
-          <CardHeader>
-            <CardTitle className="text-2xl text-center text-card-foreground">
-              {t("authFlow.verifyOtp.enterOtpTitle")}
-            </CardTitle>
-            <CardDescription className="text-center">
-              {t("authFlow.verifyOtp.otpDescription")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              <div className="space-y-2">
-                <Label htmlFor="otp" className="text-sm font-medium">
-                  {t("auth.otpCode")}
-                </Label>
-                <Input
-                  id="otp"
-                  type="text"
-                  placeholder={t("authFlow.verifyOtp.otpPlaceholder")}
-                  className="text-center text-2xl tracking-widest"
-                  value={otp}
-                  onChange={handleChange}
-                  maxLength={6}
-                  required
-                />
-                {error && <p className="text-sm text-destructive">{error}</p>}
+        {/* Glass card */}
+        <div
+          className="w-full rounded-xl p-6 md:p-8 shadow-2xl relative overflow-hidden"
+          style={{
+            background: "var(--auth-surface)",
+            backdropFilter: "blur(24px)",
+            border: "1px solid var(--auth-surface-border)",
+            boxShadow: "var(--auth-surface-shadow)",
+          }}
+        >
+          {/* Inner gradient overlay */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: "var(--auth-card-inner-overlay)",
+            }}
+          />
+
+          <div className="relative z-10 flex flex-col gap-6">
+            {/* Header */}
+            <div className="text-center flex flex-col gap-2">
+              <h2
+                className="text-3xl font-semibold"
+                style={{
+                  color: "var(--foreground)",
+                  fontFamily: "'Sora', sans-serif",
+                }}
+              >
+                {t("authFlow.verifyOtp.headerTitle")}
+              </h2>
+              <p
+                className="text-base"
+                style={{
+                  color: "var(--foreground-muted)",
+                  fontFamily: "'Sora', sans-serif",
+                }}
+              >
+                {type === "email-verification"
+                  ? t("authFlow.verifyOtp.descriptionEmail", { email })
+                  : t("authFlow.verifyOtp.descriptionPasswordReset", { email })}
+              </p>
+            </div>
+
+            {/* Form */}
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col items-center gap-5"
+            >
+              {/* 6 digit inputs */}
+              <div className="flex justify-between w-full gap-2 md:gap-3">
+                {digits.map((digit, i) => {
+                  const isFocused =
+                    document.activeElement === inputRefs.current[i];
+                  const isActive = !digit && digits.slice(0, i).every(Boolean);
+                  return (
+                    <input
+                      key={i}
+                      ref={(el) => {
+                        inputRefs.current[i] = el;
+                      }}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      autoFocus={i === 0}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        handleDigitChange(i, e.target.value)
+                      }
+                      onKeyDown={(e) => handleKeyDown(i, e)}
+                      onPaste={handlePaste}
+                      className="flex-1 h-16 rounded-lg text-center outline-none transition-all duration-200"
+                      style={{
+                        background: "var(--secondary)",
+                        border:
+                          isActive || isFocused
+                            ? "1px solid var(--primary)"
+                            : "1px solid var(--border)",
+                        color: "var(--foreground)",
+                        fontFamily: "'Sora', sans-serif",
+                        fontSize: "28px",
+                        fontWeight: 600,
+                        boxShadow:
+                          isActive || isFocused
+                            ? "var(--auth-primary-glow)"
+                            : "none",
+                        maxWidth: "56px",
+                      }}
+                    />
+                  );
+                })}
               </div>
 
-              <Button
+              {/* Error */}
+              {error && (
+                <p
+                  className="text-sm text-center"
+                  style={{
+                    color: "var(--destructive)",
+                    fontFamily: "'Sora', sans-serif",
+                  }}
+                >
+                  {error}
+                </p>
+              )}
+
+              {/* Countdown chip */}
+              <div
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full"
+                style={{
+                  background: "var(--auth-toggle-bg)",
+                  border: "1px solid var(--auth-toggle-border)",
+                }}
+              >
+                <span
+                  className="w-2 h-2 rounded-full"
+                  style={{
+                    backgroundColor: "var(--primary)",
+                    animation: countdown > 0 ? "pulse 2s infinite" : "none",
+                  }}
+                />
+                <span
+                  className="text-xs font-bold tracking-widest uppercase"
+                  style={{
+                    color: "var(--foreground-muted)",
+                    fontFamily: "'Sora', sans-serif",
+                  }}
+                >
+                  {countdown > 0
+                    ? t("authFlow.verifyOtp.countdownRemaining", {
+                        time: formatTime(countdown),
+                      })
+                    : t("authFlow.verifyOtp.countdownExpired")}
+                </span>
+              </div>
+
+              {/* Submit button */}
+              <button
                 type="submit"
-                className="w-full"
-                size="lg"
-                disabled={loading || otp.length !== 6}
+                disabled={loading || !isComplete}
+                className="w-full py-4 rounded-lg font-bold text-xs tracking-widest uppercase flex items-center justify-center gap-2 transition-all duration-300 group"
+                style={{
+                  background:
+                    isComplete && !loading ? "var(--primary)" : "var(--muted)",
+                  color:
+                    isComplete && !loading
+                      ? "var(--primary-foreground)"
+                      : "var(--muted-foreground)",
+                  cursor: isComplete && !loading ? "pointer" : "not-allowed",
+                  boxShadow:
+                    isComplete && !loading
+                      ? "0 0 0px rgba(0,242,255,0)"
+                      : "none",
+                  fontFamily: "'Sora', sans-serif",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  if (isComplete && !loading) {
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                      "var(--auth-primary-glow)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                    "none";
+                }}
               >
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     {t("authFlow.verifyOtp.verifying")}
                   </>
                 ) : (
-                  t("authFlow.verifyOtp.verifyButton")
+                  <>
+                    {t("authFlow.verifyOtp.verifyButton")}
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </>
                 )}
-              </Button>
+              </button>
+            </form>
 
-              <div className="text-center">
+            {/* Footer actions */}
+            <div
+              className="text-center pt-4 flex flex-col gap-4"
+              style={{ borderTop: "1px solid var(--auth-divider-border)" }}
+            >
+              <p
+                className="text-sm"
+                style={{
+                  color: "var(--foreground-muted)",
+                  fontFamily: "'Sora', sans-serif",
+                }}
+              >
+                {t("authFlow.verifyOtp.resendPrompt")}{" "}
                 <button
                   type="button"
                   onClick={handleResend}
-                  disabled={resending}
-                  className="text-sm text-primary hover:text-primary/80 font-medium transition-colors disabled:opacity-50"
+                  disabled={resending || countdown > 0}
+                  className="ml-1 underline underline-offset-4 transition-all duration-200 disabled:opacity-40"
+                  style={{
+                    color: "var(--accent)",
+                    textDecorationColor:
+                      "color-mix(in srgb, var(--accent) 35%, transparent)",
+                    fontFamily: "'Sora', sans-serif",
+                    cursor:
+                      resending || countdown > 0 ? "not-allowed" : "pointer",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!resending && countdown <= 0) {
+                      (e.currentTarget as HTMLButtonElement).style.color =
+                        "var(--primary)";
+                      (e.currentTarget as HTMLButtonElement).style.textShadow =
+                        "var(--auth-primary-glow)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.color =
+                      "var(--accent)";
+                    (e.currentTarget as HTMLButtonElement).style.textShadow =
+                      "none";
+                  }}
                 >
                   {resending
                     ? t("authFlow.verifyOtp.resending")
                     : t("authFlow.verifyOtp.resendButton")}
                 </button>
-              </div>
+              </p>
 
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                className="w-full"
                 onClick={() => navigate(-1)}
+                className="flex items-center justify-center gap-1 transition-colors mx-auto"
+                style={{
+                  color: "var(--muted-foreground)",
+                  fontFamily: "'Sora', sans-serif",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.color =
+                    "var(--foreground)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.color =
+                    "var(--muted-foreground)";
+                }}
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                {t("common.back")}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+                <ArrowLeft className="w-4 h-4" />
+                {t("authFlow.backToSignIn")}
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };

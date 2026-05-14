@@ -47,7 +47,7 @@ export const useAuthOperations = () => {
     const resolvedRoute = getDefaultRouteForRoles(roleIds);
 
     if (!resolvedRoute || resolvedRoute === "/") {
-      return "/user";
+      return "/";
     }
 
     return resolvedRoute;

@@ -19,11 +19,16 @@ const getCategoryId = (data: { contentId: number; categoryId?: number }) =>
  */
 export const useGroupStandingsByCategory = (
   categoryId: number,
-  options?: { enabled?: boolean },
+  options?: { enabled?: boolean; groupName?: string },
 ) => {
   return useQuery({
-    queryKey: queryKeys.groupStandings.byCategory(categoryId),
-    queryFn: () => groupStandingService.getStandingsByCategory(categoryId),
+    queryKey: queryKeys.groupStandings.byCategory(categoryId, {
+      groupName: options?.groupName,
+    }),
+    queryFn: () =>
+      groupStandingService.getStandingsByCategory(categoryId, {
+        groupName: options?.groupName,
+      }),
     enabled: (options?.enabled ?? true) && categoryId > 0,
   });
 };
@@ -136,6 +141,23 @@ export const useCalculateStandings = () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.groupStandings.byCategory(categoryId),
       });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.groupStandings.all,
+      });
+    },
+  });
+};
+
+/**
+ * Hook to sync standings after match approval
+ */
+export const useSyncStandings = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (matchId: number) =>
+      groupStandingService.syncStandings(matchId),
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.groupStandings.all,
       });
