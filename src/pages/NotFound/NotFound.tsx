@@ -78,21 +78,21 @@ const NotFound = () => {
                   background: "linear-gradient(to right, #571bc1, #00f2ff)",
                 }}
               >
-                <span
-                  className="text-xs font-bold tracking-widest uppercase text-white"
-                >
-                  SYSTEM ALERT
+                <span className="text-xs font-bold tracking-widest uppercase text-white">
+                  {t("notFoundPage.badge")}
                 </span>
               </div>
               <h2
                 className="text-3xl font-semibold mb-2"
                 style={{ color: "#dce4e4" }}
               >
-                Signal Lost
+                {t("notFoundPage.title")}
               </h2>
-              <p className="text-base leading-relaxed max-w-lg" style={{ color: "#b9cacb" }}>
-                {t("message.notFound") ||
-                  "The requested sector is currently offline or does not exist within the Pro Circuit database. Verify your coordinates and try again."}
+              <p
+                className="text-base leading-relaxed max-w-lg"
+                style={{ color: "#b9cacb" }}
+              >
+                {t("notFoundPage.description")}
               </p>
             </div>
 
@@ -117,11 +117,12 @@ const NotFound = () => {
                     "0 0 20px rgba(0,242,255,0.5)";
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.boxShadow = "none";
+                  (e.currentTarget as HTMLAnchorElement).style.boxShadow =
+                    "none";
                 }}
               >
                 <LayoutDashboard className="w-4 h-4" />
-                Return to Dashboard
+                {t("notFoundPage.primaryAction")}
               </NavLink>
 
               <a
@@ -144,7 +145,7 @@ const NotFound = () => {
                 }}
               >
                 <HeadphonesIcon className="w-4 h-4" />
-                Contact Support
+                {t("notFoundPage.secondaryAction")}
               </a>
             </div>
           </div>

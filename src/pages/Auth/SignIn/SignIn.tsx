@@ -1,6 +1,7 @@
 import { useState, type FormEvent, type ChangeEvent, useCallback } from "react";
 import { NavLink } from "react-router-dom";
 import { Mail, Lock, ArrowRight, Briefcase, Fingerprint } from "lucide-react";
+import tableTennisBg from "@/assets/table_tennis_bg.png";
 import { useAuthOperations, useTranslation } from "@/hooks";
 import {
   validateLoginForm,
@@ -68,8 +69,16 @@ const SignIn = () => {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage:
-              "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAUTk_gOo_tmlFR9lbZ-jhvNy30pDCZ2iaBEZ41y9FrtTMUhM5lPWdAc8D2wKSC0CJMCrbsa7gubKTQqxnLtqIC__74OHwq2eVUH9AhDhws6q_NTctDHaxFKaD9jloaeyaT1poKBnoV-62vmPTEUWKnDXJhzRY7urJkbLkXwPxZu84Hq_TyTDDu0jcdpjGq5C-O5il6B8LbDSO8LsO7UQ2t9-8GNevHbC4swjs1ce00fQ9RiQIDR948sHhhyH4b8dq7zqh4qdeCdSdV')",
+            backgroundImage: `url(${tableTennisBg})`,
+          }}
+        />
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url(${tableTennisBg})`,
+            filter: "blur(18px)",
+            transform: "scale(1.06)",
+            opacity: 0.35,
           }}
         />
         {/* Gradient overlays */}
@@ -85,6 +94,14 @@ const SignIn = () => {
           style={{
             background:
               "linear-gradient(to top, rgba(13,21,21,0.95) 0%, transparent 60%)",
+          }}
+        />
+        <div
+          className="absolute inset-y-0 right-0"
+          style={{
+            width: "160px",
+            background:
+              "linear-gradient(to right, rgba(13,21,21,0) 0%, rgba(13,21,21,0.7) 55%, rgba(13,21,21,1) 100%)",
           }}
         />
 

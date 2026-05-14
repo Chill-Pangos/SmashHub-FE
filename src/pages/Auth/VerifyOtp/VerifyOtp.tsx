@@ -206,7 +206,7 @@ const VerifyOtp = () => {
             className="text-xs font-bold tracking-widest uppercase mt-1"
             style={{ color: "#849495", fontFamily: "'Sora', sans-serif" }}
           >
-            Pro Circuit Access
+            {t("authFlow.verifyOtp.brandTagline")}
           </span>
         </div>
 
@@ -234,7 +234,7 @@ const VerifyOtp = () => {
                 className="text-3xl font-semibold"
                 style={{ color: "#dce4e4", fontFamily: "'Sora', sans-serif" }}
               >
-                Verification Code
+                {t("authFlow.verifyOtp.headerTitle")}
               </h2>
               <p
                 className="text-base"
@@ -321,8 +321,10 @@ const VerifyOtp = () => {
                   style={{ color: "#b9cacb", fontFamily: "'Sora', sans-serif" }}
                 >
                   {countdown > 0
-                    ? `${formatTime(countdown)} remaining`
-                    : "Code expired"}
+                    ? t("authFlow.verifyOtp.countdownRemaining", {
+                        time: formatTime(countdown),
+                      })
+                    : t("authFlow.verifyOtp.countdownExpired")}
                 </span>
               </div>
 
@@ -360,7 +362,7 @@ const VerifyOtp = () => {
                   </>
                 ) : (
                   <>
-                    {t("authFlow.verifyOtp.verifyButton") || "Verify Identity"}
+                      {t("authFlow.verifyOtp.verifyButton")}
                     <ArrowRight
                       className="w-4 h-4 transition-transform group-hover:translate-x-1"
                     />
@@ -378,7 +380,7 @@ const VerifyOtp = () => {
                 className="text-sm"
                 style={{ color: "#b9cacb", fontFamily: "'Sora', sans-serif" }}
               >
-                Didn't receive a code?{" "}
+                {t("authFlow.verifyOtp.resendPrompt")}{" "}
                 <button
                   type="button"
                   onClick={handleResend}
@@ -406,7 +408,10 @@ const VerifyOtp = () => {
                   }}
                 >
                   {resending ? "Resending..." : "Resend Code"}
-                </button>
+                  {resending
+                    ? t("authFlow.verifyOtp.resending")
+                    : t("authFlow.verifyOtp.resendButton")}
+                  </button>
               </p>
 
               <button
@@ -429,7 +434,7 @@ const VerifyOtp = () => {
                 }}
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back to Login
+                {t("authFlow.backToSignIn")}
               </button>
             </div>
           </div>

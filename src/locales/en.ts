@@ -117,7 +117,8 @@ export default {
     otpSent: "OTP sent",
     invalidCredentials: "Invalid email or password",
     accountLocked: "Account locked",
-    brandDescription: "The elite ecosystem for professional table tennis management, analytics, and high-stakes tournament execution.",
+    brandDescription:
+      "The elite ecosystem for professional table tennis management, analytics, and high-stakes tournament execution.",
     welcomeBack: "Welcome Back",
     enterCredentials: "Enter your credentials to access the pro dashboard.",
   },
@@ -1362,6 +1363,16 @@ export default {
     processingRequest: "Processing request...",
   },
 
+  // Not Found Page
+  notFoundPage: {
+    badge: "System Alert",
+    title: "Signal Lost",
+    description:
+      "The requested sector is currently offline or does not exist within the Pro Circuit database. Verify your coordinates and try again.",
+    primaryAction: "Return to Dashboard",
+    secondaryAction: "Contact Support",
+  },
+
   // Toast / API Errors
   toast: {
     errors: {
@@ -1435,7 +1446,7 @@ export default {
     passwordStrengthLabel: "Password strength",
     signUp: {
       termsRequired: "Please agree to the Terms of Service and Privacy Policy",
-      welcomeDescription: "Welcome to SmashHub, {{name}}!",
+      welcomeDescription: "Welcome to SmashHub!",
       cardDescription: "Create your account to continue",
       firstNamePlaceholder: "Enter first name",
       lastNamePlaceholder: "Enter last name",
@@ -1452,6 +1463,9 @@ export default {
       sending: "Sending...",
       sendOtpButton: "Send verification code",
       otpSentSuccess: "OTP code has been sent to your email!",
+      brandTagline: "Pro Circuit Recovery",
+      supportPrompt: "Need urgent access?",
+      supportLink: "Contact Support",
       rememberPassword: "Remember your password?",
     },
     verifyOtp: {
@@ -1466,6 +1480,8 @@ export default {
       verificationSuccessDescription: "You can now reset your password",
       resendSuccessTitle: "A new OTP has been sent",
       resendFailedTitle: "Resend failed",
+      headerTitle: "Verification Code",
+      brandTagline: "Pro Circuit Access",
       titleEmail: "Verify Email",
       titleOtp: "Verify OTP",
       descriptionEmail: "Enter the OTP sent to {{email}}",
@@ -1476,18 +1492,28 @@ export default {
       otpPlaceholder: "123456",
       verifying: "Verifying...",
       verifyButton: "Verify",
+      countdownRemaining: "{{time}} remaining",
+      countdownExpired: "Code expired",
       resending: "Resending...",
       resendButton: "Resend OTP",
+      resendPrompt: "Didn't receive a code?",
     },
     resetPassword: {
       invalidInfo: "Invalid information",
       resetSuccessDescription: "You can now sign in with your new password",
       resetFailed: "Password reset failed",
+      headerTitle: "Secure Reset",
       subtitle: "Enter a new password for your account",
       cardTitle: "New password",
       cardDescription: "Make sure your password is strong and secure",
       confirmPasswordPlaceholder: "Re-enter your new password",
       submitting: "Resetting...",
+      submitButton: "Initialize Update",
+      requirements: {
+        length: "12+ CHARS",
+        symbol: "SYMBOL",
+        number: "NUMBER",
+      },
     },
     emailVerification: {
       alreadyVerified: "Your email is already verified",

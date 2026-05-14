@@ -116,9 +116,11 @@ export default {
     otpSent: "Mã OTP đã được gửi",
     invalidCredentials: "Email hoặc mật khẩu không đúng",
     accountLocked: "Tài khoản đã bị khóa",
-    brandDescription: "Hệ thống quản lý bóng bàn chuyên nghiệp, phân tích và thực thi giải đấu cấp cao.",
+    brandDescription:
+      "Hệ thống quản lý bóng bàn chuyên nghiệp, phân tích và thực thi giải đấu cấp cao.",
     welcomeBack: "Chào mừng trở lại",
-    enterCredentials: "Nhập thông tin đăng nhập để truy cập bảng điều khiển chuyên nghiệp.",
+    enterCredentials:
+      "Nhập thông tin đăng nhập để truy cập bảng điều khiển chuyên nghiệp.",
   },
 
   // Navigation
@@ -1508,6 +1510,16 @@ export default {
     processingRequest: "Đang xử lý yêu cầu...",
   },
 
+  // Trang 404
+  notFoundPage: {
+    badge: "CẢNH BÁO HỆ THỐNG",
+    title: "Mất tín hiệu",
+    description:
+      "Khu vực được yêu cầu hiện đang ngoại tuyến hoặc không tồn tại trong cơ sở dữ liệu Pro Circuit. Vui lòng kiểm tra lại tọa độ và thử lại.",
+    primaryAction: "Quay lại bảng điều khiển",
+    secondaryAction: "Liên hệ hỗ trợ",
+  },
+
   // Toast / API Errors
   toast: {
     errors: {
@@ -1600,6 +1612,9 @@ export default {
       sending: "Đang gửi...",
       sendOtpButton: "Gửi mã xác thực",
       otpSentSuccess: "Mã OTP đã được gửi đến email của bạn!",
+      brandTagline: "Khôi phục Pro Circuit",
+      supportPrompt: "Cần hỗ trợ khẩn cấp?",
+      supportLink: "Liên hệ hỗ trợ",
       rememberPassword: "Nhớ mật khẩu?",
     },
     verifyOtp: {
@@ -1613,6 +1628,8 @@ export default {
       verificationSuccessDescription: "Bạn có thể đặt lại mật khẩu mới",
       resendSuccessTitle: "Mã OTP mới đã được gửi",
       resendFailedTitle: "Gửi lại thất bại",
+      headerTitle: "Mã xác thực",
+      brandTagline: "Truy cập Pro Circuit",
       titleEmail: "Xác thực Email",
       titleOtp: "Xác thực OTP",
       descriptionEmail: "Nhập mã OTP đã được gửi đến {{email}}",
@@ -1623,18 +1640,28 @@ export default {
       otpPlaceholder: "123456",
       verifying: "Đang xác thực...",
       verifyButton: "Xác thực",
+      countdownRemaining: "Còn {{time}}",
+      countdownExpired: "Mã đã hết hạn",
       resending: "Đang gửi lại...",
       resendButton: "Gửi lại mã OTP",
+      resendPrompt: "Không nhận được mã?",
     },
     resetPassword: {
       invalidInfo: "Thông tin không hợp lệ",
       resetSuccessDescription: "Bạn có thể đăng nhập với mật khẩu mới",
       resetFailed: "Đặt lại mật khẩu thất bại",
+      headerTitle: "Đặt lại bảo mật",
       subtitle: "Nhập mật khẩu mới cho tài khoản của bạn",
       cardTitle: "Mật khẩu mới",
       cardDescription: "Đảm bảo mật khẩu đủ mạnh và an toàn",
       confirmPasswordPlaceholder: "Nhập lại mật khẩu mới",
       submitting: "Đang đặt lại...",
+      submitButton: "Khởi tạo cập nhật",
+      requirements: {
+        length: "12+ KÝ TỰ",
+        symbol: "KÝ TỰ ĐẶC BIỆT",
+        number: "CHỮ SỐ",
+      },
     },
     emailVerification: {
       alreadyVerified: "Email của bạn đã được xác thực",

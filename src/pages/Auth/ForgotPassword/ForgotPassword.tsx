@@ -1,6 +1,12 @@
 import { useState, type FormEvent, type ChangeEvent } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
-import { Mail, ArrowLeft, ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
+import {
+  Mail,
+  ArrowLeft,
+  ArrowRight,
+  Loader2,
+  CheckCircle2,
+} from "lucide-react";
 import { useAuthOperations, useTranslation } from "@/hooks";
 import { validateForgotPasswordForm, showToast } from "@/utils";
 
@@ -20,14 +26,19 @@ const ForgotPassword = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationError = validateForgotPasswordForm(email);
-    if (validationError) { setError(validationError); return; }
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
     const result = await forgotPassword({ email });
     if (result.success) {
       setSubmitted(true);
       showToast.success(t("auth.otpSent"), t("authFlow.checkEmail"));
       setTimeout(() => {
-        navigate(`/verify-otp?email=${encodeURIComponent(email)}&type=password-reset`);
+        navigate(
+          `/verify-otp?email=${encodeURIComponent(email)}&type=password-reset`,
+        );
       }, 1500);
     } else {
       setError(result.error || t("authFlow.forgotPassword.otpSendFailed"));
@@ -44,8 +55,10 @@ const ForgotPassword = () => {
       <div
         className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none rounded-full"
         style={{
-          width: "700px", height: "700px",
-          background: "radial-gradient(circle, rgba(0,242,255,0.05) 0%, transparent 70%)",
+          width: "700px",
+          height: "700px",
+          background:
+            "radial-gradient(circle, rgba(0,242,255,0.05) 0%, transparent 70%)",
           filter: "blur(60px)",
         }}
       />
@@ -53,11 +66,14 @@ const ForgotPassword = () => {
       <main className="w-full max-w-[480px] relative z-10 flex flex-col items-center">
         {/* Brand */}
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold tracking-tight mb-2" style={{ color: "#00dbe7" }}>
+          <h1
+            className="text-4xl font-bold tracking-tight mb-2"
+            style={{ color: "#00dbe7" }}
+          >
             SmashHub
           </h1>
           <p className="text-sm" style={{ color: "#849495" }}>
-            Pro Circuit Recovery
+            {t("authFlow.forgotPassword.brandTagline")}
           </p>
         </div>
 
@@ -66,7 +82,8 @@ const ForgotPassword = () => {
           className="w-full rounded-xl p-8"
           style={{
             backdropFilter: "blur(24px)",
-            background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)",
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)",
             border: "1px solid rgba(255,255,255,0.10)",
             boxShadow: "0 25px 50px rgba(0,0,0,0.5)",
           }}
@@ -75,12 +92,17 @@ const ForgotPassword = () => {
             <>
               {/* Header */}
               <div className="mb-6">
-                <h2 className="text-2xl font-semibold mb-2" style={{ color: "#dce4e4" }}>
-                  {t("authFlow.forgotPassword.cardTitle") || "Reset Password"}
+                <h2
+                  className="text-2xl font-semibold mb-2"
+                  style={{ color: "#dce4e4" }}
+                >
+                  {t("authFlow.forgotPassword.cardTitle")}
                 </h2>
-                <p className="text-sm leading-relaxed" style={{ color: "#b9cacb" }}>
-                  {t("authFlow.forgotPassword.cardDescription") ||
-                    "Enter the email address associated with your Pro Circuit Admin account to receive recovery instructions."}
+                <p
+                  className="text-sm leading-relaxed"
+                  style={{ color: "#b9cacb" }}
+                >
+                  {t("authFlow.forgotPassword.cardDescription")}
                 </p>
               </div>
 
@@ -102,7 +124,9 @@ const ForgotPassword = () => {
                     <input
                       id="email"
                       type="email"
-                      placeholder={t("placeholder.enterEmail") || "admin@procircuit.com"}
+                      placeholder={
+                        t("placeholder.enterEmail") || "admin@procircuit.com"
+                      }
                       value={email}
                       onChange={handleChange}
                       disabled={loading}
@@ -110,7 +134,9 @@ const ForgotPassword = () => {
                       className="w-full outline-none transition-all duration-200"
                       style={{
                         background: "#232b2c",
-                        border: error ? "1px solid #ffb4ab" : "1px solid #3a494b",
+                        border: error
+                          ? "1px solid #ffb4ab"
+                          : "1px solid #3a494b",
                         borderRadius: "6px",
                         color: "#dce4e4",
                         fontFamily: "'Sora', sans-serif",
@@ -119,21 +145,30 @@ const ForgotPassword = () => {
                       }}
                       onFocus={(e) => {
                         e.currentTarget.style.border = "1px solid #00f2ff";
-                        e.currentTarget.style.boxShadow = "0 0 15px rgba(0,242,255,0.15)";
+                        e.currentTarget.style.boxShadow =
+                          "0 0 15px rgba(0,242,255,0.15)";
                         e.currentTarget.style.background = "#2e3637";
-                        const icon = e.currentTarget.previousElementSibling as HTMLElement;
+                        const icon = e.currentTarget
+                          .previousElementSibling as HTMLElement;
                         if (icon) icon.style.color = "#00f2ff";
                       }}
                       onBlur={(e) => {
-                        e.currentTarget.style.border = error ? "1px solid #ffb4ab" : "1px solid #3a494b";
+                        e.currentTarget.style.border = error
+                          ? "1px solid #ffb4ab"
+                          : "1px solid #3a494b";
                         e.currentTarget.style.boxShadow = "none";
                         e.currentTarget.style.background = "#232b2c";
-                        const icon = e.currentTarget.previousElementSibling as HTMLElement;
+                        const icon = e.currentTarget
+                          .previousElementSibling as HTMLElement;
                         if (icon) icon.style.color = "#849495";
                       }}
                     />
                   </div>
-                  {error && <p className="text-xs" style={{ color: "#ffb4ab" }}>{error}</p>}
+                  {error && (
+                    <p className="text-xs" style={{ color: "#ffb4ab" }}>
+                      {error}
+                    </p>
+                  )}
                 </div>
 
                 {/* Send button */}
@@ -147,20 +182,31 @@ const ForgotPassword = () => {
                     cursor: loading ? "not-allowed" : "pointer",
                   }}
                   onMouseEnter={(e) => {
-                    if (!loading) (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 20px rgba(0,242,255,0.4)";
+                    if (!loading)
+                      (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                        "0 0 20px rgba(0,242,255,0.4)";
                   }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "none"; }}
-                  onMouseDown={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.98)"; }}
-                  onMouseUp={(e)   => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)"; }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                      "none";
+                  }}
+                  onMouseDown={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.transform =
+                      "scale(0.98)";
+                  }}
+                  onMouseUp={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.transform =
+                      "scale(1)";
+                  }}
                 >
                   {loading ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      {t("authFlow.forgotPassword.sending") || "Sending..."}
+                      {t("authFlow.forgotPassword.sending")}
                     </>
                   ) : (
                     <>
-                      {t("authFlow.forgotPassword.sendOtpButton") || "Send Recovery Link"}
+                      {t("authFlow.forgotPassword.sendOtpButton")}
                       <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </>
                   )}
@@ -177,11 +223,17 @@ const ForgotPassword = () => {
                     color: "#b9cacb",
                     cursor: "pointer",
                   }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.07)"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.03)"; }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background =
+                      "rgba(255,255,255,0.07)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background =
+                      "rgba(255,255,255,0.03)";
+                  }}
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  {t("authFlow.backToSignIn") || "Return to Login"}
+                  {t("authFlow.backToSignIn")}
                 </button>
               </form>
 
@@ -191,15 +243,21 @@ const ForgotPassword = () => {
                 style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
               >
                 <p className="text-sm" style={{ color: "#849495" }}>
-                  Need urgent access?{" "}
+                  {t("authFlow.forgotPassword.supportPrompt")}{" "}
                   <NavLink
                     to="/signin"
                     className="font-semibold transition-colors"
                     style={{ color: "#00dbe7" }}
-                    onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#00f2ff")}
-                    onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#00dbe7")}
+                    onMouseEnter={(e) =>
+                      ((e.currentTarget as HTMLAnchorElement).style.color =
+                        "#00f2ff")
+                    }
+                    onMouseLeave={(e) =>
+                      ((e.currentTarget as HTMLAnchorElement).style.color =
+                        "#00dbe7")
+                    }
                   >
-                    Contact Support
+                    {t("authFlow.forgotPassword.supportLink")}
                   </NavLink>
                 </p>
               </div>
@@ -209,16 +267,25 @@ const ForgotPassword = () => {
             <div className="text-center flex flex-col items-center gap-5 py-4">
               <div
                 className="w-16 h-16 rounded-full flex items-center justify-center"
-                style={{ background: "rgba(0,242,255,0.1)", border: "1px solid rgba(0,242,255,0.2)" }}
+                style={{
+                  background: "rgba(0,242,255,0.1)",
+                  border: "1px solid rgba(0,242,255,0.2)",
+                }}
               >
-                <CheckCircle2 className="w-8 h-8" style={{ color: "#00f2ff" }} />
+                <CheckCircle2
+                  className="w-8 h-8"
+                  style={{ color: "#00f2ff" }}
+                />
               </div>
               <div>
-                <h2 className="text-xl font-semibold mb-2" style={{ color: "#dce4e4" }}>
-                  {t("authFlow.forgotPassword.otpSentSuccess") || "Recovery Link Sent"}
+                <h2
+                  className="text-xl font-semibold mb-2"
+                  style={{ color: "#dce4e4" }}
+                >
+                  {t("authFlow.forgotPassword.otpSentSuccess")}
                 </h2>
                 <p className="text-sm" style={{ color: "#b9cacb" }}>
-                  {t("authFlow.redirectingToVerification") || "Redirecting to verification..."}
+                  {t("authFlow.redirectingToVerification")}
                 </p>
               </div>
               <div className="flex gap-1">

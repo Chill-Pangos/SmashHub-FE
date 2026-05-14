@@ -1,6 +1,15 @@
-import { useState, useEffect, type FormEvent, type ChangeEvent } from "react";
+import { useState,  type FormEvent, type ChangeEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Lock, LockKeyhole, ArrowRight, ArrowLeft, Loader2, Eye, EyeOff, CheckCircle2, Circle } from "lucide-react";
+import {
+  Lock,
+  LockKeyhole,
+  ArrowRight,
+  ArrowLeft,
+  Loader2,
+  EyeOff,
+  CheckCircle2,
+  Circle,
+} from "lucide-react";
 import { useAuthOperations, useTranslation } from "@/hooks";
 import {
   validatePassword,
@@ -20,7 +29,10 @@ const ResetPassword = () => {
   const email = searchParams.get("email");
   const otp = searchParams.get("otp");
 
-  const [formData, setFormData] = useState({ newPassword: "", confirmPassword: "" });
+  const [formData, setFormData] = useState({
+    newPassword: "",
+    confirmPassword: "",
+  });
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -36,30 +48,50 @@ const ResetPassword = () => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
     if (errors[id]) {
-      setErrors((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      setErrors((prev) => {
+        const n = { ...prev };
+        delete n[id];
+        return n;
+      });
     }
   };
 
   const pw = formData.newPassword;
-  const hasMinLength  = pw.length >= 12;
-  const hasSymbol     = /[^a-zA-Z0-9]/.test(pw);
-  const hasNumber     = /\d/.test(pw);
+  const hasMinLength = pw.length >= 12;
+  const hasSymbol = /[^a-zA-Z0-9]/.test(pw);
+  const hasNumber = /\d/.test(pw);
   const passwordStrength = pw ? checkPasswordStrength(pw) : null;
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!email || !otp) { showToast.error(t("authFlow.resetPassword.invalidInfo")); return; }
-
-    const passwordError = validatePassword(formData.newPassword);
-    const confirmError  = validatePasswordConfirmation(formData.newPassword, formData.confirmPassword);
-    if (passwordError || confirmError) {
-      setErrors({ newPassword: passwordError || "", confirmPassword: confirmError || "" });
+    if (!email || !otp) {
+      showToast.error(t("authFlow.resetPassword.invalidInfo"));
       return;
     }
 
-    const result = await resetPassword({ email, otp, newPassword: formData.newPassword });
+    const passwordError = validatePassword(formData.newPassword);
+    const confirmError = validatePasswordConfirmation(
+      formData.newPassword,
+      formData.confirmPassword,
+    );
+    if (passwordError || confirmError) {
+      setErrors({
+        newPassword: passwordError || "",
+        confirmPassword: confirmError || "",
+      });
+      return;
+    }
+
+    const result = await resetPassword({
+      email,
+      otp,
+      newPassword: formData.newPassword,
+    });
     if (result.success) {
-      showToast.success(t("auth.passwordResetSuccess"), t("authFlow.resetPassword.resetSuccessDescription"));
+      showToast.success(
+        t("auth.passwordResetSuccess"),
+        t("authFlow.resetPassword.resetSuccessDescription"),
+      );
       navigate("/signin");
     } else {
       showToast.error(t("authFlow.resetPassword.resetFailed"), result.error);
@@ -83,8 +115,13 @@ const ResetPassword = () => {
     e.currentTarget.style.border = "1px solid #00f2ff";
     e.currentTarget.style.boxShadow = "inset 0 0 10px rgba(0,242,255,0.1)";
   };
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>, hasErr?: boolean) => {
-    e.currentTarget.style.border = hasErr ? "1px solid #ffb4ab" : "1px solid #3a494b";
+  const handleBlur = (
+    e: React.FocusEvent<HTMLInputElement>,
+    hasErr?: boolean,
+  ) => {
+    e.currentTarget.style.border = hasErr
+      ? "1px solid #ffb4ab"
+      : "1px solid #3a494b";
     e.currentTarget.style.boxShadow = "none";
   };
 
@@ -95,13 +132,16 @@ const ResetPassword = () => {
         background: met
           ? "linear-gradient(to right, rgba(87,27,193,0.2), rgba(0,242,255,0.2))"
           : "#2e3637",
-        border: met ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(255,255,255,0.05)",
+        border: met
+          ? "1px solid rgba(255,255,255,0.1)"
+          : "1px solid rgba(255,255,255,0.05)",
       }}
     >
-      {met
-        ? <CheckCircle2 className="w-3.5 h-3.5" style={{ color: "#00f2ff" }} />
-        : <Circle className="w-3.5 h-3.5" style={{ color: "#849495" }} />
-      }
+      {met ? (
+        <CheckCircle2 className="w-3.5 h-3.5" style={{ color: "#00f2ff" }} />
+      ) : (
+        <Circle className="w-3.5 h-3.5" style={{ color: "#849495" }} />
+      )}
       <span
         className="text-xs font-bold tracking-widest uppercase"
         style={{ color: met ? "#dce4e4" : "#849495" }}
@@ -120,8 +160,10 @@ const ResetPassword = () => {
       <div
         className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none rounded-full"
         style={{
-          width: "800px", height: "800px",
-          background: "radial-gradient(circle, rgba(0,242,255,0.05) 0%, transparent 70%)",
+          width: "800px",
+          height: "800px",
+          background:
+            "radial-gradient(circle, rgba(0,242,255,0.05) 0%, transparent 70%)",
           filter: "blur(60px)",
         }}
       />
@@ -132,22 +174,28 @@ const ResetPassword = () => {
           className="rounded-xl p-8"
           style={{
             backdropFilter: "blur(24px)",
-            background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)",
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)",
             border: "1px solid rgba(255,255,255,0.10)",
             boxShadow: "0 25px 50px rgba(0,0,0,0.5)",
           }}
         >
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="text-3xl font-bold tracking-tight mb-1" style={{ color: "#00dbe7" }}>
+            <div
+              className="text-3xl font-bold tracking-tight mb-1"
+              style={{ color: "#00dbe7" }}
+            >
               SmashHub
             </div>
-            <h1 className="text-2xl font-semibold mb-2" style={{ color: "#dce4e4" }}>
-              Secure Reset
+            <h1
+              className="text-2xl font-semibold mb-2"
+              style={{ color: "#dce4e4" }}
+            >
+              {t("authFlow.resetPassword.headerTitle")}
             </h1>
             <p className="text-sm" style={{ color: "#b9cacb" }}>
-              {t("authFlow.resetPassword.subtitle") ||
-                "Enter your new elite credentials below to regain access to the terminal."}
+              {t("authFlow.resetPassword.subtitle")}
             </p>
           </div>
 
@@ -160,7 +208,7 @@ const ResetPassword = () => {
                 className="text-xs font-bold tracking-widest uppercase"
                 style={{ color: "#b9cacb" }}
               >
-                {t("auth.newPassword") || "New Authorization Key"}
+                {t("auth.newPassword")}
               </label>
               <div className="relative">
                 <input
@@ -171,7 +219,12 @@ const ResetPassword = () => {
                   onChange={handleChange}
                   disabled={loading}
                   required
-                  style={{ ...inputBase, border: errors.newPassword ? "1px solid #ffb4ab" : "1px solid #3a494b" }}
+                  style={{
+                    ...inputBase,
+                    border: errors.newPassword
+                      ? "1px solid #ffb4ab"
+                      : "1px solid #3a494b",
+                  }}
                   onFocus={handleFocus}
                   onBlur={(e) => handleBlur(e, !!errors.newPassword)}
                 />
@@ -180,10 +233,18 @@ const ResetPassword = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
                   style={{ color: "#849495" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "#00f2ff")}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = "#849495")}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = "#00f2ff")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = "#849495")
+                  }
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Lock className="w-5 h-5" />
+                  )}
                 </button>
               </div>
               {passwordStrength && (
@@ -191,18 +252,25 @@ const ResetPassword = () => {
                   className="text-xs font-medium"
                   style={{
                     color:
-                      passwordStrength === PasswordStrength.WEAK   ? "#ffb4ab" :
-                      passwordStrength === PasswordStrength.MEDIUM ? "#e8c423" : "#4ade80",
+                      passwordStrength === PasswordStrength.WEAK
+                        ? "#ffb4ab"
+                        : passwordStrength === PasswordStrength.MEDIUM
+                          ? "#e8c423"
+                          : "#4ade80",
                   }}
                 >
                   {t("authFlow.passwordStrengthLabel")}:{" "}
-                  {passwordStrength === PasswordStrength.WEAK   ? t("validation.passwordStrength.weak")   :
-                   passwordStrength === PasswordStrength.MEDIUM ? t("validation.passwordStrength.medium") :
-                                                                   t("validation.passwordStrength.strong")}
+                  {passwordStrength === PasswordStrength.WEAK
+                    ? t("validation.passwordStrength.weak")
+                    : passwordStrength === PasswordStrength.MEDIUM
+                      ? t("validation.passwordStrength.medium")
+                      : t("validation.passwordStrength.strong")}
                 </p>
               )}
               {errors.newPassword && (
-                <p className="text-xs" style={{ color: "#ffb4ab" }}>{errors.newPassword}</p>
+                <p className="text-xs" style={{ color: "#ffb4ab" }}>
+                  {errors.newPassword}
+                </p>
               )}
             </div>
 
@@ -213,7 +281,7 @@ const ResetPassword = () => {
                 className="text-xs font-bold tracking-widest uppercase"
                 style={{ color: "#b9cacb" }}
               >
-                {t("auth.confirmPassword") || "Confirm Key"}
+                {t("auth.confirmPassword")}
               </label>
               <div className="relative">
                 <input
@@ -224,7 +292,12 @@ const ResetPassword = () => {
                   onChange={handleChange}
                   disabled={loading}
                   required
-                  style={{ ...inputBase, border: errors.confirmPassword ? "1px solid #ffb4ab" : "1px solid #3a494b" }}
+                  style={{
+                    ...inputBase,
+                    border: errors.confirmPassword
+                      ? "1px solid #ffb4ab"
+                      : "1px solid #3a494b",
+                  }}
                   onFocus={handleFocus}
                   onBlur={(e) => handleBlur(e, !!errors.confirmPassword)}
                 />
@@ -233,22 +306,41 @@ const ResetPassword = () => {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
                   style={{ color: "#849495" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "#00f2ff")}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = "#849495")}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = "#00f2ff")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = "#849495")
+                  }
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <LockKeyhole className="w-5 h-5" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <LockKeyhole className="w-5 h-5" />
+                  )}
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p className="text-xs" style={{ color: "#ffb4ab" }}>{errors.confirmPassword}</p>
+                <p className="text-xs" style={{ color: "#ffb4ab" }}>
+                  {errors.confirmPassword}
+                </p>
               )}
             </div>
 
             {/* Password requirement chips */}
             <div className="flex flex-wrap gap-2 mt-1 mb-2">
-              <Chip met={hasMinLength} label="12+ CHARS" />
-              <Chip met={hasSymbol}    label="SYMBOL" />
-              <Chip met={hasNumber}    label="NUMBER" />
+              <Chip
+                met={hasMinLength}
+                label={t("authFlow.resetPassword.requirements.length")}
+              />
+              <Chip
+                met={hasSymbol}
+                label={t("authFlow.resetPassword.requirements.symbol")}
+              />
+              <Chip
+                met={hasNumber}
+                label={t("authFlow.resetPassword.requirements.number")}
+              />
             </div>
 
             {/* Submit */}
@@ -262,22 +354,30 @@ const ResetPassword = () => {
                 cursor: loading ? "not-allowed" : "pointer",
               }}
               onMouseEnter={(e) => {
-                if (!loading) (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 15px #00f2ff";
+                if (!loading)
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                    "0 0 15px #00f2ff";
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
               }}
-              onMouseDown={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.98)"; }}
-              onMouseUp={(e)   => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)"; }}
+              onMouseDown={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.transform =
+                  "scale(0.98)";
+              }}
+              onMouseUp={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.transform =
+                  "scale(1)";
+              }}
             >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  {t("authFlow.resetPassword.submitting") || "Updating..."}
+                  {t("authFlow.resetPassword.submitting")}
                 </>
               ) : (
                 <>
-                  {t("authFlow.resetPassword.submitButton") || "Initialize Update"}
+                  {t("authFlow.resetPassword.submitButton")}
                   <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </>
               )}
@@ -287,7 +387,11 @@ const ResetPassword = () => {
           {/* Separator */}
           <div
             className="my-6"
-            style={{ height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)" }}
+            style={{
+              height: "1px",
+              background:
+                "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)",
+            }}
           />
 
           {/* Back to login */}
@@ -301,7 +405,7 @@ const ResetPassword = () => {
               onMouseLeave={(e) => (e.currentTarget.style.color = "#849495")}
             >
               <ArrowLeft className="w-4 h-4" />
-              ABORT TO LOGIN
+              {t("authFlow.backToSignIn")}
             </button>
           </div>
         </div>
