@@ -1,4 +1,4 @@
-import { useState,  type FormEvent, type ChangeEvent } from "react";
+import { useState, type FormEvent, type ChangeEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Lock,
@@ -100,10 +100,10 @@ const ResetPassword = () => {
 
   const inputBase: React.CSSProperties = {
     width: "100%",
-    background: "#232b2c",
-    border: "1px solid #3a494b",
+    background: "var(--input)",
+    border: "1px solid var(--border)",
     borderRadius: "6px",
-    color: "#dce4e4",
+    color: "var(--foreground)",
     fontFamily: "'Sora', sans-serif",
     fontSize: "16px",
     padding: "12px 44px 12px 16px",
@@ -112,7 +112,7 @@ const ResetPassword = () => {
   };
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.currentTarget.style.border = "1px solid #00f2ff";
+    e.currentTarget.style.border = "1px solid var(--primary)";
     e.currentTarget.style.boxShadow = "inset 0 0 10px rgba(0,242,255,0.1)";
   };
   const handleBlur = (
@@ -120,8 +120,8 @@ const ResetPassword = () => {
     hasErr?: boolean,
   ) => {
     e.currentTarget.style.border = hasErr
-      ? "1px solid #ffb4ab"
-      : "1px solid #3a494b";
+      ? "1px solid var(--destructive)"
+      : "1px solid var(--border)";
     e.currentTarget.style.boxShadow = "none";
   };
 
@@ -131,20 +131,26 @@ const ResetPassword = () => {
       style={{
         background: met
           ? "linear-gradient(to right, rgba(87,27,193,0.2), rgba(0,242,255,0.2))"
-          : "#2e3637",
+          : "var(--secondary)",
         border: met
           ? "1px solid rgba(255,255,255,0.1)"
           : "1px solid rgba(255,255,255,0.05)",
       }}
     >
       {met ? (
-        <CheckCircle2 className="w-3.5 h-3.5" style={{ color: "#00f2ff" }} />
+        <CheckCircle2
+          className="w-3.5 h-3.5"
+          style={{ color: "var(--primary)" }}
+        />
       ) : (
-        <Circle className="w-3.5 h-3.5" style={{ color: "#849495" }} />
+        <Circle
+          className="w-3.5 h-3.5"
+          style={{ color: "var(--muted-foreground)" }}
+        />
       )}
       <span
         className="text-xs font-bold tracking-widest uppercase"
-        style={{ color: met ? "#dce4e4" : "#849495" }}
+        style={{ color: met ? "var(--foreground)" : "var(--muted-foreground)" }}
       >
         {label}
       </span>
@@ -154,7 +160,10 @@ const ResetPassword = () => {
   return (
     <div
       className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden"
-      style={{ backgroundColor: "#0d1515", fontFamily: "'Sora', sans-serif" }}
+      style={{
+        backgroundColor: "var(--background)",
+        fontFamily: "'Sora', sans-serif",
+      }}
     >
       {/* Ambient glow */}
       <div
@@ -184,17 +193,17 @@ const ResetPassword = () => {
           <div className="text-center mb-8">
             <div
               className="text-3xl font-bold tracking-tight mb-1"
-              style={{ color: "#00dbe7" }}
+              style={{ color: "var(--accent)" }}
             >
               SmashHub
             </div>
             <h1
               className="text-2xl font-semibold mb-2"
-              style={{ color: "#dce4e4" }}
+              style={{ color: "var(--foreground)" }}
             >
               {t("authFlow.resetPassword.headerTitle")}
             </h1>
-            <p className="text-sm" style={{ color: "#b9cacb" }}>
+            <p className="text-sm" style={{ color: "var(--foreground-muted)" }}>
               {t("authFlow.resetPassword.subtitle")}
             </p>
           </div>
@@ -206,7 +215,7 @@ const ResetPassword = () => {
               <label
                 htmlFor="newPassword"
                 className="text-xs font-bold tracking-widest uppercase"
-                style={{ color: "#b9cacb" }}
+                style={{ color: "var(--foreground-muted)" }}
               >
                 {t("auth.newPassword")}
               </label>
@@ -222,8 +231,8 @@ const ResetPassword = () => {
                   style={{
                     ...inputBase,
                     border: errors.newPassword
-                      ? "1px solid #ffb4ab"
-                      : "1px solid #3a494b",
+                      ? "1px solid var(--destructive)"
+                      : "1px solid var(--border)",
                   }}
                   onFocus={handleFocus}
                   onBlur={(e) => handleBlur(e, !!errors.newPassword)}
@@ -232,12 +241,12 @@ const ResetPassword = () => {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                  style={{ color: "#849495" }}
+                  style={{ color: "var(--muted-foreground)" }}
                   onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "#00f2ff")
+                    (e.currentTarget.style.color = "var(--primary)")
                   }
                   onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "#849495")
+                    (e.currentTarget.style.color = "var(--muted-foreground)")
                   }
                 >
                   {showPassword ? (
@@ -253,10 +262,10 @@ const ResetPassword = () => {
                   style={{
                     color:
                       passwordStrength === PasswordStrength.WEAK
-                        ? "#ffb4ab"
+                        ? "var(--destructive)"
                         : passwordStrength === PasswordStrength.MEDIUM
-                          ? "#e8c423"
-                          : "#4ade80",
+                          ? "var(--chart-4)"
+                          : "var(--chart-3)",
                   }}
                 >
                   {t("authFlow.passwordStrengthLabel")}:{" "}
@@ -268,7 +277,7 @@ const ResetPassword = () => {
                 </p>
               )}
               {errors.newPassword && (
-                <p className="text-xs" style={{ color: "#ffb4ab" }}>
+                <p className="text-xs" style={{ color: "var(--destructive)" }}>
                   {errors.newPassword}
                 </p>
               )}
@@ -279,7 +288,7 @@ const ResetPassword = () => {
               <label
                 htmlFor="confirmPassword"
                 className="text-xs font-bold tracking-widest uppercase"
-                style={{ color: "#b9cacb" }}
+                style={{ color: "var(--foreground-muted)" }}
               >
                 {t("auth.confirmPassword")}
               </label>
@@ -295,8 +304,8 @@ const ResetPassword = () => {
                   style={{
                     ...inputBase,
                     border: errors.confirmPassword
-                      ? "1px solid #ffb4ab"
-                      : "1px solid #3a494b",
+                      ? "1px solid var(--destructive)"
+                      : "1px solid var(--border)",
                   }}
                   onFocus={handleFocus}
                   onBlur={(e) => handleBlur(e, !!errors.confirmPassword)}
@@ -305,12 +314,12 @@ const ResetPassword = () => {
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                  style={{ color: "#849495" }}
+                  style={{ color: "var(--muted-foreground)" }}
                   onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "#00f2ff")
+                    (e.currentTarget.style.color = "var(--primary)")
                   }
                   onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "#849495")
+                    (e.currentTarget.style.color = "var(--muted-foreground)")
                   }
                 >
                   {showConfirmPassword ? (
@@ -321,7 +330,7 @@ const ResetPassword = () => {
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p className="text-xs" style={{ color: "#ffb4ab" }}>
+                <p className="text-xs" style={{ color: "var(--destructive)" }}>
                   {errors.confirmPassword}
                 </p>
               )}
@@ -349,14 +358,16 @@ const ResetPassword = () => {
               disabled={loading}
               className="w-full py-4 rounded flex items-center justify-center gap-2 text-base font-semibold transition-all duration-300 group"
               style={{
-                background: loading ? "#1a3030" : "#00f2ff",
-                color: loading ? "#849495" : "#000000",
+                background: loading ? "var(--muted)" : "var(--primary)",
+                color: loading
+                  ? "var(--muted-foreground)"
+                  : "var(--primary-foreground)",
                 cursor: loading ? "not-allowed" : "pointer",
               }}
               onMouseEnter={(e) => {
                 if (!loading)
                   (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                    "0 0 15px #00f2ff";
+                    "0 0 15px var(--primary)";
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
@@ -400,9 +411,13 @@ const ResetPassword = () => {
               type="button"
               onClick={() => navigate("/signin")}
               className="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase transition-colors"
-              style={{ color: "#849495" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#00f2ff")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#849495")}
+              style={{ color: "var(--muted-foreground)" }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = "var(--primary)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "var(--muted-foreground)")
+              }
             >
               <ArrowLeft className="w-4 h-4" />
               {t("authFlow.backToSignIn")}

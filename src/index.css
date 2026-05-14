@@ -4,74 +4,174 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.98 0 0);
-  --foreground: oklch(0.18 0.02 240);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.02 240);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.02 240);
-  --primary: oklch(0.65 0.18 45);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.93 0.02 240);
-  --secondary-foreground: oklch(0.18 0.02 240);
-  --muted: oklch(0.88 0.01 240);
-  --muted-foreground: oklch(0.48 0.02 240);
-  --accent: oklch(0.65 0.18 45);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.57 0.24 27);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.93 0.01 240);
-  --input: oklch(0.96 0.01 240);
-  --ring: oklch(0.65 0.18 45);
-  --chart-1: oklch(0.65 0.18 45);
-  --chart-2: oklch(0.55 0.16 184);
-  --chart-3: oklch(0.45 0.12 270);
-  --chart-4: oklch(0.65 0.15 120);
-  --chart-5: oklch(0.55 0.14 20);
+  --background: #f4f7f7;
+  --foreground: #0d1515;
+  --foreground-muted: #5f6f70;
+  --card: #ffffff;
+  --card-foreground: #0d1515;
+  --popover: #ffffff;
+  --popover-foreground: #0d1515;
+  --primary: #00bfc9;
+  --primary-foreground: #081214;
+  --secondary: #e6eeee;
+  --secondary-foreground: #0f1f20;
+  --muted: #edf3f3;
+  --muted-foreground: #5f6f70;
+  --accent: #00aeb8;
+  --accent-foreground: #081214;
+  --destructive: #e56b63;
+  --destructive-foreground: #1b0605;
+  --border: #cfd7d8;
+  --input: #ffffff;
+  --ring: #00bfc9;
+  --chart-1: #00bfc9;
+  --chart-2: #009fb0;
+  --chart-3: #2ea765;
+  --chart-4: #d6a400;
+  --chart-5: #e56b63;
   --radius: 0.5rem;
-  --sidebar: oklch(0.97 0.01 240);
-  --sidebar-foreground: oklch(0.18 0.02 240);
-  --sidebar-primary: oklch(0.65 0.18 45);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.93 0.02 240);
-  --sidebar-accent-foreground: oklch(0.18 0.02 240);
-  --sidebar-border: oklch(0.93 0.01 240);
-  --sidebar-ring: oklch(0.65 0.18 45);
+  --sidebar: #f0f5f5;
+  --sidebar-foreground: #0d1515;
+  --sidebar-primary: #00bfc9;
+  --sidebar-primary-foreground: #081214;
+  --sidebar-accent: #e6eeee;
+  --sidebar-accent-foreground: #0f1f20;
+  --sidebar-border: #cfd7d8;
+  --sidebar-ring: #00bfc9;
+  --auth-surface: color-mix(in srgb, var(--card) 99%, var(--background) 1%);
+  --auth-surface-border: color-mix(in srgb, var(--border) 72%, transparent);
+  --auth-surface-shadow: 0 12px 34px color-mix(in srgb, #0d1515 7%, transparent);
+  --auth-toggle-bg: color-mix(
+    in srgb,
+    var(--secondary) 68%,
+    var(--background) 32%
+  );
+  --auth-toggle-border: color-mix(in srgb, var(--border) 72%, transparent);
+  --auth-primary-glow: 0 0 15px
+    color-mix(in srgb, var(--primary) 28%, transparent);
+  --auth-terms-bg: color-mix(
+    in srgb,
+    var(--secondary) 64%,
+    var(--background) 36%
+  );
+  --auth-terms-border: color-mix(in srgb, var(--border) 62%, transparent);
+  --auth-ambient-primary: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--primary) 11%, transparent) 0%,
+    transparent 70%
+  );
+  --auth-ambient-accent: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent) 10%, transparent) 0%,
+    transparent 70%
+  );
+  --auth-card-gradient: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    color-mix(in srgb, var(--card) 96%, var(--background) 4%) 100%
+  );
+  --auth-card-inner-overlay: linear-gradient(
+    to bottom,
+    color-mix(in srgb, #ffffff 40%, transparent),
+    transparent
+  );
+  --auth-status-badge-bg: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--accent) 70%, var(--primary) 30%),
+    var(--primary)
+  );
+  --auth-status-badge-fg: var(--primary-foreground);
+  --auth-icon-bg: color-mix(in srgb, var(--primary) 8%, #ffffff 92%);
+  --auth-icon-border: color-mix(in srgb, var(--primary) 20%, transparent);
+  --auth-icon-shadow: 0 0 24px
+    color-mix(in srgb, var(--primary) 12%, transparent);
+  --auth-ghost-bg: color-mix(in srgb, var(--card) 96%, var(--background) 4%);
+  --auth-ghost-bg-hover: color-mix(
+    in srgb,
+    var(--secondary) 78%,
+    var(--background) 22%
+  );
+  --auth-ghost-border: color-mix(in srgb, var(--border) 70%, transparent);
+  --auth-divider-border: color-mix(in srgb, var(--border) 48%, transparent);
 }
 
 .dark {
-  --background: oklch(0.08 0 0);
-  --foreground: oklch(0.98 0 0);
-  --card: oklch(0.12 0 0);
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.12 0 0);
-  --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.72 0.15 45);
-  --primary-foreground: oklch(0.08 0 0);
-  --secondary: oklch(0.18 0 0);
-  --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.15 0 0);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.72 0.15 45);
-  --accent-foreground: oklch(0.08 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.25 0 0);
-  --input: oklch(0.18 0 0);
-  --ring: oklch(0.72 0.15 45);
-  --chart-1: oklch(0.72 0.15 45);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.12 0 0);
-  --sidebar-foreground: oklch(0.98 0 0);
-  --sidebar-primary: oklch(0.72 0.15 45);
-  --sidebar-primary-foreground: oklch(0.08 0 0);
-  --sidebar-accent: oklch(0.18 0 0);
-  --sidebar-accent-foreground: oklch(0.98 0 0);
-  --sidebar-border: oklch(0.25 0 0);
-  --sidebar-ring: oklch(0.72 0.15 45);
+  --background: #0d1515;
+  --foreground: #dce4e4;
+  --foreground-muted: #b9cacb;
+  --card: #151d1e;
+  --card-foreground: #dce4e4;
+  --popover: #151d1e;
+  --popover-foreground: #dce4e4;
+  --primary: #00f2ff;
+  --primary-foreground: #080f10;
+  --secondary: #2e3637;
+  --secondary-foreground: #dce4e4;
+  --muted: #1a3030;
+  --muted-foreground: #849495;
+  --accent: #00dbe7;
+  --accent-foreground: #080f10;
+  --destructive: #ffb4ab;
+  --destructive-foreground: #080f10;
+  --border: #3a494b;
+  --input: #232b2c;
+  --ring: #00f2ff;
+  --chart-1: #00f2ff;
+  --chart-2: #00dbe7;
+  --chart-3: #4ade80;
+  --chart-4: #e8c423;
+  --chart-5: #ffb4ab;
+  --sidebar: #151d1e;
+  --sidebar-foreground: #dce4e4;
+  --sidebar-primary: #00f2ff;
+  --sidebar-primary-foreground: #080f10;
+  --sidebar-accent: #2e3637;
+  --sidebar-accent-foreground: #dce4e4;
+  --sidebar-border: #3a494b;
+  --sidebar-ring: #00f2ff;
+  --auth-surface: color-mix(in srgb, var(--card) 76%, transparent);
+  --auth-surface-border: color-mix(in srgb, #ffffff 14%, transparent);
+  --auth-surface-shadow: 0 0 40px color-mix(in srgb, #000000 56%, transparent);
+  --auth-toggle-bg: color-mix(in srgb, var(--secondary) 78%, transparent);
+  --auth-toggle-border: color-mix(in srgb, #ffffff 10%, transparent);
+  --auth-primary-glow: 0 0 15px
+    color-mix(in srgb, var(--primary) 28%, transparent);
+  --auth-terms-bg: color-mix(in srgb, var(--card) 88%, transparent);
+  --auth-terms-border: color-mix(in srgb, var(--border) 60%, transparent);
+  --auth-ambient-primary: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--primary) 16%, transparent) 0%,
+    transparent 70%
+  );
+  --auth-ambient-accent: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent) 14%, transparent) 0%,
+    transparent 70%
+  );
+  --auth-card-gradient: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--card) 84%, transparent) 0%,
+    color-mix(in srgb, var(--card) 72%, transparent) 100%
+  );
+  --auth-card-inner-overlay: linear-gradient(
+    to bottom,
+    color-mix(in srgb, #ffffff 12%, transparent),
+    transparent
+  );
+  --auth-status-badge-bg: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--accent) 60%, var(--primary) 40%),
+    var(--primary)
+  );
+  --auth-status-badge-fg: var(--primary-foreground);
+  --auth-icon-bg: color-mix(in srgb, var(--primary) 14%, transparent);
+  --auth-icon-border: color-mix(in srgb, var(--primary) 30%, transparent);
+  --auth-icon-shadow: 0 0 30px
+    color-mix(in srgb, var(--primary) 18%, transparent);
+  --auth-ghost-bg: color-mix(in srgb, var(--card) 76%, transparent);
+  --auth-ghost-bg-hover: color-mix(in srgb, var(--card) 88%, transparent);
+  --auth-ghost-border: color-mix(in srgb, #ffffff 14%, transparent);
+  --auth-divider-border: color-mix(in srgb, #ffffff 12%, transparent);
 }
 
 @theme inline {
@@ -151,14 +251,13 @@
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
   }
-  
+
   .dark ::-webkit-scrollbar-thumb {
     background-color: var(--border);
   }
-  
+
   .dark ::-webkit-scrollbar-thumb:hover {
     background-color: var(--muted-foreground);
     opacity: 0.6;
   }
 }
-

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import {  useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import {
   Eye, EyeOff, Loader2, Lock, KeyRound, CheckCircle2, Circle,
@@ -160,16 +160,16 @@ const ChangePassword = () => {
         <div className="px-6 mb-6">
           <div className="flex items-center gap-4 mb-5">
             <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={glassPanel}>
-              <ShieldCheck className="w-6 h-6" style={{ color: "#00f2ff" }} />
+              <ShieldCheck className="w-6 h-6" style={{ color: "var(--primary)" }} />
             </div>
             <div>
-              <p className="font-semibold text-sm" style={{ color: "#dce4e4" }}>Pro Circuit Admin</p>
-              <p className="text-xs" style={{ color: "#849495" }}>Elite Tier</p>
+              <p className="font-semibold text-sm" style={{ color: "var(--foreground)" }}>Pro Circuit Admin</p>
+              <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>Elite Tier</p>
             </div>
           </div>
           <button
             className="w-full py-3 rounded-lg text-xs font-bold tracking-widest uppercase transition-all duration-300"
-            style={{ background: "#00f2ff", color: "#080f10", boxShadow: "0 0 15px rgba(0,242,255,0.3)" }}
+            style={{ background: "var(--primary)", color: "var(--primary-foreground)", boxShadow: "0 0 15px rgba(0,242,255,0.3)" }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 25px rgba(0,242,255,0.5)"; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 15px rgba(0,242,255,0.3)"; }}
           >
@@ -186,8 +186,8 @@ const ChangePassword = () => {
               className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-bold tracking-widest uppercase transition-all duration-200 group"
               style={{
                 background: active ? "rgba(0,242,255,0.08)" : "transparent",
-                borderLeft: active ? "3px solid #00dbe7" : "3px solid transparent",
-                color: active ? "#00dbe7" : "#b9cacb",
+                borderLeft: active ? "3px solid var(--accent)" : "3px solid transparent",
+                color: active ? "var(--accent)" : "var(--foreground-muted)",
               }}
               onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLAnchorElement).style.background = "rgba(255,255,255,0.04)"; }}
               onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; }}
@@ -205,9 +205,9 @@ const ChangePassword = () => {
               key={to}
               to={to}
               className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-bold tracking-widest uppercase transition-colors group"
-              style={{ color: "#849495" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#dce4e4"; (e.currentTarget as HTMLAnchorElement).style.background = "rgba(255,255,255,0.04)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#849495"; (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; }}
+              style={{ color: "var(--muted-foreground)" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--foreground)"; (e.currentTarget as HTMLAnchorElement).style.background = "rgba(255,255,255,0.04)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--muted-foreground)"; (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; }}
             >
               <Icon className="w-4 h-4 flex-shrink-0" />
               {label}
@@ -227,8 +227,8 @@ const ChangePassword = () => {
             className="w-10 h-10 rounded-full flex items-center justify-center transition-all"
             style={{
               ...glassPanel,
-              color: active ? "#00dbe7" : "#b9cacb",
-              borderBottom: active ? "2px solid #00dbe7" : undefined,
+              color: active ? "var(--accent)" : "var(--foreground-muted)",
+              borderBottom: active ? "2px solid var(--accent)" : undefined,
             }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 15px rgba(0,242,255,0.3)"; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "none"; }}
@@ -246,17 +246,17 @@ const ChangePassword = () => {
           <button
             onClick={() => navigate(-1)}
             className="inline-flex items-center gap-2 mb-4 text-xs font-bold tracking-widest uppercase transition-colors"
-            style={{ color: "#849495" }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#00f2ff"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#849495"; }}
+            style={{ color: "var(--muted-foreground)" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--primary)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--muted-foreground)"; }}
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Settings
           </button>
 
           {/* Page title */}
-          <h1 className="text-5xl font-bold tracking-tight mb-2" style={{ color: "#dce4e4" }}>Security</h1>
-          <p className="text-base mb-8" style={{ color: "#b9cacb" }}>
+          <h1 className="text-5xl font-bold tracking-tight mb-2" style={{ color: "var(--foreground)" }}>Security</h1>
+          <p className="text-base mb-8" style={{ color: "var(--foreground-muted)" }}>
             Manage your account credentials and security preferences.
           </p>
 
@@ -265,7 +265,7 @@ const ChangePassword = () => {
             {/* Accent glow */}
             <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full pointer-events-none" style={{ background: "rgba(0,242,255,0.08)", filter: "blur(50px)" }} />
 
-            <h2 className="text-2xl font-semibold mb-1 flex items-center gap-3 relative z-10" style={{ color: "#00f2ff" }}>
+            <h2 className="text-2xl font-semibold mb-1 flex items-center gap-3 relative z-10" style={{ color: "var(--primary)" }}>
               <Lock className="w-6 h-6" />
               Change Password
             </h2>
@@ -275,11 +275,11 @@ const ChangePassword = () => {
 
               {/* Current Password */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold tracking-widest uppercase" style={{ color: "#b9cacb" }}>
+                <label className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--foreground-muted)" }}>
                   {t("auth.currentPassword") || "Current Password"}
                 </label>
                 <div className="relative">
-                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors" style={{ color: "#849495" }} />
+                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors" style={{ color: "var(--muted-foreground)" }} />
                   <input
                     id="oldPassword"
                     type={showOld ? "text" : "password"}
@@ -299,16 +299,16 @@ const ChangePassword = () => {
                     {showOld ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {errors.oldPassword && <p className="text-xs" style={{ color: "#ffb4ab" }}>{errors.oldPassword}</p>}
+                {errors.oldPassword && <p className="text-xs" style={{ color: "var(--destructive)" }}>{errors.oldPassword}</p>}
               </div>
 
               {/* New Password */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold tracking-widest uppercase" style={{ color: "#b9cacb" }}>
+                <label className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--foreground-muted)" }}>
                   {t("auth.newPassword") || "New Password"}
                 </label>
                 <div className="relative">
-                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: "#849495" }} />
+                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: "var(--muted-foreground)" }} />
                   <input
                     id="newPassword"
                     type={showNew ? "text" : "password"}
@@ -333,25 +333,25 @@ const ChangePassword = () => {
                     {t("authFlow.passwordStrengthLabel")}: {strengthText}
                   </p>
                 )}
-                {errors.newPassword && <p className="text-xs" style={{ color: "#ffb4ab" }}>{errors.newPassword}</p>}
-                <p className="text-sm" style={{ color: "#849495" }}>
+                {errors.newPassword && <p className="text-xs" style={{ color: "var(--destructive)" }}>{errors.newPassword}</p>}
+                <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>
                   {t("authFlow.changePassword.passwordRequirements") ||
                     "Must be at least 12 characters, include a number and a special character."}
                 </p>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  <Chip met={hasMinLength} label="12+ CHARS" />
-                  <Chip met={hasSymbol}    label="SYMBOL" />
-                  <Chip met={hasNumber}    label="NUMBER" />
+                  <Chip met={hasMinLength} label={t("authFlow.changePassword.requirements.length")} />
+                  <Chip met={hasSymbol}    label={t("authFlow.changePassword.requirements.symbol")} />
+                  <Chip met={hasNumber}    label={t("authFlow.changePassword.requirements.number")} />
                 </div>
               </div>
 
               {/* Confirm Password */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold tracking-widest uppercase" style={{ color: "#b9cacb" }}>
+                <label className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--foreground-muted)" }}>
                   {t("authFlow.changePassword.confirmNewPassword") || "Confirm New Password"}
                 </label>
                 <div className="relative">
-                  <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: "#849495" }} />
+                  <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: "var(--muted-foreground)" }} />
                   <input
                     id="confirmPassword"
                     type={showConfirm ? "text" : "password"}
@@ -371,7 +371,7 @@ const ChangePassword = () => {
                     {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {errors.confirmPassword && <p className="text-xs" style={{ color: "#ffb4ab" }}>{errors.confirmPassword}</p>}
+                {errors.confirmPassword && <p className="text-xs" style={{ color: "var(--destructive)" }}>{errors.confirmPassword}</p>}
               </div>
 
               {/* Buttons */}
@@ -380,7 +380,7 @@ const ChangePassword = () => {
                   type="button"
                   onClick={() => navigate(-1)}
                   className="px-6 py-3 rounded-lg text-xs font-bold tracking-widest uppercase transition-all duration-200"
-                  style={{ ...glassPanel, color: "#dce4e4" }}
+                  style={{ ...glassPanel, color: "var(--foreground)" }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 15px rgba(0,242,255,0.2)"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "none"; }}
                 >
@@ -391,8 +391,8 @@ const ChangePassword = () => {
                   disabled={loading}
                   className="px-6 py-3 rounded-lg text-xs font-bold tracking-widest uppercase flex items-center gap-2 transition-all duration-300"
                   style={{
-                    background: loading ? "#1a3030" : "#00f2ff",
-                    color: loading ? "#849495" : "#080f10",
+                    background: loading ? "var(--muted)" : "var(--primary)",
+                    color: loading ? "var(--muted-foreground)" : "var(--primary-foreground)",
                     cursor: loading ? "not-allowed" : "pointer",
                     boxShadow: "0 0 15px rgba(0,242,255,0.3)",
                   }}
@@ -408,12 +408,12 @@ const ChangePassword = () => {
           {/* Session Management Info */}
           <div
             className="rounded-lg p-5 flex gap-4 items-start"
-            style={{ background: "#151d1e", border: "1px solid rgba(58,73,75,0.2)" }}
+            style={{ background: "var(--card)", border: "1px solid color-mix(in srgb, var(--border) 50%, transparent)" }}
           >
-            <Info className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: "#e8c423" }} />
+            <Info className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: "var(--chart-4)" }} />
             <div>
-              <h3 className="font-semibold mb-1" style={{ color: "#dce4e4" }}>Session Management</h3>
-              <p className="text-sm" style={{ color: "#b9cacb" }}>
+              <h3 className="font-semibold mb-1" style={{ color: "var(--foreground)" }}>Session Management</h3>
+              <p className="text-sm" style={{ color: "var(--foreground-muted)" }}>
                 Changing your password will immediately sign you out of all other active sessions across devices.
               </p>
             </div>

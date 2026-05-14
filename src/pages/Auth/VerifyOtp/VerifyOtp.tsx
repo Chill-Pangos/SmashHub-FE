@@ -92,7 +92,10 @@ const VerifyOtp = () => {
 
   const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
     if (!pasted) return;
     const newDigits = [...digits];
     pasted.split("").forEach((char, i) => {
@@ -130,7 +133,10 @@ const VerifyOtp = () => {
         navigate("/");
       } else {
         setError(result.error || t("authFlow.verifyOtp.otpInvalid"));
-        showToast.error(t("authFlow.verifyOtp.verificationFailed"), result.error);
+        showToast.error(
+          t("authFlow.verifyOtp.verificationFailed"),
+          result.error,
+        );
       }
     } else {
       const result = await verifyOtp({ email, otp });
@@ -139,10 +145,15 @@ const VerifyOtp = () => {
           t("authFlow.verifyOtp.verificationSuccessTitle"),
           t("authFlow.verifyOtp.verificationSuccessDescription"),
         );
-        navigate(`/reset-password?email=${encodeURIComponent(email)}&otp=${otp}`);
+        navigate(
+          `/reset-password?email=${encodeURIComponent(email)}&otp=${otp}`,
+        );
       } else {
         setError(result.error || t("authFlow.verifyOtp.otpInvalid"));
-        showToast.error(t("authFlow.verifyOtp.verificationFailed"), result.error);
+        showToast.error(
+          t("authFlow.verifyOtp.verificationFailed"),
+          result.error,
+        );
       }
     }
   };
@@ -170,20 +181,20 @@ const VerifyOtp = () => {
   return (
     <div
       className="min-h-screen flex items-center justify-center relative overflow-hidden px-4"
-      style={{ backgroundColor: "#0d1515" }}
+      style={{ backgroundColor: "var(--background)" }}
     >
       {/* Ambient glows */}
       <div
         className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full pointer-events-none"
         style={{
-          background: "radial-gradient(circle, rgba(0,219,231,0.06) 0%, transparent 70%)",
+          background: "var(--auth-ambient-primary)",
           filter: "blur(40px)",
         }}
       />
       <div
         className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full pointer-events-none"
         style={{
-          background: "radial-gradient(circle, rgba(208,188,255,0.05) 0%, transparent 70%)",
+          background: "var(--auth-ambient-accent)",
           filter: "blur(40px)",
         }}
       />
@@ -193,18 +204,21 @@ const VerifyOtp = () => {
         <div className="mb-12 text-center flex flex-col items-center gap-2">
           <Trophy
             className="w-12 h-12"
-            style={{ color: "#00dbe7" }}
+            style={{ color: "var(--accent)" }}
             strokeWidth={1.5}
           />
           <h1
             className="text-5xl font-bold tracking-tight"
-            style={{ color: "#00dbe7", fontFamily: "'Sora', sans-serif" }}
+            style={{ color: "var(--accent)", fontFamily: "'Sora', sans-serif" }}
           >
             SmashHub
           </h1>
           <span
             className="text-xs font-bold tracking-widest uppercase mt-1"
-            style={{ color: "#849495", fontFamily: "'Sora', sans-serif" }}
+            style={{
+              color: "var(--muted-foreground)",
+              fontFamily: "'Sora', sans-serif",
+            }}
           >
             {t("authFlow.verifyOtp.brandTagline")}
           </span>
@@ -214,16 +228,17 @@ const VerifyOtp = () => {
         <div
           className="w-full rounded-xl p-6 md:p-8 shadow-2xl relative overflow-hidden"
           style={{
-            background: "rgba(25, 33, 34, 0.60)",
+            background: "var(--auth-surface)",
             backdropFilter: "blur(24px)",
-            border: "1px solid rgba(255,255,255,0.10)",
+            border: "1px solid var(--auth-surface-border)",
+            boxShadow: "var(--auth-surface-shadow)",
           }}
         >
           {/* Inner gradient overlay */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: "linear-gradient(to bottom, rgba(255,255,255,0.04), transparent)",
+              background: "var(--auth-card-inner-overlay)",
             }}
           />
 
@@ -232,13 +247,19 @@ const VerifyOtp = () => {
             <div className="text-center flex flex-col gap-2">
               <h2
                 className="text-3xl font-semibold"
-                style={{ color: "#dce4e4", fontFamily: "'Sora', sans-serif" }}
+                style={{
+                  color: "var(--foreground)",
+                  fontFamily: "'Sora', sans-serif",
+                }}
               >
                 {t("authFlow.verifyOtp.headerTitle")}
               </h2>
               <p
                 className="text-base"
-                style={{ color: "#b9cacb", fontFamily: "'Sora', sans-serif" }}
+                style={{
+                  color: "var(--foreground-muted)",
+                  fontFamily: "'Sora', sans-serif",
+                }}
               >
                 {type === "email-verification"
                   ? t("authFlow.verifyOtp.descriptionEmail", { email })
@@ -247,7 +268,10 @@ const VerifyOtp = () => {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="flex flex-col items-center gap-5">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col items-center gap-5"
+            >
               {/* 6 digit inputs */}
               <div className="flex justify-between w-full gap-2 md:gap-3">
                 {digits.map((digit, i) => {
@@ -272,17 +296,18 @@ const VerifyOtp = () => {
                       onPaste={handlePaste}
                       className="flex-1 h-16 rounded-lg text-center outline-none transition-all duration-200"
                       style={{
-                        background: "#2e3637",
-                        border: isActive || isFocused
-                          ? "1px solid #00f2ff"
-                          : "1px solid #3a494b",
-                        color: "#dce4e4",
+                        background: "var(--secondary)",
+                        border:
+                          isActive || isFocused
+                            ? "1px solid var(--primary)"
+                            : "1px solid var(--border)",
+                        color: "var(--foreground)",
                         fontFamily: "'Sora', sans-serif",
                         fontSize: "28px",
                         fontWeight: 600,
                         boxShadow:
                           isActive || isFocused
-                            ? "0 0 15px rgba(0,242,255,0.15)"
+                            ? "var(--auth-primary-glow)"
                             : "none",
                         maxWidth: "56px",
                       }}
@@ -295,7 +320,10 @@ const VerifyOtp = () => {
               {error && (
                 <p
                   className="text-sm text-center"
-                  style={{ color: "#ffb4ab", fontFamily: "'Sora', sans-serif" }}
+                  style={{
+                    color: "var(--destructive)",
+                    fontFamily: "'Sora', sans-serif",
+                  }}
                 >
                   {error}
                 </p>
@@ -305,20 +333,23 @@ const VerifyOtp = () => {
               <div
                 className="flex items-center gap-2 px-3 py-1.5 rounded-full"
                 style={{
-                  background: "rgba(87,27,193,0.20)",
-                  border: "1px solid rgba(87,27,193,0.30)",
+                  background: "var(--auth-toggle-bg)",
+                  border: "1px solid var(--auth-toggle-border)",
                 }}
               >
                 <span
                   className="w-2 h-2 rounded-full"
                   style={{
-                    backgroundColor: "#00f2ff",
+                    backgroundColor: "var(--primary)",
                     animation: countdown > 0 ? "pulse 2s infinite" : "none",
                   }}
                 />
                 <span
                   className="text-xs font-bold tracking-widest uppercase"
-                  style={{ color: "#b9cacb", fontFamily: "'Sora', sans-serif" }}
+                  style={{
+                    color: "var(--foreground-muted)",
+                    fontFamily: "'Sora', sans-serif",
+                  }}
                 >
                   {countdown > 0
                     ? t("authFlow.verifyOtp.countdownRemaining", {
@@ -334,8 +365,12 @@ const VerifyOtp = () => {
                 disabled={loading || !isComplete}
                 className="w-full py-4 rounded-lg font-bold text-xs tracking-widest uppercase flex items-center justify-center gap-2 transition-all duration-300 group"
                 style={{
-                  background: isComplete && !loading ? "#00f2ff" : "#1a3030",
-                  color: isComplete && !loading ? "#080f10" : "#849495",
+                  background:
+                    isComplete && !loading ? "var(--primary)" : "var(--muted)",
+                  color:
+                    isComplete && !loading
+                      ? "var(--primary-foreground)"
+                      : "var(--muted-foreground)",
                   cursor: isComplete && !loading ? "pointer" : "not-allowed",
                   boxShadow:
                     isComplete && !loading
@@ -347,7 +382,7 @@ const VerifyOtp = () => {
                 onMouseEnter={(e) => {
                   if (isComplete && !loading) {
                     (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                      "0 0 20px rgba(0,242,255,0.35)";
+                      "var(--auth-primary-glow)";
                   }
                 }}
                 onMouseLeave={(e) => {
@@ -362,10 +397,8 @@ const VerifyOtp = () => {
                   </>
                 ) : (
                   <>
-                      {t("authFlow.verifyOtp.verifyButton")}
-                    <ArrowRight
-                      className="w-4 h-4 transition-transform group-hover:translate-x-1"
-                    />
+                    {t("authFlow.verifyOtp.verifyButton")}
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </>
                 )}
               </button>
@@ -374,11 +407,14 @@ const VerifyOtp = () => {
             {/* Footer actions */}
             <div
               className="text-center pt-4 flex flex-col gap-4"
-              style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+              style={{ borderTop: "1px solid var(--auth-divider-border)" }}
             >
               <p
                 className="text-sm"
-                style={{ color: "#b9cacb", fontFamily: "'Sora', sans-serif" }}
+                style={{
+                  color: "var(--foreground-muted)",
+                  fontFamily: "'Sora', sans-serif",
+                }}
               >
                 {t("authFlow.verifyOtp.resendPrompt")}{" "}
                 <button
@@ -387,31 +423,32 @@ const VerifyOtp = () => {
                   disabled={resending || countdown > 0}
                   className="ml-1 underline underline-offset-4 transition-all duration-200 disabled:opacity-40"
                   style={{
-                    color: "#00dbe7",
-                    textDecorationColor: "rgba(0,219,231,0.3)",
+                    color: "var(--accent)",
+                    textDecorationColor:
+                      "color-mix(in srgb, var(--accent) 35%, transparent)",
                     fontFamily: "'Sora', sans-serif",
-                    cursor: resending || countdown > 0 ? "not-allowed" : "pointer",
+                    cursor:
+                      resending || countdown > 0 ? "not-allowed" : "pointer",
                   }}
                   onMouseEnter={(e) => {
                     if (!resending && countdown <= 0) {
                       (e.currentTarget as HTMLButtonElement).style.color =
-                        "#00f2ff";
+                        "var(--primary)";
                       (e.currentTarget as HTMLButtonElement).style.textShadow =
-                        "0 0 10px rgba(0,242,255,0.5)";
+                        "var(--auth-primary-glow)";
                     }
                   }}
                   onMouseLeave={(e) => {
                     (e.currentTarget as HTMLButtonElement).style.color =
-                      "#00dbe7";
+                      "var(--accent)";
                     (e.currentTarget as HTMLButtonElement).style.textShadow =
                       "none";
                   }}
                 >
-                  {resending ? "Resending..." : "Resend Code"}
                   {resending
                     ? t("authFlow.verifyOtp.resending")
                     : t("authFlow.verifyOtp.resendButton")}
-                  </button>
+                </button>
               </p>
 
               <button
@@ -419,7 +456,7 @@ const VerifyOtp = () => {
                 onClick={() => navigate(-1)}
                 className="flex items-center justify-center gap-1 transition-colors mx-auto"
                 style={{
-                  color: "#849495",
+                  color: "var(--muted-foreground)",
                   fontFamily: "'Sora', sans-serif",
                   fontSize: "12px",
                   fontWeight: 700,
@@ -427,10 +464,12 @@ const VerifyOtp = () => {
                   textTransform: "uppercase",
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.color = "#dce4e4";
+                  (e.currentTarget as HTMLButtonElement).style.color =
+                    "var(--foreground)";
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.color = "#849495";
+                  (e.currentTarget as HTMLButtonElement).style.color =
+                    "var(--muted-foreground)";
                 }}
               >
                 <ArrowLeft className="w-4 h-4" />

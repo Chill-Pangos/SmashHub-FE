@@ -66,7 +66,10 @@ const EmailVerification = () => {
   return (
     <div
       className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden"
-      style={{ backgroundColor: "#0d1515", fontFamily: "'Sora', sans-serif" }}
+      style={{
+        backgroundColor: "var(--background)",
+        fontFamily: "'Sora', sans-serif",
+      }}
     >
       {/* Ambient glows */}
       <div
@@ -74,8 +77,7 @@ const EmailVerification = () => {
         style={{
           width: "500px",
           height: "500px",
-          background:
-            "radial-gradient(circle, rgba(0,219,231,0.06) 0%, transparent 70%)",
+          background: "var(--auth-ambient-primary)",
           filter: "blur(80px)",
         }}
       />
@@ -84,8 +86,7 @@ const EmailVerification = () => {
         style={{
           width: "400px",
           height: "400px",
-          background:
-            "radial-gradient(circle, rgba(87,27,193,0.06) 0%, transparent 70%)",
+          background: "var(--auth-ambient-accent)",
           filter: "blur(80px)",
         }}
       />
@@ -95,17 +96,17 @@ const EmailVerification = () => {
           className="rounded-xl p-8 flex flex-col items-center text-center"
           style={{
             backdropFilter: "blur(24px)",
-            background:
-              "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)",
-            border: "1px solid rgba(255,255,255,0.10)",
-            boxShadow: "0 25px 50px rgba(0,0,0,0.5)",
+            background: "var(--auth-card-gradient)",
+            border: "1px solid var(--auth-surface-border)",
+            boxShadow: "var(--auth-surface-shadow)",
           }}
         >
           {/* Status badge */}
           <div
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-6 text-xs font-bold tracking-widest uppercase text-white"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-6 text-xs font-bold tracking-widest uppercase"
             style={{
-              background: "linear-gradient(to right, #571bc1, #00dbe7)",
+              background: "var(--auth-status-badge-bg)",
+              color: "var(--auth-status-badge-fg)",
             }}
           >
             <span style={{ fontSize: "14px" }}>⚡</span>
@@ -116,23 +117,26 @@ const EmailVerification = () => {
           <div
             className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
             style={{
-              background: "rgba(0,219,231,0.08)",
-              border: "1px solid rgba(0,219,231,0.2)",
-              boxShadow: "0 0 30px rgba(0,219,231,0.1)",
+              background: "var(--auth-icon-bg)",
+              border: "1px solid var(--auth-icon-border)",
+              boxShadow: "var(--auth-icon-shadow)",
             }}
           >
-            <MailCheck className="w-9 h-9" style={{ color: "#00dbe7" }} />
+            <MailCheck className="w-9 h-9" style={{ color: "var(--accent)" }} />
           </div>
 
           {/* Title & description */}
-          <h2 className="text-3xl font-bold mb-3" style={{ color: "#dce4e4" }}>
+          <h2
+            className="text-3xl font-bold mb-3"
+            style={{ color: "var(--foreground)" }}
+          >
             {emailSent
               ? t("authFlow.emailVerification.emailSentTitle")
               : t("authFlow.emailVerification.cardTitle")}
           </h2>
           <p
             className="text-sm leading-relaxed mb-6"
-            style={{ color: "#b9cacb", maxWidth: "300px" }}
+            style={{ color: "var(--foreground-muted)", maxWidth: "300px" }}
           >
             {emailSent
               ? t("authFlow.emailVerification.emailSentDescription")
@@ -143,17 +147,17 @@ const EmailVerification = () => {
           <div
             className="flex items-center gap-2 px-4 py-3 rounded-lg mb-6 w-full"
             style={{
-              background: "#232b2c",
-              border: "1px solid #3a494b",
+              background: "var(--input)",
+              border: "1px solid var(--border)",
             }}
           >
             <Mail
               className="w-4 h-4 flex-shrink-0"
-              style={{ color: "#00dbe7" }}
+              style={{ color: "var(--accent)" }}
             />
             <span
               className="text-sm font-semibold truncate"
-              style={{ color: "#00dbe7" }}
+              style={{ color: "var(--accent)" }}
             >
               {hasEmail ? email : t("authFlow.emailVerification.emailNotFound")}
             </span>
@@ -168,14 +172,16 @@ const EmailVerification = () => {
                 disabled={loading}
                 className="w-full py-4 rounded-lg text-base font-semibold flex items-center justify-center gap-2 transition-all duration-300"
                 style={{
-                  background: loading ? "#1a3030" : "#00f2ff",
-                  color: loading ? "#849495" : "#080f10",
+                  background: loading ? "var(--muted)" : "var(--primary)",
+                  color: loading
+                    ? "var(--muted-foreground)"
+                    : "var(--primary-foreground)",
                   cursor: loading ? "not-allowed" : "pointer",
                 }}
                 onMouseEnter={(e) => {
                   if (!loading)
                     (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                      "0 0 20px rgba(0,242,255,0.4)";
+                      "var(--auth-primary-glow)";
                 }}
                 onMouseLeave={(e) => {
                   (e.currentTarget as HTMLButtonElement).style.boxShadow =
@@ -200,14 +206,14 @@ const EmailVerification = () => {
                   href={hasEmail ? `mailto:${email}` : "#"}
                   className="w-full py-4 rounded-lg text-base font-semibold flex items-center justify-center gap-2 transition-all duration-300"
                   style={{
-                    background: "#00f2ff",
-                    color: "#080f10",
+                    background: "var(--primary)",
+                    color: "var(--primary-foreground)",
                     opacity: hasEmail ? 1 : 0.5,
                     pointerEvents: hasEmail ? "auto" : "none",
                   }}
                   onMouseEnter={(e) => {
                     (e.currentTarget as HTMLAnchorElement).style.boxShadow =
-                      "0 0 20px rgba(0,242,255,0.4)";
+                      "var(--auth-primary-glow)";
                   }}
                   onMouseLeave={(e) => {
                     (e.currentTarget as HTMLAnchorElement).style.boxShadow =
@@ -224,19 +230,21 @@ const EmailVerification = () => {
                   disabled={resending}
                   className="w-full py-4 rounded-lg text-base font-semibold flex items-center justify-center gap-2 transition-all duration-200"
                   style={{
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.10)",
-                    color: resending ? "#849495" : "#dce4e4",
+                    background: "var(--auth-ghost-bg)",
+                    border: "1px solid var(--auth-ghost-border)",
+                    color: resending
+                      ? "var(--muted-foreground)"
+                      : "var(--foreground)",
                     cursor: resending ? "not-allowed" : "pointer",
                   }}
                   onMouseEnter={(e) => {
                     if (!resending)
                       (e.currentTarget as HTMLButtonElement).style.background =
-                        "rgba(255,255,255,0.07)";
+                        "var(--auth-ghost-bg-hover)";
                   }}
                   onMouseLeave={(e) => {
                     (e.currentTarget as HTMLButtonElement).style.background =
-                      "rgba(255,255,255,0.03)";
+                      "var(--auth-ghost-bg)";
                   }}
                 >
                   {resending ? (
@@ -258,15 +266,19 @@ const EmailVerification = () => {
           {/* Separator + back */}
           <div
             className="w-full mt-6 pt-5"
-            style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+            style={{ borderTop: "1px solid var(--auth-divider-border)" }}
           >
             <button
               type="button"
               onClick={() => navigate("/signin")}
               className="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase transition-colors"
-              style={{ color: "#849495" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#00f2ff")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#849495")}
+              style={{ color: "var(--muted-foreground)" }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = "var(--primary)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "var(--muted-foreground)")
+              }
             >
               <ArrowLeft className="w-4 h-4" />
               {t("authFlow.backToSignIn")}

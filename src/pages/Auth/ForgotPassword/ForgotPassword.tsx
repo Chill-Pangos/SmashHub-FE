@@ -49,7 +49,10 @@ const ForgotPassword = () => {
   return (
     <div
       className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden"
-      style={{ backgroundColor: "#0d1515", fontFamily: "'Sora', sans-serif" }}
+      style={{
+        backgroundColor: "var(--background)",
+        fontFamily: "'Sora', sans-serif",
+      }}
     >
       {/* Ambient glow */}
       <div
@@ -68,11 +71,11 @@ const ForgotPassword = () => {
         <div className="text-center mb-10">
           <h1
             className="text-4xl font-bold tracking-tight mb-2"
-            style={{ color: "#00dbe7" }}
+            style={{ color: "var(--accent)" }}
           >
             SmashHub
           </h1>
-          <p className="text-sm" style={{ color: "#849495" }}>
+          <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>
             {t("authFlow.forgotPassword.brandTagline")}
           </p>
         </div>
@@ -94,13 +97,13 @@ const ForgotPassword = () => {
               <div className="mb-6">
                 <h2
                   className="text-2xl font-semibold mb-2"
-                  style={{ color: "#dce4e4" }}
+                  style={{ color: "var(--foreground)" }}
                 >
                   {t("authFlow.forgotPassword.cardTitle")}
                 </h2>
                 <p
                   className="text-sm leading-relaxed"
-                  style={{ color: "#b9cacb" }}
+                  style={{ color: "var(--foreground-muted)" }}
                 >
                   {t("authFlow.forgotPassword.cardDescription")}
                 </p>
@@ -112,14 +115,14 @@ const ForgotPassword = () => {
                   <label
                     htmlFor="email"
                     className="text-xs font-bold tracking-widest uppercase"
-                    style={{ color: "#b9cacb" }}
+                    style={{ color: "var(--foreground-muted)" }}
                   >
                     {t("auth.email") || "Email Address"}
                   </label>
                   <div className="relative">
                     <Mail
                       className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5"
-                      style={{ color: "#849495" }}
+                      style={{ color: "var(--muted-foreground)" }}
                     />
                     <input
                       id="email"
@@ -133,34 +136,35 @@ const ForgotPassword = () => {
                       required
                       className="w-full outline-none transition-all duration-200"
                       style={{
-                        background: "#232b2c",
+                        background: "var(--input)",
                         border: error
-                          ? "1px solid #ffb4ab"
-                          : "1px solid #3a494b",
+                          ? "1px solid var(--destructive)"
+                          : "1px solid var(--border)",
                         borderRadius: "6px",
-                        color: "#dce4e4",
+                        color: "var(--foreground)",
                         fontFamily: "'Sora', sans-serif",
                         fontSize: "16px",
                         padding: "12px 12px 12px 42px",
                       }}
                       onFocus={(e) => {
-                        e.currentTarget.style.border = "1px solid #00f2ff";
+                        e.currentTarget.style.border =
+                          "1px solid var(--primary)";
                         e.currentTarget.style.boxShadow =
                           "0 0 15px rgba(0,242,255,0.15)";
-                        e.currentTarget.style.background = "#2e3637";
+                        e.currentTarget.style.background = "var(--secondary)";
                         const icon = e.currentTarget
                           .previousElementSibling as HTMLElement;
-                        if (icon) icon.style.color = "#00f2ff";
+                        if (icon) icon.style.color = "var(--primary)";
                       }}
                       onBlur={(e) => {
                         e.currentTarget.style.border = error
-                          ? "1px solid #ffb4ab"
-                          : "1px solid #3a494b";
+                          ? "1px solid var(--destructive)"
+                          : "1px solid var(--border)";
                         e.currentTarget.style.boxShadow = "none";
-                        e.currentTarget.style.background = "#232b2c";
+                        e.currentTarget.style.background = "var(--input)";
                         const icon = e.currentTarget
                           .previousElementSibling as HTMLElement;
-                        if (icon) icon.style.color = "#849495";
+                        if (icon) icon.style.color = "var(--muted-foreground)";
                       }}
                     />
                   </div>
@@ -177,8 +181,10 @@ const ForgotPassword = () => {
                   disabled={loading}
                   className="w-full py-4 rounded flex items-center justify-center gap-2 text-xs font-bold tracking-widest uppercase transition-all duration-300 group"
                   style={{
-                    background: loading ? "#1a3030" : "#00f2ff",
-                    color: loading ? "#849495" : "#000000",
+                    background: loading ? "var(--muted)" : "var(--primary)",
+                    color: loading
+                      ? "var(--muted-foreground)"
+                      : "var(--primary-foreground)",
                     cursor: loading ? "not-allowed" : "pointer",
                   }}
                   onMouseEnter={(e) => {
@@ -220,7 +226,7 @@ const ForgotPassword = () => {
                   style={{
                     background: "rgba(255,255,255,0.03)",
                     border: "1px solid rgba(255,255,255,0.10)",
-                    color: "#b9cacb",
+                    color: "var(--foreground-muted)",
                     cursor: "pointer",
                   }}
                   onMouseEnter={(e) => {
@@ -242,19 +248,22 @@ const ForgotPassword = () => {
                 className="text-center mt-6 pt-5"
                 style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
               >
-                <p className="text-sm" style={{ color: "#849495" }}>
+                <p
+                  className="text-sm"
+                  style={{ color: "var(--muted-foreground)" }}
+                >
                   {t("authFlow.forgotPassword.supportPrompt")}{" "}
                   <NavLink
                     to="/signin"
                     className="font-semibold transition-colors"
-                    style={{ color: "#00dbe7" }}
+                    style={{ color: "var(--accent)" }}
                     onMouseEnter={(e) =>
                       ((e.currentTarget as HTMLAnchorElement).style.color =
-                        "#00f2ff")
+                        "var(--primary)")
                     }
                     onMouseLeave={(e) =>
                       ((e.currentTarget as HTMLAnchorElement).style.color =
-                        "#00dbe7")
+                        "var(--accent)")
                     }
                   >
                     {t("authFlow.forgotPassword.supportLink")}
@@ -280,11 +289,14 @@ const ForgotPassword = () => {
               <div>
                 <h2
                   className="text-xl font-semibold mb-2"
-                  style={{ color: "#dce4e4" }}
+                  style={{ color: "var(--foreground)" }}
                 >
                   {t("authFlow.forgotPassword.otpSentSuccess")}
                 </h2>
-                <p className="text-sm" style={{ color: "#b9cacb" }}>
+                <p
+                  className="text-sm"
+                  style={{ color: "var(--foreground-muted)" }}
+                >
                   {t("authFlow.redirectingToVerification")}
                 </p>
               </div>
@@ -294,7 +306,7 @@ const ForgotPassword = () => {
                     key={i}
                     className="w-2 h-2 rounded-full"
                     style={{
-                      background: "#00f2ff",
+                      background: "var(--primary)",
                       animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite`,
                       opacity: 0.7,
                     }}
