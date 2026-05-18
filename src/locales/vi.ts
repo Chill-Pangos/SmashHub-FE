@@ -82,6 +82,7 @@ export default {
     signIn: "Đăng nhập",
     signUp: "Đăng ký",
     signOut: "Đăng xuất",
+    signOutConfirm: "Bạn có chắc chắn muốn đăng xuất không?",
     forgotPassword: "Quên mật khẩu",
     resetPassword: "Đặt lại mật khẩu",
     changePassword: "Đổi mật khẩu",
@@ -142,6 +143,22 @@ export default {
     help: "Trợ giúp",
     about: "Giới thiệu",
     contact: "Liên hệ",
+  },
+
+  portal: {
+    organizer: {
+      title: "Bảng điều khiển Organizer",
+      subtitle: "Cổng quản trị giải đấu",
+      primaryAction: "Tạo giải đấu",
+      openSidebar: "Mở sidebar organizer",
+      categories: "Hạng mục",
+      playerManagement: "Quản lý người chơi",
+      scheduleGeneration: "Tạo lịch thi đấu",
+      sections: {
+        operations: "Vận hành",
+        planning: "Lập kế hoạch",
+      },
+    },
   },
 
   // Tournament

@@ -83,6 +83,7 @@ export default {
     signIn: "Sign In",
     signUp: "Sign Up",
     signOut: "Sign Out",
+    signOutConfirm: "Are you sure you want to sign out?",
     forgotPassword: "Forgot Password",
     resetPassword: "Reset Password",
     changePassword: "Change Password",
@@ -142,6 +143,22 @@ export default {
     help: "Help",
     about: "About",
     contact: "Contact",
+  },
+
+  portal: {
+    organizer: {
+      title: "Organizer Control",
+      subtitle: "Organizer Portal",
+      primaryAction: "Create Tournament",
+      openSidebar: "Open organizer sidebar",
+      categories: "Categories",
+      playerManagement: "Player Management",
+      scheduleGeneration: "Schedule Generation",
+      sections: {
+        operations: "Operations",
+        planning: "Planning",
+      },
+    },
   },
 
   // Tournament

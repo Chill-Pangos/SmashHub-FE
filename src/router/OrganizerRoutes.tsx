@@ -1,6 +1,9 @@
-import { Route, Outlet } from "react-router-dom";
+import { Route } from "react-router-dom";
 import RoleGuard from "@/components/custom/RoleGuard";
+import OrganizerLayout from "@/layouts/OrganizerLayout";
 import OrganizerDashboard from "@/pages/Organizer/OrganizerDashboard/OrganizerDashboard";
+import OrganizerNotifications from "@/pages/Organizer/Notifications/Notifications";
+import OrganizerTournaments from "@/pages/Organizer/Tournaments/Tournaments";
 import TournamentForm from "@/pages/Organizer/TournamentForm/TournamentForm";
 import CategoryManagement from "@/pages/Organizer/CategoryManagement/CategoryManagement";
 import ScheduleConfig from "@/pages/Organizer/ScheduleConfig/ScheduleConfig";
@@ -27,11 +30,19 @@ export default function OrganizerRoutes({
       <Route
         element={
           <RoleGuard allowedRoles={[organizerRoleId]}>
-            <Outlet />
+            <OrganizerLayout />
           </RoleGuard>
         }
       >
         <Route path="/organizer" element={<OrganizerDashboard />} />
+        <Route
+          path="/organizer/tournaments"
+          element={<OrganizerTournaments />}
+        />
+        <Route
+          path="/organizer/notifications"
+          element={<OrganizerNotifications />}
+        />
         <Route path="/organizer/tournaments/new" element={<TournamentForm />} />
         <Route
           path="/organizer/tournaments/:tournamentId/edit"

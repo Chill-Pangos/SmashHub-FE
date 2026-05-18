@@ -1,5 +1,6 @@
-import { Route, Outlet } from "react-router-dom";
+import { Route } from "react-router-dom";
 import RoleGuard from "@/components/custom/RoleGuard";
+import RefereeLayout from "@/layouts/RefereeLayout";
 import Invitations from "@/pages/Referee/Invitations/Invitations";
 import AssignedMatches from "@/pages/Referee/AssignedMatches/AssignedMatches";
 import LiveScoreController from "@/pages/Referee/LiveScoreController/LiveScoreController";
@@ -33,7 +34,7 @@ export default function RefereeRoutes({
       <Route
         element={
           <RoleGuard allowedRoles={refereeRoleIds}>
-            <Outlet />
+            <RefereeLayout />
           </RoleGuard>
         }
       >
@@ -42,27 +43,27 @@ export default function RefereeRoutes({
         <Route path="/referee/assigned" element={<AssignedMatches />} />
         <Route path="/referee/live" element={<LiveScoreController />} />
         <Route path="/referee/submit" element={<MatchSubmission />} />
+        {chiefRoleIds.length > 0 && (
+          <>
+            <Route
+              path="/referee/approvals"
+              element={
+                <RoleGuard allowedRoles={chiefRoleIds}>
+                  <MatchApprovalDashboard />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/referee/approvals/:matchId"
+              element={
+                <RoleGuard allowedRoles={chiefRoleIds}>
+                  <ApprovalDetailEloPreview />
+                </RoleGuard>
+              }
+            />
+          </>
+        )}
       </Route>
-      {chiefRoleIds.length > 0 && (
-        <>
-          <Route
-            path="/referee/approvals"
-            element={
-              <RoleGuard allowedRoles={chiefRoleIds}>
-                <MatchApprovalDashboard />
-              </RoleGuard>
-            }
-          />
-          <Route
-            path="/referee/approvals/:matchId"
-            element={
-              <RoleGuard allowedRoles={chiefRoleIds}>
-                <ApprovalDetailEloPreview />
-              </RoleGuard>
-            }
-          />
-        </>
-      )}
     </>
   );
 }
