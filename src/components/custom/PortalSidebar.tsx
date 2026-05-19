@@ -1,14 +1,7 @@
 import { NavLink } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  ChevronDown,
-  ChevronRight,
-  Globe,
-  Menu,
-  Moon,
-  Sun,
-} from "lucide-react";
+import { ChevronDown, ChevronRight, Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -73,7 +66,7 @@ function SidebarItemView({
     "h-5 w-5 shrink-0",
     item.danger && !isPrimary ? "text-destructive" : "",
   );
-  
+
   const itemClassName = cn(
     "group flex min-h-[48px] w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
@@ -89,9 +82,9 @@ function SidebarItemView({
 
   const badgeClassName = cn(
     "rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
-    isPrimary 
-      ? "bg-primary-foreground/20 text-primary-foreground" 
-      : "bg-accent/20 text-foreground/70"
+    isPrimary
+      ? "bg-primary-foreground/20 text-primary-foreground"
+      : "bg-accent/20 text-foreground/70",
   );
 
   if (item.to) {
@@ -105,7 +98,8 @@ function SidebarItemView({
           cn(
             itemClassName,
             // Trạng thái isActive chỉ làm đổi màu nếu ĐÓ KHÔNG PHẢI là nút Primary
-            !isPrimary && isActive &&
+            !isPrimary &&
+              isActive &&
               (item.danger
                 ? "bg-destructive/10 text-destructive"
                 : "bg-primary text-primary-foreground shadow-sm hover:bg-primary hover:text-primary-foreground"),
@@ -113,13 +107,9 @@ function SidebarItemView({
         }
       >
         {item.icon ? <item.icon className={iconClassName} /> : null}
-        <span className="min-w-0 flex-1 truncate text-left">
-          {item.label}
-        </span>
+        <span className="min-w-0 flex-1 truncate text-left">{item.label}</span>
         {item.badge ? (
-          <span className={badgeClassName}>
-            {item.badge}
-          </span>
+          <span className={badgeClassName}>{item.badge}</span>
         ) : null}
         {/* Chỉ hiện mũi tên hover cho các mục menu thường, ẩn đi cho nút Primary */}
         {!isPrimary && (
@@ -138,11 +128,7 @@ function SidebarItemView({
     >
       {item.icon ? <item.icon className={iconClassName} /> : null}
       <span className="min-w-0 flex-1 truncate text-left">{item.label}</span>
-      {item.badge ? (
-        <span className={badgeClassName}>
-          {item.badge}
-        </span>
-      ) : null}
+      {item.badge ? <span className={badgeClassName}>{item.badge}</span> : null}
     </button>
   );
 }
@@ -251,40 +237,9 @@ function SidebarContent({
   mobile?: boolean;
 }) {
   const BrandIcon = brand.icon;
-  const { i18n } = useTranslation();
-  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [collapsedSectionKeys, setCollapsedSectionKeys] = useState<string[]>(
     [],
   );
-
-  useEffect(() => {
-    const saved = localStorage.getItem("theme") as "light" | "dark" | null;
-    const systemPrefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    ).matches;
-    const initial = saved || (systemPrefersDark ? "dark" : "light");
-    setTheme(initial);
-    document.documentElement.classList.toggle("dark", initial === "dark");
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = theme === "dark" ? "light" : "dark";
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    document.documentElement.classList.toggle("dark", newTheme === "dark");
-  };
-
-  const toggleLanguage = () => {
-    const currentLanguage = i18n.resolvedLanguage ?? i18n.language;
-    const newLang = currentLanguage.startsWith("vi") ? "en" : "vi";
-    i18n.changeLanguage(newLang);
-  };
-
-  const currentLanguage = (i18n.resolvedLanguage ?? i18n.language).startsWith(
-    "vi",
-  )
-    ? "vi"
-    : "en";
 
   const toggleSection = (sectionKey: string) => {
     setCollapsedSectionKeys((current) =>
@@ -313,35 +268,6 @@ function SidebarContent({
               {brand.title}
             </h2>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            className="h-11 w-11 rounded-full border border-accent/30 bg-accent/10 text-foreground hover:bg-accent/20 hover:text-foreground"
-            title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-          >
-            {theme === "dark" ? (
-              <Sun className="h-6 w-6" />
-            ) : (
-              <Moon className="h-6 w-6" />
-            )}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={toggleLanguage}
-            className="h-11 w-11 rounded-full border border-accent/30 bg-accent/10 text-foreground hover:bg-accent/20 hover:text-foreground"
-            title={`Switch to ${currentLanguage === "vi" ? "English" : "Vietnamese"}`}
-            aria-label={`Switch to ${currentLanguage === "vi" ? "English" : "Vietnamese"}`}
-          >
-            <Globe className="h-6 w-6" />
-          </Button>
         </div>
 
         {primaryAction ? (

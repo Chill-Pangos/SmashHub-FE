@@ -146,6 +146,16 @@ export default {
   },
 
   portal: {
+    admin: {
+      title: "Bảng điều khiển Admin",
+      openSidebar: "Mở sidebar admin",
+      users: "Người dùng",
+      roles: "Vai trò & Phân quyền",
+      sections: {
+        management: "Quản trị",
+        system: "Hệ thống",
+      },
+    },
     organizer: {
       title: "Bảng điều khiển Organizer",
       subtitle: "Cổng quản trị giải đấu",
@@ -159,6 +169,23 @@ export default {
         planning: "Lập kế hoạch",
       },
     },
+    referee: {
+      title: "Bảng điều khiển Trọng tài",
+      openSidebar: "Mở sidebar trọng tài",
+      assignedMatches: "Trận đấu được phân công",
+      invitations: "Lời mời",
+      approvals: "Phê duyệt",
+      approvalDetail: "Chi tiết phê duyệt",
+      sections: {
+        main: "Chính",
+      },
+    },
+  },
+
+  organizer: {
+    bulkImport: "Nhập hàng loạt",
+    financeVerification: "Tài chính & Xác thực",
+    groupDraw: "Bốc thăm bảng",
   },
 
   // Tournament
@@ -452,6 +479,7 @@ export default {
     matchEndedAwaitingApproval:
       "Trận đấu đã kết thúc và đang chờ Tổng trọng tài phê duyệt",
     cannotEndMatch: "Không thể kết thúc trận đấu",
+    liveScoring: "Tính điểm trực tiếp",
   },
 
   // Schedule

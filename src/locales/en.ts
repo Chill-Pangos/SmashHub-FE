@@ -146,6 +146,16 @@ export default {
   },
 
   portal: {
+    admin: {
+      title: "Admin Control",
+      openSidebar: "Open admin sidebar",
+      users: "Users",
+      roles: "Roles & Permissions",
+      sections: {
+        management: "Management",
+        system: "System",
+      },
+    },
     organizer: {
       title: "Organizer Control",
       subtitle: "Organizer Portal",
@@ -159,6 +169,23 @@ export default {
         planning: "Planning",
       },
     },
+    referee: {
+      title: "Referee Control",
+      openSidebar: "Open referee sidebar",
+      assignedMatches: "Assigned Matches",
+      invitations: "Invitations",
+      approvals: "Approvals",
+      approvalDetail: "Approval Detail",
+      sections: {
+        main: "Main",
+      },
+    },
+  },
+
+  organizer: {
+    bulkImport: "Bulk Import",
+    financeVerification: "Finance & Verification",
+    groupDraw: "Group Draw",
   },
 
   // Tournament
@@ -454,6 +481,7 @@ export default {
     matchEndedAwaitingApproval:
       "Match ended and awaiting Chief Referee approval",
     cannotEndMatch: "Cannot end match",
+    liveScoring: "Live Scoring",
   },
 
   // Schedule
