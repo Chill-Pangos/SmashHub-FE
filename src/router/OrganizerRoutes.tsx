@@ -5,6 +5,7 @@ import OrganizerDashboard from "@/pages/Organizer/OrganizerDashboard/OrganizerDa
 import OrganizerNotifications from "@/pages/Organizer/Notifications/Notifications";
 import OrganizerTournaments from "@/pages/Organizer/Tournaments/Tournaments";
 import TournamentForm from "@/pages/Organizer/TournamentForm/TournamentForm";
+import TournamentDetail from "@/pages/Organizer/Tournaments/TournamentDetail";
 import CategoryManagement from "@/pages/Organizer/CategoryManagement/CategoryManagement";
 import ScheduleConfig from "@/pages/Organizer/ScheduleConfig/ScheduleConfig";
 import EntriesManagement from "@/pages/Organizer/EntriesManagement/EntriesManagement";
@@ -44,6 +45,7 @@ export default function OrganizerRoutes({
           element={<OrganizerNotifications />}
         />
         <Route path="/organizer/tournaments/new" element={<TournamentForm />} />
+        <Route path="/organizer/tournaments/:tournamentId" element={<TournamentDetail />} />
         <Route
           path="/organizer/tournaments/:tournamentId/edit"
           element={<TournamentForm />}
