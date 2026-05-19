@@ -5,10 +5,11 @@ import type {
   Tournament,
   UpdateTournamentRequest,
   TournamentSearchFilters,
-  TournamentSearchResponse,
+  TournamentSearchResponseWithPagination,
   TournamentStatus,
   UpcomingTournamentStatusChangesResponse,
   UpdateTournamentStatusesResponse,
+  TournamentListResponse,
 } from "@/types/tournament.types";
 
 /**
@@ -69,18 +70,23 @@ class TournamentService {
    *
    * @param skip Number of records to skip (default: 0)
    * @param limit Maximum number of records to return (default: 10)
-   * @returns Promise with array of tournaments
+   * @returns Promise with tournaments list and pagination info
    *
    * @example
-   * const tournaments = await tournamentService.getAllTournaments(0, 20);
+   * const response = await tournamentService.getAllTournaments(0, 20);
+   * console.log(response.tournaments); // Array of tournaments
+   * console.log(response.pagination); // Pagination info
    */
   async getAllTournaments(
     skip: number = 0,
     limit: number = 10,
-  ): Promise<Tournament[]> {
-    const response = await axiosInstance.get<Tournament[]>(this.baseURL, {
-      params: { skip, limit },
-    });
+  ): Promise<TournamentListResponse> {
+    const response = await axiosInstance.get<TournamentListResponse>(
+      this.baseURL,
+      {
+        params: { skip, limit },
+      },
+    );
     return response.data;
   }
 
@@ -88,8 +94,8 @@ class TournamentService {
    * Search tournaments with filters
    * GET /api/tournaments/search
    *
-   * @param filters Search filters (userId, createdBy, age, ELO, gender, etc.)
-   * @returns Promise with tournaments array and total count
+   * @param filters Search filters (userId, createdBy, age, ELO, gender, pagination, etc.)
+   * @returns Promise with filtered tournaments array and pagination info
    *
    * @example
    * const result = await tournamentService.searchTournaments({
@@ -101,15 +107,16 @@ class TournamentService {
    *   skip: 0,
    *   limit: 20
    * });
-   * console.log(`Found ${result.total} tournaments`);
+   * console.log(`Found ${result.pagination.total} tournaments`);
    */
   async searchTournaments(
     filters: TournamentSearchFilters,
-  ): Promise<TournamentSearchResponse> {
-    const response = await axiosInstance.get<TournamentSearchResponse>(
-      `${this.baseURL}/search`,
-      { params: filters },
-    );
+  ): Promise<TournamentSearchResponseWithPagination> {
+    const response =
+      await axiosInstance.get<TournamentSearchResponseWithPagination>(
+        `${this.baseURL}/search`,
+        { params: filters },
+      );
     return response.data;
   }
 
@@ -134,20 +141,20 @@ class TournamentService {
    * Get tournaments by status
    * GET /api/tournaments/status/:status
    *
-   * @param status Tournament status (upcoming, ongoing, completed)
+   * @param status Tournament status (upcoming, registration_open, registration_closed, ongoing, completed)
    * @param skip Number of records to skip (default: 0)
    * @param limit Maximum number of records to return (default: 10)
-   * @returns Promise with array of tournaments
+   * @returns Promise with tournaments list and pagination info
    *
    * @example
-   * const upcomingTournaments = await tournamentService.getTournamentsByStatus("upcoming", 0, 10);
+   * const response = await tournamentService.getTournamentsByStatus("registration_open", 0, 10);
    */
   async getTournamentsByStatus(
     status: TournamentStatus,
     skip: number = 0,
     limit: number = 10,
-  ): Promise<Tournament[]> {
-    const response = await axiosInstance.get<Tournament[]>(
+  ): Promise<TournamentListResponse> {
+    const response = await axiosInstance.get<TournamentListResponse>(
       `${this.baseURL}/status/${status}`,
       { params: { skip, limit } },
     );
@@ -198,6 +205,15 @@ class TournamentService {
   /**
    * Preview upcoming tournament status changes
    * GET /api/tournaments/upcoming-changes
+   *
+   * @param hours Number of hours to look ahead (default: 24)
+   * @returns Promise with tournaments opening, closing, and brackets generating soon
+   *
+   * @example
+   * const changes = await tournamentService.getUpcomingTournamentStatusChanges(48);
+   * console.log(changes.data.openingSoon); // Tournaments about to open registration
+   * console.log(changes.data.closingSoon); // Tournaments about to close registration
+   * console.log(changes.data.bracketsSoon); // Tournaments about to generate brackets
    */
   async getUpcomingTournamentStatusChanges(
     hours: number = 24,

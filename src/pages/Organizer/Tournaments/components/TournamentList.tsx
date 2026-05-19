@@ -1,5 +1,5 @@
 import TournamentCard from "./TournamentCard";
-import type { Tournament } from "./TournamentCard";
+import type { Tournament } from "@/types";
 
 export default function TournamentList({
   items,

@@ -5,7 +5,12 @@ import type { ApiResponse } from "./auth.types";
 /**
  * Tournament status enum
  */
-export type TournamentStatus = "upcoming" | "ongoing" | "completed";
+export type TournamentStatus =
+  | "upcoming"
+  | "registration_open"
+  | "registration_closed"
+  | "ongoing"
+  | "completed";
 
 /**
  * Tournament content type enum
@@ -74,10 +79,14 @@ export interface CreateTournamentContentRequest {
 export interface Tournament {
   id: number;
   name: string;
+  tier?: number;
+  status: TournamentStatus;
   startDate: string;
   endDate: string;
+  registrationStartDate?: string;
+  registrationEndDate?: string;
+  bracketGenerationDate?: string;
   location: string;
-  status: TournamentStatus;
   numberOfTables?: number;
   createdBy: number;
   createdAt: string;
@@ -142,6 +151,36 @@ export interface TournamentSearchFilters {
 export interface TournamentSearchResponse {
   tournaments: Tournament[];
   total: number;
+}
+
+// ==================== Pagination ====================
+
+/**
+ * Pagination info
+ */
+export interface PaginationInfo {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+/**
+ * Tournament list response with pagination
+ */
+export interface TournamentListResponse {
+  tournaments: Tournament[];
+  pagination: PaginationInfo;
+}
+
+/**
+ * Tournament search response with pagination
+ */
+export interface TournamentSearchResponseWithPagination {
+  tournaments: Tournament[];
+  pagination: PaginationInfo;
 }
 
 // ==================== Tournament Categories ====================
@@ -222,12 +261,13 @@ export type GetTournamentResponse = ApiResponse<Tournament>;
 /**
  * Get tournaments list response
  */
-export type GetTournamentsResponse = ApiResponse<Tournament[]>;
+export type GetTournamentsResponse = ApiResponse<TournamentListResponse>;
 
 /**
- * Tournament search response (with total count)
+ * Tournament search response (with pagination)
  */
-export type SearchTournamentsResponse = ApiResponse<TournamentSearchResponse>;
+export type SearchTournamentsResponse =
+  ApiResponse<TournamentSearchResponseWithPagination>;
 
 /**
  * Get tournaments by status response
@@ -250,16 +290,63 @@ export type GetTournamentCategoriesResponse = ApiResponse<TournamentCategory[]>;
 export type UpdateTournamentCategoryResponse = ApiResponse<TournamentCategory>;
 export type DeleteTournamentCategoryResponse = ApiResponse<void>;
 
-export interface TournamentStatusChangePreview {
-  tournamentId: number;
-  previousStatus?: TournamentStatus;
-  nextStatus?: TournamentStatus;
-  changeAt?: string;
+// ==================== Upcoming Status Changes ====================
+
+/**
+ * Tournament opening soon (registration is about to start)
+ */
+export interface TournamentOpeningSoon {
+  id: number;
+  name: string;
+  registrationStartDate: string;
+  status: TournamentStatus;
 }
 
-export type UpcomingTournamentStatusChangesResponse = ApiResponse<
-  TournamentStatusChangePreview[]
->;
+/**
+ * Tournament closing soon (registration is about to end)
+ */
+export interface TournamentClosingSoon {
+  id: number;
+  name: string;
+  registrationEndDate: string;
+  status: TournamentStatus;
+}
+
+/**
+ * Tournament brackets generating soon
+ */
+export interface TournamentBracketsSoon {
+  id: number;
+  name: string;
+  bracketGenerationDate: string;
+  status: TournamentStatus;
+}
+
+/**
+ * Upcoming changes data
+ */
+export interface UpcomingChangesData {
+  openingSoon: TournamentOpeningSoon[];
+  closingSoon: TournamentClosingSoon[];
+  bracketsSoon: TournamentBracketsSoon[];
+}
+
+/**
+ * Metadata for upcoming changes
+ */
+export interface UpcomingChangesMetadata {
+  lookAheadHours: number;
+  timestamp: string;
+}
+
+/**
+ * Response for upcoming tournament status changes
+ */
+export interface UpcomingTournamentStatusChangesResponse {
+  success: boolean;
+  data: UpcomingChangesData;
+  metadata: UpcomingChangesMetadata;
+}
 
 export interface UpdateTournamentStatusesResponse {
   success: boolean;

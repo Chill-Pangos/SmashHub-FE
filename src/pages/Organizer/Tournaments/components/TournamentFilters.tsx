@@ -1,5 +1,11 @@
 import { useMemo, useState } from "react";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function TournamentFilters({
   onSearch,
@@ -35,16 +41,17 @@ export default function TournamentFilters({
       </div>
 
       <div className="ml-auto flex items-center gap-2">
-        <Select
-          value={undefined}
-          onValueChange={(v) => onSort?.(v)}
-          className="min-w-[160px]"
-        >
-          {sortOptions.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
-            </option>
-          ))}
+        <Select onValueChange={(v) => onSort?.(v)}>
+          <SelectTrigger className="min-w-[160px]">
+            <SelectValue placeholder="Sort by..." />
+          </SelectTrigger>
+          <SelectContent>
+            {sortOptions.map((s) => (
+              <SelectItem key={s.value} value={s.value}>
+                {s.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
         </Select>
       </div>
     </div>

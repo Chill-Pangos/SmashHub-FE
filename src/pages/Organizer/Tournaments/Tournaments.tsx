@@ -1,47 +1,24 @@
 import { useMemo, useState } from "react";
 import { TournamentList, TournamentFilters } from "./components";
-import type { Tournament } from "./components";
-
-const SAMPLE: Tournament[] = [
-  {
-    id: "1",
-    title: "Global Elite Series: Berlin",
-    startDate: "2026-05-12",
-    endDate: "2026-05-24",
-    location: "Mercedes-Benz Arena",
-    participants: 128,
-    shortDescription: "Top-tier invitational featuring international players.",
-    thumbnailUrl: null,
-    status: "Ongoing",
-  },
-  {
-    id: "2",
-    title: "Pro-Circuit Qualifiers",
-    startDate: "2026-06-05",
-    endDate: "2026-06-10",
-    location: "Virtual Arena A",
-    participants: 64,
-    shortDescription: "Regional qualifiers for the pro-circuit.",
-    thumbnailUrl: null,
-    status: "Upcoming",
-  },
-  {
-    id: "3",
-    title: "Summer Smash Finals",
-    startDate: "2026-08-01",
-    endDate: "2026-08-15",
-    location: "Downtown Convention Center",
-    participants: 32,
-    shortDescription: "Season finals with winners from regional events.",
-    thumbnailUrl: null,
-    status: "Completed",
-  },
-];
+import {
+  useTournaments,
+  useUpcomingTournamentStatusChanges,
+} from "@/hooks/queries";
 
 export default function OrganizerTournaments() {
-  const sample = SAMPLE;
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<string | undefined>(undefined);
+  const [skip, setSkip] = useState(0);
+  const [limit] = useState(50);
+
+  // Fetch tournaments from API
+  const { data: apiTournaments = [], isLoading } = useTournaments(skip, limit);
+
+  // Get upcoming status changes
+  const { data: upcomingChanges } = useUpcomingTournamentStatusChanges(24);
+
+  // Apply local search and sort on top of API data
+  const sample = apiTournaments;
 
   const filtered = useMemo(() => {
     let items = sample.slice();
@@ -49,8 +26,10 @@ export default function OrganizerTournaments() {
       const q = query.toLowerCase();
       items = items.filter(
         (s) =>
-          s.title.toLowerCase().includes(q) ||
-          (s.shortDescription || "").toLowerCase().includes(q),
+          s.name.toLowerCase().includes(q) ||
+          s.location.toLowerCase().includes(q) ||
+          s.categories?.some((cat) => cat.name.toLowerCase().includes(q)) ||
+          false,
       );
     }
 
@@ -58,8 +37,17 @@ export default function OrganizerTournaments() {
       items.sort((a, b) => a.startDate.localeCompare(b.startDate));
     if (sort === "start_desc")
       items.sort((a, b) => b.startDate.localeCompare(a.startDate));
-    if (sort === "participants_desc")
-      items.sort((a, b) => (b.participants ?? 0) - (a.participants ?? 0));
+    if (sort === "participants_desc") {
+      items.sort((a, b) => {
+        const aParticipants =
+          a.categories?.reduce((sum, cat) => sum + (cat.maxEntries || 0), 0) ??
+          0;
+        const bParticipants =
+          b.categories?.reduce((sum, cat) => sum + (cat.maxEntries || 0), 0) ??
+          0;
+        return bParticipants - aParticipants;
+      });
+    }
 
     return items;
   }, [sample, query, sort]);
@@ -97,34 +85,108 @@ export default function OrganizerTournaments() {
         {/* Filters */}
         <div className="mt-4">
           <TournamentFilters
-            onSearch={(q) => setQuery(q)}
+            onSearch={(q) => {
+              setQuery(q);
+              setSkip(0); // Reset pagination on search
+            }}
             onSort={(s) => setSort(s)}
           />
         </div>
+        {isLoading && (
+          <div className="mt-4 text-center text-muted-foreground">
+            Loading tournaments...
+          </div>
+        )}
       </div>
 
-      <div className="grid gap-4">
-        <section>
-          <h2 className="mb-3 text-lg font-medium">This Week</h2>
-          <div className="grid grid-cols-1 gap-3">
-            <TournamentList items={thisWeek} />
-          </div>
-        </section>
+      {!isLoading && (
+        <div className="grid gap-4">
+          {upcomingChanges && upcomingChanges.success && (
+            <section className="rounded-2xl border border-border bg-card p-4">
+              <h2 className="mb-3 text-lg font-medium">
+                Upcoming Status Changes
+              </h2>
+              <div className="grid gap-3 md:grid-cols-3">
+                {upcomingChanges.data.openingSoon.length > 0 && (
+                  <div className="rounded-lg bg-green-50 p-3">
+                    <h3 className="text-sm font-medium text-green-900">
+                      Opening Soon
+                    </h3>
+                    <ul className="mt-2 space-y-1">
+                      {upcomingChanges.data.openingSoon.map((t) => (
+                        <li key={t.id} className="text-xs text-green-800">
+                          <strong>{t.name}</strong>
+                          <br />
+                          {new Date(
+                            t.registrationStartDate,
+                          ).toLocaleDateString()}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
-        <section>
-          <h2 className="mb-3 text-lg font-medium">This Month</h2>
-          <div className="grid grid-cols-1 gap-3">
-            <TournamentList items={thisMonth} />
-          </div>
-        </section>
+                {upcomingChanges.data.closingSoon.length > 0 && (
+                  <div className="rounded-lg bg-orange-50 p-3">
+                    <h3 className="text-sm font-medium text-orange-900">
+                      Closing Soon
+                    </h3>
+                    <ul className="mt-2 space-y-1">
+                      {upcomingChanges.data.closingSoon.map((t) => (
+                        <li key={t.id} className="text-xs text-orange-800">
+                          <strong>{t.name}</strong>
+                          <br />
+                          {new Date(t.registrationEndDate).toLocaleDateString()}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
-        <section>
-          <h2 className="mb-3 text-lg font-medium">All Tournaments</h2>
-          <div className="grid grid-cols-1 gap-3">
-            <TournamentList items={others} />
-          </div>
-        </section>
-      </div>
+                {upcomingChanges.data.bracketsSoon.length > 0 && (
+                  <div className="rounded-lg bg-blue-50 p-3">
+                    <h3 className="text-sm font-medium text-blue-900">
+                      Brackets Generating Soon
+                    </h3>
+                    <ul className="mt-2 space-y-1">
+                      {upcomingChanges.data.bracketsSoon.map((t) => (
+                        <li key={t.id} className="text-xs text-blue-800">
+                          <strong>{t.name}</strong>
+                          <br />
+                          {new Date(
+                            t.bracketGenerationDate,
+                          ).toLocaleDateString()}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
+          <section>
+            <h2 className="mb-3 text-lg font-medium">This Week</h2>
+            <div className="grid grid-cols-1 gap-3">
+              <TournamentList items={thisWeek} />
+            </div>
+          </section>
+
+          <section>
+            <h2 className="mb-3 text-lg font-medium">This Month</h2>
+            <div className="grid grid-cols-1 gap-3">
+              <TournamentList items={thisMonth} />
+            </div>
+          </section>
+
+          <section>
+            <h2 className="mb-3 text-lg font-medium">All Tournaments</h2>
+            <div className="grid grid-cols-1 gap-3">
+              <TournamentList items={others} />
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,17 +1,6 @@
 import { Link } from "react-router-dom";
 import { Calendar, MapPin, Users } from "lucide-react";
-
-export interface Tournament {
-  id: string;
-  title: string;
-  startDate: string; // ISO
-  endDate?: string; // ISO
-  location?: string;
-  participants?: number;
-  thumbnailUrl?: string | null;
-  status?: string;
-  shortDescription?: string;
-}
+import type { Tournament } from "@/types";
 
 function formatDateRange(start?: string, end?: string) {
   if (!start) return "TBD";
@@ -21,6 +10,29 @@ function formatDateRange(start?: string, end?: string) {
   return `${s} — ${e}`;
 }
 
+function getThumbnailUrl(): string | null {
+  // Could be extended to use tournament-specific images if available
+  return null;
+}
+
+function getParticipants(tournament: Tournament): number {
+  return (
+    tournament.categories?.reduce(
+      (sum, cat) => sum + (cat.maxEntries || 0),
+      0,
+    ) ?? 0
+  );
+}
+
+function getShortDescription(tournament: Tournament): string {
+  const categoryNames = tournament.categories?.map((c) => c.name).join(", ");
+  if (categoryNames) return categoryNames;
+  const categoryCount = tournament.categories?.length || 0;
+  return categoryCount > 0
+    ? `${categoryCount} ${categoryCount === 1 ? "category" : "categories"}`
+    : "No categories";
+}
+
 export default function TournamentCard({
   tournament,
   className = "",
@@ -28,18 +40,21 @@ export default function TournamentCard({
   tournament: Tournament;
   className?: string;
 }) {
+  const thumbnailUrl = getThumbnailUrl();
+  const participants = getParticipants(tournament);
+  const shortDescription = getShortDescription(tournament);
   return (
     <Link
       to={`/organizer/tournaments/${tournament.id}`}
       className={`group flex w-full items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm hover:shadow-md transition ${className}`}
-      aria-label={tournament.title}
+      aria-label={tournament.name}
     >
       <div className="h-20 w-28 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
-        {tournament.thumbnailUrl ? (
+        {thumbnailUrl ? (
           // eslint-disable-next-line jsx-a11y/img-redundant-alt
           <img
-            src={tournament.thumbnailUrl}
-            alt={`${tournament.title} thumbnail`}
+            src={thumbnailUrl}
+            alt={`${tournament.name} thumbnail`}
             className="h-full w-full object-cover"
           />
         ) : (
@@ -70,11 +85,11 @@ export default function TournamentCard({
 
       <div className="min-w-0 flex-1">
         <h3 className="truncate text-base font-semibold text-foreground">
-          {tournament.title}
+          {tournament.name}
         </h3>
-        {tournament.shortDescription ? (
+        {shortDescription ? (
           <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-            {tournament.shortDescription}
+            {shortDescription}
           </p>
         ) : null}
 
@@ -95,7 +110,7 @@ export default function TournamentCard({
 
           <div className="inline-flex items-center gap-1">
             <Users className="h-3.5 w-3.5" />
-            <span>{tournament.participants ?? 0} participants</span>
+            <span>{participants} participants</span>
           </div>
         </div>
       </div>
