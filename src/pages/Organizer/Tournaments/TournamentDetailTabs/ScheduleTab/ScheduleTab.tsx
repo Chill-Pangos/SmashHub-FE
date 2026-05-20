@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import TournamentScheduleViewer from "@/components/custom/TournamentScheduleViewer";
+import { TournamentScheduleViewer } from "./components";
 import {
   Select,
   SelectContent,
@@ -13,7 +13,7 @@ import type {
   TournamentCategory,
   TournamentContent,
 } from "@/types/tournament.types";
-import ScheduleGeneration from "./ScheduleGeneration/ScheduleGeneration";
+import ScheduleGeneration from "../ScheduleGeneration";
 
 interface ScheduleTabProps {
   tournamentId: number;
@@ -65,15 +65,23 @@ export default function ScheduleTab({
     }
   }, [options, selectedCategoryId]);
 
+  // Cờ kiểm tra xem có phải đang ở Mock Mode không
+  const isMockMode = tournamentId === 1;
+
   const schedulesQuery = useSchedulesByCategory(selectedCategoryId, {
     skip: 0,
     limit: 100,
-    enabled: selectedCategoryId > 0,
+    // Tắt gọi API nếu đang ở Mock Mode
+    enabled: selectedCategoryId > 0 && !isMockMode,
   });
 
   const schedulesData = schedulesQuery.data?.data;
   const scheduleCount = schedulesData?.schedules?.length ?? 0;
-  const hasSchedule = scheduleCount > 0;
+  
+  // Ép trạng thái UI theo Mock Mode hoặc Data thật
+  const hasSchedule = isMockMode ? true : scheduleCount > 0;
+  const isLoading = isMockMode ? false : schedulesQuery.isLoading;
+  const error = isMockMode ? null : schedulesQuery.error;
 
   return (
     <div className="space-y-4">
@@ -116,23 +124,21 @@ export default function ScheduleTab({
         </div>
       )}
 
-      {options.length > 0 &&
-        selectedCategoryId > 0 &&
-        schedulesQuery.isLoading && (
-          <div className="rounded-xl border border-border bg-card p-6">
-            <div className="h-5 w-40 animate-pulse rounded-md bg-muted" />
-            <div className="mt-4 space-y-3">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="h-14 w-full animate-pulse rounded-md bg-muted"
-                />
-              ))}
-            </div>
+      {options.length > 0 && selectedCategoryId > 0 && isLoading && (
+        <div className="rounded-xl border border-border bg-card p-6">
+          <div className="h-5 w-40 animate-pulse rounded-md bg-muted" />
+          <div className="mt-4 space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-14 w-full animate-pulse rounded-md bg-muted"
+              />
+            ))}
           </div>
-        )}
+        </div>
+      )}
 
-      {options.length > 0 && selectedCategoryId > 0 && schedulesQuery.error && (
+      {options.length > 0 && selectedCategoryId > 0 && error && (
         <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
           Failed to load schedule for this category.
         </div>
@@ -140,8 +146,8 @@ export default function ScheduleTab({
 
       {options.length > 0 &&
         selectedCategoryId > 0 &&
-        !schedulesQuery.isLoading &&
-        !schedulesQuery.error &&
+        !isLoading &&
+        !error &&
         !hasSchedule && (
           <ScheduleGeneration
             tournamentId={tournamentId}
@@ -151,14 +157,13 @@ export default function ScheduleTab({
 
       {options.length > 0 &&
         selectedCategoryId > 0 &&
-        !schedulesQuery.isLoading &&
-        !schedulesQuery.error &&
+        !isLoading &&
+        !error &&
         hasSchedule && (
           <TournamentScheduleViewer
             contentId={selectedCategoryId}
+            tournamentId={tournamentId} // TRUYỀN tournamentId XUỐNG ĐÂY
             schedulesOverride={schedulesData}
-            isLoadingOverride={schedulesQuery.isLoading}
-            errorOverride={schedulesQuery.error}
           />
         )}
     </div>

@@ -10,6 +10,7 @@ import {
   Shield,
   Gavel,
   BarChart3,
+  Settings2
 } from "lucide-react";
 
 export type PortalSidebarItem = {
