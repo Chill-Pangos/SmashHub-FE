@@ -67,12 +67,6 @@ const allRoutes: RouteInfo[] = [
     category: "Organizer",
   },
   {
-    path: "/organizer/schedule-config",
-    name: "Schedule Config",
-    category: "Organizer",
-  },
-  { path: "/organizer/entries", name: "Entries", category: "Organizer" },
-  {
     path: "/organizer/bulk-import",
     name: "Bulk Import",
     category: "Organizer",
@@ -85,16 +79,6 @@ const allRoutes: RouteInfo[] = [
   {
     path: "/organizer/draw",
     name: "Group Stage Draw",
-    category: "Organizer",
-  },
-  {
-    path: "/organizer/schedule-generation",
-    name: "Schedule Generation",
-    category: "Organizer",
-  },
-  {
-    path: "/organizer/referees",
-    name: "Referee Management",
     category: "Organizer",
   },
 

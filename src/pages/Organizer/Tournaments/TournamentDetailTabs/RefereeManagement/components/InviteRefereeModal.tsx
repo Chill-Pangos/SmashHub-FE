@@ -1,16 +1,38 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Search, Star } from "lucide-react";
 
-// Mock data cho danh sách trọng tài có thể mời
 const AVAILABLE_REFEREES = [
-  { id: "REF-9920", name: "David Chen", tier: "Tier 1", rating: 4.8, available: true, avatar: "" },
-  { id: "REF-4412", name: "Sarah Jenkins", tier: "Tier 2", rating: 4.5, available: true, avatar: "" },
-  { id: "REF-1089", name: "Michael Rossi", tier: "Tier 1", rating: 4.9, available: true, avatar: "" },
+  {
+    id: "REF-9920",
+    name: "David Chen",
+    tier: "Tier 1",
+    rating: 4.8,
+    available: true,
+  },
+  {
+    id: "REF-4412",
+    name: "Sarah Jenkins",
+    tier: "Tier 2",
+    rating: 4.5,
+    available: true,
+  },
+  {
+    id: "REF-1089",
+    name: "Michael Rossi",
+    tier: "Tier 1",
+    rating: 4.9,
+    available: true,
+  },
 ];
 
 interface InviteRefereeModalProps {
@@ -19,29 +41,28 @@ interface InviteRefereeModalProps {
   inviteMode: "CHIEF" | "ASSISTANT";
 }
 
-export function InviteRefereeModal({ open, onOpenChange, inviteMode }: InviteRefereeModalProps) {
-  // 👉 CALL REACT QUERY: useQuery(['available-referees', tournamentId], fetchAvailableReferees) để thay thế mock data.
-
+export function InviteRefereeModal({
+  open,
+  onOpenChange,
+  inviteMode,
+}: InviteRefereeModalProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const isChiefMode = inviteMode === "CHIEF";
 
-  // 👉 CALL REACT QUERY: const inviteMutation = useMutation({ mutationFn: inviteRefereesApi, onSuccess: () => { ... } })
-
   const handleSelect = (id: string) => {
     if (isChiefMode) {
-      setSelectedIds([id]); // Chỉ cho phép chọn 1
+      setSelectedIds([id]);
     } else {
       setSelectedIds((prev) =>
-        prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+        prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
       );
     }
   };
 
   const handleSendInvitations = () => {
-    // inviteMutation.mutate({ refereeIds: selectedIds, role: inviteMode });
     console.log("Inviting:", selectedIds, "as", inviteMode);
     onOpenChange(false);
-    setSelectedIds([]); // reset
+    setSelectedIds([]);
   };
 
   return (
@@ -68,9 +89,21 @@ export function InviteRefereeModal({ open, onOpenChange, inviteMode }: InviteRef
           </div>
 
           <div className="flex gap-2">
-            <Badge className="bg-primary/20 text-primary hover:bg-primary/30 cursor-pointer">Tier 1 ×</Badge>
-            <Badge variant="outline" className="text-muted-foreground hover:text-foreground cursor-pointer">General</Badge>
-            <Badge variant="outline" className="text-muted-foreground hover:text-foreground cursor-pointer">Available Only</Badge>
+            <Badge className="bg-primary/20 text-primary hover:bg-primary/30 cursor-pointer">
+              Tier 1 x
+            </Badge>
+            <Badge
+              variant="outline"
+              className="text-muted-foreground hover:text-foreground cursor-pointer"
+            >
+              General
+            </Badge>
+            <Badge
+              variant="outline"
+              className="text-muted-foreground hover:text-foreground cursor-pointer"
+            >
+              Available Only
+            </Badge>
           </div>
 
           <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
@@ -81,8 +114,16 @@ export function InviteRefereeModal({ open, onOpenChange, inviteMode }: InviteRef
                 onClick={() => handleSelect(ref.id)}
               >
                 <div className="flex items-center gap-3">
-                  <div className={`w-4 h-4 rounded border flex items-center justify-center ${selectedIds.includes(ref.id) ? 'bg-primary border-primary' : 'border-muted-foreground'}`}>
-                    {selectedIds.includes(ref.id) && <div className="w-2 h-2 bg-primary-foreground rounded-sm" />}
+                  <div
+                    className={`w-4 h-4 rounded border flex items-center justify-center ${
+                      selectedIds.includes(ref.id)
+                        ? "bg-primary border-primary"
+                        : "border-muted-foreground"
+                    }`}
+                  >
+                    {selectedIds.includes(ref.id) && (
+                      <div className="w-2 h-2 bg-primary-foreground rounded-sm" />
+                    )}
                   </div>
                   <Avatar className="h-9 w-9">
                     <AvatarFallback className="bg-muted text-muted-foreground text-xs font-semibold">
@@ -90,8 +131,12 @@ export function InviteRefereeModal({ open, onOpenChange, inviteMode }: InviteRef
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text-sm font-medium text-foreground">{ref.name}</p>
-                    <p className="text-xs text-muted-foreground">{ref.tier} • {ref.id}</p>
+                    <p className="text-sm font-medium text-foreground">
+                      {ref.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {ref.tier} - {ref.id}
+                    </p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -109,12 +154,16 @@ export function InviteRefereeModal({ open, onOpenChange, inviteMode }: InviteRef
 
         <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
           <p className="text-sm text-muted-foreground">
-            {isChiefMode 
-              ? "Single selection required for Chief position" 
+            {isChiefMode
+              ? "Single selection required for Chief position"
               : `${selectedIds.length} Referee Selected`}
           </p>
           <div className="flex gap-3">
-            <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground">
+            <Button
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+              className="text-muted-foreground"
+            >
               Cancel
             </Button>
             <Button

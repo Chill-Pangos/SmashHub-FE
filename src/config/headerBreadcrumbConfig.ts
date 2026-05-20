@@ -107,22 +107,6 @@ export const ROUTE_META: RouteMeta[] = [
     ],
   },
   {
-    pattern: "/organizer/schedule-config",
-    titleKey: "nav.schedule",
-    breadcrumbs: [
-      { labelKey: "portal.organizer.title", to: "/organizer" },
-      { labelKey: "nav.schedule" },
-    ],
-  },
-  {
-    pattern: "/organizer/entries",
-    titleKey: "portal.organizer.playerManagement",
-    breadcrumbs: [
-      { labelKey: "portal.organizer.title", to: "/organizer" },
-      { labelKey: "portal.organizer.playerManagement" },
-    ],
-  },
-  {
     pattern: "/organizer/bulk-import",
     titleKey: "organizer.bulkImport",
     breadcrumbs: [
@@ -144,22 +128,6 @@ export const ROUTE_META: RouteMeta[] = [
     breadcrumbs: [
       { labelKey: "portal.organizer.title", to: "/organizer" },
       { labelKey: "organizer.groupDraw" },
-    ],
-  },
-  {
-    pattern: "/organizer/schedule-generation",
-    titleKey: "portal.organizer.scheduleGeneration",
-    breadcrumbs: [
-      { labelKey: "portal.organizer.title", to: "/organizer" },
-      { labelKey: "portal.organizer.scheduleGeneration" },
-    ],
-  },
-  {
-    pattern: "/organizer/referees",
-    titleKey: "nav.referees",
-    breadcrumbs: [
-      { labelKey: "portal.organizer.title", to: "/organizer" },
-      { labelKey: "nav.referees" },
     ],
   },
 

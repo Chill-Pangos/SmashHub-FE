@@ -48,7 +48,11 @@ export function RefereeCard({ referee, isChief }: RefereeCardProps) {
         >
           {referee.status}
         </Badge>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+        >
           <MoreVertical className="h-4 w-4" />
         </Button>
       </div>
