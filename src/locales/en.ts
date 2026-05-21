@@ -172,6 +172,7 @@ export default {
     referee: {
       title: "Referee Control",
       openSidebar: "Open referee sidebar",
+      pendingInvitations: "Pending Invitations",
       assignedMatches: "Assigned Matches",
       invitations: "Invitations",
       approvals: "Approvals",
@@ -466,6 +467,8 @@ export default {
     assignReferee: "Assign Referee",
     chiefReferee: "Chief Referee",
     matchSupervision: "Match Supervision",
+    matchControlCenter: "Match Control Center",
+    matchResultsReview: "Match Results Review",
     refereeDashboard: "Referee Dashboard",
     activeMatch: "Active Match",
     upcomingAssignments: "Upcoming Assignments",
@@ -482,6 +485,8 @@ export default {
       "Match ended and awaiting Chief Referee approval",
     cannotEndMatch: "Cannot end match",
     liveScoring: "Live Scoring",
+    liveScoreController: "Live Score Controller",
+    resultsSubmission: "Results Submission",
   },
 
   // Schedule
@@ -735,7 +740,8 @@ export default {
             "Facility open time must be earlier than facility close time.",
           operatingWindowTooShort:
             "Operating hours are too short for at least one match.",
-          breakStartInvalid: "Break start time must be valid when breaks are enabled.",
+          breakStartInvalid:
+            "Break start time must be valid when breaks are enabled.",
           breakDurationInvalid: "Break duration must be at least 1 minute.",
           breakOutsideWindow:
             "Break time must stay within the operating hours window.",

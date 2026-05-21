@@ -134,59 +134,43 @@ export const ROUTE_META: RouteMeta[] = [
   // Referee Routes
   {
     pattern: "/referee",
-    titleKey: "portal.referee.invitations",
+    titleKey: "portal.referee.pendingInvitations",
     breadcrumbs: [
       { labelKey: "portal.referee.title", to: "/referee" },
-      { labelKey: "portal.referee.invitations" },
+      { labelKey: "portal.referee.pendingInvitations" },
     ],
   },
   {
     pattern: "/referee/invitations",
-    titleKey: "portal.referee.invitations",
+    titleKey: "portal.referee.pendingInvitations",
     breadcrumbs: [
       { labelKey: "portal.referee.title", to: "/referee" },
-      { labelKey: "portal.referee.invitations" },
+      { labelKey: "portal.referee.pendingInvitations" },
     ],
   },
   {
-    pattern: "/referee/assigned",
-    titleKey: "portal.referee.assignedMatches",
+    pattern: "/referee/tournaments",
+    titleKey: "nav.tournaments",
     breadcrumbs: [
       { labelKey: "portal.referee.title", to: "/referee" },
-      { labelKey: "portal.referee.assignedMatches" },
+      { labelKey: "nav.tournaments" },
     ],
   },
   {
-    pattern: "/referee/live",
-    titleKey: "referee.liveScoring",
+    pattern: "/referee/tournaments/:tournamentId",
+    titleKey: "tournament.tournamentDetails",
     breadcrumbs: [
       { labelKey: "portal.referee.title", to: "/referee" },
-      { labelKey: "referee.liveScoring" },
+      { labelKey: "nav.tournaments", to: "/referee/tournaments" },
+      { labelKey: "tournament.tournamentDetails" },
     ],
   },
   {
-    pattern: "/referee/submit",
-    titleKey: "match.submitResult",
+    pattern: "/referee/notifications",
+    titleKey: "nav.notifications",
     breadcrumbs: [
       { labelKey: "portal.referee.title", to: "/referee" },
-      { labelKey: "match.submitResult" },
-    ],
-  },
-  {
-    pattern: "/referee/approvals",
-    titleKey: "portal.referee.approvals",
-    breadcrumbs: [
-      { labelKey: "portal.referee.title", to: "/referee" },
-      { labelKey: "portal.referee.approvals" },
-    ],
-  },
-  {
-    pattern: "/referee/approvals/:matchId",
-    titleKey: "portal.referee.approvalDetail",
-    breadcrumbs: [
-      { labelKey: "portal.referee.title", to: "/referee" },
-      { labelKey: "portal.referee.approvals", to: "/referee/approvals" },
-      { labelKey: "portal.referee.approvalDetail" },
+      { labelKey: "nav.notifications" },
     ],
   },
 ];

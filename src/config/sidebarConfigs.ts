@@ -10,7 +10,7 @@ import {
   Shield,
   Gavel,
   BarChart3,
-  Settings2
+  Settings2,
 } from "lucide-react";
 
 export type PortalSidebarItem = {
@@ -202,16 +202,15 @@ export const refereeSidebarConfig: SidebarConfig = {
       title: t("portal.referee.sections.main"),
       items: [
         {
-          key: "dashboard",
-          label: t("nav.dashboard"),
-          to: "/referee",
+          key: "pending-invitations",
+          label: t("portal.referee.pendingInvitations"),
+          to: "/referee/invitations",
           icon: ClipboardList,
-          end: true,
         },
         {
-          key: "assigned-matches",
-          label: t("portal.referee.assignedMatches"),
-          to: "/referee/matches",
+          key: "tournaments",
+          label: t("nav.tournaments"),
+          to: "/referee/tournaments",
           icon: Trophy,
         },
         {
@@ -232,6 +231,56 @@ export const refereeSidebarConfig: SidebarConfig = {
     },
   ],
 };
+
+/**
+ * Chief Referee Portal Sidebar Configuration
+ */
+export const chiefRefereeSidebarConfig: SidebarConfig = {
+  brand: {
+    title: "Chief Referee Portal",
+    subtitle: "SmashHub",
+    icon: Gavel,
+  },
+  sections: (t) => [
+    {
+      title: t("portal.referee.sections.main"),
+      items: [
+        {
+          key: "pending-invitations",
+          label: t("portal.referee.pendingInvitations"),
+          to: "/referee/invitations",
+          icon: ClipboardList,
+        },
+        {
+          key: "tournaments",
+          label: t("nav.tournaments"),
+          to: "/referee/tournaments",
+          icon: Trophy,
+        },
+        {
+          key: "notifications",
+          label: t("nav.notifications"),
+          to: "/referee/notifications",
+          icon: Bell,
+        },
+      ],
+    },
+  ],
+  footerItems: (t, logout) => [
+    {
+      key: "logout",
+      label: t("auth.signOut"),
+      onClick: logout,
+      icon: LogOut,
+    },
+  ],
+};
+
+export function getRefereeSidebarConfig(
+  isChiefReferee: boolean,
+): SidebarConfig {
+  return isChiefReferee ? chiefRefereeSidebarConfig : refereeSidebarConfig;
+}
 
 /**
  * Get sidebar config by portal type

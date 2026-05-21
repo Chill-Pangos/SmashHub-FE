@@ -86,32 +86,22 @@ const allRoutes: RouteInfo[] = [
   { path: "/referee", name: "Invitations", category: "Referee" },
   {
     path: "/referee/invitations",
-    name: "Invitations",
+    name: "Pending Invitations",
     category: "Referee",
   },
   {
-    path: "/referee/assigned",
-    name: "Assigned Matches",
+    path: "/referee/tournaments",
+    name: "Referee Tournaments",
     category: "Referee",
   },
   {
-    path: "/referee/live",
-    name: "Live Score Controller",
+    path: "/referee/tournaments/1",
+    name: "Tournament Detail",
     category: "Referee",
   },
   {
-    path: "/referee/submit",
-    name: "Match Submission",
-    category: "Referee",
-  },
-  {
-    path: "/referee/approvals",
-    name: "Match Approval Dashboard",
-    category: "Referee",
-  },
-  {
-    path: "/referee/approvals/1",
-    name: "Approval Detail & ELO Preview",
+    path: "/referee/notifications",
+    name: "Notifications",
     category: "Referee",
   },
 ];

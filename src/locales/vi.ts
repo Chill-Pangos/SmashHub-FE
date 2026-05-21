@@ -172,6 +172,7 @@ export default {
     referee: {
       title: "Bảng điều khiển Trọng tài",
       openSidebar: "Mở sidebar trọng tài",
+      pendingInvitations: "Lời mời đang chờ",
       assignedMatches: "Trận đấu được phân công",
       invitations: "Lời mời",
       approvals: "Phê duyệt",
@@ -464,6 +465,8 @@ export default {
     assignReferee: "Phân công",
     chiefReferee: "Tổng trọng tài",
     matchSupervision: "Giám sát trận đấu",
+    matchControlCenter: "Trung tâm điều hành trận đấu",
+    matchResultsReview: "Duyệt kết quả trận đấu",
     refereeDashboard: "Bảng điều khiển trọng tài",
     activeMatch: "Trận đang điều khiển",
     upcomingAssignments: "Lịch phân công",
@@ -480,6 +483,8 @@ export default {
       "Trận đấu đã kết thúc và đang chờ Tổng trọng tài phê duyệt",
     cannotEndMatch: "Không thể kết thúc trận đấu",
     liveScoring: "Tính điểm trực tiếp",
+    liveScoreController: "Điều khiển điểm trực tiếp",
+    resultsSubmission: "Gửi kết quả",
   },
 
   // Schedule
@@ -732,14 +737,15 @@ export default {
           activeTablesInvalid: "Số bàn hoạt động phải lớn hơn hoặc bằng 1.",
           matchDurationInvalid:
             "Thời lượng trận phải lớn hơn hoặc bằng 1 phút.",
-          dailyTimeInvalid: "Khung giờ hoạt động phải là giá trị thời gian hợp lệ.",
-          dailyTimeOrderInvalid:
-            "Giờ mở cửa phải sớm hơn giờ đóng cửa.",
+          dailyTimeInvalid:
+            "Khung giờ hoạt động phải là giá trị thời gian hợp lệ.",
+          dailyTimeOrderInvalid: "Giờ mở cửa phải sớm hơn giờ đóng cửa.",
           operatingWindowTooShort:
             "Khung giờ hoạt động quá ngắn để chứa ít nhất một trận đấu.",
           breakStartInvalid:
             "Giờ bắt đầu nghỉ phải hợp lệ khi bật chế độ nghỉ giữa giờ.",
-          breakDurationInvalid: "Thời lượng nghỉ phải lớn hơn hoặc bằng 1 phút.",
+          breakDurationInvalid:
+            "Thời lượng nghỉ phải lớn hơn hoặc bằng 1 phút.",
           breakOutsideWindow:
             "Thời gian nghỉ phải nằm trong khung giờ hoạt động.",
         },

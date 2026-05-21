@@ -6,28 +6,38 @@ import PortalSidebar, {
 } from "@/components/custom/PortalSidebar";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
 import { useTranslation } from "@/hooks/useTranslation";
-import { refereeSidebarConfig } from "@/config/sidebarConfigs";
+import { getRefereeSidebarConfig } from "@/config/sidebarConfigs";
 import PortalHeader from "@/components/custom/PortalHeader";
+import { useAuth, useRole } from "@/store";
 
 export default function RefereeLayout() {
   const { t } = useTranslation();
   const { logout } = useAuthOperations();
+  const { user } = useAuth();
+  const { getRoleByName } = useRole();
+
+  const chiefRefereeRoleId = getRoleByName("chief_referee")?.id;
+  const isChiefReferee = Boolean(
+    chiefRefereeRoleId && user?.roles?.includes(chiefRefereeRoleId),
+  );
+  const sidebarConfig = getRefereeSidebarConfig(isChiefReferee);
+  const brandSubtitle = isChiefReferee
+    ? t("referee.chiefReferee")
+    : t("referee.referee");
 
   // Get sections from config with translations
-  const sections: PortalSidebarSection[] = refereeSidebarConfig.sections(t);
+  const sections: PortalSidebarSection[] = sidebarConfig.sections(t);
 
   // Get footer items from config
-  const footerItems: PortalSidebarItem[] = refereeSidebarConfig.footerItems(
-    t,
-    logout,
-  );
+  const footerItems: PortalSidebarItem[] = sidebarConfig.footerItems(t, logout);
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_color-mix(in_srgb,_var(--primary)_8%,_transparent)_0%,_transparent_32%),linear-gradient(180deg,_var(--background)_0%,_color-mix(in_srgb,_var(--background)_92%,_var(--card)_8%)_100%)] text-foreground">
       <PortalSidebar
         brand={{
-          ...refereeSidebarConfig.brand,
+          ...sidebarConfig.brand,
           title: t("portal.referee.title"),
+          subtitle: brandSubtitle,
         }}
         mobileTitle={t("portal.referee.title")}
         triggerLabel={t("portal.referee.openSidebar")}

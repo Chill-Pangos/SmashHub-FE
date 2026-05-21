@@ -1,12 +1,10 @@
-import { Route } from "react-router-dom";
+import { Navigate, Route } from "react-router-dom";
 import RoleGuard from "@/components/custom/RoleGuard";
 import RefereeLayout from "@/layouts/RefereeLayout";
-import Invitations from "@/pages/Referee/Invitations/Invitations";
-import AssignedMatches from "@/pages/Referee/AssignedMatches/AssignedMatches";
-import LiveScoreController from "@/pages/Referee/LiveScoreController/LiveScoreController";
-import MatchSubmission from "@/pages/Referee/MatchSubmission/MatchSubmission";
-import MatchApprovalDashboard from "@/pages/Referee/MatchApprovalDashboard/MatchApprovalDashboard";
-import ApprovalDetailEloPreview from "@/pages/Referee/ApprovalDetailEloPreview/ApprovalDetailEloPreview";
+import PendingInvitations from "@/pages/Referee/PendingInvitations";
+import Tournaments from "@/pages/Referee/Tournaments";
+import TournamentDetail from "@/pages/Referee/TournamentDetail";
+import Notifications from "@/pages/Referee/Notifications";
 
 interface RefereeRoutesProps {
   refereeRoleId: number;
@@ -25,10 +23,6 @@ export default function RefereeRoutes({
     (id): id is number => typeof id === "number",
   );
 
-  const chiefRoleIds = [chiefRefereeRoleId].filter(
-    (id): id is number => typeof id === "number",
-  );
-
   return (
     <>
       <Route
@@ -38,31 +32,17 @@ export default function RefereeRoutes({
           </RoleGuard>
         }
       >
-        <Route path="/referee" element={<Invitations />} />
-        <Route path="/referee/invitations" element={<Invitations />} />
-        <Route path="/referee/assigned" element={<AssignedMatches />} />
-        <Route path="/referee/live" element={<LiveScoreController />} />
-        <Route path="/referee/submit" element={<MatchSubmission />} />
-        {chiefRoleIds.length > 0 && (
-          <>
-            <Route
-              path="/referee/approvals"
-              element={
-                <RoleGuard allowedRoles={chiefRoleIds}>
-                  <MatchApprovalDashboard />
-                </RoleGuard>
-              }
-            />
-            <Route
-              path="/referee/approvals/:matchId"
-              element={
-                <RoleGuard allowedRoles={chiefRoleIds}>
-                  <ApprovalDetailEloPreview />
-                </RoleGuard>
-              }
-            />
-          </>
-        )}
+        <Route
+          path="/referee"
+          element={<Navigate to="/referee/invitations" replace />}
+        />
+        <Route path="/referee/invitations" element={<PendingInvitations />} />
+        <Route path="/referee/tournaments" element={<Tournaments />} />
+        <Route
+          path="/referee/tournaments/:tournamentId"
+          element={<TournamentDetail />}
+        />
+        <Route path="/referee/notifications" element={<Notifications />} />
       </Route>
     </>
   );
