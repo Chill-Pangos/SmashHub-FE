@@ -190,9 +190,9 @@ export default function MatchResultsReviewTab() {
           onClick={() => setIsDetailOpen(false)}
         />
         <div
-          className={`absolute inset-x-0 bottom-0 max-h-[85vh] bg-card border-t border-border rounded-t-2xl p-4 overflow-y-auto transition-transform duration-300 ${isDetailOpen ? "translate-y-0" : "translate-y-full"}`}
+          className={`absolute inset-x-0 bottom-0 max-h-[85vh] bg-card border-t border-border rounded-t-2xl overflow-y-auto transition-transform duration-300 ${isDetailOpen ? "translate-y-0" : "translate-y-full"}`}
         >
-          <div className="flex items-center justify-between mb-4 sticky top-0 bg-card pb-2 z-10">
+          <div className="flex items-center justify-between sticky top-0 bg-card p-4 z-30">
             <p className="text-sm font-bold text-foreground">Match Detail</p>
             <button
               type="button"
@@ -202,7 +202,9 @@ export default function MatchResultsReviewTab() {
               <X className="w-4 h-4" />
             </button>
           </div>
+          <div className="p-4">
           {detailContent}
+          </div>
         </div>
       </div>
     </div>
