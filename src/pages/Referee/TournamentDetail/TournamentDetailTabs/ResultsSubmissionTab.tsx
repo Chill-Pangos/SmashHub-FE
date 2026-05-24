@@ -47,55 +47,43 @@ export default function ResultsSubmissionTab() {
   const [signaturesLogged, setSignaturesLogged] = useState(true);
   const [conductClean, setConductClean] = useState(false);
 
-  // 🟢 Giao diện chi tiết (Dùng chung cho cả Desktop panel và Mobile bottom sheet)
+  const p1Wins = selectedMatch.p1Sets > selectedMatch.p2Sets;
+  const p2Wins = selectedMatch.p2Sets > selectedMatch.p1Sets;
+
   const detailContent = (
     <>
       <div className="flex justify-between items-start mb-6 shrink-0">
         <div>
-          <h2 className="text-2xl font-black text-primary">Final Submission</h2>
+          <h2 className="text-2xl font-black text-foreground">Final Submission</h2>
           <p className="text-sm text-muted-foreground mt-1">
             Review set scores before official commitment to the ledger.
           </p>
         </div>
-        <span className="bg-chart-4/20 text-chart-4 text-xs font-bold px-3 py-1 rounded-full">
+        <span className="bg-chart-4/20 text-chart-4 text-xs font-bold px-3 py-1 rounded-full mt-1">
           Match ID: {selectedMatch.id}
         </span>
       </div>
 
-      <div className="bg-background border border-border rounded-xl p-8 flex justify-between items-center relative overflow-hidden mb-6 shrink-0">
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
-          Final
-        </div>
-
-        <div className="flex flex-col items-center gap-3 w-1/3 z-10">
-          <div className="w-20 h-20 rounded-full bg-secondary border border-border"></div>
-          <div className="text-center">
-            <h3 className="font-bold text-lg">{selectedMatch.p1}</h3>
-            <p className="text-xs text-muted-foreground">
-              Seed #{selectedMatch.seed1}
-            </p>
-          </div>
-          <div className="w-12 h-12 bg-card border border-border rounded-full flex items-center justify-center text-2xl font-black shadow-inner">
-            {selectedMatch.p1Sets}
+      <div className="bg-background rounded-xl p-6 border border-border mb-6 flex justify-between items-center shrink-0">
+        <div className={`flex flex-col items-center w-1/3 ${p2Wins ? 'opacity-50' : ''}`}>
+          <div className={`w-16 h-16 rounded-full bg-secondary mb-2 ${p1Wins ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}></div>
+          <p className="font-bold">{selectedMatch.p1}</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-[10px] text-muted-foreground font-semibold">Seed #{selectedMatch.seed1}</span>
+            {p1Wins && <span className="text-[10px] text-primary font-bold uppercase">Winner</span>}
           </div>
         </div>
-
-        <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center z-10 border border-border text-muted-foreground transform rotate-45">
-          <span className="block transform -rotate-45 text-xs font-bold">
-            VS
-          </span>
+        
+        <div className="text-5xl font-black font-mono w-1/3 text-center">
+          {selectedMatch.p1Sets} - {selectedMatch.p2Sets}
         </div>
 
-        <div className="flex flex-col items-center gap-3 w-1/3 z-10 opacity-70">
-          <div className="w-20 h-20 rounded-full bg-secondary border border-border"></div>
-          <div className="text-center">
-            <h3 className="font-bold text-lg">{selectedMatch.p2}</h3>
-            <p className="text-xs text-muted-foreground">
-              Seed #{selectedMatch.seed2}
-            </p>
-          </div>
-          <div className="w-12 h-12 bg-card border border-border rounded-full flex items-center justify-center text-2xl font-black">
-            {selectedMatch.p2Sets}
+        <div className={`flex flex-col items-center w-1/3 ${p1Wins ? 'opacity-50' : ''}`}>
+          <div className={`w-16 h-16 rounded-full bg-secondary mb-2 ${p2Wins ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}></div>
+          <p className="font-bold">{selectedMatch.p2}</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            {p2Wins && <span className="text-[10px] text-primary font-bold uppercase">Winner</span>}
+            <span className="text-[10px] text-muted-foreground font-semibold">Seed #{selectedMatch.seed2}</span>
           </div>
         </div>
       </div>
@@ -117,31 +105,22 @@ export default function ResultsSubmissionTab() {
             <tr className="border-b border-border/50">
               <td className="py-4 font-semibold text-foreground flex items-center gap-2">
                 {selectedMatch.p1}{" "}
-                <span className="w-2 h-2 bg-primary rounded-full"></span>
+                {p1Wins && <span className="w-2 h-2 bg-primary rounded-full"></span>}
               </td>
-              <td className="py-4 text-center font-mono font-bold text-lg">
-                6
-              </td>
-              <td className="py-4 text-center font-mono font-bold text-lg">
-                3
-              </td>
+              <td className="py-4 text-center font-mono font-bold text-lg">6</td>
+              <td className="py-4 text-center font-mono font-bold text-lg">3</td>
               <td className="py-4 text-center font-mono font-bold text-lg">
                 7 <br />
-                <span className="text-[10px] text-primary font-normal">
-                  (7)
-                </span>
+                <span className="text-[10px] text-primary font-normal">(7)</span>
               </td>
             </tr>
             <tr>
               <td className="py-4 font-semibold text-muted-foreground">
                 {selectedMatch.p2}
+                {p2Wins && <span className="w-2 h-2 bg-primary rounded-full ml-2"></span>}
               </td>
-              <td className="py-4 text-center font-mono text-lg text-muted-foreground">
-                4
-              </td>
-              <td className="py-4 text-center font-mono text-lg text-muted-foreground">
-                6
-              </td>
+              <td className="py-4 text-center font-mono text-lg text-muted-foreground">4</td>
+              <td className="py-4 text-center font-mono text-lg text-muted-foreground">6</td>
               <td className="py-4 text-center font-mono text-lg text-muted-foreground">
                 6 <br />
                 <span className="text-[10px] font-normal">(5)</span>
@@ -149,6 +128,37 @@ export default function ResultsSubmissionTab() {
             </tr>
           </tbody>
         </table>
+      </div>
+
+      {/* 🔴 Bổ sung khối ELO Impact Preview từ MatchResultsReviewTab */}
+      <h3 className="font-bold text-sm mb-3 flex items-center gap-2 shrink-0">
+        ELO Impact Preview
+      </h3>
+      <div className="flex gap-4 mb-8 shrink-0">
+        <div className="flex-1 bg-background border border-border rounded-lg p-4 flex justify-between items-center">
+          <div>
+            <p className="font-bold">{selectedMatch.p1}</p>
+            <p className="text-xs text-muted-foreground">
+              {p1Wins ? '1450 → ' : '1474 → '}
+              <span className="text-foreground">{p1Wins ? '1474' : '1450'}</span>
+            </p>
+          </div>
+          <span className={`font-bold ${p1Wins ? 'text-chart-3' : 'text-destructive'}`}>
+            {p1Wins ? '+24' : '-24'}
+          </span>
+        </div>
+        <div className="flex-1 bg-background border border-border rounded-lg p-4 flex justify-between items-center">
+          <div>
+            <p className="font-bold">{selectedMatch.p2}</p>
+            <p className="text-xs text-muted-foreground">
+              {p2Wins ? '1492 → ' : '1510 → '}
+              <span className="text-foreground">{p2Wins ? '1510' : '1492'}</span>
+            </p>
+          </div>
+          <span className={`font-bold ${p2Wins ? 'text-chart-3' : 'text-destructive'}`}>
+            {p2Wins ? '+18' : '-18'}
+          </span>
+        </div>
       </div>
 
       <div className="border border-border rounded-xl p-6 flex flex-col bg-card shrink-0">
@@ -163,9 +173,7 @@ export default function ResultsSubmissionTab() {
               {verifiedScores && <Check className="w-3 h-3 stroke-[3]" />}
             </div>
             <div>
-              <p
-                className={`font-semibold text-sm ${verifiedScores ? "text-foreground" : "text-muted-foreground"}`}
-              >
+              <p className={`font-semibold text-sm ${verifiedScores ? "text-foreground" : "text-muted-foreground"}`}>
                 Verify Set Scores
               </p>
               <p className="text-xs text-muted-foreground mt-1">
@@ -182,9 +190,7 @@ export default function ResultsSubmissionTab() {
               {signaturesLogged && <Check className="w-3 h-3 stroke-[3]" />}
             </div>
             <div>
-              <p
-                className={`font-semibold text-sm ${signaturesLogged ? "text-foreground" : "text-muted-foreground"}`}
-              >
+              <p className={`font-semibold text-sm ${signaturesLogged ? "text-foreground" : "text-muted-foreground"}`}>
                 Player Signatures Logged
               </p>
               <p className="text-xs text-muted-foreground mt-1">
@@ -201,9 +207,7 @@ export default function ResultsSubmissionTab() {
               {conductClean && <Check className="w-3 h-3 stroke-[3]" />}
             </div>
             <div>
-              <p
-                className={`font-semibold text-sm ${conductClean ? "text-foreground" : "text-muted-foreground"}`}
-              >
+              <p className={`font-semibold text-sm ${conductClean ? "text-foreground" : "text-muted-foreground"}`}>
                 Code of Conduct Clean
               </p>
               <p className="text-xs text-muted-foreground mt-1">
@@ -233,10 +237,6 @@ export default function ResultsSubmissionTab() {
     </>
   );
 
-  // 🟢 REACT QUERY:
-  // const { data: completedMatchesAwaitingSubmission } = useQuery(...)
-  // const submitMatchMutation = useMutation({ mutationFn: submitToLedger })
-
   return (
     <div className="flex gap-6 h-[calc(100vh-140px)] lg:overflow-hidden relative">
       {/* Left Sidebar: List */}
@@ -262,18 +262,12 @@ export default function ResultsSubmissionTab() {
             >
               <div className="flex gap-4">
                 <div className="flex flex-col justify-center">
-                  <span className="text-[10px] text-muted-foreground font-bold">
-                    ID
-                  </span>
-                  <span className="text-sm font-bold text-primary">
-                    {match.id}
-                  </span>
+                  <span className="text-[10px] text-muted-foreground font-bold">ID</span>
+                  <span className="text-sm font-bold text-primary">{match.id}</span>
                 </div>
                 <div>
                   <p className="font-semibold text-sm mt-1">
-                    {match.p1}{" "}
-                    <span className="text-muted-foreground mx-1">vs</span>{" "}
-                    {match.p2}
+                    {match.p1} <span className="text-muted-foreground mx-1">vs</span> {match.p2}
                   </p>
                   <div className="flex items-center gap-2 mt-2">
                     <span
@@ -312,9 +306,9 @@ export default function ResultsSubmissionTab() {
           onClick={() => setIsDetailOpen(false)}
         />
         <div
-          className={`absolute inset-x-0 bottom-0 max-h-[85vh] bg-card border-t border-border rounded-t-2xl  overflow-y-auto transition-transform duration-300 ${isDetailOpen ? "translate-y-0" : "translate-y-full"}`}
+          className={`absolute inset-x-0 bottom-0 max-h-[85vh] bg-card border-t border-border rounded-t-2xl overflow-y-auto transition-transform duration-300 ${isDetailOpen ? "translate-y-0" : "translate-y-full"}`}
         >
-          <div className="flex items-center justify-between sticky top-0 bg-card p-4 z-30">
+          <div className="flex items-center justify-between sticky top-0 bg-card p-4 z-30 border-b border-border mb-4">
             <p className="text-sm font-bold text-foreground">
               Submission Detail
             </p>
@@ -326,7 +320,7 @@ export default function ResultsSubmissionTab() {
               <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="p-4">{detailContent}</div>
+          <div className="p-4 pt-0">{detailContent}</div>
         </div>
       </div>
     </div>
