@@ -9,9 +9,15 @@ import {
 } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Trophy, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
-import { useAuthOperations, useTranslation } from "@/hooks";
+import {
+  useForgotPassword,
+  useResendEmailVerification,
+  useTranslation,
+  useVerifyEmailOtp,
+  useVerifyOtp,
+} from "@/hooks";
 import { useAuth } from "@/store/useAuth";
-import { validateOTP, showToast } from "@/utils";
+import { validateOTP, showApiError, showToast } from "@/utils";
 
 const COUNTDOWN_SECONDS = 180; // 3 minutes
 
@@ -19,23 +25,24 @@ const VerifyOtp = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
-  const {
-    verifyOtp,
-    verifyEmailOtp,
-    resendEmailVerification,
-    forgotPassword,
-    loading,
-  } = useAuthOperations();
+  const { user, updateUser } = useAuth();
+  const verifyOtpMutation = useVerifyOtp();
+  const verifyEmailOtpMutation = useVerifyEmailOtp();
+  const resendEmailVerificationMutation = useResendEmailVerification();
+  const forgotPasswordMutation = useForgotPassword();
 
   const email = searchParams.get("email");
   const type = searchParams.get("type");
 
   const [digits, setDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [error, setError] = useState<string | null>(null);
-  const [resending, setResending] = useState(false);
   const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const isSubmitting =
+    verifyOtpMutation.isPending || verifyEmailOtpMutation.isPending;
+  const isResending =
+    resendEmailVerificationMutation.isPending ||
+    forgotPasswordMutation.isPending;
 
   // useEffect(() => {
   //   if (!email) {
@@ -124,56 +131,70 @@ const VerifyOtp = () => {
         setError(t("authFlow.verifyOtp.userNotFound"));
         return;
       }
-      const result = await verifyEmailOtp({ email, otp }, user);
-      if (result.success) {
-        showToast.success(
-          t("authFlow.verifyOtp.emailVerificationSuccessTitle"),
-          t("authFlow.verifyOtp.emailVerificationSuccessDescription"),
-        );
-        navigate("/");
-      } else {
-        setError(result.error || t("authFlow.verifyOtp.otpInvalid"));
-        showToast.error(
-          t("authFlow.verifyOtp.verificationFailed"),
-          result.error,
-        );
+
+      try {
+        const response = await verifyEmailOtpMutation.mutateAsync({
+          email,
+          otp,
+        });
+        if (response.success) {
+          updateUser({ ...user, isEmailVerified: true });
+          showToast.success(
+            t("authFlow.verifyOtp.emailVerificationSuccessTitle"),
+            t("authFlow.verifyOtp.emailVerificationSuccessDescription"),
+          );
+          navigate("/");
+        } else {
+          setError(response.message || t("authFlow.verifyOtp.otpInvalid"));
+          showApiError(response, t("authFlow.verifyOtp.verificationFailed"));
+        }
+      } catch (err) {
+        setError(t("authFlow.verifyOtp.otpInvalid"));
+        showApiError(err, t("authFlow.verifyOtp.verificationFailed"));
       }
     } else {
-      const result = await verifyOtp({ email, otp });
-      if (result.success) {
-        showToast.success(
-          t("authFlow.verifyOtp.verificationSuccessTitle"),
-          t("authFlow.verifyOtp.verificationSuccessDescription"),
-        );
-        navigate(
-          `/reset-password?email=${encodeURIComponent(email)}&otp=${otp}`,
-        );
-      } else {
-        setError(result.error || t("authFlow.verifyOtp.otpInvalid"));
-        showToast.error(
-          t("authFlow.verifyOtp.verificationFailed"),
-          result.error,
-        );
+      try {
+        const response = await verifyOtpMutation.mutateAsync({ email, otp });
+        if (response.success) {
+          showToast.success(
+            t("authFlow.verifyOtp.verificationSuccessTitle"),
+            t("authFlow.verifyOtp.verificationSuccessDescription"),
+          );
+          navigate(
+            `/reset-password?email=${encodeURIComponent(email)}&otp=${otp}`,
+          );
+        } else {
+          setError(response.message || t("authFlow.verifyOtp.otpInvalid"));
+          showApiError(response, t("authFlow.verifyOtp.verificationFailed"));
+        }
+      } catch (err) {
+        setError(t("authFlow.verifyOtp.otpInvalid"));
+        showApiError(err, t("authFlow.verifyOtp.verificationFailed"));
       }
     }
   };
 
   const handleResend = async () => {
     if (!email) return;
-    setResending(true);
-    const resendFn =
-      type === "email-verification" ? resendEmailVerification : forgotPassword;
-    const result = await resendFn({ email });
-    if (result.success) {
-      setCountdown(COUNTDOWN_SECONDS);
-      showToast.success(
-        t("authFlow.verifyOtp.resendSuccessTitle"),
-        t("authFlow.checkEmail"),
-      );
-    } else {
-      showToast.error(t("authFlow.verifyOtp.resendFailedTitle"), result.error);
+    const resendMutation =
+      type === "email-verification"
+        ? resendEmailVerificationMutation
+        : forgotPasswordMutation;
+
+    try {
+      const response = await resendMutation.mutateAsync({ email });
+      if (response.success) {
+        setCountdown(COUNTDOWN_SECONDS);
+        showToast.success(
+          t("authFlow.verifyOtp.resendSuccessTitle"),
+          t("authFlow.checkEmail"),
+        );
+      } else {
+        showApiError(response, t("authFlow.verifyOtp.resendFailedTitle"));
+      }
+    } catch (err) {
+      showApiError(err, t("authFlow.verifyOtp.resendFailedTitle"));
     }
-    setResending(false);
   };
 
   const isComplete = otp.length === 6;
@@ -362,25 +383,28 @@ const VerifyOtp = () => {
               {/* Submit button */}
               <button
                 type="submit"
-                disabled={loading || !isComplete}
+                disabled={isSubmitting || !isComplete}
                 className="w-full py-4 rounded-lg font-bold text-xs tracking-widest uppercase flex items-center justify-center gap-2 transition-all duration-300 group"
                 style={{
                   background:
-                    isComplete && !loading ? "var(--primary)" : "var(--muted)",
+                    isComplete && !isSubmitting
+                      ? "var(--primary)"
+                      : "var(--muted)",
                   color:
-                    isComplete && !loading
+                    isComplete && !isSubmitting
                       ? "var(--primary-foreground)"
                       : "var(--muted-foreground)",
-                  cursor: isComplete && !loading ? "pointer" : "not-allowed",
+                  cursor:
+                    isComplete && !isSubmitting ? "pointer" : "not-allowed",
                   boxShadow:
-                    isComplete && !loading
+                    isComplete && !isSubmitting
                       ? "0 0 0px rgba(0,242,255,0)"
                       : "none",
                   fontFamily: "'Sora', sans-serif",
                   transition: "all 0.3s ease",
                 }}
                 onMouseEnter={(e) => {
-                  if (isComplete && !loading) {
+                  if (isComplete && !isSubmitting) {
                     (e.currentTarget as HTMLButtonElement).style.boxShadow =
                       "var(--auth-primary-glow)";
                   }
@@ -390,7 +414,7 @@ const VerifyOtp = () => {
                     "none";
                 }}
               >
-                {loading ? (
+                {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
                     {t("authFlow.verifyOtp.verifying")}
@@ -420,7 +444,7 @@ const VerifyOtp = () => {
                 <button
                   type="button"
                   onClick={handleResend}
-                  disabled={resending || countdown > 0}
+                  disabled={isResending || countdown > 0}
                   className="ml-1 underline underline-offset-4 transition-all duration-200 disabled:opacity-40"
                   style={{
                     color: "var(--accent)",
@@ -428,10 +452,10 @@ const VerifyOtp = () => {
                       "color-mix(in srgb, var(--accent) 35%, transparent)",
                     fontFamily: "'Sora', sans-serif",
                     cursor:
-                      resending || countdown > 0 ? "not-allowed" : "pointer",
+                      isResending || countdown > 0 ? "not-allowed" : "pointer",
                   }}
                   onMouseEnter={(e) => {
-                    if (!resending && countdown <= 0) {
+                    if (!isResending && countdown <= 0) {
                       (e.currentTarget as HTMLButtonElement).style.color =
                         "var(--primary)";
                       (e.currentTarget as HTMLButtonElement).style.textShadow =
@@ -445,7 +469,7 @@ const VerifyOtp = () => {
                       "none";
                   }}
                 >
-                  {resending
+                  {isResending
                     ? t("authFlow.verifyOtp.resending")
                     : t("authFlow.verifyOtp.resendButton")}
                 </button>

@@ -1,25 +1,41 @@
 import { useState, type FormEvent, type ChangeEvent, useCallback } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight, Briefcase, Fingerprint } from "lucide-react";
 import tableTennisBgLight from "@/assets/table_tennis_bg_light.png";
 import tableTennisBgDark from "@/assets/table_tennis_bg_dark.png";
-import { useAuthOperations, useTranslation } from "@/hooks";
+import { useCurrentUser, useLogin, useTranslation } from "@/hooks";
+import { useAuth, useRole } from "@/store";
 import {
   validateLoginForm,
   hasValidationErrors,
   showToast,
+  showApiError,
   type LoginFormData,
   type ValidationErrors,
 } from "@/utils";
 
 const SignIn = () => {
   const { t } = useTranslation();
-  const { login, loading, error: authError } = useAuthOperations();
+  const navigate = useNavigate();
+  const { login: setAuthData, updateUser } = useAuth();
+  const { getDefaultRouteForRoles, getRoleNames } = useRole();
+  const loginMutation = useLogin();
+  const { refetch: fetchCurrentUser } = useCurrentUser({ enabled: false });
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
+  const quickAccessItems = [
+    {
+      icon: <Briefcase className="w-5 h-5" />,
+      label: t("authFlow.signIn.sso"),
+    },
+    {
+      icon: <Fingerprint className="w-5 h-5" />,
+      label: t("authFlow.signIn.biometric"),
+    },
+  ];
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -44,22 +60,52 @@ const SignIn = () => {
         setErrors(validationErrors);
         return;
       }
-      const result = await login(formData);
-      if (result.success && result.data) {
-        showToast.success(
-          t("auth.loginSuccess"),
-          t("authFlow.welcomeBackWithName", {
-            name: `${result.data.user.firstName} ${result.data.user.lastName}`.trim(),
-          }),
-        );
-      } else {
-        showToast.error(
-          t("message.operationFailed"),
-          result.error || authError || undefined,
-        );
+      try {
+        const response = await loginMutation.mutateAsync(formData);
+
+        if (response.success && response.data) {
+          setAuthData(response.data);
+
+          let currentUser = response.data.user;
+          try {
+            const refreshed = await fetchCurrentUser();
+            if (refreshed.data) {
+              currentUser = refreshed.data;
+              updateUser(currentUser);
+            }
+          } catch (err) {
+            console.warn("Failed to refresh current user after login:", err);
+          }
+
+          const roleNames = getRoleNames(currentUser.roles ?? []);
+          const redirectPath =
+            roleNames.length > 1 ? "/" : getDefaultRouteForRoles(roleNames);
+
+          navigate(redirectPath, { replace: true });
+          showToast.success(
+            t("auth.loginSuccess"),
+            t("authFlow.welcomeBackWithName", {
+              name: `${currentUser.firstName} ${currentUser.lastName}`.trim(),
+            }),
+          );
+        } else {
+          showApiError(response, t("auth.loginFailed"));
+        }
+      } catch (err) {
+        showApiError(err, t("auth.loginFailed"));
       }
     },
-    [formData, login, authError, t],
+    [
+      fetchCurrentUser,
+      formData,
+      getDefaultRouteForRoles,
+      getRoleNames,
+      loginMutation,
+      navigate,
+      setAuthData,
+      t,
+      updateUser,
+    ],
   );
 
   return (
@@ -104,7 +150,7 @@ const SignIn = () => {
           }}
         />
 
-       {/* Gradient overlays — Tối ưu độ trong suốt cho Light Mode */}
+        {/* Gradient overlays — Tối ưu độ trong suốt cho Light Mode */}
         {/* Light mode overlays */}
         {/* Đệm nhẹ từ trái sang cho khu vực đặt Text brand */}
         <div
@@ -230,8 +276,7 @@ const SignIn = () => {
             className="text-base leading-relaxed max-w-sm"
             style={{ color: "var(--foreground-muted)" }}
           >
-            {t("auth.brandDescription") ??
-              "The elite ecosystem for professional table tennis management, analytics, and high-stakes tournament execution."}
+            {t("auth.brandDescription")}
           </p>
         </div>
       </div>
@@ -327,7 +372,7 @@ const SignIn = () => {
                 boxShadow: "var(--auth-primary-glow)",
               }}
             >
-              {t("auth.signIn") || "Sign In"}
+              {t("auth.signIn")}
             </button>
             {/* Sign Up — inactive */}
             <NavLink
@@ -343,7 +388,7 @@ const SignIn = () => {
                   "var(--foreground-muted)")
               }
             >
-              {t("auth.signUp") || "Sign Up"}
+              {t("auth.signUp")}
             </NavLink>
           </div>
 
@@ -353,11 +398,10 @@ const SignIn = () => {
               className="text-3xl font-semibold mb-2"
               style={{ color: "var(--foreground)" }}
             >
-              {t("auth.welcomeBack") || "Welcome Back"}
+              {t("auth.welcomeBack")}
             </h3>
             <p className="text-sm" style={{ color: "var(--foreground-muted)" }}>
-              {t("auth.enterCredentials") ||
-                "Enter your credentials to access the pro dashboard."}
+              {t("auth.enterCredentials")}
             </p>
           </div>
 
@@ -370,7 +414,7 @@ const SignIn = () => {
                 className="text-xs font-bold tracking-widest uppercase"
                 style={{ color: "var(--foreground-muted)" }}
               >
-                {t("auth.email") || "Email Address"}
+                {t("auth.email")}
               </label>
               <div className="relative group">
                 <Mail
@@ -380,12 +424,10 @@ const SignIn = () => {
                 <input
                   id="email"
                   type="email"
-                  placeholder={
-                    t("placeholder.enterEmail") || "admin@procircuit.com"
-                  }
+                  placeholder={t("placeholder.enterEmail")}
                   value={formData.email}
                   onChange={handleChange}
-                  disabled={loading}
+                  disabled={loginMutation.isPending}
                   required
                   className="w-full py-3 pl-10 pr-4 text-sm outline-none transition-all duration-200"
                   style={{
@@ -433,7 +475,7 @@ const SignIn = () => {
                   className="text-xs font-bold tracking-widest uppercase"
                   style={{ color: "var(--foreground-muted)" }}
                 >
-                  {t("auth.password") || "Password"}
+                  {t("auth.password")}
                 </label>
                 <NavLink
                   to="/forgot-password"
@@ -448,7 +490,7 @@ const SignIn = () => {
                       "var(--accent)")
                   }
                 >
-                  {t("auth.forgotPassword") || "Forgot"}?
+                  {t("auth.forgotPassword")}
                 </NavLink>
               </div>
               <div className="relative">
@@ -459,10 +501,10 @@ const SignIn = () => {
                 <input
                   id="password"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={t("auth.enterPassword")}
                   value={formData.password}
                   onChange={handleChange}
-                  disabled={loading}
+                  disabled={loginMutation.isPending}
                   required
                   className="w-full py-3 pl-10 pr-4 text-sm outline-none transition-all duration-200"
                   style={{
@@ -505,17 +547,19 @@ const SignIn = () => {
             {/* Submit */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loginMutation.isPending}
               className="w-full mt-2 py-4 rounded-lg text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2 transition-all duration-300 group"
               style={{
-                background: loading ? "var(--muted)" : "var(--primary)",
-                color: loading
+                background: loginMutation.isPending
+                  ? "var(--muted)"
+                  : "var(--primary)",
+                color: loginMutation.isPending
                   ? "var(--muted-foreground)"
                   : "var(--primary-foreground)",
-                cursor: loading ? "not-allowed" : "pointer",
+                cursor: loginMutation.isPending ? "not-allowed" : "pointer",
               }}
               onMouseEnter={(e) => {
-                if (!loading) {
+                if (!loginMutation.isPending) {
                   (e.currentTarget as HTMLButtonElement).style.boxShadow =
                     "0 0 20px rgba(0,242,255,0.4)";
                   (e.currentTarget as HTMLButtonElement).style.transform =
@@ -536,7 +580,7 @@ const SignIn = () => {
                   "scale(1.02)";
               }}
             >
-              {loading ? (
+              {loginMutation.isPending ? (
                 <>
                   <div
                     className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin"
@@ -545,11 +589,11 @@ const SignIn = () => {
                       borderTopColor: "transparent",
                     }}
                   />
-                  {t("common.loading") || "Loading..."}
+                  {t("common.loading")}
                 </>
               ) : (
                 <>
-                  {t("auth.signIn") || "Initialize Session"}
+                  {t("auth.signIn")}
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </>
               )}
@@ -569,7 +613,7 @@ const SignIn = () => {
               className="px-4 text-xs font-bold tracking-widest uppercase"
               style={{ color: "var(--foreground-muted)" }}
             >
-              OR CONTINUE WITH
+              {t("authFlow.signIn.continueWith")}
             </span>
             <div
               className="flex-grow h-px"
@@ -582,10 +626,7 @@ const SignIn = () => {
 
           {/* Social buttons */}
           <div className="flex flex-col sm:flex-row gap-4">
-            {[
-              { icon: <Briefcase className="w-5 h-5" />, label: "SSO" },
-              { icon: <Fingerprint className="w-5 h-5" />, label: "Biometric" },
-            ].map(({ icon, label }) => (
+            {quickAccessItems.map(({ icon, label }) => (
               <button
                 key={label}
                 type="button"

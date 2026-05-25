@@ -6,28 +6,18 @@ import Tournaments from "@/pages/Referee/Tournaments";
 import TournamentDetail from "@/pages/Referee/TournamentDetail";
 import Notifications from "@/pages/Referee/Notifications";
 
-interface RefereeRoutesProps {
-  refereeRoleId: number;
-  chiefRefereeRoleId?: number;
-}
-
 /**
  * Referee Routes
  * Routes for referees (Trọng tài)
  */
-export default function RefereeRoutes({
-  refereeRoleId,
-  chiefRefereeRoleId,
-}: RefereeRoutesProps) {
-  const refereeRoleIds = [refereeRoleId, chiefRefereeRoleId].filter(
-    (id): id is number => typeof id === "number",
-  );
+export default function RefereeRoutes() {
+  const refereeRoleNames = ["referee", "chief_referee"];
 
   return (
     <>
       <Route
         element={
-          <RoleGuard allowedRoles={refereeRoleIds}>
+          <RoleGuard allowedRoles={refereeRoleNames}>
             <RefereeLayout />
           </RoleGuard>
         }

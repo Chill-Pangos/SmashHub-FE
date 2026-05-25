@@ -30,7 +30,8 @@ const NavigationBar = () => {
   const { t } = useTranslation();
   const isVisible = useScrollHide();
   const { user, isAuthenticated } = useAuth();
-  const { getDefaultRouteForRoles, getRoleNames } = useRole();
+  const { getDefaultRouteForRoles, getRoleNames, getRoleDisplayNames } =
+    useRole();
   const { logout } = useAuthOperations();
   const navigate = useNavigate();
   const navItems = getNavItems(t);
@@ -39,11 +40,13 @@ const NavigationBar = () => {
     await logout();
   };
 
-  const userRoles = user?.roles ?? [];
+  const roleNames = getRoleNames(user?.roles ?? []);
+  const roleDisplayNames = getRoleDisplayNames(roleNames);
 
   const handleDashboard = () => {
     if (user) {
-      const dashboardRoute = getDefaultRouteForRoles(userRoles);
+      const dashboardRoute =
+        roleNames.length > 1 ? "/" : getDefaultRouteForRoles(roleNames);
       navigate(dashboardRoute);
     }
   };
@@ -128,7 +131,7 @@ const NavigationBar = () => {
                         {user.email}
                       </p>
                       <div className="flex flex-wrap gap-1 mt-2">
-                        {getRoleNames(userRoles).map((roleName) => (
+                        {roleDisplayNames.map((roleName) => (
                           <span
                             key={roleName}
                             className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary"

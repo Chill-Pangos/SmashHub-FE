@@ -1,14 +1,16 @@
 import { useCallback, useState, type ChangeEvent, type FormEvent } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { ArrowRight, Lock, Loader2, Mail, User } from "lucide-react";
 import tableTennisBgLight from "@/assets/table_tennis_bg_light.png";
 import tableTennisBgDark from "@/assets/table_tennis_bg_dark.png";
-import { useAuthOperations, useTranslation } from "@/hooks";
+import { useCurrentUser, useRegister, useTranslation } from "@/hooks";
+import { useAuth, useRole } from "@/store";
 import {
   checkPasswordStrength,
   hasValidationErrors,
   PasswordStrength,
   showToast,
+  showApiError,
   validateRegisterForm,
   type RegisterFormData,
   type ValidationErrors,
@@ -16,7 +18,11 @@ import {
 
 const SignUp = () => {
   const { t } = useTranslation();
-  const { register, loading, error: authError } = useAuthOperations();
+  const navigate = useNavigate();
+  const { login: setAuthData, updateUser } = useAuth();
+  const { getDefaultRouteForRoles, getRoleNames } = useRole();
+  const registerMutation = useRegister();
+  const { refetch: fetchCurrentUser } = useCurrentUser({ enabled: false });
   const [formData, setFormData] = useState<RegisterFormData>({
     firstName: "",
     lastName: "",
@@ -84,27 +90,58 @@ const SignUp = () => {
         setErrors(validationErrors);
         return;
       }
-      const result = await register({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: formData.password,
-      });
-      if (result.success && result.data) {
-        showToast.success(
-          t("auth.registerSuccess"),
-          t("authFlow.signUp.welcomeDescription", {
-            name: `${result.data.user.firstName} ${result.data.user.lastName}`.trim(),
-          }),
-        );
-      } else {
-        showToast.error(
-          t("auth.registerFailed"),
-          result.error || authError || undefined,
-        );
+      try {
+        const response = await registerMutation.mutateAsync({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (response.success && response.data) {
+          setAuthData(response.data);
+
+          let currentUser = response.data.user;
+          try {
+            const refreshed = await fetchCurrentUser();
+            if (refreshed.data) {
+              currentUser = refreshed.data;
+              updateUser(currentUser);
+            }
+          } catch (err) {
+            console.warn("Failed to refresh current user after register:", err);
+          }
+
+          const roleNames = getRoleNames(currentUser.roles ?? []);
+          const redirectPath =
+            roleNames.length > 1 ? "/" : getDefaultRouteForRoles(roleNames);
+
+          navigate(redirectPath, { replace: true });
+          showToast.success(
+            t("auth.registerSuccess"),
+            t("authFlow.signUp.welcomeDescription", {
+              name: `${currentUser.firstName} ${currentUser.lastName}`.trim(),
+            }),
+          );
+        } else {
+          showApiError(response, t("auth.registerFailed"));
+        }
+      } catch (err) {
+        showApiError(err, t("auth.registerFailed"));
       }
     },
-    [agreedToTerms, authError, formData, register, t],
+    [
+      agreedToTerms,
+      fetchCurrentUser,
+      formData,
+      getDefaultRouteForRoles,
+      getRoleNames,
+      navigate,
+      registerMutation,
+      setAuthData,
+      t,
+      updateUser,
+    ],
   );
 
   // Reusable input style helpers
@@ -184,7 +221,7 @@ const SignUp = () => {
           }}
         />
 
-       {/* Gradient overlays — Tối ưu độ trong suốt cho Light Mode */}
+        {/* Gradient overlays — Tối ưu độ trong suốt cho Light Mode */}
         {/* Light mode overlays */}
         {/* Đệm nhẹ từ trái sang cho khu vực đặt Text brand */}
         <div
@@ -303,8 +340,7 @@ const SignUp = () => {
             className="text-base leading-relaxed max-w-sm"
             style={{ color: "var(--foreground-muted)" }}
           >
-            {t("auth.brandDescription") ??
-              "The elite ecosystem for professional table tennis management, analytics, and high-stakes tournament execution."}
+            {t("auth.brandDescription")}
           </p>
         </div>
       </div>
@@ -403,7 +439,7 @@ const SignUp = () => {
                   "var(--foreground-muted)")
               }
             >
-              {t("auth.signIn") || "Sign In"}
+              {t("auth.signIn")}
             </NavLink>
             {/* Sign Up — active */}
             <button
@@ -415,7 +451,7 @@ const SignUp = () => {
                 boxShadow: "var(--auth-primary-glow)",
               }}
             >
-              {t("auth.signUp") || "Sign Up"}
+              {t("auth.signUp")}
             </button>
           </div>
 
@@ -425,11 +461,10 @@ const SignUp = () => {
               className="text-3xl font-semibold mb-2"
               style={{ color: "var(--foreground)" }}
             >
-              {t("authFlow.signUp.welcomeDescription") || "Create Account"}
+              {t("authFlow.signUp.welcomeDescription")}
             </h3>
             <p className="text-sm" style={{ color: "var(--foreground-muted)" }}>
-              {t("authFlow.signUp.cardDescription") ||
-                "Initialize your Pro Circuit profile."}
+              {t("authFlow.signUp.cardDescription")}
             </p>
           </div>
 
@@ -440,16 +475,14 @@ const SignUp = () => {
               {[
                 {
                   id: "firstName",
-                  label: t("validation.fields.firstName") || "First Name",
-                  placeholder:
-                    t("authFlow.signUp.firstNamePlaceholder") || "John",
+                  label: t("validation.fields.firstName"),
+                  placeholder: t("authFlow.signUp.firstNamePlaceholder"),
                   error: errors.firstName,
                 },
                 {
                   id: "lastName",
-                  label: t("validation.fields.lastName") || "Last Name",
-                  placeholder:
-                    t("authFlow.signUp.lastNamePlaceholder") || "Doe",
+                  label: t("validation.fields.lastName"),
+                  placeholder: t("authFlow.signUp.lastNamePlaceholder"),
                   error: errors.lastName,
                 },
               ].map(({ id, label, placeholder, error }) => (
@@ -472,7 +505,7 @@ const SignUp = () => {
                       placeholder={placeholder}
                       value={formData[id as keyof RegisterFormData]}
                       onChange={handleChange}
-                      disabled={loading}
+                      disabled={registerMutation.isPending}
                       required
                       style={{
                         ...inputBase,
@@ -503,7 +536,7 @@ const SignUp = () => {
                 className="text-xs font-bold tracking-widest uppercase"
                 style={{ color: "var(--foreground-muted)" }}
               >
-                {t("auth.email") || "Email Address"}
+                {t("auth.email")}
               </label>
               <div className="relative">
                 <Mail
@@ -513,12 +546,10 @@ const SignUp = () => {
                 <input
                   id="email"
                   type="email"
-                  placeholder={
-                    t("placeholder.enterEmail") || "agent@procircuit.com"
-                  }
+                  placeholder={t("placeholder.enterEmail")}
                   value={formData.email}
                   onChange={handleChange}
-                  disabled={loading}
+                  disabled={registerMutation.isPending}
                   required
                   style={{
                     ...inputBase,
@@ -544,7 +575,7 @@ const SignUp = () => {
                 className="text-xs font-bold tracking-widest uppercase"
                 style={{ color: "var(--foreground-muted)" }}
               >
-                {t("auth.password") || "Password"}
+                {t("auth.password")}
               </label>
               <div className="relative">
                 <Lock
@@ -554,10 +585,10 @@ const SignUp = () => {
                 <input
                   id="password"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={t("auth.enterPassword")}
                   value={formData.password}
                   onChange={handleChange}
-                  disabled={loading}
+                  disabled={registerMutation.isPending}
                   required
                   style={{
                     ...inputBase,
@@ -592,7 +623,7 @@ const SignUp = () => {
                 className="text-xs font-bold tracking-widest uppercase"
                 style={{ color: "var(--foreground-muted)" }}
               >
-                {t("auth.confirmPassword") || "Confirm Password"}
+                {t("auth.confirmPassword")}
               </label>
               <div className="relative">
                 <Lock
@@ -602,10 +633,10 @@ const SignUp = () => {
                 <input
                   id="confirmPassword"
                   type="password"
-                  placeholder={t("auth.confirmPassword") || "••••••••"}
+                  placeholder={t("auth.confirmPassword")}
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  disabled={loading}
+                  disabled={registerMutation.isPending}
                   required
                   style={{
                     ...inputBase,
@@ -637,7 +668,7 @@ const SignUp = () => {
                 type="checkbox"
                 checked={agreedToTerms}
                 onChange={(e) => setAgreedToTerms(e.target.checked)}
-                disabled={loading}
+                disabled={registerMutation.isPending}
                 required
                 className="mt-0.5 w-4 h-4 rounded"
                 style={{ accentColor: "var(--primary)", flexShrink: 0 }}
@@ -669,17 +700,19 @@ const SignUp = () => {
             {/* Submit */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={registerMutation.isPending}
               className="w-full mt-1 py-4 rounded-lg text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2 transition-all duration-300 group"
               style={{
-                background: loading ? "var(--muted)" : "var(--primary)",
-                color: loading
+                background: registerMutation.isPending
+                  ? "var(--muted)"
+                  : "var(--primary)",
+                color: registerMutation.isPending
                   ? "var(--muted-foreground)"
                   : "var(--primary-foreground)",
-                cursor: loading ? "not-allowed" : "pointer",
+                cursor: registerMutation.isPending ? "not-allowed" : "pointer",
               }}
               onMouseEnter={(e) => {
-                if (!loading) {
+                if (!registerMutation.isPending) {
                   (e.currentTarget as HTMLButtonElement).style.boxShadow =
                     "0 0 20px rgba(0,242,255,0.4)";
                   (e.currentTarget as HTMLButtonElement).style.transform =
@@ -700,14 +733,14 @@ const SignUp = () => {
                   "scale(1.02)";
               }}
             >
-              {loading ? (
+              {registerMutation.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  {t("common.loading") || "Loading..."}
+                  {t("common.loading")}
                 </>
               ) : (
                 <>
-                  {t("auth.signUp") || "Create Account"}
+                  {t("auth.signUp")}
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </>
               )}

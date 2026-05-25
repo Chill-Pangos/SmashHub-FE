@@ -1,6 +1,7 @@
 import React, { useState, useEffect, type ReactNode } from "react";
-import type { User, AuthData } from "@/types";
+import type { User, AuthData, UserRole, UserRoleInput } from "@/types";
 import authService from "@/services/auth.service";
+import { userService } from "@/services";
 import {
   AuthContext,
   type AuthState,
@@ -20,11 +21,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading: true,
   });
 
+  const normalizeRoles = (roles?: UserRoleInput[]): UserRole[] => {
+    if (!Array.isArray(roles)) {
+      return [];
+    }
+
+    return roles
+      .map((role) => {
+        if (!role || typeof role !== "object") {
+          return null;
+        }
+
+        if (typeof role.id !== "number" || typeof role.name !== "string") {
+          return null;
+        }
+
+        return { id: role.id, name: role.name };
+      })
+      .filter((role): role is UserRole => Boolean(role));
+  };
+
+  const isUnauthorized = (error: unknown): boolean => {
+    if (!error || typeof error !== "object" || !("response" in error)) {
+      return false;
+    }
+
+    const response = (error as { response?: { status?: number } }).response;
+    return response?.status === 401;
+  };
+
   const normalizeAuthUser = (user: User): User => {
     const firstName = user.firstName || "";
     const lastName = user.lastName || "";
     const fallbackDisplayName = `${firstName} ${lastName}`.trim();
-    const roles = Array.isArray(user.roles) ? user.roles : [];
+    const roles = normalizeRoles(user.roles);
 
     return {
       ...user,
@@ -37,25 +67,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Initialize auth state from localStorage on mount
   useEffect(() => {
-    checkAuth();
+    void checkAuth();
   }, []);
 
-  const checkAuth = () => {
+  const checkAuth = async () => {
     try {
-      const user = authService.getStoredUser();
+      setAuthState((prev) => ({ ...prev, isLoading: true }));
+
+      const storedUser = authService.getStoredUser();
       const accessToken = authService.getAccessToken();
       const refreshToken = authService.getRefreshToken();
 
-      if (user && accessToken && refreshToken) {
-        const normalizedUser = normalizeAuthUser(user);
-        setAuthState({
-          user: normalizedUser,
-          accessToken,
-          refreshToken,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-      } else {
+      if (!accessToken || !refreshToken) {
         setAuthState({
           user: null,
           accessToken: null,
@@ -63,7 +86,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           isAuthenticated: false,
           isLoading: false,
         });
+        return;
       }
+
+      let currentUser: User | null = null;
+      try {
+        currentUser = await userService.getCurrentUser();
+      } catch (error) {
+        if (isUnauthorized(error)) {
+          authService.clearAuthData();
+          setAuthState({
+            user: null,
+            accessToken: null,
+            refreshToken: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+          return;
+        }
+
+        console.error("Failed to refresh current user:", error);
+      }
+
+      const nextUser = currentUser ?? storedUser;
+      if (!nextUser) {
+        setAuthState({
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          isAuthenticated: false,
+          isLoading: false,
+        });
+        return;
+      }
+
+      const normalizedUser = normalizeAuthUser(nextUser);
+      localStorage.setItem("user", JSON.stringify(normalizedUser));
+      setAuthState({
+        user: normalizedUser,
+        accessToken,
+        refreshToken,
+        isAuthenticated: true,
+        isLoading: false,
+      });
     } catch (error) {
       console.error("Error checking auth:", error);
       setAuthState({

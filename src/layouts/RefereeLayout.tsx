@@ -14,12 +14,10 @@ export default function RefereeLayout() {
   const { t } = useTranslation();
   const { logout } = useAuthOperations();
   const { user } = useAuth();
-  const { getRoleByName } = useRole();
+  const { getRoleNames } = useRole();
 
-  const chiefRefereeRoleId = getRoleByName("chief_referee")?.id;
-  const isChiefReferee = Boolean(
-    chiefRefereeRoleId && user?.roles?.includes(chiefRefereeRoleId),
-  );
+  const roleNames = getRoleNames(user?.roles ?? []);
+  const isChiefReferee = roleNames.includes("chief_referee");
   const sidebarConfig = getRefereeSidebarConfig(isChiefReferee);
   const brandSubtitle = isChiefReferee
     ? t("referee.chiefReferee")

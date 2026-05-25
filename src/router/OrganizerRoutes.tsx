@@ -11,22 +11,16 @@ import BulkImport from "@/pages/Organizer/BulkImport/BulkImport";
 import FinanceVerification from "@/pages/Organizer/FinanceVerification/FinanceVerification";
 import GroupStageDraw from "@/pages/Organizer/GroupStageDraw/GroupStageDraw";
 
-interface OrganizerRoutesProps {
-  organizerRoleId: number;
-}
-
 /**
  * Organizer Routes
  * Routes for tournament organizers
  */
-export default function OrganizerRoutes({
-  organizerRoleId,
-}: OrganizerRoutesProps) {
+export default function OrganizerRoutes() {
   return (
     <>
       <Route
         element={
-          <RoleGuard allowedRoles={[organizerRoleId]}>
+          <RoleGuard allowedRoles={["organizer"]}>
             <OrganizerLayout />
           </RoleGuard>
         }

@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import type { Role } from "@/types";
+import type { Role, UserRoleInput } from "@/types";
 
 export interface RoleState {
   roles: Role[];
@@ -10,24 +10,23 @@ export interface RoleState {
 export interface RoleContextType extends RoleState {
   // Fetch and data access
   fetchRoles: () => Promise<void>;
-  getRoleById: (id: number) => Role | undefined;
-  getRoleByName: (name: string) => Role | undefined;
   getRegistrationRoles: () => Role[];
+  getRoleNames: (userRoles?: UserRoleInput[]) => string[];
+
+  // Role display helpers
+  getRoleDisplayName: (roleName: string) => string;
+  getRoleDisplayNames: (roleNames: string[]) => string[];
 
   // Role checking helpers
-  hasRole: (userRoles: number[], requiredRole: number) => boolean;
-  hasAnyRole: (userRoles: number[], allowedRoles: number[]) => boolean;
-  hasAllRoles: (userRoles: number[], requiredRoles: number[]) => boolean;
-
-  // Role name helpers
-  getRoleNameById: (roleId: number) => string;
-  getRoleNames: (roleIds: number[]) => string[];
+  hasRole: (userRoles: string[], requiredRole: string) => boolean;
+  hasAnyRole: (userRoles: string[], allowedRoles: string[]) => boolean;
+  hasAllRoles: (userRoles: string[], requiredRoles: string[]) => boolean;
 
   // Route helpers
-  getDefaultRouteForRoles: (roleIds: number[]) => string;
-  getHighestPriorityRole: (roleIds: number[]) => number | null;
+  getDefaultRouteForRoles: (roleNames: string[]) => string;
+  getHighestPriorityRoleName: (roleNames: string[]) => string | null;
 }
 
 export const RoleContext = createContext<RoleContextType | undefined>(
-  undefined
+  undefined,
 );

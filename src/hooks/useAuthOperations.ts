@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { authService } from "@/services";
+import { authService, userService } from "@/services";
 import { useAuth, useRole } from "@/store";
 import type {
   RegisterRequest,
@@ -27,6 +27,10 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
           return String(apiError.message);
         }
       }
+
+      if (data && typeof data === "object" && "message" in data) {
+        return String(data.message);
+      }
     }
   }
   return fallback;
@@ -39,18 +43,26 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
 export const useAuthOperations = () => {
   const navigate = useNavigate();
   const { login: setAuthData, logout: clearAuthData, updateUser } = useAuth();
-  const { getDefaultRouteForRoles } = useRole();
+  const { getDefaultRouteForRoles, getRoleNames } = useRole();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const resolvePostAuthRoute = (roleIds: number[]) => {
-    const resolvedRoute = getDefaultRouteForRoles(roleIds);
+  const resolvePostAuthRoute = (roleNames: string[]) => {
+    if (roleNames.length > 1) {
+      return "/";
+    }
+
+    const resolvedRoute = getDefaultRouteForRoles(roleNames);
 
     if (!resolvedRoute || resolvedRoute === "/") {
       return "/";
     }
 
     return resolvedRoute;
+  };
+
+  const resolveRoleNamesFromAuth = (user: User) => {
+    return getRoleNames(user.roles ?? []);
   };
 
   /**
@@ -68,11 +80,19 @@ export const useAuthOperations = () => {
       const response = await authService.register(data);
 
       if (response.success) {
-        // Save new auth data
+        // Save tokens so we can call /users/me
         setAuthData(response.data);
-        // Redirect based on user role
+
+        let currentUser = response.data.user;
+        try {
+          currentUser = await userService.getCurrentUser();
+          updateUser(currentUser);
+        } catch (err) {
+          console.warn("Failed to refresh current user after register:", err);
+        }
+
         const redirectPath = resolvePostAuthRoute(
-          response.data.user.roles ?? [],
+          resolveRoleNamesFromAuth(currentUser),
         );
         navigate(redirectPath, { replace: true });
         return { success: true, data: response.data };
@@ -102,11 +122,19 @@ export const useAuthOperations = () => {
       const response = await authService.login(data);
 
       if (response.success) {
-        // Save new auth data
+        // Save tokens so we can call /users/me
         setAuthData(response.data);
-        // Redirect based on user role
+
+        let currentUser = response.data.user;
+        try {
+          currentUser = await userService.getCurrentUser();
+          updateUser(currentUser);
+        } catch (err) {
+          console.warn("Failed to refresh current user after login:", err);
+        }
+
         const redirectPath = resolvePostAuthRoute(
-          response.data.user.roles ?? [],
+          resolveRoleNamesFromAuth(currentUser),
         );
         navigate(redirectPath, { replace: true });
         return { success: true, data: response.data };
