@@ -2,12 +2,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { tournamentService } from "@/services";
 import { queryKeys } from "./queryKeys";
 import type {
-  Tournament,
   TournamentSearchFilters,
-  TournamentSearchResponse,
+  TournamentSearchResponseWithPagination,
   CreateTournamentRequest,
   UpdateTournamentRequest,
   TournamentStatus,
+  TournamentListResponse,
 } from "@/types";
 
 // ==================== Query Hooks ====================
@@ -19,6 +19,7 @@ export const useTournaments = (skip = 0, limit = 10) => {
   return useQuery({
     queryKey: queryKeys.tournaments.list({ skip, limit }),
     queryFn: () => tournamentService.getAllTournaments(skip, limit),
+    select: (data) => data.tournaments,
   });
 };
 
@@ -33,6 +34,7 @@ export const useSearchTournaments = (
     queryKey: queryKeys.tournaments.search(filters),
     queryFn: () => tournamentService.searchTournaments(filters),
     enabled: options?.enabled ?? true,
+    select: (data) => data.tournaments,
   });
 };
 
@@ -61,6 +63,7 @@ export const useTournamentsByStatus = (
     queryFn: () =>
       tournamentService.getTournamentsByStatus(status, skip, limit),
     enabled: options?.enabled ?? true,
+    select: (data) => data.tournaments,
   });
 };
 
@@ -143,18 +146,38 @@ export const useDeleteTournament = () => {
       // Optimistically remove from all cached lists
       queryClient.setQueriesData(
         { queryKey: queryKeys.tournaments.lists() },
-        (old: Tournament[] | undefined) =>
-          old?.filter((t) => t.id !== id) ?? [],
-      );
-
-      queryClient.setQueriesData(
-        { queryKey: queryKeys.tournaments.all },
-        (old: TournamentSearchResponse | undefined) => {
-          if (old && "tournaments" in old) {
+        (old: TournamentListResponse | undefined) => {
+          if (old) {
             return {
               ...old,
               tournaments: old.tournaments.filter((t) => t.id !== id),
-              total: old.total - 1,
+              pagination: {
+                ...old.pagination,
+                total: old.pagination.total - 1,
+                totalPages: Math.ceil(
+                  (old.pagination.total - 1) / old.pagination.limit,
+                ),
+              },
+            };
+          }
+          return old;
+        },
+      );
+
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.tournaments.search({}) },
+        (old: TournamentSearchResponseWithPagination | undefined) => {
+          if (old) {
+            return {
+              ...old,
+              tournaments: old.tournaments.filter((t) => t.id !== id),
+              pagination: {
+                ...old.pagination,
+                total: old.pagination.total - 1,
+                totalPages: Math.ceil(
+                  (old.pagination.total - 1) / old.pagination.limit,
+                ),
+              },
             };
           }
           return old;

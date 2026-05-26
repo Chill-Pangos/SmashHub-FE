@@ -1,17 +1,29 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { authService } from "@/services";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { authService, userService } from "@/services";
 import { queryKeys } from "./queryKeys";
 import type {
   LoginRequest,
   RegisterRequest,
   ChangePasswordRequest,
   ForgotPasswordRequest,
-  VerifyOtpRequest,
   ResetPasswordRequest,
   SendEmailVerificationRequest,
   VerifyEmailOtpRequest,
   ResendEmailVerificationRequest,
 } from "@/types";
+
+// ==================== Query Hooks ====================
+
+/**
+ * Hook để lấy thông tin user hiện tại
+ */
+export const useCurrentUser = (options?: { enabled?: boolean }) => {
+  return useQuery({
+    queryKey: queryKeys.auth.user(),
+    queryFn: () => userService.getCurrentUser(),
+    enabled: options?.enabled ?? true,
+  });
+};
 
 // ==================== Mutation Hooks ====================
 
@@ -25,8 +37,6 @@ export const useRegister = () => {
     mutationFn: (data: RegisterRequest) => authService.register(data),
     onSuccess: (response) => {
       if (response.success && response.data) {
-        // Save auth data
-        authService.saveAuthData(response.data);
         // Invalidate auth queries
         queryClient.invalidateQueries({
           queryKey: queryKeys.auth.all,
@@ -46,8 +56,6 @@ export const useLogin = () => {
     mutationFn: (data: LoginRequest) => authService.login(data),
     onSuccess: (response) => {
       if (response.success && response.data) {
-        // Save auth data
-        authService.saveAuthData(response.data);
         // Invalidate auth queries
         queryClient.invalidateQueries({
           queryKey: queryKeys.auth.all,
@@ -96,15 +104,6 @@ export const useForgotPassword = () => {
   return useMutation({
     mutationFn: (data: ForgotPasswordRequest) =>
       authService.forgotPassword(data),
-  });
-};
-
-/**
- * Hook để verify OTP
- */
-export const useVerifyOtp = () => {
-  return useMutation({
-    mutationFn: (data: VerifyOtpRequest) => authService.verifyOtp(data),
   });
 };
 

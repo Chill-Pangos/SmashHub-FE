@@ -2,7 +2,7 @@
 
 export type ApiResponse<T = void> =
   | { success: true; message: string; data: T }
-  | { success: false; error: { code: string; message: string }; data?: never };
+  | { success: false; message: string; error?: ApiError; data?: never };
 
 export interface ApiError {
   code: string;
@@ -37,11 +37,6 @@ export interface ForgotPasswordRequest {
   email: string;
 }
 
-export interface VerifyOtpRequest {
-  email: string;
-  otp: string;
-}
-
 export interface ResetPasswordRequest {
   email: string;
   otp: string;
@@ -63,12 +58,19 @@ export interface ResendEmailVerificationRequest {
 
 // ==================== Data Models ====================
 
+export interface UserRole {
+  id: number;
+  name: string;
+}
+
+export type UserRoleInput = number | UserRole;
+
 export interface User {
   id: number;
   firstName: string;
   lastName: string;
   email: string;
-  roles?: number[];
+  roles?: UserRoleInput[];
   isEmailVerified: boolean;
   password?: string;
   gender?: string | null;

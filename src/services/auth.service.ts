@@ -5,7 +5,6 @@ import type {
   RefreshTokenRequest,
   ChangePasswordRequest,
   ForgotPasswordRequest,
-  VerifyOtpRequest,
   ResetPasswordRequest,
   SendEmailVerificationRequest,
   VerifyEmailOtpRequest,
@@ -14,6 +13,8 @@ import type {
   RefreshTokenResponse,
   SuccessResponse,
   User,
+  UserRole,
+  UserRoleInput,
   AuthData,
 } from "@/types";
 
@@ -24,11 +25,31 @@ import type {
 class AuthService {
   private readonly AUTH_PREFIX = "/auth";
 
+  private normalizeRoles(roles?: UserRoleInput[]): UserRole[] {
+    if (!Array.isArray(roles)) {
+      return [];
+    }
+
+    return roles
+      .map((role) => {
+        if (!role || typeof role !== "object") {
+          return null;
+        }
+
+        if (typeof role.id !== "number" || typeof role.name !== "string") {
+          return null;
+        }
+
+        return { id: role.id, name: role.name };
+      })
+      .filter((role): role is UserRole => Boolean(role));
+  }
+
   private normalizeUser(user: User): User {
     const firstName = user.firstName || "";
     const lastName = user.lastName || "";
     const fallbackDisplayName = `${firstName} ${lastName}`.trim();
-    const roles = Array.isArray(user.roles) ? user.roles : [];
+    const roles = this.normalizeRoles(user.roles);
 
     return {
       ...user,
@@ -101,18 +122,6 @@ class AuthService {
   async forgotPassword(data: ForgotPasswordRequest): Promise<SuccessResponse> {
     const response = await axiosInstance.post<SuccessResponse>(
       `${this.AUTH_PREFIX}/forgot-password`,
-      data,
-    );
-    return response.data;
-  }
-
-  /**
-   * Verify OTP (Optional step)
-   * POST /api/auth/verify-otp
-   */
-  async verifyOtp(data: VerifyOtpRequest): Promise<SuccessResponse> {
-    const response = await axiosInstance.post<SuccessResponse>(
-      `${this.AUTH_PREFIX}/verify-otp`,
       data,
     );
     return response.data;

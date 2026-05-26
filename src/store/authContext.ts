@@ -14,9 +14,9 @@ export interface AuthContextType extends AuthState {
   logout: () => void;
   updateUser: (user: User) => void;
   updateTokens: (accessToken: string, refreshToken: string) => void;
-  checkAuth: () => void;
+  checkAuth: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
+  undefined,
 );

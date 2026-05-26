@@ -2,6 +2,8 @@ import axiosInstance from "@/config/axiosConfig";
 import { parsePaginatedResponse } from "@/utils/pagination.utils";
 import type {
   User,
+  UserRole,
+  UserRoleInput,
   CreateUserRequest,
   UpdateUserRequest,
   UpdateUserProfileRequest,
@@ -53,6 +55,26 @@ class UserService {
     return this.toUser(root.data);
   }
 
+  private normalizeRoles(roles?: UserRoleInput[]): UserRole[] {
+    if (!Array.isArray(roles)) {
+      return [];
+    }
+
+    return roles
+      .map((role) => {
+        if (!role || typeof role !== "object") {
+          return null;
+        }
+
+        if (typeof role.id !== "number" || typeof role.name !== "string") {
+          return null;
+        }
+
+        return { id: role.id, name: role.name };
+      })
+      .filter((role): role is UserRole => Boolean(role));
+  }
+
   private normalizeUser(user: User): User {
     const firstName = user.firstName || "";
     const lastName = user.lastName || "";
@@ -63,7 +85,7 @@ class UserService {
       firstName,
       lastName,
       isEmailVerified: Boolean(user.isEmailVerified),
-      roles: Array.isArray(user.roles) ? user.roles : [],
+      roles: this.normalizeRoles(user.roles),
       username: user.username || fallbackDisplayName || user.email,
     };
   }
@@ -113,6 +135,15 @@ class UserService {
   async getUsers(skip: number = 0, limit: number = 10): Promise<User[]> {
     const result = await this.getUsersPaginated(skip, limit);
     return result.items;
+  }
+
+  /**
+   * Get current authenticated user
+   * GET /api/users/me
+   */
+  async getCurrentUser(): Promise<User> {
+    const response = await axiosInstance.get<User>(`${this.baseURL}/me`);
+    return this.normalizeUser(response.data);
   }
 
   /**

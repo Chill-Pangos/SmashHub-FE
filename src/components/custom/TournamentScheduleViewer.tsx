@@ -13,7 +13,11 @@ import { Calendar, Clock, MapPin } from "lucide-react";
 import { useSchedulesByContent } from "@/hooks/queries";
 import { format } from "date-fns";
 import { vi, enUS } from "date-fns/locale";
-import type { Schedule, ScheduleStage } from "@/types";
+import type {
+  GetSchedulesByContentData,
+  Schedule,
+  ScheduleStage,
+} from "@/types";
 import { useTranslation } from "@/hooks/useTranslation";
 import i18n from "@/locales/i18n";
 
@@ -21,6 +25,9 @@ interface TournamentScheduleViewerProps {
   contentId: number;
   stage?: ScheduleStage;
   limit?: number;
+  schedulesOverride?: GetSchedulesByContentData;
+  isLoadingOverride?: boolean;
+  errorOverride?: unknown;
 }
 
 /**
@@ -31,9 +38,16 @@ export default function TournamentScheduleViewer({
   contentId,
   stage,
   limit = 50,
+  schedulesOverride,
+  isLoadingOverride,
+  errorOverride,
 }: TournamentScheduleViewerProps) {
   const { t } = useTranslation();
   const dateLocale = i18n.language === "vi" ? vi : enUS;
+  const hasOverrides =
+    schedulesOverride ||
+    isLoadingOverride !== undefined ||
+    errorOverride !== undefined;
   const {
     data: schedulesData,
     isLoading,
@@ -41,12 +55,15 @@ export default function TournamentScheduleViewer({
   } = useSchedulesByContent(contentId, {
     stage,
     limit,
-    enabled: contentId > 0,
+    enabled: !hasOverrides && contentId > 0,
   });
+  const resolvedSchedules = schedulesOverride ?? schedulesData?.data;
+  const resolvedLoading = isLoadingOverride ?? isLoading;
+  const resolvedError = errorOverride ?? error;
 
   // Group schedules by date
   const schedulesByDate = useMemo(() => {
-    const schedules = schedulesData?.data?.schedules || [];
+    const schedules = resolvedSchedules?.schedules || [];
     const grouped: Record<string, Schedule[]> = {};
 
     schedules.forEach((schedule) => {
@@ -70,7 +87,7 @@ export default function TournamentScheduleViewer({
     });
 
     return grouped;
-  }, [schedulesData]);
+  }, [resolvedSchedules]);
 
   const formatTime = (dateStr: string | undefined) => {
     if (!dateStr) return "-";
@@ -149,7 +166,7 @@ export default function TournamentScheduleViewer({
     );
   }
 
-  if (isLoading) {
+  if (resolvedLoading) {
     return (
       <Card>
         <CardHeader>
@@ -169,7 +186,7 @@ export default function TournamentScheduleViewer({
     );
   }
 
-  if (error) {
+  if (resolvedError) {
     return (
       <Card>
         <CardContent className="py-8 text-center text-destructive">

@@ -7,13 +7,13 @@ import {
   Loader2,
   CheckCircle2,
 } from "lucide-react";
-import { useAuthOperations, useTranslation } from "@/hooks";
-import { validateForgotPasswordForm, showToast } from "@/utils";
+import { useForgotPassword, useTranslation } from "@/hooks";
+import { validateForgotPasswordForm, showApiError, showToast } from "@/utils";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { forgotPassword, loading } = useAuthOperations();
+  const forgotPasswordMutation = useForgotPassword();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -31,18 +31,23 @@ const ForgotPassword = () => {
       return;
     }
 
-    const result = await forgotPassword({ email });
-    if (result.success) {
-      setSubmitted(true);
-      showToast.success(t("auth.otpSent"), t("authFlow.checkEmail"));
-      setTimeout(() => {
-        navigate(
-          `/verify-otp?email=${encodeURIComponent(email)}&type=password-reset`,
+    try {
+      const response = await forgotPasswordMutation.mutateAsync({ email });
+      if (response.success) {
+        setSubmitted(true);
+        showToast.success(t("auth.otpSent"), t("authFlow.checkEmail"));
+        setTimeout(() => {
+          navigate(`/reset-password?email=${encodeURIComponent(email)}`);
+        }, 1500);
+      } else {
+        setError(
+          response.message || t("authFlow.forgotPassword.otpSendFailed"),
         );
-      }, 1500);
-    } else {
-      setError(result.error || t("authFlow.forgotPassword.otpSendFailed"));
-      showToast.error(t("authFlow.forgotPassword.otpSendFailed"), result.error);
+        showApiError(response, t("authFlow.forgotPassword.otpSendFailed"));
+      }
+    } catch (err) {
+      setError(t("authFlow.forgotPassword.otpSendFailed"));
+      showApiError(err, t("authFlow.forgotPassword.otpSendFailed"));
     }
   };
 
@@ -117,7 +122,7 @@ const ForgotPassword = () => {
                     className="text-xs font-bold tracking-widest uppercase"
                     style={{ color: "var(--foreground-muted)" }}
                   >
-                    {t("auth.email") || "Email Address"}
+                    {t("auth.email")}
                   </label>
                   <div className="relative">
                     <Mail
@@ -127,12 +132,10 @@ const ForgotPassword = () => {
                     <input
                       id="email"
                       type="email"
-                      placeholder={
-                        t("placeholder.enterEmail") || "admin@procircuit.com"
-                      }
+                      placeholder={t("placeholder.enterEmail")}
                       value={email}
                       onChange={handleChange}
-                      disabled={loading}
+                      disabled={forgotPasswordMutation.isPending}
                       required
                       className="w-full outline-none transition-all duration-200"
                       style={{
@@ -178,17 +181,21 @@ const ForgotPassword = () => {
                 {/* Send button */}
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={forgotPasswordMutation.isPending}
                   className="w-full py-4 rounded flex items-center justify-center gap-2 text-xs font-bold tracking-widest uppercase transition-all duration-300 group"
                   style={{
-                    background: loading ? "var(--muted)" : "var(--primary)",
-                    color: loading
+                    background: forgotPasswordMutation.isPending
+                      ? "var(--muted)"
+                      : "var(--primary)",
+                    color: forgotPasswordMutation.isPending
                       ? "var(--muted-foreground)"
                       : "var(--primary-foreground)",
-                    cursor: loading ? "not-allowed" : "pointer",
+                    cursor: forgotPasswordMutation.isPending
+                      ? "not-allowed"
+                      : "pointer",
                   }}
                   onMouseEnter={(e) => {
-                    if (!loading)
+                    if (!forgotPasswordMutation.isPending)
                       (e.currentTarget as HTMLButtonElement).style.boxShadow =
                         "0 0 20px rgba(0,242,255,0.4)";
                   }}
@@ -205,7 +212,7 @@ const ForgotPassword = () => {
                       "scale(1)";
                   }}
                 >
-                  {loading ? (
+                  {forgotPasswordMutation.isPending ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
                       {t("authFlow.forgotPassword.sending")}

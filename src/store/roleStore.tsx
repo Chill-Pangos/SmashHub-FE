@@ -1,6 +1,7 @@
-import React, { useState, useEffect, type ReactNode } from "react";
-import type { Role } from "@/types";
+import React, { useState, type ReactNode } from "react";
+import type { Role, UserRoleInput } from "@/types";
 import { roleService } from "@/services";
+import i18n from "@/locales/i18n";
 import {
   RoleContext,
   type RoleState,
@@ -29,13 +30,12 @@ const ROLE_PRIORITY: Record<string, number> = {
   user: 1,
 };
 
-// Vietnamese role names by role name
-const ROLE_DISPLAY_NAMES: Record<string, string> = {
-  admin: "Quản trị viên",
-  organizer: "Quản lý giải đấu",
-  chief_referee: "Tổng trọng tài",
-  referee: "Trọng tài",
-  user: "Người dùng",
+const ROLE_DISPLAY_KEYS: Record<string, string> = {
+  admin: "roles.admin",
+  organizer: "roles.organizer",
+  chief_referee: "roles.chief_referee",
+  referee: "roles.referee",
+  user: "roles.user",
 };
 
 // TODO: Remove fallback roles once the role API is stable.
@@ -80,15 +80,10 @@ const FALLBACK_ROLES: Role[] = [
 
 export const RoleProvider: React.FC<RoleProviderProps> = ({ children }) => {
   const [roleState, setRoleState] = useState<RoleState>({
-    roles: [],
-    isLoading: true,
+    roles: FALLBACK_ROLES,
+    isLoading: false,
     error: null,
   });
-
-  // Fetch roles on mount
-  useEffect(() => {
-    fetchRoles();
-  }, []);
 
   const fetchRoles = async () => {
     try {
@@ -104,104 +99,108 @@ export const RoleProvider: React.FC<RoleProviderProps> = ({ children }) => {
       setRoleState((prev) => ({
         roles: prev.roles.length > 0 ? prev.roles : FALLBACK_ROLES,
         isLoading: false,
-        error: "Không thể tải danh sách vai trò. Đang dùng dữ liệu tạm.",
+        error: i18n.t("roleError.title"),
       }));
     }
-  };
-
-  const getRoleById = (id: number): Role | undefined => {
-    return roleState.roles.find((role) => role.id === id);
-  };
-
-  const getRoleByName = (name: string): Role | undefined => {
-    return roleState.roles.find((role) => role.name === name);
   };
 
   const getRegistrationRoles = (): Role[] => {
     return roleState.roles.filter((role) => role.name === "user");
   };
 
+  const getRoleNames = (userRoles?: UserRoleInput[]): string[] => {
+    if (!Array.isArray(userRoles)) {
+      return [];
+    }
+
+    return userRoles
+      .map((role) => {
+        if (!role || typeof role !== "object") {
+          return null;
+        }
+
+        if (typeof role.name !== "string") {
+          return null;
+        }
+
+        return role.name;
+      })
+      .filter((role): role is string => Boolean(role));
+  };
+
   // ==================== Role Checking Helpers ====================
 
-  const hasRole = (userRoles: number[], requiredRole: number): boolean => {
+  const hasRole = (userRoles: string[], requiredRole: string): boolean => {
     return userRoles.includes(requiredRole);
   };
 
-  const hasAnyRole = (userRoles: number[], allowedRoles: number[]): boolean => {
+  const hasAnyRole = (userRoles: string[], allowedRoles: string[]): boolean => {
     return allowedRoles.some((role) => userRoles.includes(role));
   };
 
   const hasAllRoles = (
-    userRoles: number[],
-    requiredRoles: number[],
+    userRoles: string[],
+    requiredRoles: string[],
   ): boolean => {
     return requiredRoles.every((role) => userRoles.includes(role));
   };
 
-  // ==================== Role Name Helpers ====================
+  // ==================== Role Display Helpers ====================
 
-  const getRoleNameById = (roleId: number): string => {
-    const role = getRoleById(roleId);
-    if (role) {
-      return ROLE_DISPLAY_NAMES[role.name] || role.name;
+  const getRoleDisplayName = (roleName: string): string => {
+    const key = ROLE_DISPLAY_KEYS[roleName];
+    if (key) {
+      const translated = i18n.t(key);
+      if (translated && translated !== key) {
+        return translated;
+      }
     }
-    return "Không xác định";
+
+    return roleName;
   };
 
-  const getRoleNames = (roleIds: number[]): string[] => {
-    return roleIds.map((id) => getRoleNameById(id));
+  const getRoleDisplayNames = (roleNames: string[]): string[] => {
+    return roleNames.map((roleName) => getRoleDisplayName(roleName));
   };
 
   // ==================== Route Helpers ====================
 
-  const getHighestPriorityRole = (roleIds: number[]): number | null => {
-    if (!roleIds || roleIds.length === 0) return null;
+  const getHighestPriorityRoleName = (roleNames: string[]): string | null => {
+    if (!roleNames || roleNames.length === 0) return null;
 
-    let highestRoleId = roleIds[0];
-    let highestPriority = 0;
+    let highestRoleName: string | null = null;
+    let highestPriority = -1;
 
-    const highestRole = getRoleById(highestRoleId);
-    if (highestRole) {
-      highestPriority = ROLE_PRIORITY[highestRole.name] || 0;
-    }
-
-    for (const roleId of roleIds) {
-      const role = getRoleById(roleId);
-      if (role) {
-        const priority = ROLE_PRIORITY[role.name] || 0;
-        if (priority > highestPriority) {
-          highestPriority = priority;
-          highestRoleId = roleId;
-        }
+    for (const roleName of roleNames) {
+      const priority = ROLE_PRIORITY[roleName] ?? 0;
+      if (priority > highestPriority) {
+        highestPriority = priority;
+        highestRoleName = roleName;
       }
     }
 
-    return highestRoleId;
+    return highestRoleName;
   };
 
-  const getDefaultRouteForRoles = (roleIds: number[]): string => {
-    const highestRoleId = getHighestPriorityRole(roleIds);
-    if (!highestRoleId) return "/";
+  const getDefaultRouteForRoles = (roleNames: string[]): string => {
+    const highestRoleName = getHighestPriorityRoleName(roleNames);
+    if (!highestRoleName) return "/";
 
-    const role = getRoleById(highestRoleId);
-    if (!role) return "/";
-
-    return ROLE_ROUTES[role.name] || "/";
+    return ROLE_ROUTES[highestRoleName] || "/";
   };
 
   const contextValue: RoleContextType = {
     ...roleState,
     fetchRoles,
-    getRoleById,
-    getRoleByName,
     getRegistrationRoles,
+    getRoleNames,
     hasRole,
     hasAnyRole,
     hasAllRoles,
-    getRoleNameById,
-    getRoleNames,
+    getRoleDisplayName,
+    getRoleDisplayNames,
     getDefaultRouteForRoles,
-    getHighestPriorityRole,
+    getHighestPriorityRoleName,
   };
 
   return (

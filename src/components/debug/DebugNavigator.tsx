@@ -16,7 +16,6 @@ const allRoutes: RouteInfo[] = [
   { path: "/signin", name: "Sign In", category: "Auth" },
   { path: "/signup", name: "Sign Up", category: "Auth" },
   { path: "/forgot-password", name: "Forgot Password", category: "Auth" },
-  { path: "/verify-otp", name: "Verify OTP", category: "Auth" },
   { path: "/reset-password", name: "Reset Password", category: "Auth" },
   { path: "/verify-email", name: "Email Verification", category: "Auth" },
   { path: "/change-password", name: "Change Password", category: "Auth" },
@@ -67,12 +66,6 @@ const allRoutes: RouteInfo[] = [
     category: "Organizer",
   },
   {
-    path: "/organizer/schedule-config",
-    name: "Schedule Config",
-    category: "Organizer",
-  },
-  { path: "/organizer/entries", name: "Entries", category: "Organizer" },
-  {
     path: "/organizer/bulk-import",
     name: "Bulk Import",
     category: "Organizer",
@@ -87,47 +80,27 @@ const allRoutes: RouteInfo[] = [
     name: "Group Stage Draw",
     category: "Organizer",
   },
-  {
-    path: "/organizer/schedule-generation",
-    name: "Schedule Generation",
-    category: "Organizer",
-  },
-  {
-    path: "/organizer/referees",
-    name: "Referee Management",
-    category: "Organizer",
-  },
 
   // Referee Routes
   { path: "/referee", name: "Invitations", category: "Referee" },
   {
     path: "/referee/invitations",
-    name: "Invitations",
+    name: "Pending Invitations",
     category: "Referee",
   },
   {
-    path: "/referee/assigned",
-    name: "Assigned Matches",
+    path: "/referee/tournaments",
+    name: "Referee Tournaments",
     category: "Referee",
   },
   {
-    path: "/referee/live",
-    name: "Live Score Controller",
+    path: "/referee/tournaments/1",
+    name: "Tournament Detail",
     category: "Referee",
   },
   {
-    path: "/referee/submit",
-    name: "Match Submission",
-    category: "Referee",
-  },
-  {
-    path: "/referee/approvals",
-    name: "Match Approval Dashboard",
-    category: "Referee",
-  },
-  {
-    path: "/referee/approvals/1",
-    name: "Approval Detail & ELO Preview",
+    path: "/referee/notifications",
+    name: "Notifications",
     category: "Referee",
   },
 ];

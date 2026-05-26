@@ -1,66 +1,177 @@
-import { useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Mail, ArrowLeft, Loader2, MailCheck, RefreshCw } from "lucide-react";
 import { useAuth } from "@/store";
-import { useAuthOperations, useTranslation } from "@/hooks";
+import { useTranslation } from "@/hooks";
+import {
+  useSendEmailVerification,
+  useResendEmailVerification,
+  useVerifyEmailOtp,
+} from "@/hooks/queries/useAuthQueries";
+import { validateOTP } from "@/utils/validation.utils";
 import { showToast } from "@/utils";
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  if (typeof error === "string" && error.trim()) {
+    return error;
+  }
+
+  return fallback;
+};
 
 const EmailVerification = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
-  const { sendEmailVerification, loading } = useAuthOperations();
+  const { user, isAuthenticated, updateUser } = useAuth();
+  const sendEmailVerificationMutation = useSendEmailVerification();
+  const resendEmailVerificationMutation = useResendEmailVerification();
+  const verifyEmailOtpMutation = useVerifyEmailOtp();
+  const loading = sendEmailVerificationMutation.isPending;
   const [emailSent, setEmailSent] = useState(false);
   const [resending, setResending] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const autoSentRef = useRef(false);
   const email = user?.email || searchParams.get("email") || "";
   const hasEmail = Boolean(email);
 
-  // useEffect(() => {
-  //   // Redirect if not authenticated
-  //   if (!isAuthenticated || !user) {
-  //     showToast.error(t("toast.errors.UNAUTHORIZED"));
-  //     navigate("/signin");
-  //     return;
-  //   }
-
-  //   // Redirect if email is already verified
-  //   if (user.isEmailVerified) {
-  //     showToast.info(t("authFlow.emailVerification.alreadyVerified"));
-  //     navigate("/");
-  //   }
-  // }, [isAuthenticated, user, navigate, t]);
-
-  const handleSendVerification = async (e?: FormEvent) => {
-    e?.preventDefault();
-    if (!email) {
-      showToast.error(t("authFlow.emailVerification.emailNotFound"));
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      showToast.error(t("toast.errors.UNAUTHORIZED"));
+      navigate("/signin");
       return;
     }
-    const result = await sendEmailVerification({ email });
-    if (result.success) {
-      setEmailSent(true);
-      showToast.success(t("auth.otpSent"), t("authFlow.checkEmail"));
-      setTimeout(() => {
-        navigate(
-          `/verify-otp?email=${encodeURIComponent(email)}&type=email-verification`,
-        );
-      }, 1500);
-    } else {
-      showToast.error(t("authFlow.emailVerification.sendFailed"), result.error);
+
+    if (user.isEmailVerified) {
+      showToast.info(t("authFlow.emailVerification.alreadyVerified"));
+      navigate("/");
     }
-  };
+  }, [isAuthenticated, user, navigate, t]);
+
+  const handleSendVerification = useCallback(
+    async (e?: FormEvent) => {
+      e?.preventDefault();
+      if (!email) {
+        showToast.error(t("authFlow.emailVerification.emailNotFound"));
+        return;
+      }
+      try {
+        const resp = await sendEmailVerificationMutation.mutateAsync({ email });
+        if (resp.success) {
+          setEmailSent(true);
+          setOtpError(null);
+          showToast.success(t("auth.otpSent"), t("authFlow.checkEmail"));
+        } else {
+          const errMsg =
+            typeof resp.error === "string"
+              ? resp.error
+              : resp.error?.message || resp.message;
+          showToast.error(t("authFlow.emailVerification.sendFailed"), errMsg);
+        }
+      } catch (err: unknown) {
+        const errMsg = getErrorMessage(
+          err,
+          t("authFlow.emailVerification.sendFailed"),
+        );
+        showToast.error(t("authFlow.emailVerification.sendFailed"), errMsg);
+      }
+    },
+    [email, sendEmailVerificationMutation, t],
+  );
+
+  useEffect(() => {
+    if (!hasEmail || emailSent || autoSentRef.current) {
+      return;
+    }
+
+    autoSentRef.current = true;
+    void handleSendVerification();
+  }, [hasEmail, emailSent, handleSendVerification]);
 
   const handleResend = async () => {
     if (!email) return;
     setResending(true);
-    const result = await sendEmailVerification({ email });
-    if (result.success) {
-      showToast.success(t("auth.otpSent"), t("authFlow.checkEmail"));
-    } else {
-      showToast.error(t("authFlow.emailVerification.sendFailed"), result.error);
+    try {
+      const resp = await resendEmailVerificationMutation.mutateAsync({ email });
+      if (resp.success) {
+        setOtpError(null);
+        showToast.success(t("auth.otpSent"), t("authFlow.checkEmail"));
+      } else {
+        const errMsg =
+          typeof resp.error === "string"
+            ? resp.error
+            : resp.error?.message || resp.message;
+        showToast.error(t("authFlow.emailVerification.sendFailed"), errMsg);
+      }
+    } catch (err: unknown) {
+      const errMsg = getErrorMessage(
+        err,
+        t("authFlow.emailVerification.sendFailed"),
+      );
+      showToast.error(t("authFlow.emailVerification.sendFailed"), errMsg);
+    } finally {
+      setResending(false);
     }
-    setResending(false);
+  };
+
+  const handleVerifyOtp = async (e: FormEvent) => {
+    e.preventDefault();
+
+    if (!email) {
+      setOtpError(t("authFlow.emailVerification.emailNotFound"));
+      return;
+    }
+
+    const validationError = validateOTP(otp);
+    if (validationError) {
+      setOtpError(validationError);
+      return;
+    }
+
+    try {
+      const resp = await verifyEmailOtpMutation.mutateAsync({ email, otp });
+      if (resp.success) {
+        if (user) {
+          updateUser({ ...user, isEmailVerified: true });
+        }
+        showToast.success(
+          t("authFlow.emailVerification.verificationSuccessTitle"),
+          t("authFlow.emailVerification.verificationSuccessDescription"),
+        );
+        navigate("/");
+      } else {
+        const errMsg =
+          typeof resp.error === "string"
+            ? resp.error
+            : resp.error?.message || resp.message;
+        setOtpError(errMsg || t("authFlow.emailVerification.otpInvalid"));
+        showToast.error(
+          t("authFlow.emailVerification.verificationFailed"),
+          errMsg,
+        );
+      }
+    } catch (err: unknown) {
+      const errMsg = getErrorMessage(
+        err,
+        t("authFlow.emailVerification.verificationFailed"),
+      );
+      setOtpError(errMsg);
+      showToast.error(
+        t("authFlow.emailVerification.verificationFailed"),
+        errMsg,
+      );
+    }
   };
 
   return (
@@ -142,6 +253,84 @@ const EmailVerification = () => {
               ? t("authFlow.emailVerification.emailSentDescription")
               : t("authFlow.emailVerification.unverifiedDescription")}
           </p>
+
+          {emailSent && (
+            <form
+              className="flex flex-col gap-3 w-full mb-6"
+              onSubmit={handleVerifyOtp}
+            >
+              <div className="flex flex-col gap-1.5 text-left">
+                <label
+                  htmlFor="otp"
+                  className="text-xs font-bold tracking-widest uppercase"
+                  style={{ color: "var(--foreground-muted)" }}
+                >
+                  {t("authFlow.emailVerification.enterOtpTitle")}
+                </label>
+                <input
+                  id="otp"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={otp}
+                  onChange={(e) => {
+                    setOtp(e.target.value.replace(/\D/g, "").slice(0, 6));
+                    if (otpError) setOtpError(null);
+                  }}
+                  placeholder={t("authFlow.emailVerification.otpPlaceholder")}
+                  className="w-full px-4 py-3 rounded-lg outline-none transition-all duration-200"
+                  style={{
+                    background: "var(--input)",
+                    border: `1px solid ${otpError ? "var(--destructive)" : "var(--border)"}`,
+                    color: "var(--foreground)",
+                  }}
+                />
+                <p
+                  className="text-xs"
+                  style={{ color: "var(--muted-foreground)" }}
+                >
+                  {t("authFlow.emailVerification.otpDescription")}
+                </p>
+                {otpError && (
+                  <p
+                    className="text-xs"
+                    style={{ color: "var(--destructive)" }}
+                  >
+                    {otpError}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={verifyEmailOtpMutation.isPending}
+                className="w-full py-4 rounded-lg text-base font-semibold flex items-center justify-center gap-2 transition-all duration-300"
+                style={{
+                  background: verifyEmailOtpMutation.isPending
+                    ? "var(--muted)"
+                    : "var(--primary)",
+                  color: verifyEmailOtpMutation.isPending
+                    ? "var(--muted-foreground)"
+                    : "var(--primary-foreground)",
+                  cursor: verifyEmailOtpMutation.isPending
+                    ? "not-allowed"
+                    : "pointer",
+                }}
+              >
+                {verifyEmailOtpMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {t("authFlow.emailVerification.verifying")}
+                  </>
+                ) : (
+                  <>
+                    <MailCheck className="w-4 h-4" />
+                    {t("authFlow.emailVerification.verifyButton")}
+                  </>
+                )}
+              </button>
+            </form>
+          )}
 
           {/* Email display chip */}
           <div

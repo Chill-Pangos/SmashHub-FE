@@ -4,7 +4,6 @@ import PrivateLayout from "@/layouts/PrivateLayout";
 import SignIn from "@/pages/Auth/SignIn/SignIn";
 import SignUp from "@/pages/Auth/SignUp/SignUp";
 import ForgotPassword from "@/pages/Auth/ForgotPassword/ForgotPassword";
-import VerifyOtp from "@/pages/Auth/VerifyOtp/VerifyOtp";
 import ResetPassword from "@/pages/Auth/ResetPassword/ResetPassword";
 import EmailVerification from "@/pages/Auth/EmailVerification/EmailVerification";
 import ChangePassword from "@/pages/Auth/ChangePassword/ChangePassword";
@@ -32,7 +31,6 @@ export default function PublicRoutes() {
         <Route path="signin" element={<SignIn />} />
         <Route path="signup" element={<SignUp />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
-        <Route path="verify-otp" element={<VerifyOtp />} />
         <Route path="reset-password" element={<ResetPassword />} />
         <Route path="verify-email" element={<EmailVerification />} />
         <Route path="tournaments" element={<TournamentListing />} />

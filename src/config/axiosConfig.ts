@@ -14,7 +14,6 @@ const SKIP_REFRESH_ENDPOINTS = [
   "/auth/refresh",
   "/auth/logout",
   "/auth/forgot-password",
-  "/auth/verify-otp",
   "/auth/reset-password",
   "/auth/send-email-verification-otp",
   "/auth/verify-email-otp",

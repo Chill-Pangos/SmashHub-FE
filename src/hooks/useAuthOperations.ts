@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { authService } from "@/services";
+import { authService, userService } from "@/services";
 import { useAuth, useRole } from "@/store";
 import type {
   RegisterRequest,
   LoginRequest,
   ChangePasswordRequest,
   ForgotPasswordRequest,
-  VerifyOtpRequest,
   ResetPasswordRequest,
   SendEmailVerificationRequest,
   ResendEmailVerificationRequest,
@@ -27,6 +26,10 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
           return String(apiError.message);
         }
       }
+
+      if (data && typeof data === "object" && "message" in data) {
+        return String(data.message);
+      }
     }
   }
   return fallback;
@@ -39,18 +42,26 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
 export const useAuthOperations = () => {
   const navigate = useNavigate();
   const { login: setAuthData, logout: clearAuthData, updateUser } = useAuth();
-  const { getDefaultRouteForRoles } = useRole();
+  const { getDefaultRouteForRoles, getRoleNames } = useRole();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const resolvePostAuthRoute = (roleIds: number[]) => {
-    const resolvedRoute = getDefaultRouteForRoles(roleIds);
+  const resolvePostAuthRoute = (roleNames: string[]) => {
+    if (roleNames.length > 1) {
+      return "/";
+    }
+
+    const resolvedRoute = getDefaultRouteForRoles(roleNames);
 
     if (!resolvedRoute || resolvedRoute === "/") {
       return "/";
     }
 
     return resolvedRoute;
+  };
+
+  const resolveRoleNamesFromAuth = (user: User) => {
+    return getRoleNames(user.roles ?? []);
   };
 
   /**
@@ -68,11 +79,19 @@ export const useAuthOperations = () => {
       const response = await authService.register(data);
 
       if (response.success) {
-        // Save new auth data
+        // Save tokens so we can call /users/me
         setAuthData(response.data);
-        // Redirect based on user role
+
+        let currentUser = response.data.user;
+        try {
+          currentUser = await userService.getCurrentUser();
+          updateUser(currentUser);
+        } catch (err) {
+          console.warn("Failed to refresh current user after register:", err);
+        }
+
         const redirectPath = resolvePostAuthRoute(
-          response.data.user.roles ?? [],
+          resolveRoleNamesFromAuth(currentUser),
         );
         navigate(redirectPath, { replace: true });
         return { success: true, data: response.data };
@@ -102,11 +121,19 @@ export const useAuthOperations = () => {
       const response = await authService.login(data);
 
       if (response.success) {
-        // Save new auth data
+        // Save tokens so we can call /users/me
         setAuthData(response.data);
-        // Redirect based on user role
+
+        let currentUser = response.data.user;
+        try {
+          currentUser = await userService.getCurrentUser();
+          updateUser(currentUser);
+        } catch (err) {
+          console.warn("Failed to refresh current user after login:", err);
+        }
+
         const redirectPath = resolvePostAuthRoute(
-          response.data.user.roles ?? [],
+          resolveRoleNamesFromAuth(currentUser),
         );
         navigate(redirectPath, { replace: true });
         return { success: true, data: response.data };
@@ -181,28 +208,6 @@ export const useAuthOperations = () => {
       return { success: false, error: "Failed to send OTP" };
     } catch (err) {
       const errorMessage = getErrorMessage(err, "Failed to send OTP");
-      setError(errorMessage);
-      return { success: false, error: errorMessage };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /**
-   * Verify OTP for password reset
-   */
-  const verifyOtp = async (data: VerifyOtpRequest) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await authService.verifyOtp(data);
-
-      if (response.success) {
-        return { success: true };
-      }
-      return { success: false, error: "OTP verification failed" };
-    } catch (err) {
-      const errorMessage = getErrorMessage(err, "OTP verification failed");
       setError(errorMessage);
       return { success: false, error: errorMessage };
     } finally {
@@ -323,7 +328,6 @@ export const useAuthOperations = () => {
     logout,
     changePassword,
     forgotPassword,
-    verifyOtp,
     resetPassword,
     sendEmailVerification,
     verifyEmailOtp,
