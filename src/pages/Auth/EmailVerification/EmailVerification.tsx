@@ -2,15 +2,33 @@ import { useState, type FormEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Mail, ArrowLeft, Loader2, MailCheck, RefreshCw } from "lucide-react";
 import { useAuth } from "@/store";
-import { useAuthOperations, useTranslation } from "@/hooks";
+import { useTranslation } from "@/hooks";
+import {
+  useSendEmailVerification,
+  useResendEmailVerification,
+} from "@/hooks/queries/useAuthQueries";
 import { showToast } from "@/utils";
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  if (typeof error === "string" && error.trim()) {
+    return error;
+  }
+
+  return fallback;
+};
 
 const EmailVerification = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const { sendEmailVerification, loading } = useAuthOperations();
+  const sendEmailVerificationMutation = useSendEmailVerification();
+  const resendEmailVerificationMutation = useResendEmailVerification();
+  const loading = sendEmailVerificationMutation.isPending;
   const [emailSent, setEmailSent] = useState(false);
   const [resending, setResending] = useState(false);
   const email = user?.email || searchParams.get("email") || "";
@@ -37,30 +55,55 @@ const EmailVerification = () => {
       showToast.error(t("authFlow.emailVerification.emailNotFound"));
       return;
     }
-    const result = await sendEmailVerification({ email });
-    if (result.success) {
-      setEmailSent(true);
-      showToast.success(t("auth.otpSent"), t("authFlow.checkEmail"));
-      setTimeout(() => {
-        navigate(
-          `/verify-otp?email=${encodeURIComponent(email)}&type=email-verification`,
-        );
-      }, 1500);
-    } else {
-      showToast.error(t("authFlow.emailVerification.sendFailed"), result.error);
+    try {
+      const resp = await sendEmailVerificationMutation.mutateAsync({ email });
+      if (resp.success) {
+        setEmailSent(true);
+        showToast.success(t("auth.otpSent"), t("authFlow.checkEmail"));
+        setTimeout(() => {
+          navigate(
+            `/verify-otp?email=${encodeURIComponent(email)}&type=email-verification`,
+          );
+        }, 1500);
+      } else {
+        const errMsg =
+          typeof resp.error === "string"
+            ? resp.error
+            : resp.error?.message || resp.message;
+        showToast.error(t("authFlow.emailVerification.sendFailed"), errMsg);
+      }
+    } catch (err: unknown) {
+      const errMsg = getErrorMessage(
+        err,
+        t("authFlow.emailVerification.sendFailed"),
+      );
+      showToast.error(t("authFlow.emailVerification.sendFailed"), errMsg);
     }
   };
 
   const handleResend = async () => {
     if (!email) return;
     setResending(true);
-    const result = await sendEmailVerification({ email });
-    if (result.success) {
-      showToast.success(t("auth.otpSent"), t("authFlow.checkEmail"));
-    } else {
-      showToast.error(t("authFlow.emailVerification.sendFailed"), result.error);
+    try {
+      const resp = await resendEmailVerificationMutation.mutateAsync({ email });
+      if (resp.success) {
+        showToast.success(t("auth.otpSent"), t("authFlow.checkEmail"));
+      } else {
+        const errMsg =
+          typeof resp.error === "string"
+            ? resp.error
+            : resp.error?.message || resp.message;
+        showToast.error(t("authFlow.emailVerification.sendFailed"), errMsg);
+      }
+    } catch (err: unknown) {
+      const errMsg = getErrorMessage(
+        err,
+        t("authFlow.emailVerification.sendFailed"),
+      );
+      showToast.error(t("authFlow.emailVerification.sendFailed"), errMsg);
+    } finally {
+      setResending(false);
     }
-    setResending(false);
   };
 
   return (

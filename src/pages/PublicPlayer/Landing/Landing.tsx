@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "@/store/useAuth";
-// TODO: Restore role-based portal access.
-// import { useRole } from "@/store/useRole";
+import { useRole } from "@/store/useRole";
 
 interface PortalLink {
   key: string;
@@ -12,23 +11,11 @@ interface PortalLink {
 }
 
 export default function Landing() {
-  const { isAuthenticated } = useAuth();
-
-  // TODO: Restore role-based visibility and auth gating for portals.
-  /*
   const { user, isAuthenticated } = useAuth();
-  const { getRoleByName, hasAnyRole } = useRole();
+  const { getRoleNames, hasAnyRole } = useRole();
 
   const userRoles = user?.roles ?? [];
-  const organizerRole = getRoleByName("organizer");
-  const refereeRole = getRoleByName("referee");
-  const chiefRefereeRole = getRoleByName("chief_referee");
-  const adminRole = getRoleByName("admin");
-
-  const refereeRoleIds = [refereeRole?.id, chiefRefereeRole?.id].filter(
-    (id): id is number => typeof id === "number",
-  );
-  */
+  const userRoleNames = getRoleNames(userRoles);
 
   const portalLinks: PortalLink[] = [
     {
@@ -43,27 +30,23 @@ export default function Landing() {
       label: "Organizer Portal",
       description: "Create and operate tournaments.",
       path: "/organizer",
-      visible: true,
-      // visible: organizerRole
-      //   ? hasAnyRole(userRoles, [organizerRole.id])
-      //   : false,
+      visible: isAuthenticated && hasAnyRole(userRoleNames, ["organizer"]),
     },
     {
       key: "referee",
       label: "Referee Portal",
       description: "Match control and approvals.",
       path: "/referee",
-      visible: true,
-      // visible:
-      //   refereeRoleIds.length > 0 && hasAnyRole(userRoles, refereeRoleIds),
+      visible:
+        isAuthenticated &&
+        hasAnyRole(userRoleNames, ["referee", "chief_referee"]),
     },
     {
       key: "admin",
       label: "Admin Portal",
       description: "Users, roles, and notifications.",
       path: "/admin",
-      visible: true,
-      // visible: adminRole ? hasAnyRole(userRoles, [adminRole.id]) : false,
+      visible: isAuthenticated && hasAnyRole(userRoleNames, ["admin"]),
     },
   ];
 
