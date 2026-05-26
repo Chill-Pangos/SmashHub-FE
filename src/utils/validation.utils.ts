@@ -282,7 +282,6 @@ export const validateLoginForm = (data: LoginFormData): ValidationErrors => {
 export interface ChangePasswordFormData {
   oldPassword: string;
   newPassword: string;
-  confirmNewPassword: string;
 }
 
 export const validateChangePasswordForm = (
@@ -300,12 +299,6 @@ export const validateChangePasswordForm = (
   if (data.oldPassword === data.newPassword) {
     errors.newPassword = tValidation("validation.auth.newPasswordMustDiffer");
   }
-
-  const confirmPasswordError = validatePasswordConfirmation(
-    data.newPassword,
-    data.confirmNewPassword,
-  );
-  if (confirmPasswordError) errors.confirmNewPassword = confirmPasswordError;
 
   return errors;
 };

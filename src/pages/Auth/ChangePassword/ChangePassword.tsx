@@ -28,7 +28,6 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { showToast } from "@/utils/toast.utils";
 import {
   validatePassword,
-  validatePasswordConfirmation,
   checkPasswordStrength,
   PasswordStrength,
   type ValidationErrors,
@@ -37,7 +36,6 @@ import {
 interface ChangePasswordFormData {
   oldPassword: string;
   newPassword: string;
-  confirmPassword: string;
 }
 
 const getErrorMessage = (error: unknown, fallback: string): string => {
@@ -71,12 +69,10 @@ const ChangePassword = () => {
   const [formData, setFormData] = useState<ChangePasswordFormData>({
     oldPassword: "",
     newPassword: "",
-    confirmPassword: "",
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
 
   // useEffect(() => {
   //   if (!isAuthenticated) {
@@ -154,15 +150,8 @@ const ChangePassword = () => {
       return;
     }
     const newErr = validatePassword(formData.newPassword);
-    const confirmErr = validatePasswordConfirmation(
-      formData.newPassword,
-      formData.confirmPassword,
-    );
-    if (newErr || confirmErr) {
-      setErrors({
-        newPassword: newErr || "",
-        confirmPassword: confirmErr || "",
-      });
+    if (newErr) {
+      setErrors({ newPassword: newErr });
       return;
     }
     if (formData.oldPassword === formData.newPassword) {
@@ -192,10 +181,7 @@ const ChangePassword = () => {
         showToast.error(t("authFlow.changePassword.failed"), errMsg);
       }
     } catch (err: unknown) {
-      const errMsg = getErrorMessage(
-        err,
-        t("authFlow.changePassword.failed"),
-      );
+      const errMsg = getErrorMessage(err, t("authFlow.changePassword.failed"));
       setErrors({ oldPassword: errMsg });
       showToast.error(t("authFlow.changePassword.failed"), errMsg);
     }
@@ -607,64 +593,6 @@ const ChangePassword = () => {
                     label={t("authFlow.changePassword.requirements.number")}
                   />
                 </div>
-              </div>
-
-              {/* Confirm Password */}
-              <div className="flex flex-col gap-1.5">
-                <label
-                  className="text-xs font-bold tracking-widest uppercase"
-                  style={{ color: "var(--foreground-muted)" }}
-                >
-                  {t("authFlow.changePassword.confirmNewPassword") ||
-                    "Confirm New Password"}
-                </label>
-                <div className="relative">
-                  <CheckCircle2
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5"
-                    style={{ color: "var(--muted-foreground)" }}
-                  />
-                  <input
-                    id="confirmPassword"
-                    type={showConfirm ? "text" : "password"}
-                    placeholder={
-                      t("authFlow.changePassword.confirmPasswordPlaceholder") ||
-                      "Confirm new password"
-                    }
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    disabled={loading}
-                    required
-                    style={inputStyle(!!errors.confirmPassword)}
-                    onFocus={onFocus}
-                    onBlur={(e) => onBlur(e, !!errors.confirmPassword)}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirm(!showConfirm)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                    style={{ color: "#849495" }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.color = "#00f2ff")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.color = "#849495")
-                    }
-                  >
-                    {showConfirm ? (
-                      <EyeOff className="w-5 h-5" />
-                    ) : (
-                      <Eye className="w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-                {errors.confirmPassword && (
-                  <p
-                    className="text-xs"
-                    style={{ color: "var(--destructive)" }}
-                  >
-                    {errors.confirmPassword}
-                  </p>
-                )}
               </div>
 
               {/* Buttons */}

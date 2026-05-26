@@ -6,7 +6,6 @@ import type {
   RegisterRequest,
   ChangePasswordRequest,
   ForgotPasswordRequest,
-  VerifyOtpRequest,
   ResetPasswordRequest,
   SendEmailVerificationRequest,
   VerifyEmailOtpRequest,
@@ -105,15 +104,6 @@ export const useForgotPassword = () => {
   return useMutation({
     mutationFn: (data: ForgotPasswordRequest) =>
       authService.forgotPassword(data),
-  });
-};
-
-/**
- * Hook để verify OTP
- */
-export const useVerifyOtp = () => {
-  return useMutation({
-    mutationFn: (data: VerifyOtpRequest) => authService.verifyOtp(data),
   });
 };
 

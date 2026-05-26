@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ChangeEvent } from "react";
+import { useEffect, useState, type FormEvent, type ChangeEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Lock,
@@ -14,6 +14,7 @@ import { useResetPassword, useTranslation } from "@/hooks";
 import {
   validatePassword,
   validatePasswordConfirmation,
+  validateOTP,
   checkPasswordStrength,
   showToast,
   showApiError,
@@ -28,9 +29,8 @@ const ResetPassword = () => {
   const resetPasswordMutation = useResetPassword();
 
   const email = searchParams.get("email");
-  const otp = searchParams.get("otp");
-
   const [formData, setFormData] = useState({
+    otpCode: "",
     newPassword: "",
     confirmPassword: "",
   });
@@ -38,16 +38,19 @@ const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // useEffect(() => {
-  //   if (!email || !otp) {
-  //     showToast.error(t("authFlow.resetPassword.invalidInfo"));
-  //     navigate("/forgot-password");
-  //   }
-  // }, [email, otp, navigate, t]);
+  useEffect(() => {
+    if (!email) {
+      showToast.error(t("authFlow.resetPassword.invalidInfo"));
+      navigate("/forgot-password", { replace: true });
+    }
+  }, [email, navigate, t]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [id]: id === "otpCode" ? value.replace(/\D/g, "").slice(0, 6) : value,
+    }));
     if (errors[id]) {
       setErrors((prev) => {
         const n = { ...prev };
@@ -65,18 +68,20 @@ const ResetPassword = () => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!email || !otp) {
+    if (!email) {
       showToast.error(t("authFlow.resetPassword.invalidInfo"));
       return;
     }
 
+    const otpError = validateOTP(formData.otpCode);
     const passwordError = validatePassword(formData.newPassword);
     const confirmError = validatePasswordConfirmation(
       formData.newPassword,
       formData.confirmPassword,
     );
-    if (passwordError || confirmError) {
+    if (otpError || passwordError || confirmError) {
       setErrors({
+        otpCode: otpError || "",
         newPassword: passwordError || "",
         confirmPassword: confirmError || "",
       });
@@ -86,7 +91,7 @@ const ResetPassword = () => {
     try {
       const response = await resetPasswordMutation.mutateAsync({
         email,
-        otp,
+        otp: formData.otpCode,
         newPassword: formData.newPassword,
       });
       if (response.success) {
@@ -215,6 +220,53 @@ const ResetPassword = () => {
 
           {/* Form */}
           <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+            {/* OTP */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="otpCode"
+                className="text-xs font-bold tracking-widest uppercase"
+                style={{ color: "var(--foreground-muted)" }}
+              >
+                {t("authFlow.resetPassword.enterOtpTitle")}
+              </label>
+              <div className="relative">
+                <input
+                  id="otpCode"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder={t("authFlow.resetPassword.otpPlaceholder")}
+                  value={formData.otpCode}
+                  onChange={handleChange}
+                  disabled={resetPasswordMutation.isPending}
+                  required
+                  className="w-full outline-none transition-all duration-200"
+                  style={{
+                    background: "var(--input)",
+                    border: errors.otpCode
+                      ? "1px solid var(--destructive)"
+                      : "1px solid var(--border)",
+                    borderRadius: "6px",
+                    color: "var(--foreground)",
+                    fontFamily: "'Sora', sans-serif",
+                    fontSize: "16px",
+                    padding: "12px 12px 12px 16px",
+                  }}
+                />
+              </div>
+              <p
+                className="text-xs"
+                style={{ color: "var(--muted-foreground)" }}
+              >
+                {t("authFlow.resetPassword.otpDescription")}
+              </p>
+              {errors.otpCode && (
+                <p className="text-xs" style={{ color: "var(--destructive)" }}>
+                  {errors.otpCode}
+                </p>
+              )}
+            </div>
+
             {/* New Password */}
             <div className="flex flex-col gap-1.5">
               <label

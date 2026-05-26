@@ -7,7 +7,6 @@ import type {
   LoginRequest,
   ChangePasswordRequest,
   ForgotPasswordRequest,
-  VerifyOtpRequest,
   ResetPasswordRequest,
   SendEmailVerificationRequest,
   ResendEmailVerificationRequest,
@@ -217,28 +216,6 @@ export const useAuthOperations = () => {
   };
 
   /**
-   * Verify OTP for password reset
-   */
-  const verifyOtp = async (data: VerifyOtpRequest) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await authService.verifyOtp(data);
-
-      if (response.success) {
-        return { success: true };
-      }
-      return { success: false, error: "OTP verification failed" };
-    } catch (err) {
-      const errorMessage = getErrorMessage(err, "OTP verification failed");
-      setError(errorMessage);
-      return { success: false, error: errorMessage };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /**
    * Reset password with OTP
    */
   const resetPassword = async (data: ResetPasswordRequest) => {
@@ -351,7 +328,6 @@ export const useAuthOperations = () => {
     logout,
     changePassword,
     forgotPassword,
-    verifyOtp,
     resetPassword,
     sendEmailVerification,
     verifyEmailOtp,

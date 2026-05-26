@@ -37,9 +37,7 @@ const ForgotPassword = () => {
         setSubmitted(true);
         showToast.success(t("auth.otpSent"), t("authFlow.checkEmail"));
         setTimeout(() => {
-          navigate(
-            `/verify-otp?email=${encodeURIComponent(email)}&type=password-reset`,
-          );
+          navigate(`/reset-password?email=${encodeURIComponent(email)}`);
         }, 1500);
       } else {
         setError(

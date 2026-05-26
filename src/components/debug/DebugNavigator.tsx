@@ -16,7 +16,6 @@ const allRoutes: RouteInfo[] = [
   { path: "/signin", name: "Sign In", category: "Auth" },
   { path: "/signup", name: "Sign Up", category: "Auth" },
   { path: "/forgot-password", name: "Forgot Password", category: "Auth" },
-  { path: "/verify-otp", name: "Verify OTP", category: "Auth" },
   { path: "/reset-password", name: "Reset Password", category: "Auth" },
   { path: "/verify-email", name: "Email Verification", category: "Auth" },
   { path: "/change-password", name: "Change Password", category: "Auth" },

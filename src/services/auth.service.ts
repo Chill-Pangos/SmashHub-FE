@@ -5,7 +5,6 @@ import type {
   RefreshTokenRequest,
   ChangePasswordRequest,
   ForgotPasswordRequest,
-  VerifyOtpRequest,
   ResetPasswordRequest,
   SendEmailVerificationRequest,
   VerifyEmailOtpRequest,
@@ -123,18 +122,6 @@ class AuthService {
   async forgotPassword(data: ForgotPasswordRequest): Promise<SuccessResponse> {
     const response = await axiosInstance.post<SuccessResponse>(
       `${this.AUTH_PREFIX}/forgot-password`,
-      data,
-    );
-    return response.data;
-  }
-
-  /**
-   * Verify OTP (Optional step)
-   * POST /api/auth/verify-otp
-   */
-  async verifyOtp(data: VerifyOtpRequest): Promise<SuccessResponse> {
-    const response = await axiosInstance.post<SuccessResponse>(
-      `${this.AUTH_PREFIX}/verify-otp`,
       data,
     );
     return response.data;
