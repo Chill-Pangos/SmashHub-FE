@@ -771,6 +771,7 @@ export default {
         minutesShort: "phút",
         minuteShort: "phút",
         successAlert: "Đã tạo giải đấu thành công! Quay về Dashboard.",
+        errorAlert:"Đã có lỗi xảy ra trong quá trình tạo giải đấu. Xem chi tiết ở phía dưới.",
       },
     },
     fullFlow: {

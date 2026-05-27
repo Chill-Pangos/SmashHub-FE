@@ -1,12 +1,61 @@
-import React, { useState } from "react";
+import React from "react";
 import type { StepProps } from "./types";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, ArrowLeft, Rocket } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useCreateTournament } from "@/hooks/queries/useTournamentQueries";
+import { showToast, showApiError } from "@/utils/toast.utils"; 
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+const TIER_MAP: Record<string, number> = {
+  pro: 1,
+  challenger: 2,
+  local: 3,
+};
+
+const FORMAT_META: Record<
+  string,
+  {
+    name: string;
+    type: "single" | "double";
+    gender: "male" | "female" | "mixed";
+    numberOfSingles: number;
+    numberOfDoubles: number;
+  }
+> = {
+  mens_singles: {
+    name: "Men's Singles",
+    type: "single",
+    gender: "male",
+    numberOfSingles: 3,
+    numberOfDoubles: 0,
+  },
+  womens_singles: {
+    name: "Women's Singles",
+    type: "single",
+    gender: "female",
+    numberOfSingles: 3,
+    numberOfDoubles: 0,
+  },
+  mixed_doubles: {
+    name: "Mixed Doubles",
+    type: "double",
+    gender: "mixed",
+    numberOfSingles: 0,
+    numberOfDoubles: 3,
+  },
+};
+
+// ── Component ─────────────────────────────────────────────────────────────────
 
 export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
   const { t } = useTranslation();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const createTournament = useCreateTournament();
+
+  const isSubmitting = createTournament.isPending;
 
   const formatLabels = {
     mens_singles: t(
@@ -20,73 +69,53 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
     ),
   };
 
+  // ── Submit ───────────────────────────────────────────────────────────────────
+
   const handleSubmit = async () => {
-    setIsSubmitting(true);
+    const categoryMeta =
+      FORMAT_META[data.category.format] ?? FORMAT_META.mens_singles;
 
-    // Parse time strings to numbers for the JSON payload
-    const parseTime = (timeStr: string) => {
-      const [h, m] = timeStr.split(":").map(Number);
-      return { hour: h || 0, minute: m || 0 };
-    };
-
-    const start = parseTime(data.schedule.dailyStartTime);
-    const end = parseTime(data.schedule.dailyEndTime);
-    const breakStart = parseTime(data.schedule.breakStartTime);
-
-    // Tính toán break End Time dựa trên start + duration
-    const breakStartDate = new Date();
-    breakStartDate.setHours(breakStart.hour, breakStart.minute, 0);
-    const breakEndDate = new Date(
-      breakStartDate.getTime() + data.schedule.breakDurationMinutes * 60000,
-    );
-
-    const schedulePayload = {
-      tournamentId: 0, // Sẽ được update sau khi gọi api tạo tournament
-      matchDurationMinutes: data.schedule.matchDurationMinutes,
-      breakDurationMinutes: data.schedule.breakDurationMinutes,
-      dailyStartHour: start.hour,
-      dailyStartMinute: start.minute,
-      dailyEndHour: end.hour,
-      dailyEndMinute: end.minute,
-      lunchBreakStartHour: data.schedule.hasBreak ? breakStart.hour : 0,
-      lunchBreakStartMinute: data.schedule.hasBreak ? breakStart.minute : 0,
-      lunchBreakEndHour: data.schedule.hasBreak ? breakEndDate.getHours() : 0,
-      lunchBreakEndMinute: data.schedule.hasBreak
-        ? breakEndDate.getMinutes()
-        : 0,
-      notes: `Configured for ${data.schedule.activeTables} active tables.`,
+    const payload = {
+      name: data.name,
+      location: data.location,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      tier: TIER_MAP[data.tier] ?? 3,
+      status: "upcoming" as const,
+      categories: [
+        {
+          name: categoryMeta.name,
+          type: categoryMeta.type,
+          gender: categoryMeta.gender,
+          maxEntries: data.category.maxEntries,
+          maxSets: 3,
+          numberOfSingles: categoryMeta.numberOfSingles,
+          numberOfDoubles: categoryMeta.numberOfDoubles,
+          isGroupStage: false,
+        },
+      ],
     };
 
     try {
-      // TODO: 1. Sử dụng useMutation để call API POST /tournaments
-      console.log("1. Creating Tournament...", data);
+      await showToast.promise(createTournament.mutateAsync(payload), {
+        loading: t("tournamentManager.createTournamentForm.review.initializing"),
+        success: t("tournamentManager.createTournamentForm.review.successAlert"),
+        error:   t("tournamentManager.createTournamentForm.review.errorAlert"),
+      });
 
-      // Giả lập lấy ID sau khi tạo
-      const fakeTournamentId = 123;
-      schedulePayload.tournamentId = fakeTournamentId;
-
-      // TODO: 2. Sử dụng useMutation khác để call API POST /tournaments/{id}/schedule-config
-      // Re-validate dữ liệu config ở backend tại đây
-      console.log(
-        "2. Submitting Schedule Config Payload: ",
-        JSON.stringify(schedulePayload, null, 2),
-      );
-
-      // Giả lập delay network
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // TODO: 3. Chuyển hướng người dùng về dashboard
-      alert(t("tournamentManager.createTournamentForm.review.successAlert"));
-      // router.push('/dashboard')
+      navigate("/organizer/tournaments");
     } catch (error) {
-      console.error("Failed to create tournament", error);
-    } finally {
-      setIsSubmitting(false);
+      // showToast.promise đã hiện toast error rồi
+      // showApiError để parse error code từ API response nếu muốn chi tiết hơn
+      showApiError(error);
     }
   };
 
+  // ── Render ───────────────────────────────────────────────────────────────────
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500 max-w-3xl mx-auto">
+      {/* System ready banner */}
       <div className="p-4 rounded-lg bg-primary/10 border border-primary/30 flex items-start gap-4">
         <CheckCircle2 className="w-6 h-6 text-primary shrink-0 mt-0.5" />
         <div>
@@ -107,6 +136,7 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
         </div>
       </div>
 
+      {/* Summary card */}
       <div className="space-y-6 bg-card p-6 rounded-xl border border-border">
         {/* Overview */}
         <div>
@@ -124,7 +154,7 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
               <p className="text-xs text-muted-foreground">
                 {t("tournamentManager.createTournamentForm.review.tier")}
               </p>
-              <p className="font-medium text-foreground">
+              <p className="font-medium text-foreground capitalize">
                 {t(
                   `tournamentManager.createTournamentForm.general.tiers.${data.tier}`,
                 )}
@@ -142,11 +172,13 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
         {/* Category */}
         <div>
           <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-3">
-            {t("tournamentManager.createTournamentForm.review.categorySummary")}
+            {t(
+              "tournamentManager.createTournamentForm.review.categorySummary",
+            )}
           </h4>
           <div className="flex gap-2">
             <div className="flex items-center gap-2 px-3 py-1.5 bg-background rounded-full border border-border">
-              <span className="text-sm font-medium capitalize">
+              <span className="text-sm font-medium">
                 {formatLabels[
                   data.category.format as keyof typeof formatLabels
                 ] ?? data.category.format}
@@ -176,7 +208,7 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
                 )}
               </p>
               <p className="text-sm font-medium">
-                {data.schedule.dailyStartTime} - {data.schedule.dailyEndTime}
+                {data.schedule.dailyStartTime} – {data.schedule.dailyEndTime}
               </p>
             </div>
             <div>
@@ -203,7 +235,9 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
             {data.schedule.hasBreak && (
               <div>
                 <p className="text-xs text-muted-foreground">
-                  {t("tournamentManager.createTournamentForm.review.breakInfo")}
+                  {t(
+                    "tournamentManager.createTournamentForm.review.breakInfo",
+                  )}
                 </p>
                 <p className="text-sm font-medium">
                   {data.schedule.breakStartTime} (
@@ -219,11 +253,13 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
         </div>
       </div>
 
+      {/* Footer actions */}
       <div className="flex items-center justify-between pt-4">
         <Button variant="ghost" onClick={onBack} disabled={isSubmitting}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           {t("tournamentManager.createTournamentForm.review.back")}
         </Button>
+
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting}

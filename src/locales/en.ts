@@ -769,6 +769,7 @@ export default {
         minuteShort: "m",
         successAlert:
           "Tournament created successfully! Returning to Dashboard.",
+        errorAlert:"Tournament was failed to created! See more detail below.",
       },
     },
     fullFlow: {

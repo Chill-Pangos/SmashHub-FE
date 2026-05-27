@@ -210,13 +210,10 @@ export interface TournamentCategory {
 }
 
 export interface CreateTournamentCategoryRequest {
-  tournamentId: number;
   name: string;
   type: TournamentCategoryType;
   maxEntries: number;
   maxSets: number;
-  teamFormat?: string | null;
-  entryFee?: number | null;
   numberOfSingles?: number | null;
   numberOfDoubles?: number | null;
   minAge?: number | null;
@@ -225,7 +222,6 @@ export interface CreateTournamentCategoryRequest {
   maxElo?: number | null;
   gender?: Gender | null;
   isGroupStage?: boolean;
-  racketCheck?: boolean;
 }
 
 export interface UpdateTournamentCategoryRequest {
