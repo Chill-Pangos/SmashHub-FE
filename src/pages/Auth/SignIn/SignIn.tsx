@@ -1,6 +1,6 @@
 import { useState, type FormEvent, type ChangeEvent, useCallback } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Mail, Lock, ArrowRight, Briefcase, Fingerprint } from "lucide-react";
+import { Mail, Lock, ArrowRight/* , Briefcase, Fingerprint */ } from "lucide-react";
 import tableTennisBgLight from "@/assets/table_tennis_bg_light.png";
 import tableTennisBgDark from "@/assets/table_tennis_bg_dark.png";
 import { useCurrentUser, useLogin, useTranslation } from "@/hooks";
@@ -26,7 +26,7 @@ const SignIn = () => {
     password: "",
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
-  const quickAccessItems = [
+ /*  const quickAccessItems = [
     {
       icon: <Briefcase className="w-5 h-5" />,
       label: t("authFlow.signIn.sso"),
@@ -35,7 +35,7 @@ const SignIn = () => {
       icon: <Fingerprint className="w-5 h-5" />,
       label: t("authFlow.signIn.biometric"),
     },
-  ];
+  ]; */
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -609,12 +609,12 @@ const SignIn = () => {
                   "linear-gradient(to right, transparent, var(--border))",
               }}
             />
-            <span
+           {/*  <span
               className="px-4 text-xs font-bold tracking-widest uppercase"
               style={{ color: "var(--foreground-muted)" }}
             >
               {t("authFlow.signIn.continueWith")}
-            </span>
+            </span> */}
             <div
               className="flex-grow h-px"
               style={{
@@ -625,7 +625,7 @@ const SignIn = () => {
           </div>
 
           {/* Social buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
+         {/*  <div className="flex flex-col sm:flex-row gap-4">
             {quickAccessItems.map(({ icon, label }) => (
               <button
                 key={label}
@@ -663,7 +663,7 @@ const SignIn = () => {
                 {label}
               </button>
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
