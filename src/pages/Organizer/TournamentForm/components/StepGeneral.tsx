@@ -4,6 +4,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider"; 
 import {
   Select,
   SelectContent,
@@ -11,7 +12,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Info, Users, Trash2 } from "lucide-react";
+import { Info, Users, Trash2, Plus, AlertCircle } from "lucide-react";
+
+const DEFAULT_CATEGORY = {
+  name: "",
+  type: "single",
+  gender: "male",
+  maxEntries: 32,
+  maxSets: 3,
+  isGroupStage: false,
+  teamFormat: "",
+  numberOfSingles: 1,
+  numberOfDoubles: 0,
+  minAge: null,
+  maxAge: null,
+  minElo: null,
+  maxElo: null,
+  entryFee: 0,
+};
 
 export const StepGeneral: React.FC<StepProps> = ({
   data,
@@ -22,94 +40,103 @@ export const StepGeneral: React.FC<StepProps> = ({
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const tierLabels = {
-    pro: t("tournamentManager.createTournamentForm.general.tiers.pro"),
-    challenger: t(
-      "tournamentManager.createTournamentForm.general.tiers.challenger",
-    ),
-    local: t("tournamentManager.createTournamentForm.general.tiers.local"),
-  };
-
-  const formatLabels = {
-    mens_singles: t(
-      "tournamentManager.createTournamentForm.general.formats.mensSingles",
-    ),
-    womens_singles: t(
-      "tournamentManager.createTournamentForm.general.formats.womensSingles",
-    ),
-    mixed_doubles: t(
-      "tournamentManager.createTournamentForm.general.formats.mixedDoubles",
-    ),
-  };
-
-  const pointSystemLabels = {
-    standard_11: t(
-      "tournamentManager.createTournamentForm.general.pointSystems.standard11",
-    ),
-    pro_1000: t(
-      "tournamentManager.createTournamentForm.general.pointSystems.pro1000",
-    ),
+    1: t("tournamentManager.createTournamentForm.general.tiers.pro"),
+    2: t("tournamentManager.createTournamentForm.general.tiers.challenger"),
+    3: t("tournamentManager.createTournamentForm.general.tiers.local"),
   };
 
   const handleNext = () => {
     const startDate = data.startDate ? new Date(data.startDate) : null;
     const endDate = data.endDate ? new Date(data.endDate) : null;
 
-    if (!data.name.trim()) {
-      setValidationError(
-        t(
-          "tournamentManager.createTournamentForm.general.validation.nameRequired",
-        ),
-      );
+    if (!data.name?.trim()) {
+      setValidationError(t("tournamentManager.createTournamentForm.general.validation.nameRequired"));
       return;
     }
 
-    if (!data.location.trim()) {
-      setValidationError(
-        t(
-          "tournamentManager.createTournamentForm.general.validation.locationRequired",
-        ),
-      );
+    if (!data.location?.trim()) {
+      setValidationError(t("tournamentManager.createTournamentForm.general.validation.locationRequired"));
       return;
     }
 
     if (!startDate || Number.isNaN(startDate.getTime())) {
-      setValidationError(
-        t(
-          "tournamentManager.createTournamentForm.general.validation.startDateRequired",
-        ),
-      );
+      setValidationError(t("tournamentManager.createTournamentForm.general.validation.startDateRequired"));
       return;
     }
 
     if (!endDate || Number.isNaN(endDate.getTime())) {
-      setValidationError(
-        t(
-          "tournamentManager.createTournamentForm.general.validation.endDateRequired",
-        ),
-      );
+      setValidationError(t("tournamentManager.createTournamentForm.general.validation.endDateRequired"));
       return;
     }
 
     if (startDate.getTime() > endDate.getTime()) {
-      setValidationError(
-        t(
-          "tournamentManager.createTournamentForm.general.validation.dateOrderInvalid",
-        ),
-      );
+      setValidationError(t("tournamentManager.createTournamentForm.general.validation.dateOrderInvalid"));
       return;
     }
 
-    if (data.category.maxEntries < 1) {
-      setValidationError(
-        t(
-          "tournamentManager.createTournamentForm.general.validation.maxEntriesInvalid",
-        ),
-      );
+    const categories = data.categories || [];
+    if (categories.length === 0) {
+      setValidationError("Vui lòng thêm ít nhất một hạng mục thi đấu (Category).");
       return;
+    }
+
+    for (let i = 0; i < categories.length; i++) {
+      const cat = categories[i];
+      if (!cat.name?.trim()) {
+        setValidationError(`Hạng mục #${i + 1} đang để trống tên.`);
+        return;
+      }
+      if (cat.maxEntries < 2) {
+        setValidationError(`Số lượng tham gia tối đa ở hạng mục "${cat.name}" phải từ 2 trở lên.`);
+        return;
+      }
+      if (cat.type === "team" && (!cat.teamFormat?.trim())) {
+        setValidationError(`Vui lòng nhập định dạng đồng đội (Team Format) cho hạng mục "${cat.name}".`);
+        return;
+      }
+      // Kiểm tra min/max không bị ngược
+      if (cat.minAge && cat.maxAge && cat.minAge > cat.maxAge) {
+        setValidationError(`Độ tuổi Min không được lớn hơn Max ở hạng mục "${cat.name}".`);
+        return;
+      }
+      if (cat.minElo && cat.maxElo && cat.minElo > cat.maxElo) {
+        setValidationError(`Mức Elo Min không được lớn hơn Max ở hạng mục "${cat.name}".`);
+        return;
+      }
     }
 
     setValidationError(null);
     onNext?.();
+  };
+
+  // --- Category Handlers ---
+  const handleAddCategory = () => {
+    const currentCategories = data.categories || [];
+    updateData({ categories: [...currentCategories, { ...DEFAULT_CATEGORY }] });
+  };
+
+  const handleRemoveCategory = (index: number) => {
+    const currentCategories = [...(data.categories || [])];
+    currentCategories.splice(index, 1);
+    updateData({ categories: currentCategories });
+  };
+
+  const handleUpdateCategory = (index: number, field: string, value: any) => {
+    const currentCategories = [...(data.categories || [])];
+    if (field === "type" && value !== "team") {
+      currentCategories[index].numberOfSingles = value === "single" ? 1 : 0;
+      currentCategories[index].numberOfDoubles = value === "double" ? 1 : 0;
+      currentCategories[index].teamFormat = "";
+    }
+    currentCategories[index] = { ...currentCategories[index], [field]: value };
+    updateData({ categories: currentCategories });
+  };
+
+  // Hàm helper để update nhiều field cùng lúc (Dành cho Range Sliders: Min/Max)
+  const handleUpdateCategoryFields = (index: number, fields: Record<string, any>) => {
+    const currentCategories = [...(data.categories || [])];
+    currentCategories[index] = { ...currentCategories[index], ...fields };
+    updateData({ categories: currentCategories });
   };
 
   return (
@@ -129,10 +156,8 @@ export const StepGeneral: React.FC<StepProps> = ({
               {t("tournamentManager.createTournamentForm.general.name")}
             </Label>
             <Input
-              placeholder={t(
-                "tournamentManager.createTournamentForm.general.namePlaceholder",
-              )}
-              value={data.name}
+              placeholder={t("tournamentManager.createTournamentForm.general.namePlaceholder")}
+              value={data.name || ""}
               onChange={(e) => updateData({ name: e.target.value })}
               className="bg-input/50"
             />
@@ -142,22 +167,16 @@ export const StepGeneral: React.FC<StepProps> = ({
               {t("tournamentManager.createTournamentForm.general.tier")}
             </Label>
             <Select
-              value={data.tier}
-              onValueChange={(val) => updateData({ tier: val })}
+              value={data.tier?.toString()}
+              onValueChange={(val) => updateData({ tier: Number(val) })}
             >
               <SelectTrigger className="bg-input/50">
-                <SelectValue
-                  placeholder={t(
-                    "tournamentManager.createTournamentForm.general.tierPlaceholder",
-                  )}
-                />
+                <SelectValue placeholder={t("tournamentManager.createTournamentForm.general.tierPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="pro">{tierLabels.pro}</SelectItem>
-                <SelectItem value="challenger">
-                  {tierLabels.challenger}
-                </SelectItem>
-                <SelectItem value="local">{tierLabels.local}</SelectItem>
+                <SelectItem value="1">{tierLabels[1]}</SelectItem>
+                <SelectItem value="2">{tierLabels[2]}</SelectItem>
+                <SelectItem value="3">{tierLabels[3]}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -169,10 +188,8 @@ export const StepGeneral: React.FC<StepProps> = ({
               {t("tournamentManager.createTournamentForm.general.location")}
             </Label>
             <Input
-              placeholder={t(
-                "tournamentManager.createTournamentForm.general.locationPlaceholder",
-              )}
-              value={data.location}
+              placeholder={t("tournamentManager.createTournamentForm.general.locationPlaceholder")}
+              value={data.location || ""}
               onChange={(e) => updateData({ location: e.target.value })}
               className="bg-input/50"
             />
@@ -183,7 +200,7 @@ export const StepGeneral: React.FC<StepProps> = ({
             </Label>
             <Input
               type="date"
-              value={data.startDate}
+              value={data.startDate || ""}
               onChange={(e) => updateData({ startDate: e.target.value })}
               className="bg-input/50"
             />
@@ -194,7 +211,7 @@ export const StepGeneral: React.FC<StepProps> = ({
             </Label>
             <Input
               type="date"
-              value={data.endDate}
+              value={data.endDate || ""}
               onChange={(e) => updateData({ endDate: e.target.value })}
               className="bg-input/50"
             />
@@ -208,121 +225,281 @@ export const StepGeneral: React.FC<StepProps> = ({
           <div className="flex items-center gap-2 text-primary">
             <Users className="w-5 h-5" />
             <h3 className="font-semibold text-lg">
-              {t(
-                "tournamentManager.createTournamentForm.general.categoryTitle",
-              )}
+              {t("tournamentManager.createTournamentForm.general.categoryTitle")}
             </h3>
           </div>
           <Button
             variant="outline"
             size="sm"
             className="border-border text-primary"
-            disabled
+            onClick={handleAddCategory}
           >
+            <Plus className="w-4 h-4 mr-1" />
             {t("tournamentManager.createTournamentForm.general.addCategory")}
           </Button>
         </div>
 
-        <div className="p-4 rounded-lg border border-border bg-card space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-            <div className="space-y-2 md:col-span-4">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase">
-                {t("tournamentManager.createTournamentForm.general.format")}
-              </Label>
-              <Select
-                value={data.category.format}
-                onValueChange={(val) =>
-                  updateData({ category: { ...data.category, format: val } })
-                }
-              >
-                <SelectTrigger className="bg-background">
-                  <SelectValue
-                    placeholder={t(
-                      "tournamentManager.createTournamentForm.general.formatPlaceholder",
-                    )}
+        <div className="space-y-4">
+          {(data.categories || []).map((cat: any, index: number) => (
+            <div key={index} className="p-5 rounded-lg border border-border bg-card space-y-5 relative group shadow-sm">
+              
+              {/* Row 1: Thông tin cơ bản */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <div className="space-y-2 md:col-span-4">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Tên hạng mục</Label>
+                  <Input
+                    placeholder="VD: Men's Singles..."
+                    value={cat.name}
+                    onChange={(e) => handleUpdateCategory(index, "name", e.target.value)}
+                    className="bg-background"
                   />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mens_singles">
-                    {formatLabels.mens_singles}
-                  </SelectItem>
-                  <SelectItem value="womens_singles">
-                    {formatLabels.womens_singles}
-                  </SelectItem>
-                  <SelectItem value="mixed_doubles">
-                    {formatLabels.mixed_doubles}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2 md:col-span-3">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase">
-                {t("tournamentManager.createTournamentForm.general.maxEntries")}
-              </Label>
-              <Input
-                type="number"
-                value={data.category.maxEntries}
-                onChange={(e) =>
-                  updateData({
-                    category: {
-                      ...data.category,
-                      maxEntries: Number(e.target.value),
-                    },
-                  })
-                }
-                className="bg-background"
-              />
-            </div>
-            <div className="space-y-2 md:col-span-4">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase">
-                {t(
-                  "tournamentManager.createTournamentForm.general.pointSystem",
-                )}
-              </Label>
-              <Select
-                value={data.category.pointSystem}
-                onValueChange={(val) =>
-                  updateData({
-                    category: { ...data.category, pointSystem: val },
-                  })
-                }
-              >
-                <SelectTrigger className="bg-background">
-                  <SelectValue
-                    placeholder={t(
-                      "tournamentManager.createTournamentForm.general.pointSystemPlaceholder",
-                    )}
+                </div>
+                
+                <div className="space-y-2 md:col-span-3">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Loại hình</Label>
+                  <Select
+                    value={cat.type}
+                    onValueChange={(val) => handleUpdateCategory(index, "type", val)}
+                  >
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder="Chọn loại hình" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="single">Đơn (Single)</SelectItem>
+                      <SelectItem value="double">Đôi (Double)</SelectItem>
+                      <SelectItem value="team">Đồng đội (Team)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2 md:col-span-3">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Giới tính</Label>
+                  <Select
+                    value={cat.gender}
+                    onValueChange={(val) => handleUpdateCategory(index, "gender", val)}
+                  >
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder="Chọn giới tính" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Nam</SelectItem>
+                      <SelectItem value="female">Nữ</SelectItem>
+                      <SelectItem value="mixed">Nam Nữ</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Delete Button */}
+                <div className="md:col-span-2 flex justify-end items-end pb-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveCategory(index)}
+                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 w-full md:w-auto"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2 md:mr-0" />
+                    <span className="md:hidden">Xóa</span>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Row 1.5: Chỉ hiện khi Type là Team */}
+              {cat.type === "team" && (
+                <div className="p-4 rounded-md bg-muted/50 border border-muted-foreground/20 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="flex items-start gap-2 col-span-full text-sm text-muted-foreground mb-1">
+                    <AlertCircle className="w-4 h-4 mt-0.5 text-primary" />
+                    <p>Cấu hình chi tiết cho thể thức Đồng đội (Team).</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase">Team Format</Label>
+                    <Input
+                      placeholder="VD: 2 Đơn 1 Đôi..."
+                      value={cat.teamFormat || ""}
+                      onChange={(e) => handleUpdateCategory(index, "teamFormat", e.target.value)}
+                      className="bg-background"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase">Số trận Đơn / Kèo</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={cat.numberOfSingles}
+                      onChange={(e) => handleUpdateCategory(index, "numberOfSingles", Math.max(0, Number(e.target.value)))}
+                      className="bg-background"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase">Số trận Đôi / Kèo</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={cat.numberOfDoubles}
+                      onChange={(e) => handleUpdateCategory(index, "numberOfDoubles", Math.max(0, Number(e.target.value)))}
+                      className="bg-background"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Row 2: Sets, Lộ trình, Số lượng, Lệ phí */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-2 border-t border-border/50">
+                <div className="space-y-3">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Số lượng tối đa</Label>
+                  <Input
+                    type="number"
+                    min={2}
+                    value={cat.maxEntries}
+                    onChange={(e) => handleUpdateCategory(index, "maxEntries", Math.max(2, Number(e.target.value)))}
+                    className="bg-background"
                   />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="standard_11">
-                    {pointSystemLabels.standard_11}
-                  </SelectItem>
-                  <SelectItem value="pro_1000">
-                    {pointSystemLabels.pro_1000}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                  <Slider
+                    min={2}
+                    max={128}
+                    step={2}
+                    value={[cat.maxEntries || 2]}
+                    onValueChange={([val]) => handleUpdateCategory(index, "maxEntries", val)}
+                    className="py-1 cursor-grab"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Lệ phí (VND)</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    placeholder="0"
+                    value={cat.entryFee}
+                    onChange={(e) => handleUpdateCategory(index, "entryFee", Math.max(0, Number(e.target.value)))}
+                    className="bg-background"
+                  />
+                  <Slider
+                    min={0}
+                    max={2000000} // Cấu hình Max cho lệ phí (2tr VNĐ)
+                    step={50000} // Snap mỗi 50k VNĐ
+                    value={[Number(cat.entryFee) || 0]}
+                    onValueChange={([val]) => handleUpdateCategory(index, "entryFee", val)}
+                    className="py-1 cursor-grab"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Thể thức Set</Label>
+                  <Select
+                    value={cat.maxSets.toString()}
+                    onValueChange={(val) => handleUpdateCategory(index, "maxSets", Number(val))}
+                  >
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder="Chọn số Set" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 Set</SelectItem>
+                      <SelectItem value="3">BO3 (Thắng 2/3)</SelectItem>
+                      <SelectItem value="5">BO5 (Thắng 3/5)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Lộ trình</Label>
+                  <Select
+                    value={cat.isGroupStage ? "true" : "false"}
+                    onValueChange={(val) => handleUpdateCategory(index, "isGroupStage", val === "true")}
+                  >
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder="Lộ trình" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="true">Có vòng bảng</SelectItem>
+                      <SelectItem value="false">Knockout</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Row 3: Điều kiện tham gia (Age & Elo) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-border/50">
+                <div className="space-y-3">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Yêu cầu Độ tuổi (Min - Max)</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder="Min"
+                      value={cat.minAge === null ? "" : cat.minAge}
+                      onChange={(e) => handleUpdateCategory(index, "minAge", e.target.value ? Math.max(0, Number(e.target.value)) : null)}
+                      className="bg-background px-3"
+                    />
+                    <span className="text-muted-foreground font-medium">-</span>
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder="Max"
+                      value={cat.maxAge === null ? "" : cat.maxAge}
+                      onChange={(e) => handleUpdateCategory(index, "maxAge", e.target.value ? Math.max(0, Number(e.target.value)) : null)}
+                      className="bg-background px-3"
+                    />
+                  </div>
+                  {/* Thanh kéo hai đầu (Dual Thumb) */}
+                  <Slider
+                    min={0}
+                    max={100}
+                    step={10} // Snap nhảy mốc chục tuổi
+                    value={[cat.minAge ?? 0, cat.maxAge ?? 100]}
+                    onValueChange={([min, max]) => handleUpdateCategoryFields(index, { minAge: min, maxAge: max })}
+                    className="py-2 cursor-grab"
+                  />
+                  <p className="text-[11px] text-muted-foreground">Kéo để chọn nhanh hoặc nhập số chính xác ở ô trên</p>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Vùng Elo (Min - Max)</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder="Min"
+                      value={cat.minElo === null ? "" : cat.minElo}
+                      onChange={(e) => handleUpdateCategory(index, "minElo", e.target.value ? Math.max(0, Number(e.target.value)) : null)}
+                      className="bg-background px-3"
+                    />
+                    <span className="text-muted-foreground font-medium">-</span>
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder="Max"
+                      value={cat.maxElo === null ? "" : cat.maxElo}
+                      onChange={(e) => handleUpdateCategory(index, "maxElo", e.target.value ? Math.max(0, Number(e.target.value)) : null)}
+                      className="bg-background px-3"
+                    />
+                  </div>
+                  {/* Thanh kéo hai đầu (Dual Thumb) */}
+                  <Slider
+                    min={0}
+                    max={3000}
+                    step={100} // Snap nhảy mỗi 100 Elo
+                    value={[cat.minElo ?? 0, cat.maxElo ?? 3000]}
+                    onValueChange={([min, max]) => handleUpdateCategoryFields(index, { minElo: min, maxElo: max })}
+                    className="py-2 cursor-grab"
+                  />
+                  <p className="text-[11px] text-muted-foreground">Kéo để chọn nhanh mức Elo mong muốn</p>
+                </div>
+              </div>
             </div>
-            <div className="md:col-span-1 flex justify-center pb-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-muted-foreground hover:text-destructive"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
+          ))}
+
+          {(!data.categories || data.categories.length === 0) && (
+            <div className="text-center py-10 border-2 border-dashed border-border rounded-lg text-muted-foreground">
+              Chưa có hạng mục nào được tạo. Vui lòng thêm hạng mục.
             </div>
-          </div>
+          )}
         </div>
       </section>
 
       {validationError && (
         <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           <p className="font-medium">
-            {t(
-              "tournamentManager.createTournamentForm.general.validation.title",
-            )}
+            {t("tournamentManager.createTournamentForm.general.validation.title")}
           </p>
           <p className="mt-1">{validationError}</p>
         </div>

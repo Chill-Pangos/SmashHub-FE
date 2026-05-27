@@ -9,15 +9,11 @@ import {
 
 const INITIAL_DATA: TournamentData = {
   name: "",
-  tier: "pro",
+  tier: 3, // Mặc định là Local (3) thay vì "pro"
   location: "",
   startDate: "",
   endDate: "",
-  category: {
-    format: "mens_singles",
-    maxEntries: 32,
-    pointSystem: "standard_11",
-  },
+  categories: [], // Khởi tạo mảng rỗng, StepGeneral sẽ xử lý thêm mới
   schedule: {
     activeTables: 12,
     matchDurationMinutes: 45,
@@ -121,4 +117,5 @@ const TournamentForm = () => {
     </div>
   );
 };
+
 export default TournamentForm;

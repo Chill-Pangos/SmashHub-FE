@@ -2,53 +2,11 @@ import React from "react";
 import type { StepProps } from "./types";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, ArrowLeft, Rocket } from "lucide-react";
+import { CheckCircle2, ArrowLeft, Rocket, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCreateTournament } from "@/hooks/queries/useTournamentQueries";
-import { showToast, showApiError } from "@/utils/toast.utils"; 
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-const TIER_MAP: Record<string, number> = {
-  pro: 1,
-  challenger: 2,
-  local: 3,
-};
-
-const FORMAT_META: Record<
-  string,
-  {
-    name: string;
-    type: "single" | "double";
-    gender: "male" | "female" | "mixed";
-    numberOfSingles: number;
-    numberOfDoubles: number;
-  }
-> = {
-  mens_singles: {
-    name: "Men's Singles",
-    type: "single",
-    gender: "male",
-    numberOfSingles: 3,
-    numberOfDoubles: 0,
-  },
-  womens_singles: {
-    name: "Women's Singles",
-    type: "single",
-    gender: "female",
-    numberOfSingles: 3,
-    numberOfDoubles: 0,
-  },
-  mixed_doubles: {
-    name: "Mixed Doubles",
-    type: "double",
-    gender: "mixed",
-    numberOfSingles: 0,
-    numberOfDoubles: 3,
-  },
-};
-
-// ── Component ─────────────────────────────────────────────────────────────────
+import { showToast, showApiError } from "@/utils/toast.utils";
+import type { CreateTournamentRequest } from "@/types/tournament.types"; // Đường dẫn tới file types tổng của bạn
 
 export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
   const { t } = useTranslation();
@@ -57,58 +15,71 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
 
   const isSubmitting = createTournament.isPending;
 
-  const formatLabels = {
-    mens_singles: t(
-      "tournamentManager.createTournamentForm.general.formats.mensSingles",
-    ),
-    womens_singles: t(
-      "tournamentManager.createTournamentForm.general.formats.womensSingles",
-    ),
-    mixed_doubles: t(
-      "tournamentManager.createTournamentForm.general.formats.mixedDoubles",
-    ),
-  };
-
   // ── Submit ───────────────────────────────────────────────────────────────────
 
   const handleSubmit = async () => {
-    const categoryMeta =
-      FORMAT_META[data.category.format] ?? FORMAT_META.mens_singles;
-
-    const payload = {
+    // Ép kiểu (cast) payload về đúng CreateTournamentRequest để Typescript không báo lỗi
+    const payload: CreateTournamentRequest = {
       name: data.name,
       location: data.location,
       startDate: data.startDate,
       endDate: data.endDate,
-      tier: TIER_MAP[data.tier] ?? 3,
-      status: "upcoming" as const,
-      categories: [
-        {
-          name: categoryMeta.name,
-          type: categoryMeta.type,
-          gender: categoryMeta.gender,
-          maxEntries: data.category.maxEntries,
-          maxSets: 3,
-          numberOfSingles: categoryMeta.numberOfSingles,
-          numberOfDoubles: categoryMeta.numberOfDoubles,
-          isGroupStage: false,
-        },
-      ],
+      status: "upcoming",
+      // Map categories từ Form State về chuẩn CreateTournamentCategoryRequest
+      categories: (data.categories || []).map((cat) => ({
+        name: cat.name,
+        type: cat.type,
+        maxEntries: cat.maxEntries,
+        maxSets: cat.maxSets,
+        
+        // Team Format chỉ có nếu type === "team", nếu không trả về null
+        teamFormat: cat.type === "team" ? (cat.teamFormat || null) : null,
+        
+        // Theo định nghĩa CreateTournamentCategoryRequest mới nhất của bạn,
+        // hai trường này BẮT BUỘC (không được null). Do đó trả về 0 nếu không phải team.
+        numberOfSingles: cat.type === "team" ? Number(cat.numberOfSingles) : 0,
+        numberOfDoubles: cat.type === "team" ? Number(cat.numberOfDoubles) : 0,
+        
+        minAge: cat.minAge ? Number(cat.minAge) : null,
+        maxAge: cat.maxAge ? Number(cat.maxAge) : null,
+        minElo: cat.minElo ? Number(cat.minElo) : null,
+        maxElo: cat.maxElo ? Number(cat.maxElo) : null,
+        maxMembersPerEntry: cat.maxMembersPerEntry ? Number(cat.maxMembersPerEntry) : null,
+        
+        gender: cat.gender,
+        isGroupStage: cat.isGroupStage,
+        
+        // Xử lý entryFee từ string/number về number (hoặc null nếu API cho phép null)
+        entryFee: cat.entryFee ? Number(cat.entryFee) : 0, 
+      })),
     };
 
     try {
       await showToast.promise(createTournament.mutateAsync(payload), {
         loading: t("tournamentManager.createTournamentForm.review.initializing"),
         success: t("tournamentManager.createTournamentForm.review.successAlert"),
-        error:   t("tournamentManager.createTournamentForm.review.errorAlert"),
+        error: t("tournamentManager.createTournamentForm.review.errorAlert"),
       });
 
       navigate("/organizer/tournaments");
     } catch (error) {
-      // showToast.promise đã hiện toast error rồi
-      // showApiError để parse error code từ API response nếu muốn chi tiết hơn
       showApiError(error);
     }
+  };
+
+  // ── Render Helpers ───────────────────────────────────────────────────────────
+
+  const getTierName = (tier: number) => {
+    if (tier === 1) return t("tournamentManager.createTournamentForm.general.tiers.pro");
+    if (tier === 2) return t("tournamentManager.createTournamentForm.general.tiers.challenger");
+    return t("tournamentManager.createTournamentForm.general.tiers.local");
+  };
+
+  const getTypeName = (type: string) => {
+    if (type === "single") return "Đơn";
+    if (type === "double") return "Đôi";
+    if (type === "team") return "Đồng đội";
+    return type;
   };
 
   // ── Render ───────────────────────────────────────────────────────────────────
@@ -155,9 +126,7 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
                 {t("tournamentManager.createTournamentForm.review.tier")}
               </p>
               <p className="font-medium text-foreground capitalize">
-                {t(
-                  `tournamentManager.createTournamentForm.general.tiers.${data.tier}`,
-                )}
+                {getTierName(data.tier)}
               </p>
             </div>
             <div className="p-3 bg-background rounded-md col-span-2">
@@ -169,27 +138,36 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
           </div>
         </div>
 
-        {/* Category */}
+        {/* Categories Dynamic Render */}
         <div>
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-3">
-            {t(
-              "tournamentManager.createTournamentForm.review.categorySummary",
-            )}
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-3 flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            Danh sách hạng mục ({data.categories?.length || 0})
           </h4>
-          <div className="flex gap-2">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-background rounded-full border border-border">
-              <span className="text-sm font-medium">
-                {formatLabels[
-                  data.category.format as keyof typeof formatLabels
-                ] ?? data.category.format}
-              </span>
-              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                {t(
-                  "tournamentManager.createTournamentForm.review.entriesCount",
-                  { count: data.category.maxEntries },
-                )}
-              </span>
-            </div>
+          <div className="space-y-3">
+            {(data.categories || []).map((cat, idx) => (
+              <div
+                key={idx}
+                className="flex flex-col md:flex-row md:items-center justify-between p-3 bg-background rounded-md border border-border gap-2"
+              >
+                <div>
+                  <p className="font-medium text-sm">{cat.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Thể thức: {getTypeName(cat.type)} • Giới tính:{" "}
+                    <span className="capitalize">{cat.gender}</span> • Lộ trình:{" "}
+                    {cat.isGroupStage ? "Có vòng bảng" : "Knockout"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium px-2 py-1 bg-muted rounded-md">
+                    BO{cat.maxSets}
+                  </span>
+                  <span className="text-xs font-medium px-2 py-1 bg-primary/10 text-primary rounded-md">
+                    Max: {cat.maxEntries} slot
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

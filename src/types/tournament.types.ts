@@ -210,23 +210,27 @@ export interface TournamentCategory {
 }
 
 export interface CreateTournamentCategoryRequest {
-  name: string;
   type: TournamentCategoryType;
+  name: string;
+  tier: number;
   maxEntries: number;
   maxSets: number;
-  numberOfSingles?: number | null;
-  numberOfDoubles?: number | null;
-  minAge?: number | null;
-  maxAge?: number | null;
-  minElo?: number | null;
-  maxElo?: number | null;
-  gender?: Gender | null;
-  isGroupStage?: boolean;
+  teamFormat: string | null;
+  minAge: number | null;
+  maxAge: number | null;
+  minElo: number | null;
+  maxElo: number | null;
+  maxMembersPerEntry: number | null;
+  gender: "male" | "female" | "mixed";
+  isGroupStage: boolean;
+  entryFee: number | string | null;
+  numberOfSingles: number;
+  numberOfDoubles: number;
 }
 
 export interface UpdateTournamentCategoryRequest {
   name?: string;
-  type?: TournamentCategoryType;
+  type?: "single" | "double" | "team";
   maxEntries?: number;
   maxSets?: number;
   teamFormat?: string | null;
