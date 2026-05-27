@@ -26,10 +26,10 @@ const getCategoryId = (data: { contentId: number; categoryId?: number }) =>
 /**
  * Hook để lấy tất cả entries với pagination
  */
-export const useEntries = (skip = 0, limit = 10) => {
+export const useEntries = (page = 1, limit = 10) => {
   return useQuery({
-    queryKey: queryKeys.entries.list({ skip, limit }),
-    queryFn: () => entryService.getAllEntries(skip, limit),
+    queryKey: queryKeys.entries.list({ page, limit }),
+    queryFn: () => entryService.getAllEntries(page, limit),
   });
 };
 
@@ -49,7 +49,7 @@ export const useEntry = (id: number, options?: { enabled?: boolean }) => {
  */
 export const useEntriesByCategory = (
   categoryId: number,
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: {
     enabled?: boolean;
@@ -61,7 +61,7 @@ export const useEntriesByCategory = (
   return useQuery({
     queryKey: queryKeys.entries.byCategory(categoryId),
     queryFn: () =>
-      entryService.getEntriesByCategoryId(categoryId, skip, limit, {
+      entryService.getEntriesByCategoryId(categoryId, page, limit, {
         isFull: options?.isFull,
         isAcceptingMembers: options?.isAcceptingMembers,
         captainName: options?.captainName,
@@ -75,13 +75,13 @@ export const useEntriesByCategory = (
  */
 export const useEntryMembers = (
   entryId: number,
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: queryKeys.entries.members(entryId, { skip, limit }),
-    queryFn: () => entryService.getEntryMembers(entryId, skip, limit),
+    queryKey: queryKeys.entries.members(entryId, { page, limit }),
+    queryFn: () => entryService.getEntryMembers(entryId, page, limit),
     enabled: (options?.enabled ?? true) && entryId > 0,
   });
 };
@@ -93,7 +93,7 @@ export const useEntryJoinRequests = (
   entryId: number,
   options?: {
     status?: EntryJoinRequestStatus;
-    skip?: number;
+    page?: number;
     limit?: number;
     enabled?: boolean;
   },
@@ -101,13 +101,13 @@ export const useEntryJoinRequests = (
   return useQuery({
     queryKey: queryKeys.entries.joinRequests(entryId, {
       status: options?.status,
-      skip: options?.skip,
+      page: options?.page,
       limit: options?.limit,
     }),
     queryFn: () =>
       entryService.getJoinRequests(entryId, {
         status: options?.status,
-        skip: options?.skip,
+        page: options?.page,
         limit: options?.limit,
       }),
     enabled: (options?.enabled ?? true) && entryId > 0,
@@ -158,10 +158,10 @@ export const useMyEntryRole = (
  */
 export const useEntriesByContent = (
   contentId: number,
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: { enabled?: boolean },
-) => useEntriesByCategory(contentId, skip, limit, options);
+) => useEntriesByCategory(contentId, page, limit, options);
 
 // ==================== Mutation Hooks ====================
 
@@ -311,17 +311,14 @@ export const useRemoveEntryMember = () => {
       entryId: number;
       data: RemoveEntryMemberRequest;
     }) => entryService.removeEntryMember(entryId, data),
-    onSuccess: (entry, { entryId }) => {
+    onSuccess: (_void, { entryId }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.entries.detail(entryId),
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.entries.members(entryId),
       });
-      const categoryId = getCategoryId(entry);
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.entries.byCategory(categoryId),
-      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.entries.all });
     },
   });
 };
@@ -334,16 +331,14 @@ export const useLeaveEntry = () => {
 
   return useMutation({
     mutationFn: (entryId: number) => entryService.leaveEntry(entryId),
-    onSuccess: (_entry, entryId) => {
+    onSuccess: (_void, entryId) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.entries.detail(entryId),
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.entries.myEntries(),
       });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.entries.all,
-      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.entries.all });
     },
   });
 };

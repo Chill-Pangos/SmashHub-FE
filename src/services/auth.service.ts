@@ -13,7 +13,6 @@ import type {
   RefreshTokenResponse,
   SuccessResponse,
   User,
-  UserRole,
   UserRoleInput,
   AuthData,
 } from "@/types";
@@ -25,13 +24,17 @@ import type {
 class AuthService {
   private readonly AUTH_PREFIX = "/auth";
 
-  private normalizeRoles(roles?: UserRoleInput[]): UserRole[] {
+  private normalizeRoles(roles?: UserRoleInput[]): UserRoleInput[] {
     if (!Array.isArray(roles)) {
       return [];
     }
 
     return roles
       .map((role) => {
+        if (typeof role === "number") {
+          return role;
+        }
+
         if (!role || typeof role !== "object") {
           return null;
         }
@@ -42,7 +45,7 @@ class AuthService {
 
         return { id: role.id, name: role.name };
       })
-      .filter((role): role is UserRole => Boolean(role));
+      .filter((role): role is UserRoleInput => Boolean(role));
   }
 
   private normalizeUser(user: User): User {
@@ -67,8 +70,7 @@ class AuthService {
   async register(data: RegisterRequest): Promise<AuthResponse> {
     const registerPayload: RegisterRequest = {
       ...data,
-      // TODO: Remove hardcoded role once backend no longer requires role in register payload.
-      role: "user",
+      role: data.role ?? "spectator",
     };
 
     const response = await axiosInstance.post<AuthResponse>(

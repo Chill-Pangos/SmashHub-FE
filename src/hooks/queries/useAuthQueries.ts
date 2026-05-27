@@ -19,7 +19,7 @@ import type {
  */
 export const useCurrentUser = (options?: { enabled?: boolean }) => {
   return useQuery({
-    queryKey: queryKeys.auth.user(),
+    queryKey: queryKeys.users.me(),
     queryFn: () => userService.getCurrentUser(),
     enabled: options?.enabled ?? true,
   });
@@ -37,9 +37,12 @@ export const useRegister = () => {
     mutationFn: (data: RegisterRequest) => authService.register(data),
     onSuccess: (response) => {
       if (response.success && response.data) {
-        // Invalidate auth queries
+        // Invalidate auth/current-user queries
         queryClient.invalidateQueries({
           queryKey: queryKeys.auth.all,
+        });
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.users.me(),
         });
       }
     },
@@ -56,9 +59,12 @@ export const useLogin = () => {
     mutationFn: (data: LoginRequest) => authService.login(data),
     onSuccess: (response) => {
       if (response.success && response.data) {
-        // Invalidate auth queries
+        // Invalidate auth/current-user queries
         queryClient.invalidateQueries({
           queryKey: queryKeys.auth.all,
+        });
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.users.me(),
         });
       }
     },

@@ -2,7 +2,6 @@ import axiosInstance from "@/config/axiosConfig";
 import { parsePaginatedResponse } from "@/utils/pagination.utils";
 import type {
   User,
-  UserRole,
   UserRoleInput,
   CreateUserRequest,
   UpdateUserRequest,
@@ -55,13 +54,17 @@ class UserService {
     return this.toUser(root.data);
   }
 
-  private normalizeRoles(roles?: UserRoleInput[]): UserRole[] {
+  private normalizeRoles(roles?: UserRoleInput[]): UserRoleInput[] {
     if (!Array.isArray(roles)) {
       return [];
     }
 
     return roles
       .map((role) => {
+        if (typeof role === "number") {
+          return role;
+        }
+
         if (!role || typeof role !== "object") {
           return null;
         }

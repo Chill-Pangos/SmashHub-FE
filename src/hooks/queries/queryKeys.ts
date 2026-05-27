@@ -27,52 +27,28 @@ export const queryKeys = {
   tournamentCategories: {
     all: ["tournamentCategories"] as const,
     lists: () => [...queryKeys.tournamentCategories.all, "list"] as const,
-    list: (filters?: { skip?: number; limit?: number }) =>
+    list: (filters?: { page?: number; limit?: number }) =>
       [...queryKeys.tournamentCategories.lists(), filters] as const,
     details: () => [...queryKeys.tournamentCategories.all, "detail"] as const,
     detail: (id: number) =>
       [...queryKeys.tournamentCategories.details(), id] as const,
-    byTournament: (tournamentId: number) =>
+    byTournament: (
+      tournamentId: number,
+      filters?: { page?: number; limit?: number },
+    ) =>
       [
         ...queryKeys.tournamentCategories.all,
         "tournament",
         tournamentId,
+        filters,
       ] as const,
-  },
-
-  // ==================== Team Keys ====================
-  teams: {
-    all: ["teams"] as const,
-    lists: () => [...queryKeys.teams.all, "list"] as const,
-    list: (filters?: { skip?: number; limit?: number }) =>
-      [...queryKeys.teams.lists(), filters] as const,
-    details: () => [...queryKeys.teams.all, "detail"] as const,
-    detail: (id: number) => [...queryKeys.teams.details(), id] as const,
-    byTournament: (tournamentId: number) =>
-      [...queryKeys.teams.all, "tournament", tournamentId] as const,
-  },
-
-  // ==================== Team Member Keys ====================
-  teamMembers: {
-    all: ["teamMembers"] as const,
-    lists: () => [...queryKeys.teamMembers.all, "list"] as const,
-    list: (filters?: { skip?: number; limit?: number }) =>
-      [...queryKeys.teamMembers.lists(), filters] as const,
-    details: () => [...queryKeys.teamMembers.all, "detail"] as const,
-    detail: (id: number) => [...queryKeys.teamMembers.details(), id] as const,
-    byTeam: (teamId: number) =>
-      [...queryKeys.teamMembers.all, "team", teamId] as const,
-    byTournament: (tournamentId: number) =>
-      [...queryKeys.teamMembers.all, "tournament", tournamentId] as const,
-    byUser: (userId: number) =>
-      [...queryKeys.teamMembers.all, "user", userId] as const,
   },
 
   // ==================== Entry Keys ====================
   entries: {
     all: ["entries"] as const,
     lists: () => [...queryKeys.entries.all, "list"] as const,
-    list: (filters?: { skip?: number; limit?: number }) =>
+    list: (filters?: { page?: number; limit?: number }) =>
       [...queryKeys.entries.lists(), filters] as const,
     details: () => [...queryKeys.entries.all, "detail"] as const,
     detail: (id: number) => [...queryKeys.entries.details(), id] as const,
@@ -83,11 +59,11 @@ export const queryKeys = {
       [...queryKeys.entries.all, "team", teamId] as const,
     byTournament: (tournamentId: number) =>
       [...queryKeys.entries.all, "tournament", tournamentId] as const,
-    members: (entryId: number, filters?: { skip?: number; limit?: number }) =>
+    members: (entryId: number, filters?: { page?: number; limit?: number }) =>
       [...queryKeys.entries.all, "members", entryId, filters] as const,
     joinRequests: (
       entryId: number,
-      filters?: { status?: string; skip?: number; limit?: number },
+      filters?: { status?: string; page?: number; limit?: number },
     ) => [...queryKeys.entries.all, "joinRequests", entryId, filters] as const,
     eligible: (categoryId: number) =>
       [...queryKeys.entries.all, "eligible", categoryId] as const,
@@ -100,7 +76,7 @@ export const queryKeys = {
   matches: {
     all: ["matches"] as const,
     lists: () => [...queryKeys.matches.all, "list"] as const,
-    list: (filters?: { skip?: number; limit?: number }) =>
+    list: (filters?: { page?: number; limit?: number }) =>
       [...queryKeys.matches.lists(), filters] as const,
     details: () => [...queryKeys.matches.all, "detail"] as const,
     detail: (id: number) => [...queryKeys.matches.details(), id] as const,
@@ -244,10 +220,77 @@ export const queryKeys = {
       [...queryKeys.permissions.all, "name", name] as const,
   },
 
+  // ==================== ELO Score Keys ====================
+  eloScores: {
+    all: ["eloScores"] as const,
+    lists: () => [...queryKeys.eloScores.all, "list"] as const,
+    list: (filters?: { page?: number; limit?: number }) =>
+      [...queryKeys.eloScores.lists(), filters] as const,
+    leaderboard: (filters?: { page?: number; limit?: number }) =>
+      [...queryKeys.eloScores.all, "leaderboard", filters] as const,
+    details: () => [...queryKeys.eloScores.all, "detail"] as const,
+    detail: (id: number) => [...queryKeys.eloScores.details(), id] as const,
+  },
+
+  // ==================== ELO History Keys ====================
+  eloHistories: {
+    all: ["eloHistories"] as const,
+    lists: () => [...queryKeys.eloHistories.all, "list"] as const,
+    list: (filters?: { page?: number; limit?: number }) =>
+      [...queryKeys.eloHistories.lists(), filters] as const,
+    details: () => [...queryKeys.eloHistories.all, "detail"] as const,
+    detail: (id: number) => [...queryKeys.eloHistories.details(), id] as const,
+    byUser: (userId: number, filters?: { page?: number; limit?: number }) =>
+      [...queryKeys.eloHistories.all, "user", userId, filters] as const,
+    byMatch: (matchId: number, filters?: { page?: number; limit?: number }) =>
+      [...queryKeys.eloHistories.all, "match", matchId, filters] as const,
+  },
+
+  // ==================== User Role Keys ====================
+  userRoles: {
+    all: ["userRoles"] as const,
+    lists: () => [...queryKeys.userRoles.all, "list"] as const,
+    list: (filters?: { page?: number; limit?: number }) =>
+      [...queryKeys.userRoles.lists(), filters] as const,
+    byUser: (userId: number, filters?: { page?: number; limit?: number }) =>
+      [...queryKeys.userRoles.all, "user", userId, filters] as const,
+    byRole: (roleId: number, filters?: { page?: number; limit?: number }) =>
+      [...queryKeys.userRoles.all, "role", roleId, filters] as const,
+    check: (userId: number, roleId: number) =>
+      [...queryKeys.userRoles.all, "check", userId, roleId] as const,
+  },
+
+  // ==================== Role Permission Keys ====================
+  rolePermissions: {
+    all: ["rolePermissions"] as const,
+    lists: () => [...queryKeys.rolePermissions.all, "list"] as const,
+    list: (filters?: { page?: number; limit?: number }) =>
+      [...queryKeys.rolePermissions.lists(), filters] as const,
+    byRole: (roleId: number, filters?: { page?: number; limit?: number }) =>
+      [...queryKeys.rolePermissions.all, "role", roleId, filters] as const,
+    byPermission: (
+      permissionId: number,
+      filters?: { page?: number; limit?: number },
+    ) =>
+      [
+        ...queryKeys.rolePermissions.all,
+        "permission",
+        permissionId,
+        filters,
+      ] as const,
+    check: (roleId: number, permissionId: number) =>
+      [
+        ...queryKeys.rolePermissions.all,
+        "check",
+        roleId,
+        permissionId,
+      ] as const,
+  },
+
   // ==================== Auth Keys ====================
   auth: {
     all: ["auth"] as const,
-    user: () => [...queryKeys.auth.all, "user"] as const,
+    user: () => queryKeys.users.me(),
   },
 
   // ==================== User Keys ====================
@@ -258,6 +301,7 @@ export const queryKeys = {
       [...queryKeys.users.lists(), filters] as const,
     details: () => [...queryKeys.users.all, "detail"] as const,
     detail: (id: number) => [...queryKeys.users.details(), id] as const,
+    me: () => [...queryKeys.users.all, "me"] as const,
     search: (filters?: { query?: string; skip?: number; limit?: number }) =>
       [...queryKeys.users.all, "search", filters] as const,
   },
@@ -277,6 +321,78 @@ export const queryKeys = {
       [...queryKeys.notifications.all, "serviceStatus"] as const,
     userStatus: (userId: string) =>
       [...queryKeys.notifications.all, "userStatus", userId] as const,
+  },
+
+  // ==================== Payment Keys ====================
+  payments: {
+    all: ["payments"] as const,
+    lists: () => [...queryKeys.payments.all, "list"] as const,
+    list: (filters?: {
+      entryId?: number;
+      categoryId?: number;
+      page?: number;
+      limit?: number;
+      status?: string;
+      method?: string;
+    }) => [...queryKeys.payments.lists(), filters] as const,
+    details: () => [...queryKeys.payments.all, "detail"] as const,
+    detail: (id: number) => [...queryKeys.payments.details(), id] as const,
+    byEntry: (
+      entryId: number,
+      filters?: { page?: number; limit?: number; status?: string },
+    ) => [...queryKeys.payments.all, "entry", entryId, filters] as const,
+    byCategory: (
+      categoryId: number,
+      filters?: {
+        page?: number;
+        limit?: number;
+        status?: string;
+        method?: string;
+      },
+    ) => [...queryKeys.payments.all, "category", categoryId, filters] as const,
+    pending: (
+      categoryId: number,
+      filters?: { page?: number; limit?: number; method?: string },
+    ) => [...queryKeys.payments.all, "pending", categoryId, filters] as const,
+    stats: (categoryId: number) =>
+      [...queryKeys.payments.all, "stats", categoryId] as const,
+  },
+
+  // ==================== Sub Match Keys ====================
+  subMatches: {
+    all: ["subMatches"] as const,
+    lists: () => [...queryKeys.subMatches.all, "list"] as const,
+    list: (filters?: { matchId?: number }) =>
+      [...queryKeys.subMatches.lists(), filters] as const,
+    details: () => [...queryKeys.subMatches.all, "detail"] as const,
+    detail: (id: number) => [...queryKeys.subMatches.details(), id] as const,
+    byMatch: (matchId: number) =>
+      [...queryKeys.subMatches.all, "match", matchId] as const,
+  },
+
+  // ==================== Sub Match Player Keys ====================
+  subMatchPlayers: {
+    all: ["subMatchPlayers"] as const,
+    bySubMatch: (subMatchId: number) =>
+      [...queryKeys.subMatchPlayers.all, "subMatch", subMatchId] as const,
+    bySubMatchTeam: (subMatchId: number, team: string) =>
+      [
+        ...queryKeys.subMatchPlayers.all,
+        "subMatch",
+        subMatchId,
+        "team",
+        team,
+      ] as const,
+    byEntryMember: (
+      entryMemberId: number,
+      filters?: { page?: number; limit?: number },
+    ) =>
+      [
+        ...queryKeys.subMatchPlayers.all,
+        "entryMember",
+        entryMemberId,
+        filters,
+      ] as const,
   },
 } as const;
 

@@ -64,6 +64,20 @@ export const useUpdateScheduleConfig = () => {
   });
 };
 
+export const useDeleteScheduleConfig = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (tournamentId: number) =>
+      scheduleConfigService.deleteScheduleConfig(tournamentId),
+    onSuccess: (_result, tournamentId) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.scheduleConfigs.byTournament(tournamentId),
+      });
+    },
+  });
+};
+
 export const useValidateScheduleConfig = () => {
   return useMutation({
     mutationFn: ({

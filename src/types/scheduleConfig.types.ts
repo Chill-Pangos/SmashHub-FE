@@ -72,7 +72,8 @@ export interface ValidateScheduleConfigRequest {
 export type ScheduleConfigResponse = ApiResponse<ScheduleConfig>;
 export type ScheduleConfigDefaultsResponse =
   ApiResponse<ScheduleConfigDefaults>;
+export type DeleteScheduleConfigResponse = ApiResponse<void>;
 export type ValidateScheduleConfigResponse = ApiResponse<{
-  valid: boolean;
+  isValid: boolean;
   issues?: string[];
 }>;

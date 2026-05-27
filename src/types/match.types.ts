@@ -193,6 +193,21 @@ export interface GetPendingMatchesResponse {
   count: number;
 }
 
+// Normalize athlete responses to use page/limit
+export interface GetAthleteUpcomingMatchesResponse {
+  matches: Match[];
+  count: number;
+  page?: number;
+  limit?: number;
+}
+
+export interface GetAthleteMatchHistoryResponse {
+  matches: Match[];
+  count: number;
+  page?: number;
+  limit?: number;
+}
+
 /**
  * ELO change for a player
  */
@@ -272,19 +287,4 @@ export interface RejectMatchResponse {
 /**
  * Get athlete upcoming matches response
  */
-export interface GetAthleteUpcomingMatchesResponse {
-  matches: Match[];
-  count: number;
-  skip: number;
-  limit: number;
-}
-
-/**
- * Get athlete match history response
- */
-export interface GetAthleteMatchHistoryResponse {
-  matches: Match[];
-  count: number;
-  skip: number;
-  limit: number;
-}
+/* removed previous duplicate definitions */

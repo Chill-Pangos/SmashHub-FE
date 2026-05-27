@@ -1,5 +1,6 @@
 import axiosInstance from "@/config/axiosConfig";
 import type {
+  DeleteScheduleConfigResponse,
   CreateScheduleConfigRequest,
   ScheduleConfigDefaultsResponse,
   ScheduleConfigResponse,
@@ -10,6 +11,7 @@ import type {
 
 class ScheduleConfigService {
   private readonly baseURL = "/schedule-configs";
+  private readonly tournamentBaseURL = "/tournaments";
 
   /**
    * Create schedule config
@@ -44,7 +46,7 @@ class ScheduleConfigService {
     tournamentId: number,
   ): Promise<ScheduleConfigResponse> {
     const response = await axiosInstance.get<ScheduleConfigResponse>(
-      `${this.baseURL}/${tournamentId}/schedule-config`,
+      `${this.tournamentBaseURL}/${tournamentId}/schedule-config`,
     );
     return response.data;
   }
@@ -58,10 +60,28 @@ class ScheduleConfigService {
     data: UpdateScheduleConfigRequest,
   ): Promise<ScheduleConfigResponse> {
     const response = await axiosInstance.patch<ScheduleConfigResponse>(
-      `${this.baseURL}/${tournamentId}/schedule-config`,
+      `${this.tournamentBaseURL}/${tournamentId}/schedule-config`,
       data,
     );
     return response.data;
+  }
+
+  /**
+   * Delete schedule config by tournament
+   * DELETE /api/tournaments/{tournamentId}/schedule-config
+   */
+  async deleteScheduleConfig(
+    tournamentId: number,
+  ): Promise<DeleteScheduleConfigResponse> {
+    await axiosInstance.delete(
+      `${this.tournamentBaseURL}/${tournamentId}/schedule-config`,
+    );
+
+    return {
+      success: true,
+      message: "Schedule config deleted successfully",
+      data: undefined,
+    };
   }
 
   /**
@@ -73,7 +93,7 @@ class ScheduleConfigService {
     data: ValidateScheduleConfigRequest,
   ): Promise<ValidateScheduleConfigResponse> {
     const response = await axiosInstance.post<ValidateScheduleConfigResponse>(
-      `${this.baseURL}/${tournamentId}/schedule-config/validate`,
+      `${this.tournamentBaseURL}/${tournamentId}/schedule-config/validate`,
       data,
     );
     return response.data;

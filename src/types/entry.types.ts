@@ -266,7 +266,7 @@ export interface ImportEntriesConfirmResult {
 export interface EntryMembersResponse {
   members: EntryMember[];
   count?: number;
-  skip?: number;
+  page?: number;
   limit?: number;
   pagination?: {
     total?: number;
@@ -279,9 +279,9 @@ export interface EntryMembersResponse {
 }
 
 export interface EntryJoinRequestsResponse {
-  requests: EntryJoinRequest[];
+  joinRequests: EntryJoinRequest[];
   count?: number;
-  skip?: number;
+  page?: number;
   limit?: number;
 }
 

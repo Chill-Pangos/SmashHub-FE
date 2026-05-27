@@ -9,10 +9,12 @@ import type {
 // ==================== Query Hooks ====================
 
 export const useTournamentCategories = (skip = 0, limit = 10) => {
+  const page = Math.floor(skip / limit) + 1;
+
   return useQuery({
-    queryKey: queryKeys.tournamentCategories.list({ skip, limit }),
+    queryKey: queryKeys.tournamentCategories.list({ page, limit }),
     queryFn: () =>
-      tournamentCategoryService.getAllTournamentCategories(skip, limit),
+      tournamentCategoryService.getAllTournamentCategories(page, limit),
   });
 };
 
@@ -29,12 +31,21 @@ export const useTournamentCategory = (
 
 export const useTournamentCategoriesByTournament = (
   tournamentId: number,
+  page = 1,
+  limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: queryKeys.tournamentCategories.byTournament(tournamentId),
+    queryKey: queryKeys.tournamentCategories.byTournament(tournamentId, {
+      page,
+      limit,
+    }),
     queryFn: () =>
-      tournamentCategoryService.getCategoriesByTournament(tournamentId),
+      tournamentCategoryService.getCategoriesByTournament(
+        tournamentId,
+        page,
+        limit,
+      ),
     enabled: (options?.enabled ?? true) && tournamentId > 0,
   });
 };

@@ -82,9 +82,9 @@ class EntryService {
    * @example
    * const entries = await entryService.getAllEntries(0, 20);
    */
-  async getAllEntries(skip: number = 0, limit: number = 10): Promise<Entry[]> {
+  async getAllEntries(page: number = 1, limit: number = 10): Promise<Entry[]> {
     const response = await axiosInstance.get<Entry[]>(this.baseURL, {
-      params: { skip, limit },
+      params: { page, limit },
     });
     return response.data;
   }
@@ -110,12 +110,12 @@ class EntryService {
    */
   async getEntryMembers(
     entryId: number,
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<EntryMembersResponse> {
     const response = await axiosInstance.get<EntryMembersResponse>(
       `${this.baseURL}/${entryId}/members`,
-      { params: { skip, limit } },
+      { params: { page, limit } },
     );
     return response.data;
   }
@@ -142,23 +142,16 @@ class EntryService {
   async removeEntryMember(
     entryId: number,
     data: RemoveEntryMemberRequest,
-  ): Promise<Entry> {
-    const response = await axiosInstance.post<Entry>(
-      `${this.baseURL}/${entryId}/remove-member`,
-      data,
-    );
-    return response.data;
+  ): Promise<void> {
+    await axiosInstance.post(`${this.baseURL}/${entryId}/remove-member`, data);
   }
 
   /**
    * Leave entry
    * POST /api/entries/{entryId}/leave
    */
-  async leaveEntry(entryId: number): Promise<Entry> {
-    const response = await axiosInstance.post<Entry>(
-      `${this.baseURL}/${entryId}/leave`,
-    );
-    return response.data;
+  async leaveEntry(entryId: number): Promise<void> {
+    await axiosInstance.post(`${this.baseURL}/${entryId}/leave`);
   }
 
   /**
@@ -199,7 +192,7 @@ class EntryService {
     entryId: number,
     options?: {
       status?: EntryJoinRequestStatus;
-      skip?: number;
+      page?: number;
       limit?: number;
     },
   ): Promise<EntryJoinRequestsResponse> {
@@ -294,7 +287,7 @@ class EntryService {
    */
   async getEntriesByCategoryId(
     categoryId: number,
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
     filters?: {
       isFull?: boolean;
@@ -303,7 +296,7 @@ class EntryService {
     },
   ): Promise<Entry[]> {
     const params = {
-      skip,
+      page,
       limit,
       ...filters,
     };
@@ -327,10 +320,10 @@ class EntryService {
    */
   async getEntriesByContentId(
     contentId: number,
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<Entry[]> {
-    return this.getEntriesByCategoryId(contentId, skip, limit);
+    return this.getEntriesByCategoryId(contentId, page, limit);
   }
 
   /**

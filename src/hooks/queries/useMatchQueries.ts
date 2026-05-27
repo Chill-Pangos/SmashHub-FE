@@ -15,10 +15,10 @@ import type {
 /**
  * Hook để lấy tất cả matches với pagination
  */
-export const useMatches = (skip = 0, limit = 10) => {
+export const useMatches = (page = 1, limit = 10) => {
   return useQuery({
-    queryKey: queryKeys.matches.list({ skip, limit }),
-    queryFn: () => matchService.getAllMatches(skip, limit),
+    queryKey: queryKeys.matches.list({ page, limit }),
+    queryFn: () => matchService.getAllMatches(page, limit),
   });
 };
 
@@ -38,13 +38,13 @@ export const useMatch = (id: number, options?: { enabled?: boolean }) => {
  */
 export const useMatchesBySchedule = (
   scheduleId: number,
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
     queryKey: queryKeys.matches.bySchedule(scheduleId),
-    queryFn: () => matchService.getMatchesBySchedule(scheduleId, skip, limit),
+    queryFn: () => matchService.getMatchesBySchedule(scheduleId, page, limit),
     enabled: (options?.enabled ?? true) && scheduleId > 0,
   });
 };
@@ -54,13 +54,13 @@ export const useMatchesBySchedule = (
  */
 export const useMatchesByStatus = (
   status: MatchStatus,
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
     queryKey: queryKeys.matches.byStatus(status),
-    queryFn: () => matchService.getMatchesByStatus(status, skip, limit),
+    queryFn: () => matchService.getMatchesByStatus(status, page, limit),
     enabled: options?.enabled ?? true,
   });
 };
@@ -69,13 +69,13 @@ export const useMatchesByStatus = (
  * Hook để lấy pending matches (cho Chief Referee)
  */
 export const usePendingMatches = (
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
     queryKey: queryKeys.matches.pending(),
-    queryFn: () => matchService.getPendingMatches(skip, limit),
+    queryFn: () => matchService.getPendingMatches(page, limit),
     enabled: options?.enabled ?? true,
   });
 };
@@ -281,13 +281,19 @@ export const useRejectMatch = () => {
  */
 export const useAthleteUpcomingMatches = (
   userId: number,
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: [...queryKeys.matches.all, "athlete", userId, "upcoming", { skip, limit }],
-    queryFn: () => matchService.getAthleteUpcomingMatches(userId, skip, limit),
+    queryKey: [
+      ...queryKeys.matches.all,
+      "athlete",
+      userId,
+      "upcoming",
+      { page, limit },
+    ],
+    queryFn: () => matchService.getAthleteUpcomingMatches(userId, page, limit),
     enabled: (options?.enabled ?? true) && userId > 0,
   });
 };
@@ -297,13 +303,19 @@ export const useAthleteUpcomingMatches = (
  */
 export const useAthleteMatchHistory = (
   userId: number,
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: [...queryKeys.matches.all, "athlete", userId, "history", { skip, limit }],
-    queryFn: () => matchService.getAthleteMatchHistory(userId, skip, limit),
+    queryKey: [
+      ...queryKeys.matches.all,
+      "athlete",
+      userId,
+      "history",
+      { page, limit },
+    ],
+    queryFn: () => matchService.getAthleteMatchHistory(userId, page, limit),
     enabled: (options?.enabled ?? true) && userId > 0,
   });
 };
