@@ -9,11 +9,11 @@ import {
 
 const INITIAL_DATA: TournamentData = {
   name: "",
-  tier: 3, // Mặc định là Local (3) thay vì "pro"
+  tier: 3, 
   location: "",
   startDate: "",
   endDate: "",
-  categories: [], // Khởi tạo mảng rỗng, StepGeneral sẽ xử lý thêm mới
+  categories: [],
   schedule: {
     activeTables: 12,
     matchDurationMinutes: 45,

@@ -21,6 +21,7 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
     // Ép kiểu (cast) payload về đúng CreateTournamentRequest để Typescript không báo lỗi
     const payload: CreateTournamentRequest = {
       name: data.name,
+      tier: data.tier,
       location: data.location,
       startDate: data.startDate,
       endDate: data.endDate,
@@ -44,7 +45,12 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
         maxAge: cat.maxAge ? Number(cat.maxAge) : null,
         minElo: cat.minElo ? Number(cat.minElo) : null,
         maxElo: cat.maxElo ? Number(cat.maxElo) : null,
-        maxMembersPerEntry: cat.maxMembersPerEntry ? Number(cat.maxMembersPerEntry) : null,
+        maxMembersPerEntry:
+          cat.type === "team"
+            ? cat.maxMembersPerEntry !== null
+              ? Number(cat.maxMembersPerEntry)
+              : null
+            : null,
         
         gender: cat.gender,
         isGroupStage: cat.isGroupStage,

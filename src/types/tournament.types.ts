@@ -100,6 +100,7 @@ export interface Tournament {
  */
 export interface CreateTournamentRequest {
   name: string;
+  tier: number;
   startDate: string;
   endDate: string;
   location: string;
@@ -212,7 +213,6 @@ export interface TournamentCategory {
 export interface CreateTournamentCategoryRequest {
   type: TournamentCategoryType;
   name: string;
-  tier: number;
   maxEntries: number;
   maxSets: number;
   teamFormat: string | null;

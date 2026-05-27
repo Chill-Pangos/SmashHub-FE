@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { StepProps } from "./types";
+import type { CategoryFormState, StepProps } from "./types";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,20 +14,21 @@ import {
 } from "@/components/ui/select";
 import { Info, Users, Trash2, Plus, AlertCircle } from "lucide-react";
 
-const DEFAULT_CATEGORY = {
+const DEFAULT_CATEGORY: CategoryFormState = {
   name: "",
   type: "single",
   gender: "male",
   maxEntries: 32,
   maxSets: 3,
   isGroupStage: false,
-  teamFormat: "",
+  teamFormat: null,
   numberOfSingles: 1,
   numberOfDoubles: 0,
   minAge: null,
   maxAge: null,
   minElo: null,
   maxElo: null,
+  maxMembersPerEntry: null,
   entryFee: 0,
 };
 
@@ -94,6 +95,10 @@ export const StepGeneral: React.FC<StepProps> = ({
         setValidationError(`Vui lòng nhập định dạng đồng đội (Team Format) cho hạng mục "${cat.name}".`);
         return;
       }
+      if (cat.type === "team" && (cat.maxMembersPerEntry === null || cat.maxMembersPerEntry < 1)) {
+        setValidationError(`Vui lòng nhập số thành viên tối đa cho hạng mục "${cat.name}".`);
+        return;
+      }
       // Kiểm tra min/max không bị ngược
       if (cat.minAge && cat.maxAge && cat.minAge > cat.maxAge) {
         setValidationError(`Độ tuổi Min không được lớn hơn Max ở hạng mục "${cat.name}".`);
@@ -121,19 +126,38 @@ export const StepGeneral: React.FC<StepProps> = ({
     updateData({ categories: currentCategories });
   };
 
-  const handleUpdateCategory = (index: number, field: string, value: any) => {
+  const handleUpdateCategory = <K extends keyof CategoryFormState>(
+    index: number,
+    field: K,
+    value: CategoryFormState[K],
+  ) => {
     const currentCategories = [...(data.categories || [])];
-    if (field === "type" && value !== "team") {
-      currentCategories[index].numberOfSingles = value === "single" ? 1 : 0;
-      currentCategories[index].numberOfDoubles = value === "double" ? 1 : 0;
-      currentCategories[index].teamFormat = "";
+    if (field === "type") {
+      const nextType = value as CategoryFormState["type"];
+      if (nextType !== "team") {
+        currentCategories[index] = {
+          ...currentCategories[index],
+          type: nextType,
+          numberOfSingles: nextType === "single" ? 1 : 0,
+          numberOfDoubles: nextType === "double" ? 1 : 0,
+          teamFormat: null,
+          maxMembersPerEntry: null,
+        };
+      } else {
+        currentCategories[index] = {
+          ...currentCategories[index],
+          type: nextType,
+        };
+      }
+      updateData({ categories: currentCategories });
+      return;
     }
     currentCategories[index] = { ...currentCategories[index], [field]: value };
     updateData({ categories: currentCategories });
   };
 
   // Hàm helper để update nhiều field cùng lúc (Dành cho Range Sliders: Min/Max)
-  const handleUpdateCategoryFields = (index: number, fields: Record<string, any>) => {
+  const handleUpdateCategoryFields = (index: number, fields: Partial<CategoryFormState>) => {
     const currentCategories = [...(data.categories || [])];
     currentCategories[index] = { ...currentCategories[index], ...fields };
     updateData({ categories: currentCategories });
@@ -240,7 +264,7 @@ export const StepGeneral: React.FC<StepProps> = ({
         </div>
 
         <div className="space-y-4">
-          {(data.categories || []).map((cat: any, index: number) => (
+          {(data.categories || []).map((cat, index) => (
             <div key={index} className="p-5 rounded-lg border border-border bg-card space-y-5 relative group shadow-sm">
               
               {/* Row 1: Thông tin cơ bản */}
@@ -259,7 +283,9 @@ export const StepGeneral: React.FC<StepProps> = ({
                   <Label className="text-xs font-semibold text-muted-foreground uppercase">Loại hình</Label>
                   <Select
                     value={cat.type}
-                    onValueChange={(val) => handleUpdateCategory(index, "type", val)}
+                    onValueChange={(val) =>
+                      handleUpdateCategory(index, "type", val as CategoryFormState["type"])
+                    }
                   >
                     <SelectTrigger className="bg-background">
                       <SelectValue placeholder="Chọn loại hình" />
@@ -276,7 +302,9 @@ export const StepGeneral: React.FC<StepProps> = ({
                   <Label className="text-xs font-semibold text-muted-foreground uppercase">Giới tính</Label>
                   <Select
                     value={cat.gender}
-                    onValueChange={(val) => handleUpdateCategory(index, "gender", val)}
+                    onValueChange={(val) =>
+                      handleUpdateCategory(index, "gender", val as CategoryFormState["gender"])
+                    }
                   >
                     <SelectTrigger className="bg-background">
                       <SelectValue placeholder="Chọn giới tính" />
@@ -305,7 +333,7 @@ export const StepGeneral: React.FC<StepProps> = ({
 
               {/* Row 1.5: Chỉ hiện khi Type là Team */}
               {cat.type === "team" && (
-                <div className="p-4 rounded-md bg-muted/50 border border-muted-foreground/20 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 rounded-md bg-muted/50 border border-muted-foreground/20 grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="flex items-start gap-2 col-span-full text-sm text-muted-foreground mb-1">
                     <AlertCircle className="w-4 h-4 mt-0.5 text-primary" />
                     <p>Cấu hình chi tiết cho thể thức Đồng đội (Team).</p>
@@ -316,6 +344,25 @@ export const StepGeneral: React.FC<StepProps> = ({
                       placeholder="VD: 2 Đơn 1 Đôi..."
                       value={cat.teamFormat || ""}
                       onChange={(e) => handleUpdateCategory(index, "teamFormat", e.target.value)}
+                      className="bg-background"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase">
+                      Số thành viên tối đa / team
+                    </Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      placeholder="VD: 3"
+                      value={cat.maxMembersPerEntry ?? ""}
+                      onChange={(e) =>
+                        handleUpdateCategory(
+                          index,
+                          "maxMembersPerEntry",
+                          e.target.value ? Math.max(1, Number(e.target.value)) : null,
+                        )
+                      }
                       className="bg-background"
                     />
                   </div>
@@ -369,7 +416,7 @@ export const StepGeneral: React.FC<StepProps> = ({
                     type="number"
                     min={0}
                     placeholder="0"
-                    value={cat.entryFee}
+                    value={cat.entryFee ?? ""}
                     onChange={(e) => handleUpdateCategory(index, "entryFee", Math.max(0, Number(e.target.value)))}
                     className="bg-background"
                   />
