@@ -817,10 +817,10 @@ export const validateTournamentSearchFilters = (
   const errors: ValidationErrors = {};
 
   // Validate pagination
-  if (filters.skip !== undefined && filters.skip !== null) {
-    const skip = Number(filters.skip);
-    if (isNaN(skip) || skip < 0) {
-      errors.skip = tValidation("validation.filters.skipMin");
+  if (filters.page !== undefined && filters.page !== null) {
+    const page = Number(filters.page);
+    if (isNaN(page) || page < 0) {
+      errors.page = tValidation("validation.filters.pageMin");
     }
   }
 

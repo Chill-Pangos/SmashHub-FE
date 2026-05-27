@@ -56,7 +56,7 @@ class PaymentService {
     );
 
     return parsePaginatedResponse<Payment>(response.data, {
-      skip: (page - 1) * limit,
+      page,
       limit,
     });
   }
@@ -74,7 +74,7 @@ class PaymentService {
     );
 
     return parsePaginatedResponse<Payment>(response.data, {
-      skip: (page - 1) * limit,
+      page,
       limit,
     });
   }
@@ -100,7 +100,7 @@ class PaymentService {
     );
 
     return parsePaginatedResponse<Payment>(response.data, {
-      skip: (page - 1) * limit,
+      page,
       limit,
     });
   }

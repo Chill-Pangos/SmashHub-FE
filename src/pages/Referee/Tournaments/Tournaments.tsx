@@ -30,10 +30,10 @@ import {
 export default function Tournaments() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<string | undefined>(undefined);
-  const [skip, setSkip] = useState(0);
+  const [page, setPage] = useState(1);
   const [limit] = useState(50);
 
-  const { data: apiTournaments = [], isLoading } = useTournaments(skip, limit);
+  const { data: apiTournaments = [], isLoading } = useTournaments(page, limit);
   const { data: upcomingChanges } = useUpcomingTournamentStatusChanges(24);
 
   const sample = apiTournaments;
@@ -104,7 +104,7 @@ export default function Tournaments() {
           <TournamentFilters
             onSearch={(q) => {
               setQuery(q);
-              setSkip(0);
+              setPage(1);
             }}
             onSort={(s) => setSort(s)}
           />

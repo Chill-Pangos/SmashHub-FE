@@ -30,7 +30,7 @@ class RolePermissionService {
     });
 
     return parsePaginatedResponse<RolePermissionAssignment>(response.data, {
-      skip: (page - 1) * limit,
+      page,
       limit,
     });
   }
@@ -46,7 +46,7 @@ class RolePermissionService {
     );
 
     return parsePaginatedResponse<RolePermissionAssignment>(response.data, {
-      skip: (page - 1) * limit,
+      page,
       limit,
     });
   }
@@ -62,7 +62,7 @@ class RolePermissionService {
     );
 
     return parsePaginatedResponse<RolePermissionAssignment>(response.data, {
-      skip: (page - 1) * limit,
+      page,
       limit,
     });
   }

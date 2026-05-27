@@ -30,7 +30,7 @@ class EloHistoryService {
     });
 
     return parsePaginatedResponse<EloHistory>(response.data, {
-      skip: (page - 1) * limit,
+      page,
       limit,
     });
   }
@@ -62,7 +62,7 @@ class EloHistoryService {
     );
 
     return parsePaginatedResponse<EloHistory>(response.data, {
-      skip: (page - 1) * limit,
+      page,
       limit,
     });
   }
@@ -78,7 +78,7 @@ class EloHistoryService {
     );
 
     return parsePaginatedResponse<EloHistory>(response.data, {
-      skip: (page - 1) * limit,
+      page,
       limit,
     });
   }

@@ -29,7 +29,7 @@ class EloScoreService {
     });
 
     return parsePaginatedResponse<EloScore>(response.data, {
-      skip: (page - 1) * limit,
+      page,
       limit,
     });
   }

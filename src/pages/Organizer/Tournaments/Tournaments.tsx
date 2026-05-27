@@ -8,11 +8,11 @@ import {
 export default function OrganizerTournaments() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<string | undefined>(undefined);
-  const [skip, setSkip] = useState(0);
+  const [page, setPage] = useState(1);
   const [limit] = useState(50);
 
   // Fetch tournaments from API
-  const { data: apiTournaments = [], isLoading } = useTournaments(skip, limit);
+  const { data: apiTournaments = [], isLoading } = useTournaments(page, limit);
 
   // Get upcoming status changes
   const { data: upcomingChanges } = useUpcomingTournamentStatusChanges(24);
@@ -87,7 +87,7 @@ export default function OrganizerTournaments() {
           <TournamentFilters
             onSearch={(q) => {
               setQuery(q);
-              setSkip(0); // Reset pagination on search
+              setPage(1); // Reset pagination on search
             }}
             onSort={(s) => setSort(s)}
           />

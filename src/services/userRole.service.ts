@@ -28,7 +28,7 @@ class UserRoleService {
     });
 
     return parsePaginatedResponse<UserRoleAssignment>(response.data, {
-      skip: (page - 1) * limit,
+      page,
       limit,
     });
   }
@@ -44,7 +44,7 @@ class UserRoleService {
     );
 
     return parsePaginatedResponse<UserRoleAssignment>(response.data, {
-      skip: (page - 1) * limit,
+      page,
       limit,
     });
   }
@@ -60,7 +60,7 @@ class UserRoleService {
     );
 
     return parsePaginatedResponse<UserRoleAssignment>(response.data, {
-      skip: (page - 1) * limit,
+      page,
       limit,
     });
   }

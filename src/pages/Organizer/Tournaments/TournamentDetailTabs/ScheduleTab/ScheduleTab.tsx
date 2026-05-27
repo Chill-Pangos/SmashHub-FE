@@ -69,7 +69,7 @@ export default function ScheduleTab({
   const isMockMode = tournamentId === 1;
 
   const schedulesQuery = useSchedulesByCategory(selectedCategoryId, {
-    skip: 0,
+    page: 1,
     limit: 100,
     // Tắt gọi API nếu đang ở Mock Mode
     enabled: selectedCategoryId > 0 && !isMockMode,

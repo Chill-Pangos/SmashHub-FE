@@ -3,7 +3,6 @@ import { parsePaginatedResponse } from "@/utils/pagination.utils";
 import type {
   PaginatedSubMatchPlayersResult,
   SubMatchPlayer,
-  SubMatchPlayerResponse,
   SubMatchPlayersResponse,
 } from "@/types/subMatchPlayer.types";
 
@@ -40,7 +39,7 @@ class SubMatchPlayerService {
     );
 
     return parsePaginatedResponse<SubMatchPlayer>(response.data, {
-      skip: (page - 1) * limit,
+      page,
       limit,
     });
   }

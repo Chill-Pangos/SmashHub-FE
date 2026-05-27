@@ -90,7 +90,7 @@ export const useTournamentFlowSnapshot = ({
     enabled: enabled && resolvedCategoryId > 0,
   });
   const schedulesQuery = useSchedulesByCategory(resolvedCategoryId, {
-    skip: 0,
+    page: 1,
     limit: 100,
     enabled: enabled && resolvedCategoryId > 0,
   });
