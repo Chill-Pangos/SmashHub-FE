@@ -44,6 +44,8 @@ export const StepGeneral: React.FC<StepProps> = ({
     1: t("tournamentManager.createTournamentForm.general.tiers.pro"),
     2: t("tournamentManager.createTournamentForm.general.tiers.challenger"),
     3: t("tournamentManager.createTournamentForm.general.tiers.local"),
+    4: "Tier 4",
+    5: "Tier 5",
   };
 
   const handleNext = () => {
@@ -57,6 +59,11 @@ export const StepGeneral: React.FC<StepProps> = ({
 
     if (!data.location?.trim()) {
       setValidationError(t("tournamentManager.createTournamentForm.general.validation.locationRequired"));
+      return;
+    }
+
+    if (!Number.isInteger(data.tier) || data.tier < 1 || data.tier > 5) {
+      setValidationError("Tier phải nằm trong khoảng từ 1 đến 5.");
       return;
     }
 
@@ -201,6 +208,8 @@ export const StepGeneral: React.FC<StepProps> = ({
                 <SelectItem value="1">{tierLabels[1]}</SelectItem>
                 <SelectItem value="2">{tierLabels[2]}</SelectItem>
                 <SelectItem value="3">{tierLabels[3]}</SelectItem>
+                <SelectItem value="4">{tierLabels[4]}</SelectItem>
+                <SelectItem value="5">{tierLabels[5]}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -493,7 +502,12 @@ export const StepGeneral: React.FC<StepProps> = ({
                     max={100}
                     step={10} // Snap nhảy mốc chục tuổi
                     value={[cat.minAge ?? 0, cat.maxAge ?? 100]}
-                    onValueChange={([min, max]) => handleUpdateCategoryFields(index, { minAge: min, maxAge: max })}
+                    onValueChange={([min, max]) =>
+                      handleUpdateCategoryFields(index, {
+                        minAge: Math.min(min, max),
+                        maxAge: Math.max(min, max),
+                      })
+                    }
                     className="py-2 cursor-grab"
                   />
                   <p className="text-[11px] text-muted-foreground">Kéo để chọn nhanh hoặc nhập số chính xác ở ô trên</p>
@@ -526,7 +540,12 @@ export const StepGeneral: React.FC<StepProps> = ({
                     max={3000}
                     step={100} // Snap nhảy mỗi 100 Elo
                     value={[cat.minElo ?? 0, cat.maxElo ?? 3000]}
-                    onValueChange={([min, max]) => handleUpdateCategoryFields(index, { minElo: min, maxElo: max })}
+                    onValueChange={([min, max]) =>
+                      handleUpdateCategoryFields(index, {
+                        minElo: Math.min(min, max),
+                        maxElo: Math.max(min, max),
+                      })
+                    }
                     className="py-2 cursor-grab"
                   />
                   <p className="text-[11px] text-muted-foreground">Kéo để chọn nhanh mức Elo mong muốn</p>
