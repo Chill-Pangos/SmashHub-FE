@@ -200,10 +200,10 @@ class TournamentRefereeService {
    */
   async getAllTournamentReferees(
     tournamentId?: number,
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<GetAllTournamentRefereesResponse> {
-    const params: Record<string, number> = { skip, limit };
+    const params: Record<string, number> = { page, limit };
     if (tournamentId !== undefined) {
       params.tournamentId = tournamentId;
     }
@@ -229,12 +229,12 @@ class TournamentRefereeService {
    */
   async getRefereesByTournament(
     tournamentId: number,
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<GetRefereesByTournamentResponse> {
     const response = await axiosInstance.get<GetRefereesByTournamentResponse>(
       `${this.baseURL}/tournament/${tournamentId}`,
-      { params: { skip, limit } },
+      { params: { page, limit } },
     );
     return response.data;
   }

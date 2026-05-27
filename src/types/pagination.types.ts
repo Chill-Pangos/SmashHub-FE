@@ -3,19 +3,17 @@
  */
 
 export interface PaginationParams {
-  skip?: number;
+  page?: number;
   limit?: number;
 }
 
 export interface PaginationMeta {
-  skip: number;
+  page: number;
   limit: number;
   total: number;
-  currentPage: number;
   totalPages: number;
-  hasNext: boolean;
-  hasPrevious: boolean;
-  isServerPaginated: boolean;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
 }
 
 export interface PaginatedResult<T> {

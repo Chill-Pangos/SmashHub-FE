@@ -11,16 +11,6 @@ import type {
 // ==================== Query Hooks ====================
 
 /**
- * Hook để lấy tất cả match sets với pagination
- */
-export const useMatchSets = (skip = 0, limit = 10) => {
-  return useQuery({
-    queryKey: queryKeys.matchSets.list({ skip, limit }),
-    queryFn: () => matchSetService.getAllMatchSets(skip, limit),
-  });
-};
-
-/**
  * Hook để lấy match set theo ID
  */
 export const useMatchSet = (id: number, options?: { enabled?: boolean }) => {
@@ -36,13 +26,13 @@ export const useMatchSet = (id: number, options?: { enabled?: boolean }) => {
  */
 export const useMatchSetsByMatch = (
   matchId: number,
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
     queryKey: queryKeys.matchSets.byMatch(matchId),
-    queryFn: () => matchSetService.getMatchSetsByMatch(matchId, skip, limit),
+    queryFn: () => matchSetService.getMatchSetsByMatch(matchId, page, limit),
     enabled: (options?.enabled ?? true) && matchId > 0,
   });
 };

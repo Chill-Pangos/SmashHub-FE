@@ -33,15 +33,15 @@ export const useAvailableChiefReferees = (options?: { enabled?: boolean }) => {
  */
 export const useTournamentReferees = (
   tournamentId?: number,
-  skip = 0,
+  page = 1,
   limit = 10,
 ) => {
   return useQuery({
-    queryKey: queryKeys.tournamentReferees.list({ tournamentId, skip, limit }),
+    queryKey: queryKeys.tournamentReferees.list({ tournamentId, page, limit }),
     queryFn: () =>
       tournamentRefereeService.getAllTournamentReferees(
         tournamentId,
-        skip,
+        page,
         limit,
       ),
   });
@@ -66,7 +66,7 @@ export const useTournamentReferee = (
  */
 export const useRefereesByTournament = (
   tournamentId: number,
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
@@ -75,7 +75,7 @@ export const useRefereesByTournament = (
     queryFn: () =>
       tournamentRefereeService.getRefereesByTournament(
         tournamentId,
-        skip,
+        page,
         limit,
       ),
     enabled: (options?.enabled ?? true) && tournamentId > 0,

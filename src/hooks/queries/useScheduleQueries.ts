@@ -22,10 +22,10 @@ const getCategoryId = (data: { contentId: number; categoryId?: number }) =>
 /**
  * Hook để lấy tất cả schedules với pagination
  */
-export const useSchedules = (skip = 0, limit = 10) => {
+export const useSchedules = (page = 1, limit = 10) => {
   return useQuery({
-    queryKey: queryKeys.schedules.list({ skip, limit }),
-    queryFn: () => scheduleService.getAllSchedules(skip, limit),
+    queryKey: queryKeys.schedules.list({ page, limit }),
+    queryFn: () => scheduleService.getAllSchedules(page, limit),
   });
 };
 
@@ -47,7 +47,7 @@ export const useSchedulesByCategory = (
   categoryId: number,
   options?: {
     stage?: ScheduleStage;
-    skip?: number;
+    page?: number;
     limit?: number;
     enabled?: boolean;
   },
@@ -55,12 +55,12 @@ export const useSchedulesByCategory = (
   return useQuery({
     queryKey: [
       ...queryKeys.schedules.byCategory(categoryId),
-      { stage: options?.stage, skip: options?.skip, limit: options?.limit },
+      { stage: options?.stage, page: options?.page, limit: options?.limit },
     ],
     queryFn: () =>
       scheduleService.getSchedulesByCategory(categoryId, {
         stage: options?.stage,
-        skip: options?.skip,
+        page: options?.page,
         limit: options?.limit,
       }),
     enabled: (options?.enabled ?? true) && categoryId > 0,
@@ -74,7 +74,7 @@ export const useSchedulesByContent = (
   contentId: number,
   options?: {
     stage?: ScheduleStage;
-    skip?: number;
+    page?: number;
     limit?: number;
     enabled?: boolean;
   },

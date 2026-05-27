@@ -19,10 +19,10 @@ const getCategoryId = (data: { contentId: number; categoryId?: number }) =>
 /**
  * Hook để lấy tất cả knockout brackets với pagination
  */
-export const useKnockoutBrackets = (skip = 0, limit = 10) => {
+export const useKnockoutBrackets = (page = 1, limit = 10) => {
   return useQuery({
-    queryKey: queryKeys.knockoutBrackets.list({ skip, limit }),
-    queryFn: () => knockoutBracketService.getAllKnockoutBrackets(skip, limit),
+    queryKey: queryKeys.knockoutBrackets.list({ page, limit }),
+    queryFn: () => knockoutBracketService.getAllKnockoutBrackets(page, limit),
   });
 };
 

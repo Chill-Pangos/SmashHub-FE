@@ -66,12 +66,12 @@ class KnockoutBracketService {
    * const brackets = await knockoutBracketService.getAllKnockoutBrackets(0, 20);
    */
   async getAllKnockoutBrackets(
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<GetKnockoutBracketsResponse> {
     const response = await axiosInstance.get<GetKnockoutBracketsResponse>(
       this.baseURL,
-      { params: { skip, limit } },
+      { params: { page, limit } },
     );
 
     return response.data;

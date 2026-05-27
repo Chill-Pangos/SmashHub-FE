@@ -128,7 +128,7 @@ export interface UpdateTournamentRequest {
  */
 export interface TournamentSearchFilters {
   // Pagination
-  skip?: number;
+  page?: number;
   limit?: number;
   // User filters
   userId?: number;

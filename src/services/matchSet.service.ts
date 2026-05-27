@@ -7,7 +7,6 @@ import type {
   UpdateMatchSetRequest,
   UpdateMatchSetResponse,
   GetMatchSetResponse,
-  GetMatchSetsResponse,
   GetMatchSetsByMatchResponse,
   DeleteMatchSetResponse,
 } from "@/types/matchSet.types";
@@ -81,18 +80,6 @@ class MatchSetService {
    * @example
    * const matchSets = await matchSetService.getAllMatchSets(0, 20);
    */
-  async getAllMatchSets(
-    skip: number = 0,
-    limit: number = 10,
-  ): Promise<GetMatchSetsResponse> {
-    const response = await axiosInstance.get<GetMatchSetsResponse>(
-      this.baseURL,
-      { params: { skip, limit } },
-    );
-
-    return response.data;
-  }
-
   /**
    * Get match set by ID
    * GET /api/match-sets/:id
@@ -125,12 +112,12 @@ class MatchSetService {
    */
   async getMatchSetsByMatch(
     matchId: number,
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<GetMatchSetsByMatchResponse> {
     const response = await axiosInstance.get<GetMatchSetsByMatchResponse>(
       `${this.baseURL}/match/${matchId}`,
-      { params: { skip, limit } },
+      { params: { page, limit } },
     );
 
     return response.data;

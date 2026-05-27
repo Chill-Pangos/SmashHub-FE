@@ -205,18 +205,30 @@ export interface AssignRefereesResponse {
  * Get all tournament referees response (paginated)
  */
 export interface GetAllTournamentRefereesResponse {
-  data: TournamentReferee[];
-  total: number;
-  skip: number;
-  limit: number;
+  referees: TournamentReferee[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
 }
 
 /**
  * Get referees by tournament response
  */
 export interface GetRefereesByTournamentResponse {
-  data: TournamentReferee[];
-  total: number;
+  referees: TournamentReferee[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
 }
 
 export interface GetInvitationsByTournamentResponse {

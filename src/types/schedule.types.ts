@@ -231,7 +231,7 @@ export type GenerateKnockoutStageScheduleResponse = GenerateScheduleResponse;
 export interface GetSchedulesByContentData {
   schedules: Schedule[];
   count: number;
-  skip: number;
+  page: number;
   limit: number;
 }
 

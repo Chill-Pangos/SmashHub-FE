@@ -37,14 +37,14 @@ class PermissionService {
    * Supports both server pagination payloads and plain arrays.
    */
   async getAllPermissionsPaginated(
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<PaginatedPermissionsResult> {
     const response = await axiosInstance.get<unknown>(this.baseURL, {
-      params: { skip, limit },
+      params: { page, limit },
     });
 
-    return parsePaginatedResponse<Permission>(response.data, { skip, limit });
+    return parsePaginatedResponse<Permission>(response.data, { page, limit });
   }
 
   /**
@@ -52,10 +52,10 @@ class PermissionService {
    * GET /api/permissions
    */
   async getAllPermissions(
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<Permission[]> {
-    const result = await this.getAllPermissionsPaginated(skip, limit);
+    const result = await this.getAllPermissionsPaginated(page, limit);
     return result.items;
   }
 

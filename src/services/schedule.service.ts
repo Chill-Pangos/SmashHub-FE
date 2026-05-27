@@ -67,12 +67,12 @@ class ScheduleService {
    * const schedules = await scheduleService.getAllSchedules(0, 20);
    */
   async getAllSchedules(
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<GetSchedulesResponse> {
     const response = await axiosInstance.get<GetSchedulesResponse>(
       this.baseURL,
-      { params: { skip, limit } },
+      { params: { page, limit } },
     );
 
     return response.data;
@@ -301,7 +301,7 @@ class ScheduleService {
     categoryId: number,
     options?: {
       stage?: ScheduleStage;
-      skip?: number;
+      page?: number;
       limit?: number;
     },
   ): Promise<GetSchedulesByContentResponse> {
@@ -327,7 +327,7 @@ class ScheduleService {
     contentId: number,
     options?: {
       stage?: ScheduleStage;
-      skip?: number;
+      page?: number;
       limit?: number;
     },
   ): Promise<GetSchedulesByContentResponse> {

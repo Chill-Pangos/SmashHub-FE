@@ -68,23 +68,23 @@ class TournamentService {
    * Get all tournaments with pagination
    * GET /api/tournaments
    *
-   * @param skip Number of records to skip (default: 0)
+  * @param page Page number (default: 1)
    * @param limit Maximum number of records to return (default: 10)
    * @returns Promise with tournaments list and pagination info
    *
    * @example
-   * const response = await tournamentService.getAllTournaments(0, 20);
+  * const response = await tournamentService.getAllTournaments(1, 20);
    * console.log(response.tournaments); // Array of tournaments
    * console.log(response.pagination); // Pagination info
    */
   async getAllTournaments(
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<TournamentListResponse> {
     const response = await axiosInstance.get<TournamentListResponse>(
       this.baseURL,
       {
-        params: { skip, limit },
+        params: { page, limit },
       },
     );
     return response.data;
@@ -151,12 +151,12 @@ class TournamentService {
    */
   async getTournamentsByStatus(
     status: TournamentStatus,
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<TournamentListResponse> {
     const response = await axiosInstance.get<TournamentListResponse>(
       `${this.baseURL}/status/${status}`,
-      { params: { skip, limit } },
+      { params: { page, limit } },
     );
     return response.data;
   }

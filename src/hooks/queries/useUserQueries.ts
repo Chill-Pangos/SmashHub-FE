@@ -13,13 +13,13 @@ import type {
  * Hook để lấy users với meta phân trang.
  */
 export const useUsersPaginated = (
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: queryKeys.users.list({ skip, limit }),
-    queryFn: () => userService.getUsersPaginated(skip, limit),
+    queryKey: queryKeys.users.list({ page, limit }),
+    queryFn: () => userService.getUsersPaginated(page, limit),
     enabled: options?.enabled ?? true,
   });
 };
@@ -28,11 +28,11 @@ export const useUsersPaginated = (
  * Hook để lấy danh sách tất cả users với pagination
  */
 export const useUsers = (
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
-  const query = useUsersPaginated(skip, limit, options);
+  const query = useUsersPaginated(page, limit, options);
 
   return {
     ...query,
@@ -56,13 +56,13 @@ export const useUser = (id: number, options?: { enabled?: boolean }) => {
  */
 export const useSearchUsersPaginated = (
   query: string,
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: queryKeys.users.search({ query, skip, limit }),
-    queryFn: () => userService.searchUsersPaginated(query, skip, limit),
+    queryKey: queryKeys.users.search({ query, page, limit }),
+    queryFn: () => userService.searchUsersPaginated(query, page, limit),
     enabled: (options?.enabled ?? true) && query.length > 0,
   });
 };
@@ -72,11 +72,11 @@ export const useSearchUsersPaginated = (
  */
 export const useSearchUsers = (
   query: string,
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
-  const searchQuery = useSearchUsersPaginated(query, skip, limit, options);
+  const searchQuery = useSearchUsersPaginated(query, page, limit, options);
 
   return {
     ...searchQuery,

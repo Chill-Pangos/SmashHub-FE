@@ -45,29 +45,29 @@ class RoleService {
    * Supports both server pagination payloads and plain arrays.
    */
   async getAllRolesPaginated(
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<PaginatedRolesResult> {
     const response = await axiosInstance.get<unknown>(this.baseURL, {
-      params: { skip, limit },
+      params: { page, limit },
     });
 
-    return parsePaginatedResponse<Role>(response.data, { skip, limit });
+    return parsePaginatedResponse<Role>(response.data, { page, limit });
   }
 
   /**
    * Get all roles with pagination
    * GET /api/roles
    *
-   * @param skip Number of records to skip (default: 0)
+  * @param page Page number (default: 1)
    * @param limit Maximum number of records to return (default: 10)
    * @returns Promise with array of roles
    *
    * @example
-   * const roles = await roleService.getAllRoles(0, 20);
+  * const roles = await roleService.getAllRoles(1, 20);
    */
-  async getAllRoles(skip: number = 0, limit: number = 10): Promise<Role[]> {
-    const result = await this.getAllRolesPaginated(skip, limit);
+  async getAllRoles(page: number = 1, limit: number = 10): Promise<Role[]> {
+    const result = await this.getAllRolesPaginated(page, limit);
     return result.items;
   }
 

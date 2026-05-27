@@ -8,8 +8,7 @@ import type {
 
 // ==================== Query Hooks ====================
 
-export const useTournamentCategories = (skip = 0, limit = 10) => {
-  const page = Math.floor(skip / limit) + 1;
+export const useTournamentCategories = (page = 1, limit = 10) => {
 
   return useQuery({
     queryKey: queryKeys.tournamentCategories.list({ page, limit }),

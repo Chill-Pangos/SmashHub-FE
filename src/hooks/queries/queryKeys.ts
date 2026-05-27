@@ -95,8 +95,6 @@ export const queryKeys = {
   matchSets: {
     all: ["matchSets"] as const,
     lists: () => [...queryKeys.matchSets.all, "list"] as const,
-    list: (filters?: { skip?: number; limit?: number }) =>
-      [...queryKeys.matchSets.lists(), filters] as const,
     details: () => [...queryKeys.matchSets.all, "detail"] as const,
     detail: (id: number) => [...queryKeys.matchSets.details(), id] as const,
     byMatch: (matchId: number) =>
@@ -115,7 +113,7 @@ export const queryKeys = {
   schedules: {
     all: ["schedules"] as const,
     lists: () => [...queryKeys.schedules.all, "list"] as const,
-    list: (filters?: { skip?: number; limit?: number }) =>
+    list: (filters?: { page?: number; limit?: number }) =>
       [...queryKeys.schedules.lists(), filters] as const,
     details: () => [...queryKeys.schedules.all, "detail"] as const,
     detail: (id: number) => [...queryKeys.schedules.details(), id] as const,
@@ -128,7 +126,7 @@ export const queryKeys = {
   groupStandings: {
     all: ["groupStandings"] as const,
     lists: () => [...queryKeys.groupStandings.all, "list"] as const,
-    list: (filters?: { skip?: number; limit?: number }) =>
+    list: (filters?: { page?: number; limit?: number }) =>
       [...queryKeys.groupStandings.lists(), filters] as const,
     details: () => [...queryKeys.groupStandings.all, "detail"] as const,
     detail: (id: number) =>
@@ -152,7 +150,7 @@ export const queryKeys = {
   knockoutBrackets: {
     all: ["knockoutBrackets"] as const,
     lists: () => [...queryKeys.knockoutBrackets.all, "list"] as const,
-    list: (filters?: { skip?: number; limit?: number }) =>
+    list: (filters?: { page?: number; limit?: number }) =>
       [...queryKeys.knockoutBrackets.lists(), filters] as const,
     details: () => [...queryKeys.knockoutBrackets.all, "detail"] as const,
     detail: (id: number) =>
@@ -173,7 +171,7 @@ export const queryKeys = {
     lists: () => [...queryKeys.tournamentReferees.all, "list"] as const,
     list: (filters?: {
       tournamentId?: number;
-      skip?: number;
+      page?: number;
       limit?: number;
     }) => [...queryKeys.tournamentReferees.lists(), filters] as const,
     details: () => [...queryKeys.tournamentReferees.all, "detail"] as const,
@@ -200,7 +198,7 @@ export const queryKeys = {
   roles: {
     all: ["roles"] as const,
     lists: () => [...queryKeys.roles.all, "list"] as const,
-    list: (filters?: { skip?: number; limit?: number }) =>
+    list: (filters?: { page?: number; limit?: number }) =>
       [...queryKeys.roles.lists(), filters] as const,
     details: () => [...queryKeys.roles.all, "detail"] as const,
     detail: (id: number) => [...queryKeys.roles.details(), id] as const,
@@ -212,7 +210,7 @@ export const queryKeys = {
   permissions: {
     all: ["permissions"] as const,
     lists: () => [...queryKeys.permissions.all, "list"] as const,
-    list: (filters?: { skip?: number; limit?: number }) =>
+    list: (filters?: { page?: number; limit?: number }) =>
       [...queryKeys.permissions.lists(), filters] as const,
     details: () => [...queryKeys.permissions.all, "detail"] as const,
     detail: (id: number) => [...queryKeys.permissions.details(), id] as const,
@@ -297,12 +295,12 @@ export const queryKeys = {
   users: {
     all: ["users"] as const,
     lists: () => [...queryKeys.users.all, "list"] as const,
-    list: (filters?: { skip?: number; limit?: number }) =>
+    list: (filters?: { page?: number; limit?: number }) =>
       [...queryKeys.users.lists(), filters] as const,
     details: () => [...queryKeys.users.all, "detail"] as const,
     detail: (id: number) => [...queryKeys.users.details(), id] as const,
     me: () => [...queryKeys.users.all, "me"] as const,
-    search: (filters?: { query?: string; skip?: number; limit?: number }) =>
+    search: (filters?: { query?: string; page?: number; limit?: number }) =>
       [...queryKeys.users.all, "search", filters] as const,
   },
 
@@ -310,7 +308,7 @@ export const queryKeys = {
   notifications: {
     all: ["notifications"] as const,
     lists: () => [...queryKeys.notifications.all, "list"] as const,
-    list: (filters?: { skip?: number; limit?: number }) =>
+    list: (filters?: { page?: number; limit?: number }) =>
       [...queryKeys.notifications.lists(), filters] as const,
     unread: () => [...queryKeys.notifications.all, "unread"] as const,
     byUser: (userId: number) =>
