@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/dialog";
 import ExcelFileUpload from "@/components/custom/ExcelFileUpload";
 import ImportPreview from "@/components/custom/ImportPreview";
-import { usePreviewImportTeams, useConfirmImportTeams } from "@/hooks/queries";
+import { usePreviewImportTeamEntries, useConfirmImportTeamEntries } from "@/hooks/queries";
 import { showToast } from "@/utils/toast.utils";
-import type { ImportTeamDto } from "@/types/team.types";
+import type { ImportTeamEntryDto } from "@/types/entry.types";
 import { useTranslation } from "@/hooks/useTranslation";
 
 interface TeamImportDialogProps {
@@ -61,7 +61,7 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
   const open = isControlled ? controlledOpen : internalOpen;
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<{
-    teams: ImportTeamDto[];
+    entries: ImportTeamEntryDto[];
     errors: Array<{ row: number; field: string; message: string }>;
   } | null>(null);
   const [currentStep, setCurrentStep] = useState<"upload" | "preview">(
@@ -69,8 +69,8 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
   );
 
   // React Query mutations
-  const previewMutation = usePreviewImportTeams();
-  const confirmMutation = useConfirmImportTeams();
+  const previewMutation = usePreviewImportTeamEntries();
+  const confirmMutation = useConfirmImportTeamEntries();
 
   const isPreviewLoading = previewMutation.isPending;
   const isImportLoading = confirmMutation.isPending;
@@ -95,10 +95,13 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
       return;
     }
 
-    previewMutation.mutate(selectedFile, {
+    previewMutation.mutate({ file: selectedFile, contentId: tournamentId }, {
       onSuccess: (result) => {
         if (result.success) {
-          setPreviewData(result.data);
+          setPreviewData({
+            ...result.data,
+            entries: result.data.entries as ImportTeamEntryDto[],
+          });
           setCurrentStep("preview");
         } else {
           showToast.error(t("components.teamImportDialog.cannotPreviewFile"));
@@ -125,8 +128,8 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
 
     confirmMutation.mutate(
       {
-        tournamentId,
-        teams: previewData.teams,
+        contentId: tournamentId,
+        entries: previewData.entries,
       },
       {
         onSuccess: (result) => {
@@ -221,14 +224,14 @@ export const TeamImportDialog: React.FC<TeamImportDialogProps> = ({
           <div className="py-4">
             {previewData && (
               <ImportPreview
-                entries={previewData.teams.flatMap((team) =>
+                entries={previewData.entries.flatMap((team) =>
                   team.members.map((member) => ({
                     rowNumber: team.rowNumber,
-                    teamName: team.name,
-                    teamDescription: team.description || "-",
-                    memberName: member.memberName,
+                    teamName: team.teamName,
+                    teamDescription: "-",
+                    memberName: member.name,
                     memberEmail: member.email,
-                    memberRole: member.role,
+                    memberRole: "member",
                   })),
                 )}
                 errors={previewData.errors}

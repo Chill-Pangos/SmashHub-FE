@@ -225,11 +225,11 @@ class UserService {
     const response = await axiosInstance.get<unknown>(
       `${this.baseURL}/search`,
       {
-          params: { query, page, limit },
+        params: { query, page, limit },
       },
     );
 
-      const parsed = parsePaginatedResponse<User>(response.data, { page, limit });
+    const parsed = parsePaginatedResponse<User>(response.data, { page, limit });
 
     return {
       ...parsed,

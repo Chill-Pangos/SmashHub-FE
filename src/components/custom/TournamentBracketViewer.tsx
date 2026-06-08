@@ -12,14 +12,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Users, ChevronRight, Medal } from "lucide-react";
 import {
-  useGroupStandingsByContent,
-  useKnockoutBracketsByContent,
+  useGroupStandingsByCategory,
+  useKnockoutBracketTreeByCategory,
 } from "@/hooks/queries";
-import type { GroupStanding, KnockoutBracket } from "@/types";
+import type { GroupStanding } from "@/types";
 import { useTranslation } from "@/hooks/useTranslation";
 
 interface TournamentBracketViewerProps {
-  contentId: number;
+  categoryId: number;
   hasGroupStage?: boolean;
 }
 
@@ -28,7 +28,7 @@ interface TournamentBracketViewerProps {
  * Dùng chung cho Spectator, Athlete, Coach, TeamManager
  */
 export default function TournamentBracketViewer({
-  contentId,
+  categoryId,
   hasGroupStage = true,
 }: TournamentBracketViewerProps) {
   const { t } = useTranslation();
@@ -40,23 +40,23 @@ export default function TournamentBracketViewer({
     data: groupStandingsData,
     isLoading: isLoadingGroups,
     error: groupError,
-  } = useGroupStandingsByContent(contentId, {
-    enabled: hasGroupStage && contentId > 0,
+  } = useGroupStandingsByCategory(categoryId, {
+    enabled: hasGroupStage && categoryId > 0,
   });
 
   const {
     data: knockoutData,
     isLoading: isLoadingKnockout,
     error: knockoutError,
-  } = useKnockoutBracketsByContent(contentId, {
-    enabled: contentId > 0,
+  } = useKnockoutBracketTreeByCategory(categoryId, {
+    enabled: categoryId > 0,
   });
 
   // Group standings by group name
   const groupedStandings = useMemo(() => {
     const groupStandings = groupStandingsData?.data || [];
     const groups: Record<string, GroupStanding[]> = {};
-    groupStandings.forEach((standing) => {
+    groupStandings.forEach((standing: GroupStanding) => {
       if (!groups[standing.groupName]) {
         groups[standing.groupName] = [];
       }
@@ -71,18 +71,12 @@ export default function TournamentBracketViewer({
 
   // Group knockout brackets by round
   const bracketsByRound = useMemo(() => {
-    const knockoutBrackets = knockoutData?.data || [];
-    const rounds: Record<string, KnockoutBracket[]> = {};
-    knockoutBrackets.forEach((bracket) => {
-      const roundKey =
-        bracket.roundName ||
-        t("components.tournamentBracketViewer.round", {
-          number: bracket.roundNumber,
-        });
-      if (!rounds[roundKey]) {
-        rounds[roundKey] = [];
-      }
-      rounds[roundKey].push(bracket);
+    const tree = knockoutData?.data;
+    if (!tree || !tree.rounds) return {};
+    const rounds: Record<string, import("@/types").BracketNode[]> = {};
+    tree.rounds.forEach((round) => {
+      const roundKey = round.roundName || t("components.tournamentBracketViewer.round", { number: round.roundNumber });
+      rounds[roundKey] = round.brackets;
     });
     // Sort each round by bracket position
     Object.keys(rounds).forEach((roundName) => {
@@ -120,7 +114,7 @@ export default function TournamentBracketViewer({
     }
   };
 
-  if (contentId <= 0) {
+  if (categoryId <= 0) {
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">
@@ -302,24 +296,17 @@ export default function TournamentBracketViewer({
                                 {/* Entry A */}
                                 <div
                                   className={`flex items-center justify-between p-2 rounded ${
-                                    bracket.winnerEntryId === bracket.entryAId
+                                    bracket.winnerEntryId && bracket.winnerEntryId === bracket.entryA?.entryId
                                       ? "bg-green-100 dark:bg-green-900/20"
                                       : "bg-muted/50"
                                   }`}
                                 >
                                   <span className="text-sm">
-                                    {bracket.entryAId
-                                      ? `Entry ${bracket.entryAId}`
+                                    {bracket.entryA?.entryId
+                                      ? bracket.entryA?.entryName || `Entry ${bracket.entryA.entryId}`
                                       : "TBD"}
                                   </span>
-                                  {bracket.seedA && (
-                                    <Badge
-                                      variant="outline"
-                                      className="text-xs"
-                                    >
-                                      #{bracket.seedA}
-                                    </Badge>
-                                  )}
+                                  {/* Seed is not available in BracketNode */}
                                 </div>
 
                                 <div className="flex items-center justify-center">
@@ -329,24 +316,17 @@ export default function TournamentBracketViewer({
                                 {/* Entry B */}
                                 <div
                                   className={`flex items-center justify-between p-2 rounded ${
-                                    bracket.winnerEntryId === bracket.entryBId
+                                    bracket.winnerEntryId && bracket.winnerEntryId === bracket.entryB?.entryId
                                       ? "bg-green-100 dark:bg-green-900/20"
                                       : "bg-muted/50"
                                   }`}
                                 >
                                   <span className="text-sm">
-                                    {bracket.entryBId
-                                      ? `Entry ${bracket.entryBId}`
+                                    {bracket.entryB?.entryId
+                                      ? bracket.entryB?.entryName || `Entry ${bracket.entryB.entryId}`
                                       : "TBD"}
                                   </span>
-                                  {bracket.seedB && (
-                                    <Badge
-                                      variant="outline"
-                                      className="text-xs"
-                                    >
-                                      #{bracket.seedB}
-                                    </Badge>
-                                  )}
+                                  {/* Seed is not available in BracketNode */}
                                 </div>
 
                                 {/* Status */}
