@@ -4,7 +4,6 @@ import { queryKeys } from "./queryKeys";
 import type {
   MatchSet,
   CreateMatchSetRequest,
-  CreateMatchSetWithScoreRequest,
   UpdateMatchSetRequest,
 } from "@/types";
 
@@ -31,7 +30,7 @@ export const useMatchSetsByMatch = (
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: queryKeys.matchSets.byMatch(matchId),
+    queryKey: queryKeys.matchSets.byMatch(matchId, { page, limit }),
     queryFn: () => matchSetService.getMatchSetsByMatch(matchId, page, limit),
     enabled: (options?.enabled ?? true) && matchId > 0,
   });
@@ -52,44 +51,20 @@ export const useCreateMatchSet = () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.matchSets.all,
       });
-      if (result.data) {
+      if (result.matchId) {
         queryClient.invalidateQueries({
-          queryKey: queryKeys.matchSets.byMatch(result.data.matchId),
+          queryKey: queryKeys.matchSets.byMatch(result.matchId),
         });
         // Also invalidate related match
         queryClient.invalidateQueries({
-          queryKey: queryKeys.matches.detail(result.data.matchId),
+          queryKey: queryKeys.matches.detail(result.matchId),
         });
       }
     },
   });
 };
 
-/**
- * Hook để tạo match set với score (recommended)
- */
-export const useCreateMatchSetWithScore = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: CreateMatchSetWithScoreRequest) =>
-      matchSetService.createMatchSetWithScore(data),
-    onSuccess: (result) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.matchSets.all,
-      });
-      if (result.data) {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.matchSets.byMatch(result.data.matchId),
-        });
-        // Also invalidate related match
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.matches.detail(result.data.matchId),
-        });
-      }
-    },
-  });
-};
+// useCreateMatchSetWithScore removed
 
 /**
  * Hook để cập nhật match set
@@ -106,9 +81,9 @@ export const useUpdateMatchSet = () => {
         queryKey: queryKeys.matchSets.lists(),
       });
       // Also invalidate related match
-      if (result.data) {
+      if (result.matchId) {
         queryClient.invalidateQueries({
-          queryKey: queryKeys.matches.detail(result.data.matchId),
+          queryKey: queryKeys.matches.detail(result.matchId),
         });
       }
     },

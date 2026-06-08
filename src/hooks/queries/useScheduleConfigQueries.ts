@@ -5,6 +5,8 @@ import type {
   CreateScheduleConfigRequest,
   UpdateScheduleConfigRequest,
   ValidateScheduleConfigRequest,
+  PreviewScheduleConfigRequest,
+  PreviewUpdateScheduleConfigRequest,
 } from "@/types/scheduleConfig.types";
 
 // ==================== Query Hooks ====================
@@ -87,5 +89,29 @@ export const useValidateScheduleConfig = () => {
       tournamentId: number;
       data: ValidateScheduleConfigRequest;
     }) => scheduleConfigService.validateScheduleConfig(tournamentId, data),
+  });
+};
+
+export const usePreviewCreateScheduleConfig = () => {
+  return useMutation({
+    mutationFn: ({
+      tournamentId,
+      data,
+    }: {
+      tournamentId: number;
+      data: PreviewScheduleConfigRequest;
+    }) => scheduleConfigService.previewCreateScheduleConfig(tournamentId, data),
+  });
+};
+
+export const usePreviewUpdateScheduleConfig = () => {
+  return useMutation({
+    mutationFn: ({
+      tournamentId,
+      data,
+    }: {
+      tournamentId: number;
+      data: PreviewUpdateScheduleConfigRequest;
+    }) => scheduleConfigService.previewUpdateScheduleConfig(tournamentId, data),
   });
 };

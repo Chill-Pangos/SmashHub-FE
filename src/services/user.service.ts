@@ -2,6 +2,7 @@ import axiosInstance from "@/config/axiosConfig";
 import { parsePaginatedResponse } from "@/utils/pagination.utils";
 import type {
   User,
+  UserRole,
   UserRoleInput,
   CreateUserRequest,
   UpdateUserRequest,

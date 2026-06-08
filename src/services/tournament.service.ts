@@ -56,12 +56,7 @@ class TournamentService {
       payload,
     );
 
-    // Transform axios response to ApiResponse format
-    return {
-      success: true,
-      message: "Tournament created successfully",
-      data: response.data,
-    };
+    return response.data;
   }
 
   /**

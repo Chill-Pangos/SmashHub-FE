@@ -8,7 +8,6 @@ import type {
   GetMatchesResponse,
   GetMatchesByScheduleResponse,
   GetMatchesByStatusResponse,
-  DeleteMatchResponse,
   StartMatchResponse,
   FinalizeMatchResponse,
   GetPendingMatchesResponse,
@@ -180,14 +179,8 @@ class MatchService {
    * @example
    * await matchService.deleteMatch(1);
    */
-  async deleteMatch(id: number): Promise<DeleteMatchResponse> {
-    await axiosInstance.delete(`${this.baseURL}/${id}`);
-
-    return {
-      success: true,
-      message: "Match deleted successfully",
-      data: undefined,
-    };
+  async deleteMatch(matchId: number): Promise<void> {
+    await axiosInstance.delete(`${this.baseURL}/${matchId}`);
   }
 
   /**

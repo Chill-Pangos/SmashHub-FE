@@ -1,5 +1,5 @@
 import React, { useState, useEffect, type ReactNode } from "react";
-import type { User, AuthData, UserRoleInput } from "@/types";
+import type { User, AuthData, UserRoleInput, UserRole } from "@/types";
 import authService from "@/services/auth.service";
 import { userService } from "@/services";
 import {

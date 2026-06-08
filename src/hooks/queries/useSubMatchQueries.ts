@@ -8,11 +8,13 @@ import type {
 
 export const useSubMatchesByMatch = (
   matchId: number,
+  page = 1,
+  limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: queryKeys.subMatches.byMatch(matchId),
-    queryFn: () => subMatchService.getSubMatchesByMatch(matchId),
+    queryKey: [...queryKeys.subMatches.byMatch(matchId), { page, limit }],
+    queryFn: () => subMatchService.getSubMatchesByMatch(matchId, page, limit),
     enabled: (options?.enabled ?? true) && matchId > 0,
   });
 };
@@ -42,10 +44,8 @@ export const useStartSubMatch = () => {
 
   return useMutation({
     mutationFn: (id: number) => subMatchService.startSubMatch(id),
-    onSuccess: (_result, id) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.subMatches.detail(id),
-      });
+    onSuccess: (result, id) => {
+      queryClient.setQueryData(queryKeys.subMatches.detail(id), result);
       queryClient.invalidateQueries({ queryKey: queryKeys.subMatches.all });
     },
   });
@@ -56,10 +56,8 @@ export const useFinalizeSubMatch = () => {
 
   return useMutation({
     mutationFn: (id: number) => subMatchService.finalizeSubMatch(id),
-    onSuccess: (_result, id) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.subMatches.detail(id),
-      });
+    onSuccess: (result, id) => {
+      queryClient.setQueryData(queryKeys.subMatches.detail(id), result);
       queryClient.invalidateQueries({ queryKey: queryKeys.subMatches.all });
     },
   });
@@ -80,6 +78,7 @@ export const useAssignSubMatchPlayers = () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.subMatches.detail(id),
       });
+      queryClient.invalidateQueries({ queryKey: queryKeys.subMatchPlayers.bySubMatch(id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.subMatches.all });
     },
   });

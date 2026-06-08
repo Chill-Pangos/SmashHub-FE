@@ -1,15 +1,9 @@
 import axiosInstance from "@/config/axiosConfig";
 import type {
   Entry,
-  CreateEntryRequest,
   RegisterEntryRequest,
   UpdateEntryRequest,
-  AddEntryMemberRequest,
-  RemoveEntryMemberRequest,
-  SetRequiredMembersRequest,
-  TransferCaptaincyRequest,
   RespondJoinRequestRequest,
-  DisqualifyEntriesRequest,
   ConfirmImportSingleEntriesRequest,
   ConfirmImportDoubleEntriesRequest,
   ConfirmImportTeamEntriesRequest,
@@ -19,8 +13,12 @@ import type {
   EntryJoinRequestsResponse,
   EntryJoinRequestStatus,
   EntryEligibilityResponse,
-  EntryRoleResponse,
   MyEntriesResponse,
+  EntryJoinRequest,
+  EntryMember,
+  DisqualifyEntriesRequest,
+  DisqualifyEntriesResponse,
+  EntriesResponse,
 } from "@/types/entry.types";
 
 /**
@@ -30,23 +28,7 @@ import type {
 class EntryService {
   private readonly baseURL = "/entries";
 
-  /**
-   * Create a new entry (admin/tournament manager)
-   * POST /api/entries
-   *
-   * @param data Entry creation data
-   * @returns Promise with created entry data
-   *
-   * @example
-   * const entry = await entryService.createEntry({
-   *   contentId: 1,
-   *   teamId: 5
-   * });
-   */
-  async createEntry(data: CreateEntryRequest): Promise<Entry> {
-    const response = await axiosInstance.post<Entry>(this.baseURL, data);
-    return response.data;
-  }
+  // createEntry removed (not in docs)
 
   /**
    * Register entry (team manager)
@@ -64,30 +46,14 @@ class EntryService {
    * });
    */
   async registerEntry(data: RegisterEntryRequest): Promise<Entry> {
-    const response = await axiosInstance.post<Entry>(
-      `${this.baseURL}/register`,
-      data,
-    );
-    return response.data;
+    const response = await axiosInstance.post<{
+      entry: Entry;
+      message: string;
+    }>(`${this.baseURL}/register`, data);
+    return response.data.entry;
   }
 
-  /**
-   * Get all entries with pagination
-   * GET /api/entries
-   *
-   * @param skip Number of records to skip (default: 0)
-   * @param limit Maximum number of records to return (default: 10)
-   * @returns Promise with array of entries
-   *
-   * @example
-   * const entries = await entryService.getAllEntries(0, 20);
-   */
-  async getAllEntries(page: number = 1, limit: number = 10): Promise<Entry[]> {
-    const response = await axiosInstance.get<Entry[]>(this.baseURL, {
-      params: { page, limit },
-    });
-    return response.data;
-  }
+  // getAllEntries removed (replaced by getEntriesByCategoryId)
 
   /**
    * Get entry by ID
@@ -121,68 +87,68 @@ class EntryService {
   }
 
   /**
-   * Add member to entry
-   * POST /api/entries/{entryId}/add-member
+   * Invite member to entry
+   * POST /api/entries/{entryId}/members/invite
    */
-  async addEntryMember(
+  async inviteEntryMember(
     entryId: number,
-    data: AddEntryMemberRequest,
-  ): Promise<Entry> {
-    const response = await axiosInstance.post<Entry>(
-      `${this.baseURL}/${entryId}/add-member`,
+    data: { inviteeId: number },
+  ): Promise<EntryJoinRequest> {
+    const response = await axiosInstance.post<EntryJoinRequest>(
+      `${this.baseURL}/${entryId}/members/invite`,
       data,
     );
     return response.data;
   }
 
   /**
-   * Remove member from entry
-   * POST /api/entries/{entryId}/remove-member
+   * Accept invitation
+   * POST /api/entries/{entryId}/members/invitations/{invitationId}/accept
+   */
+  async acceptInvitation(
+    entryId: number,
+    invitationId: number,
+  ): Promise<EntryMember> {
+    const response = await axiosInstance.post<EntryMember>(
+      `${this.baseURL}/${entryId}/members/invitations/${invitationId}/accept`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Reject invitation
+   * POST /api/entries/{entryId}/members/invitations/{invitationId}/reject
+   */
+  async rejectInvitation(
+    entryId: number,
+    invitationId: number,
+  ): Promise<void> {
+    await axiosInstance.post(
+      `${this.baseURL}/${entryId}/members/invitations/${invitationId}/reject`,
+    );
+  }
+
+  /**
+   * Remove member from entry (captain only)
+   * DELETE /api/entries/{entryId}/members/{memberId}
    */
   async removeEntryMember(
     entryId: number,
-    data: RemoveEntryMemberRequest,
+    memberId: number,
   ): Promise<void> {
-    await axiosInstance.post(`${this.baseURL}/${entryId}/remove-member`, data);
+    await axiosInstance.delete(`${this.baseURL}/${entryId}/members/${memberId}`);
   }
 
   /**
-   * Leave entry
-   * POST /api/entries/{entryId}/leave
+   * Leave entry (member only)
+   * DELETE /api/entries/{entryId}/members/me
    */
   async leaveEntry(entryId: number): Promise<void> {
-    await axiosInstance.post(`${this.baseURL}/${entryId}/leave`);
+    await axiosInstance.delete(`${this.baseURL}/${entryId}/members/me`);
   }
 
-  /**
-   * Set required member count
-   * POST /api/entries/{entryId}/set-required-members
-   */
-  async setRequiredMembers(
-    entryId: number,
-    data: SetRequiredMembersRequest,
-  ): Promise<Entry> {
-    const response = await axiosInstance.post<Entry>(
-      `${this.baseURL}/${entryId}/set-required-members`,
-      data,
-    );
-    return response.data;
-  }
-
-  /**
-   * Transfer captaincy
-   * POST /api/entries/{entryId}/transfer-captaincy
-   */
-  async transferCaptaincy(
-    entryId: number,
-    data: TransferCaptaincyRequest,
-  ): Promise<Entry> {
-    const response = await axiosInstance.post<Entry>(
-      `${this.baseURL}/${entryId}/transfer-captaincy`,
-      data,
-    );
-    return response.data;
-  }
+  // setRequiredMembers removed
+  // transferCaptaincy removed
 
   /**
    * Get join requests for entry
@@ -218,16 +184,6 @@ class EntryService {
     return response.data;
   }
 
-  /**
-   * Confirm entry lineup
-   * POST /api/entries/{entryId}/confirm-lineup
-   */
-  async confirmLineup(entryId: number): Promise<Entry> {
-    const response = await axiosInstance.post<Entry>(
-      `${this.baseURL}/${entryId}/confirm-lineup`,
-    );
-    return response.data;
-  }
 
   /**
    * Get eligible entries by category
@@ -235,9 +191,12 @@ class EntryService {
    */
   async getEligibleEntriesByCategory(
     categoryId: number,
+    page: number = 1,
+    limit: number = 10,
   ): Promise<EntryEligibilityResponse> {
     const response = await axiosInstance.get<EntryEligibilityResponse>(
       `${this.baseURL}/category/${categoryId}/eligible`,
+      { params: { page, limit } }
     );
     return response.data;
   }
@@ -248,9 +207,9 @@ class EntryService {
    */
   async disqualifyEntriesByCategory(
     categoryId: number,
-    data: DisqualifyEntriesRequest,
-  ): Promise<Entry[]> {
-    const response = await axiosInstance.post<Entry[]>(
+    data?: DisqualifyEntriesRequest,
+  ): Promise<DisqualifyEntriesResponse> {
+    const response = await axiosInstance.post<DisqualifyEntriesResponse>(
       `${this.baseURL}/category/${categoryId}/disqualify`,
       data,
     );
@@ -268,16 +227,7 @@ class EntryService {
     return response.data;
   }
 
-  /**
-   * Get current user role in entry
-   * GET /api/entries/{entryId}/my-role
-   */
-  async getMyRole(entryId: number): Promise<EntryRoleResponse> {
-    const response = await axiosInstance.get<EntryRoleResponse>(
-      `${this.baseURL}/${entryId}/my-role`,
-    );
-    return response.data;
-  }
+  // getMyRole removed (it was not in the API doc)
 
   /**
    * Get entries by category ID
@@ -294,36 +244,17 @@ class EntryService {
       isAcceptingMembers?: boolean;
       captainName?: string;
     },
-  ): Promise<Entry[]> {
+  ): Promise<EntriesResponse> {
     const params = {
       page,
       limit,
       ...filters,
     };
-    try {
-      const response = await axiosInstance.get<Entry[]>(
-        `${this.baseURL}/category/${categoryId}`,
-        { params },
-      );
-      return response.data;
-    } catch {
-      const response = await axiosInstance.get<Entry[]>(
-        `${this.baseURL}/content/${categoryId}`,
-        { params },
-      );
-      return response.data;
-    }
-  }
-
-  /**
-   * @deprecated Use getEntriesByCategoryId instead.
-   */
-  async getEntriesByContentId(
-    contentId: number,
-    page: number = 1,
-    limit: number = 10,
-  ): Promise<Entry[]> {
-    return this.getEntriesByCategoryId(contentId, page, limit);
+    const response = await axiosInstance.get<EntriesResponse>(
+      `${this.baseURL}/category/${categoryId}`,
+      { params },
+    );
+    return response.data;
   }
 
   /**
@@ -342,8 +273,8 @@ class EntryService {
   async updateEntry(
     id: number,
     data: UpdateEntryRequest,
-  ): Promise<[number, Entry[]]> {
-    const response = await axiosInstance.put<[number, Entry[]]>(
+  ): Promise<Entry> {
+    const response = await axiosInstance.put<Entry>(
       `${this.baseURL}/${id}`,
       data,
     );

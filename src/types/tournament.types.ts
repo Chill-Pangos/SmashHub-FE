@@ -1,4 +1,3 @@
-import type { ApiResponse } from "./auth.types";
 
 // ==================== Enums ====================
 
@@ -211,6 +210,7 @@ export interface TournamentCategory {
 }
 
 export interface CreateTournamentCategoryRequest {
+  tournamentId?: number;
   type: TournamentCategoryType;
   name: string;
   maxEntries: number;
@@ -251,44 +251,43 @@ export interface UpdateTournamentCategoryRequest {
 /**
  * Create tournament response
  */
-export type CreateTournamentResponse = ApiResponse<Tournament>;
+export type CreateTournamentResponse = Tournament;
 
 /**
  * Get tournament response
  */
-export type GetTournamentResponse = ApiResponse<Tournament>;
+export type GetTournamentResponse = Tournament;
 
 /**
  * Get tournaments list response
  */
-export type GetTournamentsResponse = ApiResponse<TournamentListResponse>;
+export type GetTournamentsResponse = TournamentListResponse;
 
 /**
  * Tournament search response (with pagination)
  */
-export type SearchTournamentsResponse =
-  ApiResponse<TournamentSearchResponseWithPagination>;
+export type SearchTournamentsResponse = TournamentSearchResponseWithPagination;
 
 /**
  * Get tournaments by status response
  */
-export type GetTournamentsByStatusResponse = ApiResponse<Tournament[]>;
+export type GetTournamentsByStatusResponse = TournamentListResponse;
 
 /**
  * Update tournament response
  */
-export type UpdateTournamentResponse = ApiResponse<Tournament>;
+export type UpdateTournamentResponse = Tournament;
 
 /**
  * Delete tournament response
  */
-export type DeleteTournamentResponse = ApiResponse<void>;
+export type DeleteTournamentResponse = void;
 
-export type CreateTournamentCategoryResponse = ApiResponse<TournamentCategory>;
-export type GetTournamentCategoryResponse = ApiResponse<TournamentCategory>;
-export type GetTournamentCategoriesResponse = ApiResponse<TournamentCategory[]>;
-export type UpdateTournamentCategoryResponse = ApiResponse<TournamentCategory>;
-export type DeleteTournamentCategoryResponse = ApiResponse<void>;
+export type CreateTournamentCategoryResponse = TournamentCategory;
+export type GetTournamentCategoryResponse = TournamentCategory;
+export type GetTournamentCategoriesResponse = TournamentCategory[];
+export type UpdateTournamentCategoryResponse = TournamentCategory;
+export type DeleteTournamentCategoryResponse = void;
 
 // ==================== Upcoming Status Changes ====================
 

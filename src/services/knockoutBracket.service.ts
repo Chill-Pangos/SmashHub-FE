@@ -1,23 +1,15 @@
 import axiosInstance from "@/config/axiosConfig";
 import type {
-  CreateKnockoutBracketRequest,
-  CreateKnockoutBracketResponse,
-  UpdateKnockoutBracketRequest,
-  UpdateKnockoutBracketResponse,
-  GetKnockoutBracketResponse,
-  GetKnockoutBracketsResponse,
-  GetKnockoutBracketsByContentResponse,
   GetKnockoutBracketTreeResponse,
   GetKnockoutStandingsResponse,
-  DeleteKnockoutBracketResponse,
-  GenerateKnockoutBracketRequest,
-  GenerateKnockoutBracketResponse,
-  GenerateFromGroupsRequest,
-  GenerateFromGroupsResponse,
   AdvanceWinnerRequest,
   AdvanceWinnerResponse,
-  ValidateKnockoutBracketRequest,
   ValidateKnockoutBracketResponse,
+  GenerateKnockoutPlaceholdersRequest,
+  GenerateKnockoutBracketTreeResponse,
+  FillQualifiersRequest,
+  GenerateFromEntriesRequest,
+  GetKnockoutBracketsByEntryResponse,
 } from "@/types/knockoutBracket.types";
 
 /**
@@ -28,238 +20,44 @@ class KnockoutBracketService {
   private readonly baseURL = "/knockout-brackets";
 
   /**
-   * Create knockout bracket
-   * POST /api/knockout-brackets
-   *
-   * @param data Knockout bracket creation data
-   * @returns Promise with created knockout bracket
-   *
-   * @example
-   * const bracket = await knockoutBracketService.createKnockoutBracket({
-   *   contentId: 1,
-   *   roundNumber: 2,
-   *   bracketPosition: 0,
-   *   entryAId: 5,
-   *   entryBId: 8
-   * });
+   * Generate bracket placeholders
+   * POST /api/knockout-brackets/placeholders
    */
-  async createKnockoutBracket(
-    data: CreateKnockoutBracketRequest,
-  ): Promise<CreateKnockoutBracketResponse> {
-    const response = await axiosInstance.post<CreateKnockoutBracketResponse>(
-      this.baseURL,
+  async generatePlaceholders(
+    data: GenerateKnockoutPlaceholdersRequest,
+  ): Promise<GenerateKnockoutBracketTreeResponse> {
+    const response = await axiosInstance.post<GenerateKnockoutBracketTreeResponse>(
+      `${this.baseURL}/placeholders`,
       data,
     );
-
     return response.data;
   }
 
   /**
-   * Get all knockout brackets
-   * GET /api/knockout-brackets
-   *
-   * @param skip Number of records to skip
-   * @param limit Maximum number of records to return
-   * @returns Promise with knockout brackets
-   *
-   * @example
-   * const brackets = await knockoutBracketService.getAllKnockoutBrackets(0, 20);
+   * Fill qualifiers into bracket
+   * POST /api/knockout-brackets/fill-qualifiers
    */
-  async getAllKnockoutBrackets(
-    page: number = 1,
-    limit: number = 10,
-  ): Promise<GetKnockoutBracketsResponse> {
-    const response = await axiosInstance.get<GetKnockoutBracketsResponse>(
-      this.baseURL,
-      { params: { page, limit } },
-    );
-
-    return response.data;
-  }
-
-  /**
-   * Get knockout bracket by ID
-   * GET /api/knockout-brackets/:id
-   *
-   * @param id Knockout bracket ID
-   * @returns Promise with knockout bracket details
-   *
-   * @example
-   * const bracket = await knockoutBracketService.getKnockoutBracketById(1);
-   */
-  async getKnockoutBracketById(
-    id: number,
-  ): Promise<GetKnockoutBracketResponse> {
-    const response = await axiosInstance.get<GetKnockoutBracketResponse>(
-      `${this.baseURL}/${id}`,
-    );
-
-    return response.data;
-  }
-
-  /**
-   * Get knockout brackets by category ID
-   * GET /api/knockout-brackets/category/:categoryId
-   *
-   * Falls back to legacy /content path during transition.
-   */
-  async getKnockoutBracketsByCategory(
-    categoryId: number,
-  ): Promise<GetKnockoutBracketsByContentResponse> {
-    try {
-      const response =
-        await axiosInstance.get<GetKnockoutBracketsByContentResponse>(
-          `${this.baseURL}/category/${categoryId}`,
-        );
-      return response.data;
-    } catch {
-      const response =
-        await axiosInstance.get<GetKnockoutBracketsByContentResponse>(
-          `${this.baseURL}/content/${categoryId}`,
-        );
-      return response.data;
-    }
-  }
-
-  /**
-   * Get knockout bracket tree by category ID
-   * GET /api/knockout-brackets/category/{categoryId}/tree
-   */
-  async getKnockoutBracketTreeByCategory(
-    categoryId: number,
-  ): Promise<GetKnockoutBracketTreeResponse> {
-    try {
-      const response = await axiosInstance.get<GetKnockoutBracketTreeResponse>(
-        `${this.baseURL}/category/${categoryId}/tree`,
-      );
-      return response.data;
-    } catch {
-      const response = await axiosInstance.get<GetKnockoutBracketTreeResponse>(
-        `${this.baseURL}/content/${categoryId}/tree`,
-      );
-      return response.data;
-    }
-  }
-
-  /**
-   * Get knockout standings by category ID
-   * GET /api/knockout-brackets/category/{categoryId}/standings
-   */
-  async getKnockoutStandingsByCategory(
-    categoryId: number,
-  ): Promise<GetKnockoutStandingsResponse> {
-    try {
-      const response = await axiosInstance.get<GetKnockoutStandingsResponse>(
-        `${this.baseURL}/category/${categoryId}/standings`,
-      );
-      return response.data;
-    } catch {
-      const response = await axiosInstance.get<GetKnockoutStandingsResponse>(
-        `${this.baseURL}/content/${categoryId}/standings`,
-      );
-      return response.data;
-    }
-  }
-
-  /**
-   * @deprecated Use getKnockoutBracketsByCategory instead.
-   */
-  async getKnockoutBracketsByContent(
-    contentId: number,
-  ): Promise<GetKnockoutBracketsByContentResponse> {
-    return this.getKnockoutBracketsByCategory(contentId);
-  }
-
-  /**
-   * Update knockout bracket
-   * PUT /api/knockout-brackets/:id
-   *
-   * @param id Knockout bracket ID
-   * @param data Partial knockout bracket data to update
-   * @returns Promise with updated knockout bracket
-   *
-   * @example
-   * const updated = await knockoutBracketService.updateKnockoutBracket(1, {
-   *   winnerEntryId: 5,
-   *   status: "completed"
-   * });
-   */
-  async updateKnockoutBracket(
-    id: number,
-    data: UpdateKnockoutBracketRequest,
-  ): Promise<UpdateKnockoutBracketResponse> {
-    const response = await axiosInstance.put<UpdateKnockoutBracketResponse>(
-      `${this.baseURL}/${id}`,
+  async fillQualifiers(
+    data: FillQualifiersRequest,
+  ): Promise<GenerateKnockoutBracketTreeResponse> {
+    const response = await axiosInstance.post<GenerateKnockoutBracketTreeResponse>(
+      `${this.baseURL}/fill-qualifiers`,
       data,
     );
-
     return response.data;
   }
 
   /**
-   * Delete knockout bracket
-   * DELETE /api/knockout-brackets/:id
-   *
-   * @param id Knockout bracket ID
-   * @returns Promise<void>
-   *
-   * @example
-   * await knockoutBracketService.deleteKnockoutBracket(1);
+   * Generate bracket from entries
+   * POST /api/knockout-brackets/from-entries
    */
-  async deleteKnockoutBracket(
-    id: number,
-  ): Promise<DeleteKnockoutBracketResponse> {
-    await axiosInstance.delete(`${this.baseURL}/${id}`);
-
-    return {
-      success: true,
-      message: "Knockout bracket deleted successfully",
-      data: undefined,
-    };
-  }
-
-  /**
-   * Generate knockout bracket
-   * POST /api/knockout-brackets/generate
-   *
-   * @param data Request with contentId
-   * @returns Promise with generated knockout brackets
-   *
-   * @example
-   * const brackets = await knockoutBracketService.generateKnockoutBracket({ contentId: 1 });
-   */
-  async generateKnockoutBracket(
-    data: GenerateKnockoutBracketRequest,
-  ): Promise<GenerateKnockoutBracketResponse> {
-    const response = await axiosInstance.post<GenerateKnockoutBracketResponse>(
-      `${this.baseURL}/generate`,
+  async generateFromEntries(
+    data: GenerateFromEntriesRequest,
+  ): Promise<GenerateKnockoutBracketTreeResponse> {
+    const response = await axiosInstance.post<GenerateKnockoutBracketTreeResponse>(
+      `${this.baseURL}/from-entries`,
       data,
     );
-
-    return response.data;
-  }
-
-  /**
-   * Generate bracket from groups
-   * POST /api/knockout-brackets/generate-from-groups
-   *
-   * @param data Request with contentId and teamsPerGroup
-   * @returns Promise with generated knockout brackets
-   *
-   * @example
-   * const brackets = await knockoutBracketService.generateFromGroups({
-   *   contentId: 1,
-   *   teamsPerGroup: 2
-   * });
-   */
-  async generateFromGroups(
-    data: GenerateFromGroupsRequest,
-  ): Promise<GenerateFromGroupsResponse> {
-    const response = await axiosInstance.post<GenerateFromGroupsResponse>(
-      `${this.baseURL}/generate-from-groups`,
-      data,
-    );
-
     return response.data;
   }
 
@@ -277,10 +75,11 @@ class KnockoutBracketService {
    * });
    */
   async advanceWinner(
+    id: number,
     data: AdvanceWinnerRequest,
   ): Promise<AdvanceWinnerResponse> {
     const response = await axiosInstance.post<AdvanceWinnerResponse>(
-      `${this.baseURL}/advance-winner`,
+      `${this.baseURL}/${id}/advance-winner`,
       data,
     );
 
@@ -292,11 +91,51 @@ class KnockoutBracketService {
    * POST /api/knockout-brackets/validate
    */
   async validateKnockoutBrackets(
-    data: ValidateKnockoutBracketRequest,
+    categoryId: number,
   ): Promise<ValidateKnockoutBracketResponse> {
-    const response = await axiosInstance.post<ValidateKnockoutBracketResponse>(
-      `${this.baseURL}/validate`,
-      data,
+    const response = await axiosInstance.get<ValidateKnockoutBracketResponse>(
+      `${this.baseURL}/validate/${categoryId}`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Get knockout bracket tree by category ID
+   * GET /api/knockout-brackets/tree/{categoryId}
+   */
+  async getKnockoutBracketTreeByCategory(
+    categoryId: number,
+  ): Promise<GetKnockoutBracketTreeResponse> {
+    const response = await axiosInstance.get<GetKnockoutBracketTreeResponse>(
+      `${this.baseURL}/tree/${categoryId}`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Get knockout standings by category ID
+   * GET /api/knockout-brackets/standings/{categoryId}
+   */
+  async getKnockoutStandingsByCategory(
+    categoryId: number,
+  ): Promise<GetKnockoutStandingsResponse> {
+    const response = await axiosInstance.get<GetKnockoutStandingsResponse>(
+      `${this.baseURL}/standings/${categoryId}`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Get entry brackets by category ID
+   * GET /api/knockout-brackets/category/{categoryId}/entry
+   */
+  async getKnockoutBracketsByEntry(
+    categoryId: number,
+    options?: { entryId?: number; entryName?: string; page?: number; limit?: number }
+  ): Promise<GetKnockoutBracketsByEntryResponse> {
+    const response = await axiosInstance.get<GetKnockoutBracketsByEntryResponse>(
+      `${this.baseURL}/category/${categoryId}/entry`,
+      { params: options }
     );
     return response.data;
   }

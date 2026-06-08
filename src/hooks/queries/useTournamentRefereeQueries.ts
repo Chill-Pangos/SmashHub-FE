@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { tournamentRefereeService } from "@/services";
 import { queryKeys } from "./queryKeys";
 import type {
-  TournamentReferee,
   CreateTournamentRefereeRequest,
   InviteRefereeRequest,
   AcceptInvitationRequest,
@@ -13,6 +12,7 @@ import type {
   AssignRefereesRequest,
   UpdateTournamentRefereeRequest,
   UpdateAvailabilityRequest,
+  GetAllTournamentRefereesResponse,
 } from "@/types";
 
 // ==================== Query Hooks ====================
@@ -133,10 +133,10 @@ export const useCreateTournamentReferee = () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.tournamentReferees.all,
       });
-      if (result.data) {
+      if (result) {
         queryClient.invalidateQueries({
           queryKey: queryKeys.tournamentReferees.byTournament(
-            result.data.tournamentId,
+            result.tournamentId,
           ),
         });
       }
@@ -171,7 +171,7 @@ export const useAcceptRefereeInvitation = () => {
     mutationFn: (data: AcceptInvitationRequest) =>
       tournamentRefereeService.acceptInvitation(data),
     onSuccess: (result) => {
-      const tournamentId = result.data?.tournamentId;
+      const tournamentId = result?.tournamentId;
       if (tournamentId) {
         queryClient.invalidateQueries({
           queryKey: queryKeys.tournamentReferees.byTournament(tournamentId),
@@ -194,7 +194,7 @@ export const useRejectRefereeInvitation = () => {
     mutationFn: (data: RejectInvitationRequest) =>
       tournamentRefereeService.rejectInvitation(data),
     onSuccess: (result) => {
-      const tournamentId = result.data?.tournamentId;
+      const tournamentId = result?.tournamentId;
       if (tournamentId) {
         queryClient.invalidateQueries({
           queryKey: queryKeys.tournamentReferees.invitations(tournamentId),
@@ -214,7 +214,7 @@ export const useCancelRefereeInvitation = () => {
     mutationFn: (data: CancelInvitationRequest) =>
       tournamentRefereeService.cancelInvitation(data),
     onSuccess: (result) => {
-      const tournamentId = result.data?.tournamentId;
+      const tournamentId = result?.tournamentId;
       if (tournamentId) {
         queryClient.invalidateQueries({
           queryKey: queryKeys.tournamentReferees.invitations(tournamentId),
@@ -346,8 +346,15 @@ export const useDeleteTournamentReferee = () => {
 
       queryClient.setQueriesData(
         { queryKey: queryKeys.tournamentReferees.lists() },
-        (old: TournamentReferee[] | undefined) =>
-          old?.filter((r) => r.id !== id) ?? [],
+        (old: GetAllTournamentRefereesResponse | undefined) => {
+          if (old) {
+            return {
+              ...old,
+              referees: old.referees.filter((r) => r.id !== id),
+            };
+          }
+          return old;
+        },
       );
 
       return { previousReferees };

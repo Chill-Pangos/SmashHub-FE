@@ -3,9 +3,6 @@
  * Type definitions for role-related operations
  */
 
-import type { PaginatedResult, PaginationParams } from "./pagination.types";
-
-// ==================== Base Role Interface ====================
 
 /**
  * Role entity from API
@@ -30,33 +27,13 @@ export interface CreateRoleRequest {
 }
 
 /**
- * Response from create role API
- */
-export interface CreateRoleResponse {
-  success: boolean;
-  message: string;
-  data: Role;
-}
-
-// ==================== Update Role ====================
-
-/**
  * Request body for updating a role
- * PUT /api/roles/:id
+ * PATCH /api/roles/:id
  */
 export interface UpdateRoleRequest {
   name?: string; // Optional - New unique name
   description?: string; // Optional - New description
 }
-
-/**
- * Update role response
- * Sequelize returns: [affectedCount, [updatedRole]]
- */
-export type UpdateRoleResponse = [
-  number, // Number of rows updated
-  Role[], // Array of updated role(s)
-];
 
 // ==================== Role Validation ====================
 
@@ -76,8 +53,14 @@ export interface RoleValidationErrors {
   description?: string;
 }
 
-// ==================== Pagination Types ====================
-
-export interface RoleListParams extends PaginationParams {}
-
-export type PaginatedRolesResult = PaginatedResult<Role>;
+export interface GetRolesResponse {
+  roles: Role[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+}

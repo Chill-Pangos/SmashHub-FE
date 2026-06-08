@@ -1,13 +1,10 @@
 import axiosInstance from "@/config/axiosConfig";
-import { parsePaginatedResponse } from "@/utils/pagination.utils";
 import type {
   ConfirmPaymentRequest,
   CreateCashPaymentRequest,
   CreateOnlinePaymentRequest,
   CreatePaymentRequest,
-  DeletePaymentResponse,
-  PaginatedPaymentsResult,
-  Payment,
+  GetPaymentsResponse,
   PaymentResponse,
   PaymentStatisticsResponse,
   UpdatePaymentProofRequest,
@@ -28,7 +25,7 @@ class PaymentService {
     data: CreateCashPaymentRequest,
   ): Promise<PaymentResponse> {
     const response = await axiosInstance.post<PaymentResponse>(
-      `${this.baseURL}/cash`,
+      `${this.baseURL}/record-cash`,
       data,
     );
     return response.data;
@@ -38,7 +35,7 @@ class PaymentService {
     data: CreateOnlinePaymentRequest,
   ): Promise<PaymentResponse> {
     const response = await axiosInstance.post<PaymentResponse>(
-      `${this.baseURL}/online`,
+      `${this.baseURL}/record-online`,
       data,
     );
     return response.data;
@@ -49,16 +46,12 @@ class PaymentService {
     page: number = 1,
     limit: number = 10,
     status?: string,
-  ): Promise<PaginatedPaymentsResult> {
-    const response = await axiosInstance.get<unknown>(
+  ): Promise<GetPaymentsResponse> {
+    const response = await axiosInstance.get<GetPaymentsResponse>(
       `${this.baseURL}/entry/${entryId}`,
       { params: { page, limit, status } },
     );
-
-    return parsePaginatedResponse<Payment>(response.data, {
-      page,
-      limit,
-    });
+    return response.data;
   }
 
   async getPaymentsByCategory(
@@ -67,16 +60,12 @@ class PaymentService {
     limit: number = 10,
     status?: string,
     method?: string,
-  ): Promise<PaginatedPaymentsResult> {
-    const response = await axiosInstance.get<unknown>(
+  ): Promise<GetPaymentsResponse> {
+    const response = await axiosInstance.get<GetPaymentsResponse>(
       `${this.baseURL}/category/${categoryId}`,
       { params: { page, limit, status, method } },
     );
-
-    return parsePaginatedResponse<Payment>(response.data, {
-      page,
-      limit,
-    });
+    return response.data;
   }
 
   async getPaymentStatistics(
@@ -93,16 +82,12 @@ class PaymentService {
     page: number = 1,
     limit: number = 10,
     method?: string,
-  ): Promise<PaginatedPaymentsResult> {
-    const response = await axiosInstance.get<unknown>(
+  ): Promise<GetPaymentsResponse> {
+    const response = await axiosInstance.get<GetPaymentsResponse>(
       `${this.baseURL}/pending/${categoryId}`,
       { params: { page, limit, method } },
     );
-
-    return parsePaginatedResponse<Payment>(response.data, {
-      page,
-      limit,
-    });
+    return response.data;
   }
 
   async getPaymentById(paymentId: number): Promise<PaymentResponse> {
@@ -148,14 +133,7 @@ class PaymentService {
     return response.data;
   }
 
-  async deletePayment(paymentId: number): Promise<DeletePaymentResponse> {
-    await axiosInstance.delete(`${this.baseURL}/${paymentId}`);
-    return {
-      success: true,
-      message: "Payment deleted successfully",
-      data: undefined,
-    };
-  }
+
 }
 
 export default new PaymentService();

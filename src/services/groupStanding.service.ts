@@ -6,13 +6,11 @@ import type {
   RandomDrawResponse,
   SaveAssignmentsRequest,
   SaveAssignmentsResponse,
-  RandomDrawAndSaveRequest,
-  RandomDrawAndSaveResponse,
   CalculateStandingsRequest,
   CalculateStandingsResponse,
   GetStandingsByContentResponse,
-  GetQualifiedTeamsResponse,
   SyncStandingsResponse,
+  GetQualifiedTeamsResponse,
 } from "@/types/groupStanding.types";
 
 /**
@@ -87,25 +85,6 @@ class GroupStandingService {
     return response.data;
   }
 
-  /**
-   * Random draw and save
-   * POST /api/group-standings/random-draw-and-save
-   *
-   * @param data Request with contentId
-   * @returns Promise with drawn and saved group standings
-   *
-   * @example
-   * const result = await groupStandingService.randomDrawAndSave({ contentId: 1 });
-   */
-  async randomDrawAndSave(
-    data: RandomDrawAndSaveRequest,
-  ): Promise<RandomDrawAndSaveResponse> {
-    const response = await axiosInstance.post<RandomDrawAndSaveResponse>(
-      `${this.baseURL}/random-draw-and-save`,
-      data,
-    );
-    return response.data;
-  }
 
   /**
    * Calculate group standings
@@ -156,35 +135,19 @@ class GroupStandingService {
   }
 
   /**
-   * @deprecated Use getStandingsByCategory instead.
-   */
-  async getStandingsByContent(
-    contentId: number,
-  ): Promise<GetStandingsByContentResponse> {
-    return this.getStandingsByCategory(contentId);
-  }
-
-  /**
    * Get qualified teams by category ID
-   * GET /api/group-standings/qualified/:categoryId
+   * GET /api/group-standings/:categoryId/qualified
    */
   async getQualifiedTeamsByCategory(
     categoryId: number,
+    options?: { qualifiersPerGroup?: number; page?: number; limit?: number },
   ): Promise<GetQualifiedTeamsResponse> {
     const response = await axiosInstance.get<GetQualifiedTeamsResponse>(
-      `${this.baseURL}/qualified/${categoryId}`,
+      `${this.baseURL}/${categoryId}/qualified`,
+      { params: options }
     );
 
     return response.data;
-  }
-
-  /**
-   * @deprecated Use getQualifiedTeamsByCategory instead.
-   */
-  async getQualifiedTeams(
-    contentId: number,
-  ): Promise<GetQualifiedTeamsResponse> {
-    return this.getQualifiedTeamsByCategory(contentId);
   }
 }
 

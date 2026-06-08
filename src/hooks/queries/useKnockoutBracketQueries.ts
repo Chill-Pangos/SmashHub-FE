@@ -2,58 +2,16 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { knockoutBracketService } from "@/services";
 import { queryKeys } from "./queryKeys";
 import type {
-  KnockoutBracket,
-  CreateKnockoutBracketRequest,
-  UpdateKnockoutBracketRequest,
-  GenerateKnockoutBracketRequest,
-  GenerateFromGroupsRequest,
+  GenerateKnockoutPlaceholdersRequest,
+  FillQualifiersRequest,
+  GenerateFromEntriesRequest,
   AdvanceWinnerRequest,
-  ValidateKnockoutBracketRequest,
 } from "@/types";
 
-const getCategoryId = (data: { contentId: number; categoryId?: number }) =>
-  data.categoryId ?? data.contentId;
+const getCategoryId = (data: { categoryId: number }) => data.categoryId;
 
 // ==================== Query Hooks ====================
 
-/**
- * Hook để lấy tất cả knockout brackets với pagination
- */
-export const useKnockoutBrackets = (page = 1, limit = 10) => {
-  return useQuery({
-    queryKey: queryKeys.knockoutBrackets.list({ page, limit }),
-    queryFn: () => knockoutBracketService.getAllKnockoutBrackets(page, limit),
-  });
-};
-
-/**
- * Hook để lấy knockout bracket theo ID
- */
-export const useKnockoutBracket = (
-  id: number,
-  options?: { enabled?: boolean },
-) => {
-  return useQuery({
-    queryKey: queryKeys.knockoutBrackets.detail(id),
-    queryFn: () => knockoutBracketService.getKnockoutBracketById(id),
-    enabled: (options?.enabled ?? true) && id > 0,
-  });
-};
-
-/**
- * Hook để lấy knockout brackets theo category ID
- */
-export const useKnockoutBracketsByCategory = (
-  categoryId: number,
-  options?: { enabled?: boolean },
-) => {
-  return useQuery({
-    queryKey: queryKeys.knockoutBrackets.byCategory(categoryId),
-    queryFn: () =>
-      knockoutBracketService.getKnockoutBracketsByCategory(categoryId),
-    enabled: (options?.enabled ?? true) && categoryId > 0,
-  });
-};
 
 /**
  * Hook to get knockout bracket tree by category
@@ -86,111 +44,31 @@ export const useKnockoutStandingsByCategory = (
 };
 
 /**
- * @deprecated Use useKnockoutBracketsByCategory instead.
+ * Hook to get entry brackets by category
  */
-export const useKnockoutBracketsByContent = (
-  contentId: number,
-  options?: { enabled?: boolean },
-) => useKnockoutBracketsByCategory(contentId, options);
+export const useKnockoutBracketsByEntry = (
+  categoryId: number,
+  options?: { enabled?: boolean; entryId?: number; entryName?: string; page?: number; limit?: number },
+) => {
+  return useQuery({
+    queryKey: [...queryKeys.knockoutBrackets.byCategory(categoryId), "entry", { entryId: options?.entryId, entryName: options?.entryName, page: options?.page, limit: options?.limit }],
+    queryFn: () =>
+      knockoutBracketService.getKnockoutBracketsByEntry(categoryId, { entryId: options?.entryId, entryName: options?.entryName, page: options?.page, limit: options?.limit }),
+    enabled: (options?.enabled ?? true) && categoryId > 0,
+  });
+};
 
 // ==================== Mutation Hooks ====================
 
 /**
- * Hook để tạo knockout bracket mới
+ * Hook để generate bracket placeholders
  */
-export const useCreateKnockoutBracket = () => {
+export const useGenerateKnockoutPlaceholders = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateKnockoutBracketRequest) =>
-      knockoutBracketService.createKnockoutBracket(data),
-    onSuccess: (result) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.knockoutBrackets.all,
-      });
-      if (result.data) {
-        const categoryId = getCategoryId(result.data);
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.knockoutBrackets.byCategory(categoryId),
-        });
-      }
-    },
-  });
-};
-
-/**
- * Hook để cập nhật knockout bracket
- */
-export const useUpdateKnockoutBracket = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: number;
-      data: UpdateKnockoutBracketRequest;
-    }) => knockoutBracketService.updateKnockoutBracket(id, data),
-    onSuccess: (result, { id }) => {
-      queryClient.setQueryData(queryKeys.knockoutBrackets.detail(id), result);
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.knockoutBrackets.lists(),
-      });
-    },
-  });
-};
-
-/**
- * Hook để xóa knockout bracket
- */
-export const useDeleteKnockoutBracket = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: number) =>
-      knockoutBracketService.deleteKnockoutBracket(id),
-    onMutate: async (id: number) => {
-      await queryClient.cancelQueries({
-        queryKey: queryKeys.knockoutBrackets.all,
-      });
-
-      const previousBrackets = queryClient.getQueriesData({
-        queryKey: queryKeys.knockoutBrackets.all,
-      });
-
-      queryClient.setQueriesData(
-        { queryKey: queryKeys.knockoutBrackets.lists() },
-        (old: KnockoutBracket[] | undefined) =>
-          old?.filter((b) => b.id !== id) ?? [],
-      );
-
-      return { previousBrackets };
-    },
-    onError: (_err, _id, context) => {
-      if (context?.previousBrackets) {
-        context.previousBrackets.forEach(([key, data]) => {
-          queryClient.setQueryData(key, data);
-        });
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.knockoutBrackets.all,
-      });
-    },
-  });
-};
-
-/**
- * Hook để generate knockout bracket
- */
-export const useGenerateKnockoutBracket = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: GenerateKnockoutBracketRequest) =>
-      knockoutBracketService.generateKnockoutBracket(data),
+    mutationFn: (data: GenerateKnockoutPlaceholdersRequest) =>
+      knockoutBracketService.generatePlaceholders(data),
     onSuccess: (_result, data) => {
       const categoryId = getCategoryId(data);
       queryClient.invalidateQueries({
@@ -204,14 +82,35 @@ export const useGenerateKnockoutBracket = () => {
 };
 
 /**
- * Hook để generate bracket từ groups
+ * Hook để fill qualifiers into bracket
  */
-export const useGenerateFromGroups = () => {
+export const useFillQualifiers = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: GenerateFromGroupsRequest) =>
-      knockoutBracketService.generateFromGroups(data),
+    mutationFn: (data: FillQualifiersRequest) =>
+      knockoutBracketService.fillQualifiers(data),
+    onSuccess: (_result, data) => {
+      const categoryId = getCategoryId(data);
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.knockoutBrackets.byCategory(categoryId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.knockoutBrackets.all,
+      });
+    },
+  });
+};
+
+/**
+ * Hook để generate bracket từ entries
+ */
+export const useGenerateFromEntries = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: GenerateFromEntriesRequest) =>
+      knockoutBracketService.generateFromEntries(data),
     onSuccess: (_result, data) => {
       const categoryId = getCategoryId(data);
       queryClient.invalidateQueries({
@@ -231,8 +130,8 @@ export const useAdvanceWinner = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: AdvanceWinnerRequest) =>
-      knockoutBracketService.advanceWinner(data),
+    mutationFn: ({ id, data }: { id: number; data: AdvanceWinnerRequest }) =>
+      knockoutBracketService.advanceWinner(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.knockoutBrackets.all,
@@ -244,9 +143,13 @@ export const useAdvanceWinner = () => {
 /**
  * Hook to validate knockout brackets
  */
-export const useValidateKnockoutBrackets = () => {
-  return useMutation({
-    mutationFn: (data: ValidateKnockoutBracketRequest) =>
-      knockoutBracketService.validateKnockoutBrackets(data),
+export const useValidateKnockoutBrackets = (
+  categoryId: number,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: [...queryKeys.knockoutBrackets.byCategory(categoryId), "validate"],
+    queryFn: () => knockoutBracketService.validateKnockoutBrackets(categoryId),
+    enabled: (options?.enabled ?? true) && categoryId > 0,
   });
 };

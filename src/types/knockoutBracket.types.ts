@@ -1,4 +1,3 @@
-import type { ApiResponse } from "./auth.types";
 
 // ==================== Enums ====================
 
@@ -39,8 +38,51 @@ export interface KnockoutBracket {
   updatedAt: string;
 }
 
-export type KnockoutBracketTree = Record<string, unknown>;
+export interface BracketNode {
+  id: number;
+  roundNumber: number;
+  roundName: string;
+  bracketPosition: number;
+  entryA?: {
+    entryId: number;
+    entryName: string;
+  } | null;
+  entryB?: {
+    entryId: number;
+    entryName: string;
+  } | null;
+  winnerEntryId?: number | null;
+  status: KnockoutBracketStatus;
+  isByeMatch: boolean;
+  previousBracketAId?: number | null;
+  previousBracketBId?: number | null;
+  nextBracketId?: number | null;
+  scheduleId?: number | null;
+  matchId?: number | null;
+}
 
+export interface KnockoutBracketRound {
+  roundNumber: number;
+  roundName: string;
+  brackets: BracketNode[];
+}
+
+export interface KnockoutBracketTree {
+  categoryId: number;
+  totalRounds: number;
+  totalBrackets: number;
+  rounds: KnockoutBracketRound[];
+}
+
+export interface KnockoutStandings {
+  champion?: number;
+  runnerUp?: number;
+  thirdPlace?: number[];
+  eliminated?: {
+    entryId: number;
+    eliminatedAt: string;
+  }[];
+}
 // ==================== Request Types ====================
 
 /**
@@ -82,20 +124,24 @@ export interface UpdateKnockoutBracketRequest {
 }
 
 /**
- * Generate knockout bracket request
+ * Generate placeholders request
  */
-export interface GenerateKnockoutBracketRequest {
-  contentId: number;
-  categoryId?: number;
+export interface GenerateKnockoutPlaceholdersRequest {
+  categoryId: number;
 }
 
 /**
- * Generate bracket from groups request
+ * Fill qualifiers request
  */
-export interface GenerateFromGroupsRequest {
-  contentId: number;
-  categoryId?: number;
-  teamsPerGroup: number;
+export interface FillQualifiersRequest {
+  categoryId: number;
+}
+
+/**
+ * Generate from entries request
+ */
+export interface GenerateFromEntriesRequest {
+  categoryId: number;
 }
 
 /**
@@ -114,60 +160,49 @@ export interface ValidateKnockoutBracketRequest {
 // ==================== Response Types ====================
 
 /**
- * Create knockout bracket response
- */
-export type CreateKnockoutBracketResponse = ApiResponse<KnockoutBracket>;
-
-/**
- * Get knockout bracket response
- */
-export type GetKnockoutBracketResponse = ApiResponse<KnockoutBracket>;
-
-/**
- * Get all knockout brackets response
- */
-export type GetKnockoutBracketsResponse = ApiResponse<KnockoutBracket[]>;
-
-/**
- * Get knockout brackets by content response
- */
-export type GetKnockoutBracketsByContentResponse = ApiResponse<
-  KnockoutBracket[]
->;
-
-/**
- * Update knockout bracket response
- */
-export type UpdateKnockoutBracketResponse = ApiResponse<KnockoutBracket>;
-
-/**
- * Delete knockout bracket response
- */
-export type DeleteKnockoutBracketResponse = ApiResponse<void>;
-
-/**
- * Generate knockout bracket response
- */
-export type GenerateKnockoutBracketResponse = ApiResponse<KnockoutBracket[]>;
-
-/**
- * Generate from groups response
- */
-export type GenerateFromGroupsResponse = ApiResponse<KnockoutBracket[]>;
-
-/**
  * Advance winner response
  */
-export type AdvanceWinnerResponse = ApiResponse<KnockoutBracket>;
+export interface AdvanceWinnerResponse {
+  success: boolean;
+  data: KnockoutBracket;
+  message: string;
+}
 
-export type GetKnockoutBracketTreeResponse = ApiResponse<KnockoutBracketTree>;
-export type GetKnockoutStandingsResponse = ApiResponse<KnockoutBracket[]>;
+export interface GetKnockoutBracketTreeResponse {
+  success: boolean;
+  data: KnockoutBracketTree;
+}
+
+export interface GetKnockoutStandingsResponse {
+  success: boolean;
+  data: KnockoutStandings;
+}
 
 export interface ValidateKnockoutBracketResponse {
   success: boolean;
-  message: string;
   data: {
     valid: boolean;
-    issues?: string[];
+    errors?: string[];
+  };
+}
+
+export interface GenerateKnockoutBracketTreeResponse {
+  success: boolean;
+  data: KnockoutBracketTree;
+  message: string;
+}
+
+export interface GetKnockoutBracketsByEntryResponse {
+  success: boolean;
+  data: {
+    brackets: KnockoutBracket[];
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
   };
 }

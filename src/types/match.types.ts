@@ -1,4 +1,3 @@
-import type { ApiResponse } from "./auth.types";
 import type { TournamentContent } from "./tournament.types";
 import type { MatchSet } from "./matchSet.types";
 
@@ -143,47 +142,50 @@ export interface RejectMatchRequest {
 /**
  * Create match response
  */
-export type CreateMatchResponse = ApiResponse<Match>;
+export type CreateMatchResponse = Match;
 
 /**
  * Get match response
  */
-export type GetMatchResponse = ApiResponse<Match>;
+export type GetMatchResponse = Match;
 
 /**
  * Get matches response
  */
-export type GetMatchesResponse = ApiResponse<Match[]>;
+export type GetMatchesResponse = { rows: Match[]; count: number };
 
 /**
  * Get matches by schedule response
  */
-export type GetMatchesByScheduleResponse = ApiResponse<Match[]>;
+export type GetMatchesByScheduleResponse = { rows: Match[]; count: number };
 
 /**
  * Get matches by status response
  */
-export type GetMatchesByStatusResponse = ApiResponse<Match[]>;
+export type GetMatchesByStatusResponse = { rows: Match[]; count: number };
 
 /**
  * Update match response
  */
-export type UpdateMatchResponse = ApiResponse<Match>;
+export type UpdateMatchResponse = Match;
 
 /**
  * Delete match response
  */
-export type DeleteMatchResponse = ApiResponse<void>;
+export type DeleteMatchResponse = void;
 
 /**
  * Start match response
  */
-export type StartMatchResponse = ApiResponse<Match>;
+export type StartMatchResponse = Match;
 
 /**
  * Finalize match response
  */
-export type FinalizeMatchResponse = ApiResponse<Match>;
+export interface FinalizeMatchResponse {
+  message: string;
+  match: Match;
+}
 
 /**
  * Get pending matches response
@@ -197,14 +199,14 @@ export interface GetPendingMatchesResponse {
 export interface GetAthleteUpcomingMatchesResponse {
   matches: Match[];
   count: number;
-  page?: number;
+  offset?: number;
   limit?: number;
 }
 
 export interface GetAthleteMatchHistoryResponse {
   matches: Match[];
   count: number;
-  page?: number;
+  offset?: number;
   limit?: number;
 }
 
@@ -257,14 +259,7 @@ export type PreviewEloChangesResponse = EloPreview;
 export interface ApproveMatchResponse {
   success: boolean;
   message: string;
-  data: {
-    id: number;
-    status: MatchStatus;
-    resultStatus: MatchResultStatus;
-    winnerEntryId: number;
-    reviewNotes?: string;
-    eloUpdated: boolean;
-  };
+  match: Match;
 }
 
 /**
@@ -273,13 +268,7 @@ export interface ApproveMatchResponse {
 export interface RejectMatchResponse {
   success: boolean;
   message: string;
-  data: {
-    id: number;
-    status: MatchStatus;
-    resultStatus: MatchResultStatus;
-    winnerEntryId: null;
-    reviewNotes: string;
-  };
+  match: Match;
 }
 
 // ==================== Athlete Match Types ====================

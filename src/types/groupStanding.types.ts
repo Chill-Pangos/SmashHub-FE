@@ -1,4 +1,3 @@
-import type { ApiResponse } from "./auth.types";
 
 // ==================== Group Standing ====================
 
@@ -44,7 +43,7 @@ export interface GroupStanding {
 export interface GroupPlaceholder {
   groupName: string;
   slots: number;
-  entries: number[];
+  entryIds: number[];
 }
 
 /**
@@ -61,41 +60,30 @@ export interface GroupAssignment {
  * Generate placeholders request
  */
 export interface GeneratePlaceholdersRequest {
-  contentId: number;
-  categoryId?: number;
+  categoryId: number;
 }
 
 /**
  * Random draw request
  */
 export interface RandomDrawRequest {
-  contentId: number;
-  categoryId?: number;
+  categoryId: number;
 }
 
 /**
  * Save assignments request
  */
 export interface SaveAssignmentsRequest {
-  contentId: number;
-  categoryId?: number;
+  categoryId: number;
   groupAssignments: GroupAssignment[];
-}
-
-/**
- * Random draw and save request
- */
-export interface RandomDrawAndSaveRequest {
-  contentId: number;
-  categoryId?: number;
 }
 
 /**
  * Calculate standings request
  */
 export interface CalculateStandingsRequest {
-  contentId: number;
-  categoryId?: number;
+  categoryId: number;
+  groupName?: string;
 }
 
 // ==================== Response Types ====================
@@ -121,42 +109,56 @@ export interface RandomDrawResponse {
 /**
  * Save assignments response
  */
-export type SaveAssignmentsResponse = ApiResponse<GroupStanding[]>;
-
-/**
- * Random draw and save response
- */
-export interface RandomDrawAndSaveResponse {
+export interface SaveAssignmentsResponse {
   success: boolean;
-  data: {
-    groupStandings: GroupStanding[];
-    assignments: GroupPlaceholder[];
-  };
+  data: GroupStanding[];
   message: string;
 }
 
 /**
  * Calculate standings response
  */
-export type CalculateStandingsResponse = ApiResponse<GroupStanding[]>;
+export interface CalculateStandingsResponse {
+  success: boolean;
+  data: GroupStanding[];
+  message: string;
+}
 
 /**
  * Get standings by content response
  */
-export type GetStandingsByContentResponse = ApiResponse<GroupStanding[]>;
+export interface GetStandingsByContentResponse {
+  success: boolean;
+  data: GroupStanding[];
+}
 
 /**
  * Get qualified teams response
  */
-export interface QualifiedTeam {
-  entryId: number;
+export interface GroupQualifiers {
   groupName: string;
-  position: number;
+  qualifiers: GroupStanding[];
 }
 
-export type GetQualifiedTeamsResponse = ApiResponse<QualifiedTeam[]>;
+export interface GetQualifiedTeamsResponse {
+  success: boolean;
+  data: {
+    qualifiers: GroupQualifiers[];
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
+  };
+}
 
 /**
  * Sync standings response
  */
-export type SyncStandingsResponse = ApiResponse<GroupStanding[]>;
+export interface SyncStandingsResponse {
+  success: boolean;
+  message: string;
+}

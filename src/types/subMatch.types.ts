@@ -3,8 +3,6 @@
  * Type definitions for sub-match management endpoints
  */
 
-import type { ApiResponse } from "./auth.types";
-
 export type SubMatchTeam = "A" | "B";
 
 export interface SubMatchPlayerAssignment {
@@ -33,8 +31,8 @@ export interface SubMatch {
   [key: string]: unknown;
 }
 
-export type SubMatchResponse = ApiResponse<SubMatch>;
-export type SubMatchesResponse = ApiResponse<SubMatch[]>;
-export type StartSubMatchResponse = ApiResponse<SubMatch>;
-export type FinalizeSubMatchResponse = ApiResponse<SubMatch>;
-export type AssignSubMatchPlayersResponse = ApiResponse<SubMatch>;
+export type SubMatchResponse = SubMatch;
+export type SubMatchesResponse = { subMatches: SubMatch[]; pagination: any };
+export type StartSubMatchResponse = SubMatch;
+export type FinalizeSubMatchResponse = SubMatch;
+export type AssignSubMatchPlayersResponse = any[]; // Should be SubMatchPlayer[]

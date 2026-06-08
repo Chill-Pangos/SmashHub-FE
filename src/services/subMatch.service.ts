@@ -47,9 +47,14 @@ class SubMatchService {
     return response.data;
   }
 
-  async getSubMatchesByMatch(matchId: number): Promise<SubMatchesResponse> {
+  async getSubMatchesByMatch(
+    matchId: number,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<SubMatchesResponse> {
     const response = await axiosInstance.get<SubMatchesResponse>(
       `${this.baseURL}/match/${matchId}`,
+      { params: { page, limit } }
     );
     return response.data;
   }

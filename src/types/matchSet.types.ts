@@ -1,4 +1,3 @@
-import type { ApiResponse } from "./auth.types";
 
 // ==================== Match Set ====================
 
@@ -50,34 +49,10 @@ export interface UpdateMatchSetRequest {
 /**
  * Create match set response
  */
-export type CreateMatchSetResponse = ApiResponse<MatchSet>;
-
-/**
- * Get match set response
- */
-export type GetMatchSetResponse = ApiResponse<MatchSet>;
-
-/**
- * Get match sets response
- */
-export type GetMatchSetsResponse = ApiResponse<MatchSet[]>;
-
-/**
- * Get match sets by match response
- */
-export type GetMatchSetsByMatchResponse = ApiResponse<MatchSet[]>;
-
-/**
- * Update match set response
- */
-export type UpdateMatchSetResponse = ApiResponse<MatchSet>;
-
-/**
- * Delete match set response
- */
-export type DeleteMatchSetResponse = ApiResponse<void>;
-
-/**
- * Create match set with score response
- */
-export type CreateMatchSetWithScoreResponse = ApiResponse<MatchSet>;
+export type CreateMatchSetResponse = MatchSet;
+export type GetMatchSetResponse = MatchSet;
+export type GetMatchSetsResponse = { rows: MatchSet[]; count: number };
+export type GetMatchSetsByMatchResponse = { sets: MatchSet[]; pagination: any }; // subMatchId
+export type UpdateMatchSetResponse = MatchSet;
+export type DeleteMatchSetResponse = void;
+export type CreateMatchSetWithScoreResponse = MatchSet;

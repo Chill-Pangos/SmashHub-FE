@@ -3,8 +3,7 @@
  * Type definitions for payment and payout endpoints
  */
 
-import type { ApiResponse } from "./auth.types";
-import type { PaginatedResult, PaginationParams } from "./pagination.types";
+import type { PaginationParams } from "./pagination.types";
 
 export type PaymentMethod = "cash" | "bank_transfer" | "online";
 export type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
@@ -68,8 +67,21 @@ export interface PaymentListParams extends PaginationParams {
   method?: PaymentMethod;
 }
 
-export type PaymentResponse = ApiResponse<Payment>;
-export type PaymentsResponse = ApiResponse<Payment[]>;
-export type PaymentStatisticsResponse = ApiResponse<PaymentStatistics>;
-export type DeletePaymentResponse = ApiResponse<void>;
-export type PaginatedPaymentsResult = PaginatedResult<Payment>;
+export interface GetPaymentsResponse {
+  success: boolean;
+  data: {
+    rows: Payment[];
+    count: number;
+  };
+}
+
+export interface PaymentResponse {
+  success: boolean;
+  data: Payment;
+  message?: string;
+}
+
+export interface PaymentStatisticsResponse {
+  success: boolean;
+  data: PaymentStatistics;
+}

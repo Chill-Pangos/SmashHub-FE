@@ -4,11 +4,13 @@ import { queryKeys } from "./queryKeys";
 
 export const useSubMatchPlayers = (
   subMatchId: number,
+  page = 1,
+  limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: queryKeys.subMatchPlayers.bySubMatch(subMatchId),
-    queryFn: () => subMatchPlayerService.getPlayersBySubMatch(subMatchId),
+    queryKey: [...queryKeys.subMatchPlayers.bySubMatch(subMatchId), { page, limit }],
+    queryFn: () => subMatchPlayerService.getPlayersBySubMatch(subMatchId, page, limit),
     enabled: (options?.enabled ?? true) && subMatchId > 0,
   });
 };
@@ -16,12 +18,14 @@ export const useSubMatchPlayers = (
 export const useSubMatchPlayersByTeam = (
   subMatchId: number,
   team: string,
+  page = 1,
+  limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: queryKeys.subMatchPlayers.bySubMatchTeam(subMatchId, team),
+    queryKey: [...queryKeys.subMatchPlayers.bySubMatchTeam(subMatchId, team), { page, limit }],
     queryFn: () =>
-      subMatchPlayerService.getPlayersBySubMatchTeam(subMatchId, team),
+      subMatchPlayerService.getPlayersBySubMatchTeam(subMatchId, team, page, limit),
     enabled: (options?.enabled ?? true) && subMatchId > 0 && !!team,
   });
 };

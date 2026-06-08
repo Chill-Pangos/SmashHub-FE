@@ -2,9 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { matchService } from "@/services";
 import { queryKeys } from "./queryKeys";
 import type {
-  Match,
   MatchStatus,
-  CreateMatchRequest,
   UpdateMatchRequest,
   ApproveMatchRequest,
   RejectMatchRequest,
@@ -107,26 +105,7 @@ export const useEloPreview = (id: number, options?: { enabled?: boolean }) => {
 
 // ==================== Mutation Hooks ====================
 
-/**
- * Hook để tạo match mới
- */
-export const useCreateMatch = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: CreateMatchRequest) => matchService.createMatch(data),
-    onSuccess: (result) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.matches.all,
-      });
-      if (result.data) {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.matches.bySchedule(result.data.scheduleId),
-        });
-      }
-    },
-  });
-};
+// useCreateMatch removed (not in docs)
 
 /**
  * Hook để cập nhật match
@@ -140,7 +119,7 @@ export const useUpdateMatch = () => {
     onSuccess: (result, { id }) => {
       queryClient.setQueryData(queryKeys.matches.detail(id), result);
       queryClient.invalidateQueries({
-        queryKey: queryKeys.matches.lists(),
+        queryKey: queryKeys.matches.all,
       });
     },
   });
@@ -154,30 +133,12 @@ export const useDeleteMatch = () => {
 
   return useMutation({
     mutationFn: (id: number) => matchService.deleteMatch(id),
-    onMutate: async (id: number) => {
+    onMutate: async () => {
       await queryClient.cancelQueries({
         queryKey: queryKeys.matches.all,
       });
-
-      const previousMatches = queryClient.getQueriesData({
-        queryKey: queryKeys.matches.all,
-      });
-
-      queryClient.setQueriesData(
-        { queryKey: queryKeys.matches.lists() },
-        (old: Match[] | undefined) => old?.filter((m) => m.id !== id) ?? [],
-      );
-
-      return { previousMatches };
     },
-    onError: (_err, _id, context) => {
-      if (context?.previousMatches) {
-        context.previousMatches.forEach(([key, data]) => {
-          queryClient.setQueryData(key, data);
-        });
-      }
-    },
-    onSettled: () => {
+    onSuccess: (_result, _id) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.matches.all,
       });
@@ -211,7 +172,7 @@ export const useFinalizeMatch = () => {
   return useMutation({
     mutationFn: (id: number) => matchService.finalizeMatch(id),
     onSuccess: (result, id) => {
-      queryClient.setQueryData(queryKeys.matches.detail(id), result);
+      queryClient.setQueryData(queryKeys.matches.detail(id), result.match);
       queryClient.invalidateQueries({
         queryKey: queryKeys.matches.all,
       });
@@ -232,7 +193,8 @@ export const useApproveMatch = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data?: ApproveMatchRequest }) =>
       matchService.approveMatch(id, data),
-    onSuccess: (_result, { id }) => {
+    onSuccess: (result, { id }) => {
+      queryClient.setQueryData(queryKeys.matches.detail(id), result.match);
       queryClient.invalidateQueries({
         queryKey: queryKeys.matches.detail(id),
       });
@@ -262,7 +224,8 @@ export const useRejectMatch = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: RejectMatchRequest }) =>
       matchService.rejectMatch(id, data),
-    onSuccess: (_result, { id }) => {
+    onSuccess: (result, { id }) => {
+      queryClient.setQueryData(queryKeys.matches.detail(id), result.match);
       queryClient.invalidateQueries({
         queryKey: queryKeys.matches.detail(id),
       });

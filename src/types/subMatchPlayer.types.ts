@@ -3,7 +3,6 @@
  * Type definitions for sub-match player assignment endpoints
  */
 
-import type { ApiResponse } from "./auth.types";
 import type { PaginatedResult, PaginationParams } from "./pagination.types";
 
 export type TeamSide = "A" | "B";
@@ -22,6 +21,7 @@ export interface SubMatchPlayersByEntryMemberParams extends PaginationParams {
   page?: number;
 }
 
-export type SubMatchPlayersResponse = ApiResponse<SubMatchPlayer[]>;
-export type SubMatchPlayerResponse = ApiResponse<SubMatchPlayer>;
+export type SubMatchPlayersResponse = { players: SubMatchPlayer[]; pagination: any };
+export type SubMatchPlayerResponse = SubMatchPlayer;
+export type SubMatchPlayerMatchesResponse = { matches: SubMatchPlayer[]; pagination: any };
 export type PaginatedSubMatchPlayersResult = PaginatedResult<SubMatchPlayer>;

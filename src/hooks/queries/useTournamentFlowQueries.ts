@@ -4,7 +4,7 @@ import {
   useGroupStandingsByCategory,
   useQualifiedTeams,
 } from "./useGroupStandingQueries";
-import { useKnockoutBracketsByCategory } from "./useKnockoutBracketQueries";
+import { useKnockoutBracketTreeByCategory } from "./useKnockoutBracketQueries";
 import { usePendingMatches } from "./useMatchQueries";
 import { useSchedulesByCategory } from "./useScheduleQueries";
 import { useTournament, useTournaments } from "./useTournamentQueries";
@@ -98,13 +98,13 @@ export const useTournamentFlowSnapshot = ({
   const groupStandingsQuery = useGroupStandingsByCategory(resolvedCategoryId, {
     enabled: enabled && resolvedCategoryId > 0,
   });
-  const knockoutBracketsQuery = useKnockoutBracketsByCategory(
+  const knockoutBracketsQuery = useKnockoutBracketTreeByCategory(
     resolvedCategoryId,
     {
       enabled: enabled && resolvedCategoryId > 0,
     },
   );
-  const qualifiedTeamsQuery = useQualifiedTeams(resolvedCategoryId, {
+  const qualifiedTeamsQuery = useQualifiedTeams(resolvedCategoryId, 1, 10, {
     enabled: enabled && resolvedCategoryId > 0,
   });
 

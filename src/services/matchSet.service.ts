@@ -161,12 +161,6 @@ class MatchSetService {
    */
   async deleteMatchSet(id: number): Promise<DeleteMatchSetResponse> {
     await axiosInstance.delete(`${this.baseURL}/${id}`);
-
-    return {
-      success: true,
-      message: "Match set deleted successfully",
-      data: undefined,
-    };
   }
 }
 

@@ -95,10 +95,12 @@ export const queryKeys = {
   matchSets: {
     all: ["matchSets"] as const,
     lists: () => [...queryKeys.matchSets.all, "list"] as const,
+    list: (filters?: { page?: number; limit?: number }) =>
+      [...queryKeys.matchSets.lists(), filters] as const,
     details: () => [...queryKeys.matchSets.all, "detail"] as const,
     detail: (id: number) => [...queryKeys.matchSets.details(), id] as const,
-    byMatch: (matchId: number) =>
-      [...queryKeys.matchSets.all, "match", matchId] as const,
+    byMatch: (matchId: number, filters?: { page?: number; limit?: number }) =>
+      [...queryKeys.matchSets.all, "match", matchId, filters] as const,
   },
 
   // ==================== Schedule Keys ====================

@@ -3,9 +3,7 @@ import { parsePaginatedResponse } from "@/utils/pagination.utils";
 import type {
   Permission,
   CreatePermissionRequest,
-  CreatePermissionResponse,
   UpdatePermissionRequest,
-  UpdatePermissionResponse,
   PaginatedPermissionsResult,
 } from "@/types/permission.types";
 
@@ -22,14 +20,9 @@ class PermissionService {
    */
   async createPermission(
     data: CreatePermissionRequest,
-  ): Promise<CreatePermissionResponse> {
+  ): Promise<Permission> {
     const response = await axiosInstance.post<Permission>(this.baseURL, data);
-
-    return {
-      success: true,
-      message: "Permission created successfully",
-      data: response.data,
-    };
+    return response.data;
   }
 
   /**
@@ -77,7 +70,7 @@ class PermissionService {
   async updatePermission(
     id: number,
     data: UpdatePermissionRequest,
-  ): Promise<UpdatePermissionResponse> {
+  ): Promise<Permission> {
     const response = await axiosInstance.put<Permission>(
       `${this.baseURL}/${id}`,
       data,

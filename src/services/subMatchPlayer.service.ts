@@ -1,8 +1,6 @@
 import axiosInstance from "@/config/axiosConfig";
-import { parsePaginatedResponse } from "@/utils/pagination.utils";
 import type {
-  PaginatedSubMatchPlayersResult,
-  SubMatchPlayer,
+  SubMatchPlayerMatchesResponse,
   SubMatchPlayersResponse,
 } from "@/types/subMatchPlayer.types";
 
@@ -11,9 +9,12 @@ class SubMatchPlayerService {
 
   async getPlayersBySubMatch(
     subMatchId: number,
+    page: number = 1,
+    limit: number = 10,
   ): Promise<SubMatchPlayersResponse> {
     const response = await axiosInstance.get<SubMatchPlayersResponse>(
       `${this.baseURL}/sub-match/${subMatchId}`,
+      { params: { page, limit } }
     );
     return response.data;
   }
@@ -21,9 +22,12 @@ class SubMatchPlayerService {
   async getPlayersBySubMatchTeam(
     subMatchId: number,
     team: string,
+    page: number = 1,
+    limit: number = 10,
   ): Promise<SubMatchPlayersResponse> {
     const response = await axiosInstance.get<SubMatchPlayersResponse>(
       `${this.baseURL}/sub-match/${subMatchId}/team/${team}`,
+      { params: { page, limit } }
     );
     return response.data;
   }
@@ -32,16 +36,12 @@ class SubMatchPlayerService {
     entryMemberId: number,
     page: number = 1,
     limit: number = 10,
-  ): Promise<PaginatedSubMatchPlayersResult> {
-    const response = await axiosInstance.get<unknown>(
+  ): Promise<SubMatchPlayerMatchesResponse> {
+    const response = await axiosInstance.get<SubMatchPlayerMatchesResponse>(
       `${this.baseURL}/entry-member/${entryMemberId}`,
       { params: { page, limit } },
     );
-
-    return parsePaginatedResponse<SubMatchPlayer>(response.data, {
-      page,
-      limit,
-    });
+    return response.data;
   }
 }
 

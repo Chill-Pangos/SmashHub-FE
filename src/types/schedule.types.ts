@@ -1,4 +1,3 @@
-import type { ApiResponse } from "./auth.types";
 import type { Match } from "./match.types";
 
 // ==================== Enums ====================
@@ -124,30 +123,12 @@ export interface GenerateKnockoutStageScheduleRequest {
 
 // ==================== Response Types ====================
 
-/**
- * Create schedule response
- */
-export type CreateScheduleResponse = ApiResponse<Schedule>;
+export type CreateScheduleResponse = Schedule;
+export type GetScheduleResponse = { success: boolean; data: Schedule };
+export type GetSchedulesResponse = { success: boolean; data: { schedules: Schedule[]; pagination: any } };
 
-/**
- * Get schedule response
- */
-export type GetScheduleResponse = ApiResponse<Schedule>;
-
-/**
- * Get schedules response
- */
-export type GetSchedulesResponse = ApiResponse<Schedule[]>;
-
-/**
- * Update schedule response
- */
-export type UpdateScheduleResponse = ApiResponse<Schedule>;
-
-/**
- * Delete schedule response
- */
-export type DeleteScheduleResponse = ApiResponse<void>;
+export type UpdateScheduleResponse = Schedule;
+export type DeleteScheduleResponse = void;
 
 /**
  * Generate schedule response
@@ -172,10 +153,17 @@ export interface UpdateKnockoutEntriesResponse {
   };
 }
 
-/**
- * Generate group stage schedule response
- */
-export type GenerateGroupStageScheduleResponse = GenerateScheduleResponse;
+export interface GenerateGroupStageScheduleResponse {
+  success: boolean;
+  message: string;
+  warning?: string;
+  data: {
+    totalSchedules: number;
+    totalMatches: number;
+    schedules: Schedule[];
+    matches: Match[];
+  };
+}
 
 /**
  * Generate complete schedule response
@@ -220,10 +208,7 @@ export interface GenerateKnockoutOnlyScheduleResponse {
   };
 }
 
-/**
- * Generate knockout stage schedule response
- */
-export type GenerateKnockoutStageScheduleResponse = GenerateScheduleResponse;
+export type GenerateKnockoutStageScheduleResponse = GenerateGroupStageScheduleResponse;
 
 /**
  * Get schedules by content response data
@@ -235,8 +220,4 @@ export interface GetSchedulesByContentData {
   limit: number;
 }
 
-/**
- * Get schedules by content response
- */
-export type GetSchedulesByContentResponse =
-  ApiResponse<GetSchedulesByContentData>;
+export type GetSchedulesByContentResponse = { success: boolean; data: GetSchedulesByContentData };

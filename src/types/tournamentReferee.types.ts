@@ -1,4 +1,3 @@
-import type { ApiResponse } from "./auth.types";
 
 // ==================== Enums ====================
 
@@ -146,59 +145,22 @@ export interface UpdateAvailabilityRequest {
 /**
  * Create tournament referee response
  */
-export interface CreateTournamentRefereeResponse {
-  success: boolean;
-  message: string;
-  data: TournamentReferee;
-}
+export type CreateTournamentRefereeResponse = TournamentReferee;
 
-export interface InviteRefereeResponse {
-  success: boolean;
-  message: string;
-  data: TournamentRefereeInvitation;
-}
-
-export interface AcceptInvitationResponse {
-  success: boolean;
-  message: string;
-  data: TournamentReferee;
-}
-
-export interface RejectInvitationResponse {
-  success: boolean;
-  message: string;
-  data: TournamentRefereeInvitation;
-}
-
-export interface CancelInvitationResponse {
-  success: boolean;
-  message: string;
-  data: TournamentRefereeInvitation;
-}
-
-export interface RemoveRefereeResponse {
-  success: boolean;
-  message: string;
-  data?: TournamentReferee;
-}
-
-export interface UpdateRefereeRoleResponse {
-  success: boolean;
-  message: string;
-  data: TournamentReferee;
-}
+export type InviteRefereeResponse = TournamentRefereeInvitation;
+export type AcceptInvitationResponse = TournamentReferee;
+export type RejectInvitationResponse = TournamentRefereeInvitation;
+export type CancelInvitationResponse = TournamentRefereeInvitation;
+export type RemoveRefereeResponse = void;
+export type UpdateRefereeRoleResponse = TournamentReferee;
 
 /**
  * Assign multiple referees response
  */
 export interface AssignRefereesResponse {
-  success: boolean;
-  message: string;
-  data: {
-    tournamentId: number;
-    assignedCount: number;
-    referees: AssignedReferee[];
-  };
+  tournamentId: number;
+  assignedCount: number;
+  referees: AssignedReferee[];
 }
 
 /**
@@ -232,8 +194,15 @@ export interface GetRefereesByTournamentResponse {
 }
 
 export interface GetInvitationsByTournamentResponse {
-  data: TournamentRefereeInvitation[];
-  total?: number;
+  invitations: TournamentRefereeInvitation[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
 }
 
 /**
@@ -260,27 +229,19 @@ export type GetTournamentRefereeResponse = TournamentReferee;
 /**
  * Update tournament referee response
  */
-export interface UpdateTournamentRefereeResponse {
-  success: boolean;
-  message: string;
-  data: TournamentReferee;
-}
+export type UpdateTournamentRefereeResponse = TournamentReferee;
 
 /**
  * Update availability response
  */
 export interface UpdateAvailabilityResponse {
-  success: boolean;
-  message: string;
-  data: {
-    id: number;
-    refereeId: number;
-    isAvailable: boolean;
-    updatedAt: string;
-  };
+  id: number;
+  refereeId: number;
+  isAvailable: boolean;
+  updatedAt: string;
 }
 
 /**
  * Delete tournament referee response
  */
-export type DeleteTournamentRefereeResponse = ApiResponse<void>;
+export type DeleteTournamentRefereeResponse = void;

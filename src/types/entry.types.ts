@@ -1,4 +1,3 @@
-import type { ApiResponse } from "./auth.types";
 import type { TournamentContentType } from "./tournament.types";
 
 // ==================== Entry ====================
@@ -10,7 +9,7 @@ export interface EntryMember {
   id: number;
   entryId: number;
   userId: number;
-  eloAtRegistration: number;
+  eloAtEntry: number;
   createdAt: string;
   updatedAt: string;
   user?: {
@@ -22,6 +21,7 @@ export interface EntryMember {
     elo?: number;
     gender?: string;
   };
+  entry?: any; // To avoid circular dependencies if not needed
 }
 
 /**
@@ -29,28 +29,29 @@ export interface EntryMember {
  */
 export interface Entry {
   id: number;
-  contentId: number;
-  categoryId?: number;
-  teamId: number;
+  categoryId: number;
+  captainId: number;
+  name: string;
+  isAcceptingMembers: boolean;
+  requiredMemberCount: number;
+  currentMemberCount: number;
+  isConfirmed: boolean;
+  confirmedAt?: string | null;
   createdAt: string;
   updatedAt: string;
   members?: EntryMember[];
-  team?: {
-    id: number;
-    name: string;
-    tournamentId: number;
-  };
-  content?: {
-    id: number;
-    name: string;
-    type: TournamentContentType;
-    tournamentId: number;
-  };
   category?: {
     id: number;
     name: string;
     type: TournamentContentType;
     tournamentId: number;
+  };
+  captain?: {
+    id: number;
+    username: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
   };
 }
 
@@ -84,42 +85,24 @@ export interface EntryWithRole {
 
 // ==================== Request Types ====================
 
-/**
- * Create entry request (admin/tournament manager)
- */
-export interface CreateEntryRequest {
-  contentId: number;
-  categoryId?: number;
-  teamId: number;
-}
-
-/**
- * Register entry request (team manager)
- */
 export interface RegisterEntryRequest {
-  contentId: number;
-  categoryId?: number;
-  teamId: number;
-  memberIds: number[];
+  categoryId: number;
+  action: "create_team" | "join_team";
+  name?: string;
+  targetEntryId?: number;
 }
 
 /**
- * Update entry request
+ * Update entry request (captain only)
  */
 export interface UpdateEntryRequest {
-  memberIds?: number[];
+  name?: string;
+  requiredMemberCount?: number;
+  isAcceptingMembers?: boolean;
 }
 
-export interface AddEntryMemberRequest {
-  newMemberId: number;
-}
-
-export interface RemoveEntryMemberRequest {
-  memberId: number;
-}
-
-export interface SetRequiredMembersRequest {
-  count: number;
+export interface InviteEntryMemberRequest {
+  inviteeId: number;
 }
 
 export interface TransferCaptaincyRequest {
@@ -131,11 +114,7 @@ export interface RespondJoinRequestRequest {
   rejectionReason?: string;
 }
 
-export interface DisqualifyEntriesRequest {
-  entryIds?: number[];
-  entryId?: number;
-  reason?: string;
-}
+export interface DisqualifyEntriesRequest {}
 
 // ==================== Import Types ====================
 
@@ -265,29 +244,42 @@ export interface ImportEntriesConfirmResult {
 
 export interface EntryMembersResponse {
   members: EntryMember[];
-  count?: number;
-  page?: number;
-  limit?: number;
-  pagination?: {
-    total?: number;
-    page?: number;
-    limit?: number;
-    totalPages?: number;
-    hasNextPage?: boolean;
-    hasPrevPage?: boolean;
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
   };
 }
 
 export interface EntryJoinRequestsResponse {
   joinRequests: EntryJoinRequest[];
-  count?: number;
-  page?: number;
-  limit?: number;
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
 }
 
 export interface EntryEligibilityResponse {
-  eligibleEntries: Entry[];
-  ineligibleEntries: Entry[];
+  eligible: Entry[];
+  ineligible: {
+    entry: Entry;
+    reasons: string[];
+  }[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
 }
 
 export interface EntryRoleResponse {
@@ -296,17 +288,26 @@ export interface EntryRoleResponse {
 }
 
 export interface MyEntriesResponse {
-  entries: EntryWithRole[];
-  count?: number;
+  rows: EntryWithRole[];
+  count: number;
 }
 
 // ==================== Response Types ====================
 
-export type EntryResponse = ApiResponse<Entry>;
-export type EntriesResponse = ApiResponse<Entry[]>;
-export type ImportEntriesPreviewResponse = ApiResponse<
-  ImportEntriesPreviewResult["data"]
->;
-export type ImportEntriesConfirmResponse = ApiResponse<
-  ImportEntriesConfirmResult["data"]
->;
+export interface RegisterEntryResponse {
+  entry: Entry;
+  message: string;
+}
+
+export interface DisqualifyEntriesResponse {
+  deletedCount: number;
+  deleted: {
+    entryId: number;
+    reasons: string[];
+  }[];
+}
+
+export interface EntriesResponse {
+  rows: Entry[];
+  count: number;
+}

@@ -32,7 +32,7 @@ export const useRoles = (
 
   return {
     ...query,
-    data: query.data?.items ?? [],
+    data: query.data?.roles ?? [],
   };
 };
 

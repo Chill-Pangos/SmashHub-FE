@@ -5,12 +5,10 @@ import type {
   GeneratePlaceholdersRequest,
   RandomDrawRequest,
   SaveAssignmentsRequest,
-  RandomDrawAndSaveRequest,
   CalculateStandingsRequest,
 } from "@/types";
 
-const getCategoryId = (data: { contentId: number; categoryId?: number }) =>
-  data.categoryId ?? data.contentId;
+const getCategoryId = (data: { categoryId: number }) => data.categoryId;
 
 // ==================== Query Hooks ====================
 
@@ -33,24 +31,19 @@ export const useGroupStandingsByCategory = (
   });
 };
 
-/**
- * @deprecated Use useGroupStandingsByCategory instead.
- */
-export const useGroupStandingsByContent = (
-  contentId: number,
-  options?: { enabled?: boolean },
-) => useGroupStandingsByCategory(contentId, options);
 
 /**
  * Hook để lấy qualified teams
  */
 export const useQualifiedTeams = (
   categoryId: number,
-  options?: { enabled?: boolean },
+  page = 1,
+  limit = 10,
+  options?: { enabled?: boolean; qualifiersPerGroup?: number },
 ) => {
   return useQuery({
-    queryKey: [...queryKeys.groupStandings.byCategory(categoryId), "qualified"],
-    queryFn: () => groupStandingService.getQualifiedTeamsByCategory(categoryId),
+    queryKey: [...queryKeys.groupStandings.byCategory(categoryId), "qualified", { page, limit, qualifiersPerGroup: options?.qualifiersPerGroup }],
+    queryFn: () => groupStandingService.getQualifiedTeamsByCategory(categoryId, { page, limit, qualifiersPerGroup: options?.qualifiersPerGroup }),
     enabled: (options?.enabled ?? true) && categoryId > 0,
   });
 };
@@ -106,26 +99,6 @@ export const useSaveAssignments = () => {
   });
 };
 
-/**
- * Hook để random draw và lưu luôn
- */
-export const useRandomDrawAndSave = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: RandomDrawAndSaveRequest) =>
-      groupStandingService.randomDrawAndSave(data),
-    onSuccess: (_result, data) => {
-      const categoryId = getCategoryId(data);
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.groupStandings.byCategory(categoryId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.groupStandings.all,
-      });
-    },
-  });
-};
 
 /**
  * Hook để calculate standings

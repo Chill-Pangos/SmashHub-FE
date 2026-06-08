@@ -134,11 +134,7 @@ class ScheduleService {
   async deleteSchedule(id: number): Promise<DeleteScheduleResponse> {
     await axiosInstance.delete(`${this.baseURL}/${id}`);
 
-    return {
-      success: true,
-      message: "Schedule deleted successfully",
-      data: undefined,
-    };
+
   }
 
   /**

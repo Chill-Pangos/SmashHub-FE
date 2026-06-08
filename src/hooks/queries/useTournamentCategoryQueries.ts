@@ -60,7 +60,7 @@ export const useCreateTournamentCategory = () => {
     onSuccess: (_result, data) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.tournamentCategories.byTournament(
-          data.tournamentId,
+          data.tournamentId || 0,
         ),
       });
       queryClient.invalidateQueries({

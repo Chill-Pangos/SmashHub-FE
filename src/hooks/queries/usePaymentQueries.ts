@@ -197,16 +197,3 @@ export const useUpdatePaymentProof = () => {
   });
 };
 
-export const useDeletePayment = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (paymentId: number) => paymentService.deletePayment(paymentId),
-    onSuccess: (_result, paymentId) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.payments.detail(paymentId),
-      });
-      queryClient.invalidateQueries({ queryKey: queryKeys.payments.all });
-    },
-  });
-};

@@ -364,11 +364,6 @@ class TournamentRefereeService {
     id: number,
   ): Promise<DeleteTournamentRefereeResponse> {
     await axiosInstance.delete(`${this.baseURL}/${id}`);
-    return {
-      success: true,
-      message: "Tournament referee deleted successfully",
-      data: undefined,
-    };
   }
 }
 

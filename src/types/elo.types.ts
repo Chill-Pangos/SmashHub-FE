@@ -3,8 +3,6 @@
  * Type definitions for ELO scoring and history endpoints
  */
 
-import type { ApiResponse } from "./auth.types";
-import type { PaginatedResult, PaginationParams } from "./pagination.types";
 
 export interface EloScore {
   id: number;
@@ -37,16 +35,37 @@ export interface CreateEloHistoryRequest {
   [key: string]: unknown;
 }
 
-export interface EloListParams extends PaginationParams {
+export interface EloListParams {
   page?: number;
+  limit?: number;
 }
 
-export type EloScoreResponse = ApiResponse<EloScore>;
-export type EloScoresResponse = ApiResponse<EloScore[]>;
-export type EloHistoryResponse = ApiResponse<EloHistory>;
-export type EloHistoriesResponse = ApiResponse<EloHistory[]>;
-export type DeleteEloScoreResponse = ApiResponse<void>;
-export type DeleteEloHistoryResponse = ApiResponse<void>;
-export type EloLeaderboardResponse = ApiResponse<EloScore[]>;
-export type PaginatedEloScoresResult = PaginatedResult<EloScore>;
-export type PaginatedEloHistoriesResult = PaginatedResult<EloHistory>;
+export interface GetEloHistoriesResponse {
+  success: boolean;
+  data: {
+    items: EloHistory[];
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
+  };
+}
+
+export interface GetEloLeaderboardResponse {
+  success: boolean;
+  data: {
+    items: EloScore[];
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
+  };
+}

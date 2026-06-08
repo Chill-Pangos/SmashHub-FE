@@ -11,6 +11,9 @@ import {
   Gavel,
   BarChart3,
   Settings2,
+  Gamepad2,
+  TrendingUp,
+  History,
 } from "lucide-react";
 
 export type PortalSidebarItem = {
@@ -276,6 +279,55 @@ export const chiefRefereeSidebarConfig: SidebarConfig = {
   ],
 };
 
+/**
+ * Pro Player Portal Sidebar Configuration
+ */
+export const proPlayerSidebarConfig: SidebarConfig = {
+  brand: {
+    title: "SmashHub",
+    subtitle: "Pro Player Portal",
+    icon: Gamepad2,
+  },
+  sections: (t) => [
+    {
+      items: [
+        {
+          key: "tournaments",
+          label: t("nav.tournaments") || "Tournaments",
+          to: "/tournaments",
+          icon: Trophy,
+        },
+        {
+          key: "elo",
+          label: t("nav.elo") || "Elo",
+          to: "/elo",
+          icon: TrendingUp,
+        },
+        {
+          key: "analytics",
+          label: t("nav.analytics") || "Analytics",
+          to: "/analytics",
+          icon: BarChart3,
+        },
+        {
+          key: "history",
+          label: t("nav.history") || "History",
+          to: "/history",
+          icon: History,
+        },
+      ],
+    },
+  ],
+  footerItems: (t, logout) => [
+    {
+      key: "logout",
+      label: t("auth.signOut") || "Sign Out",
+      onClick: logout,
+      icon: LogOut,
+    },
+  ],
+};
+
 export function getRefereeSidebarConfig(
   isChiefReferee: boolean,
 ): SidebarConfig {
@@ -286,12 +338,13 @@ export function getRefereeSidebarConfig(
  * Get sidebar config by portal type
  */
 export function getSidebarConfig(
-  portalType: "organizer" | "admin" | "referee",
+  portalType: "organizer" | "admin" | "referee" | "player",
 ): SidebarConfig {
   const configs: Record<string, SidebarConfig> = {
     organizer: organizerSidebarConfig,
     admin: adminSidebarConfig,
     referee: refereeSidebarConfig,
+    player: proPlayerSidebarConfig,
   };
 
   return configs[portalType] || organizerSidebarConfig;

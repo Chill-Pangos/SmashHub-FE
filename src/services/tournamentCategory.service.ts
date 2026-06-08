@@ -81,11 +81,6 @@ class TournamentCategoryService {
     id: number,
   ): Promise<DeleteTournamentCategoryResponse> {
     await axiosInstance.delete(`${this.baseURL}/${id}`);
-    return {
-      success: true,
-      message: "Tournament category deleted successfully",
-      data: undefined,
-    };
   }
 
   /**

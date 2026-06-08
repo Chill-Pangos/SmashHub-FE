@@ -15,6 +15,8 @@ const LIST_KEYS = [
   "entries",
   "matches",
   "schedules",
+  "userRoles",
+  "rolePermissions",
 ];
 
 const toObject = (value: unknown): JsonRecord | null => {
@@ -109,7 +111,7 @@ const extractItemsFromObject = <T>(source: JsonRecord): T[] | null => {
 };
 
 const buildMeta = <T>(
-  items: T[],
+  _items: T[],
   total: number,
   page: number,
   limit: number,
