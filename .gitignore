@@ -32,3 +32,9 @@ install-state.gz
 .yarn 
 .vscode
 *.txt
+
+# Agents
+.agents/skills
+
+# Agents lock files
+skills-lock.json
