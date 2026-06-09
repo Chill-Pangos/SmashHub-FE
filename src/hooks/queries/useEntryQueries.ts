@@ -326,9 +326,55 @@ export const useLeaveEntry = () => {
   });
 };
 
-// useSetRequiredMembers removed
+/**
+ * Hook to set required members
+ */
+export const useSetRequiredMembers = () => {
+  const queryClient = useQueryClient();
 
-// useTransferCaptaincy removed
+  return useMutation({
+    mutationFn: ({
+      entryId,
+      requiredMemberCount,
+    }: {
+      entryId: number;
+      requiredMemberCount: number;
+    }) => entryService.setRequiredMembers(entryId, requiredMemberCount),
+    onSuccess: (_entry, { entryId }) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.detail(entryId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.myEntries(),
+      });
+    },
+  });
+};
+
+/**
+ * Hook to transfer captaincy
+ */
+export const useTransferCaptaincy = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      entryId,
+      newCaptainId,
+    }: {
+      entryId: number;
+      newCaptainId: number;
+    }) => entryService.transferCaptaincy(entryId, newCaptainId),
+    onSuccess: (_entry, { entryId }) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.detail(entryId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.myEntries(),
+      });
+    },
+  });
+};
 
 /**
  * Hook to respond to join request
@@ -361,7 +407,24 @@ export const useRespondJoinRequest = () => {
   });
 };
 
-// useConfirmLineup removed
+/**
+ * Hook to confirm lineup
+ */
+export const useConfirmLineup = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (entryId: number) => entryService.confirmLineup(entryId),
+    onSuccess: (_entry, entryId) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.detail(entryId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.entries.myEntries(),
+      });
+    },
+  });
+};
 
 /**
  * Hook to disqualify entries by category

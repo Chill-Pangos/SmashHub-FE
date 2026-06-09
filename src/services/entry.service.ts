@@ -147,8 +147,46 @@ class EntryService {
     await axiosInstance.delete(`${this.baseURL}/${entryId}/members/me`);
   }
 
-  // setRequiredMembers removed
-  // transferCaptaincy removed
+  /**
+   * Set required members
+   * PUT /api/entries/{entryId}/required-members
+   */
+  async setRequiredMembers(
+    entryId: number,
+    requiredMemberCount: number,
+  ): Promise<Entry> {
+    const response = await axiosInstance.put<Entry>(
+      `${this.baseURL}/${entryId}/required-members`,
+      { requiredMemberCount },
+    );
+    return response.data;
+  }
+
+  /**
+   * Transfer captaincy
+   * PUT /api/entries/{entryId}/transfer-captaincy
+   */
+  async transferCaptaincy(
+    entryId: number,
+    newCaptainId: number,
+  ): Promise<Entry> {
+    const response = await axiosInstance.put<Entry>(
+      `${this.baseURL}/${entryId}/transfer-captaincy`,
+      { newCaptainId },
+    );
+    return response.data;
+  }
+
+  /**
+   * Confirm lineup
+   * POST /api/entries/{entryId}/confirm-lineup
+   */
+  async confirmLineup(entryId: number): Promise<Entry> {
+    const response = await axiosInstance.post<Entry>(
+      `${this.baseURL}/${entryId}/confirm-lineup`,
+    );
+    return response.data;
+  }
 
   /**
    * Get join requests for entry

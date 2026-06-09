@@ -5,6 +5,7 @@ import PendingInvitations from "@/pages/Referee/PendingInvitations";
 import Tournaments from "@/pages/Referee/Tournaments";
 import TournamentDetail from "@/pages/Referee/TournamentDetail";
 import Notifications from "@/pages/Referee/Notifications";
+import MatchExecution from "@/pages/Referee/MatchExecution/MatchExecution";
 
 /**
  * Referee Routes
@@ -32,6 +33,7 @@ export default function RefereeRoutes() {
           path="/referee/tournaments/:tournamentId"
           element={<TournamentDetail />}
         />
+        <Route path="/referee/matches/:matchId" element={<MatchExecution />} />
         <Route path="/referee/notifications" element={<Notifications />} />
       </Route>
     </>
