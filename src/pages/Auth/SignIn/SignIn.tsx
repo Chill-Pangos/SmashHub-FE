@@ -469,30 +469,13 @@ const SignIn = () => {
 
             {/* Password */}
             <div className="flex flex-col gap-1.5">
-              <div className="flex justify-between items-center">
-                <label
-                  htmlFor="password"
-                  className="text-xs font-bold tracking-widest uppercase"
-                  style={{ color: "var(--foreground-muted)" }}
-                >
-                  {t("auth.password")}
-                </label>
-                <NavLink
-                  to="/forgot-password"
-                  className="text-xs font-bold transition-colors duration-200"
-                  style={{ color: "var(--accent)" }}
-                  onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLAnchorElement).style.color =
-                      "var(--primary)")
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLAnchorElement).style.color =
-                      "var(--accent)")
-                  }
-                >
-                  {t("auth.forgotPassword")}
-                </NavLink>
-              </div>
+              <label
+                htmlFor="password"
+                className="text-xs font-bold tracking-widest uppercase"
+                style={{ color: "var(--foreground-muted)" }}
+              >
+                {t("auth.password")}
+              </label>
               <div className="relative">
                 <Lock
                   className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-200"
@@ -622,6 +605,24 @@ const SignIn = () => {
                   "linear-gradient(to left, transparent, var(--border))",
               }}
             />
+          </div>
+
+          <div className="flex justify-center mb-6">
+            <NavLink
+              to="/forgot-password"
+              className="text-sm font-bold transition-colors duration-200"
+              style={{ color: "var(--accent)" }}
+              onMouseEnter={(e) =>
+                ((e.currentTarget as HTMLAnchorElement).style.color =
+                  "var(--primary)")
+              }
+              onMouseLeave={(e) =>
+                ((e.currentTarget as HTMLAnchorElement).style.color =
+                  "var(--accent)")
+              }
+            >
+              {t("auth.forgotPassword")}
+            </NavLink>
           </div>
 
           {/* Social buttons */}
