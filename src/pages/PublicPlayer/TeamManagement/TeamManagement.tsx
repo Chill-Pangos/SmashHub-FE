@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   useMyEntries,
   useEntryJoinRequests,
@@ -17,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 
 export default function TeamManagement() {
   const { data: userResp } = useCurrentUser();
-  const userId = userResp?.data?.id;
+  const userId = userResp?.id;
 
   const { data: entriesResp, isLoading } = useMyEntries();
   const entries = entriesResp?.rows || [];

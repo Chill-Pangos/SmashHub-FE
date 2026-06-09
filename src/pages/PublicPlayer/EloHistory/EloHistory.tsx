@@ -40,7 +40,7 @@ import type { EloHistory } from "@/types/elo.types";
 
 export default function EloHistoryPage() {
   const { data: userResp } = useCurrentUser();
-  const userId = userResp?.data?.id || 0;
+  const userId = userResp?.id || 0;
 
   const { data: historyResp, isLoading } = useEloHistoriesByUser(userId, 1, 50);
   const histories = historyResp?.data?.items || [];

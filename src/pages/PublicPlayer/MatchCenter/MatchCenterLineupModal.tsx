@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { useSubmitLineup } from "@/hooks/queries/useSubMatchPlayerQueries";
 import { useSubMatchesByMatch } from "@/hooks/queries/useSubMatchQueries";
-import { useMatch } from "@/hooks/queries/useMatchQueries";
 
 export default function MatchCenterLineupModal({
   matchId,
@@ -18,10 +17,8 @@ export default function MatchCenterLineupModal({
   matchId: number;
   onClose: () => void;
 }) {
-  const { data: matchResp } = useMatch(matchId);
   const { data: subMatchesResp } = useSubMatchesByMatch(matchId, 1, 50);
-
-  const subMatches = subMatchesResp?.data?.items || [];
+  const subMatches = subMatchesResp?.subMatches || [];
   const { mutate: submitLineup, isPending } = useSubmitLineup();
 
   // In a real scenario, we'd fetch entryMembers of the user's entry in this match.

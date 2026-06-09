@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Check, Trophy } from "lucide-react";
+import { ArrowLeft, Trophy } from "lucide-react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useTournamentCategoriesByTournament } from "@/hooks/queries/useTournamentCategoryQueries";
 import { useRegisterEntry } from "@/hooks/queries/useEntryQueries";
@@ -11,7 +11,7 @@ export default function EntryRegistration() {
 
   const { data: categoriesResp, isLoading: categoriesLoading } =
     useTournamentCategoriesByTournament(Number(tournamentId), 1, 50);
-  const categories = categoriesResp?.data?.items || [];
+  const categories = categoriesResp || [];
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
     null

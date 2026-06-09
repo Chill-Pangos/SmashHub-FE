@@ -12,19 +12,19 @@ export default function PendingInvitations() {
     50,
     "pending"
   );
-  const invitations = invitationsResp?.data?.items || [];
+  const invitations = invitationsResp?.invitations || [];
 
   const { mutate: acceptInvite, isPending: accepting } =
     useAcceptRefereeInvitation();
   const { mutate: rejectInvite, isPending: rejecting } =
     useRejectRefereeInvitation();
 
-  const handleAccept = (tournamentId: number, userId: number) => {
-    acceptInvite({ tournamentId, userId });
+  const handleAccept = (invitationId: number) => {
+    acceptInvite({ invitationId });
   };
 
-  const handleReject = (tournamentId: number, userId: number) => {
-    rejectInvite({ tournamentId, userId });
+  const handleReject = (invitationId: number) => {
+    rejectInvite({ invitationId });
   };
 
   return (
@@ -39,7 +39,7 @@ export default function PendingInvitations() {
       ) : invitations.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {invitations.map((inv: any) => (
-            <Card key={`${inv.tournamentId}-${inv.userId}`}>
+            <Card key={inv.id}>
               <CardHeader>
                 <CardTitle>{inv.tournament?.name || "Tournament"}</CardTitle>
               </CardHeader>
@@ -55,7 +55,7 @@ export default function PendingInvitations() {
                 <div className="flex gap-2">
                   <Button
                     className="w-full"
-                    onClick={() => handleAccept(inv.tournamentId, inv.userId)}
+                    onClick={() => handleAccept(inv.id)}
                     disabled={accepting || rejecting}
                   >
                     Accept
@@ -63,7 +63,7 @@ export default function PendingInvitations() {
                   <Button
                     variant="destructive"
                     className="w-full"
-                    onClick={() => handleReject(inv.tournamentId, inv.userId)}
+                    onClick={() => handleReject(inv.id)}
                     disabled={accepting || rejecting}
                   >
                     Reject

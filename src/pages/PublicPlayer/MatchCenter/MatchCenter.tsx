@@ -1,14 +1,6 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import {
-  Search,
-  Filter,
-  CalendarDays,
-  ChevronRight,
-  TrendingUp,
-  TrendingDown,
-} from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import {
   useAthleteMatchHistory,
   useAthleteUpcomingMatches,
@@ -21,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 
 export default function MatchCenter() {
   const { data: userResp } = useCurrentUser();
-  const userId = userResp?.data?.id || 0;
+  const userId = userResp?.id || 0;
 
   const { data: historyResp, isLoading: historyLoading } =
     useAthleteMatchHistory(userId, 1, 50);
@@ -29,8 +21,8 @@ export default function MatchCenter() {
     useAthleteUpcomingMatches(userId, 1, 50);
   const { data: rejectedLineupsResp } = useRejectedLineups();
 
-  const matchHistory = historyResp?.data?.items || [];
-  const upcomingMatches = upcomingResp?.data?.items || [];
+  const matchHistory = historyResp?.matches || [];
+  const upcomingMatches = upcomingResp?.matches || [];
   const rejectedLineups = rejectedLineupsResp?.rejected || [];
 
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);

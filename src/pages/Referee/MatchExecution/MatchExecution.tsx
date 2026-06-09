@@ -13,12 +13,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useCurrentUser } from "@/hooks/queries/useAuthQueries";
-
 export default function MatchExecution() {
   const { matchId } = useParams();
-  const { data: userResp } = useCurrentUser();
-  const userId = userResp?.data?.id;
 
   const { data: matchResp, isLoading: matchLoading } = useMatch(
     Number(matchId)
@@ -26,7 +22,7 @@ export default function MatchExecution() {
   const match = matchResp;
 
   const { data: subMatchesResp } = useSubMatchesByMatch(Number(matchId), 1, 50);
-  const subMatches = subMatchesResp?.data?.items || [];
+  const subMatches = subMatchesResp?.subMatches || [];
 
   const { mutate: finalizeMatch, isPending: finalizingMatch } =
     useFinalizeMatch();
@@ -51,7 +47,7 @@ export default function MatchExecution() {
           </CardHeader>
           <CardContent className="space-y-2">
             <p>
-              <strong>Category:</strong> {match.category?.name}
+              <strong>Category:</strong> {match.schedule?.tournamentContent?.name || "Category"}
             </p>
             <p>
               <strong>Status:</strong> {match.status}
@@ -85,7 +81,7 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
 
   const [activeSetNumber, setActiveSetNumber] = useState(1);
   const { data: liveScoreResp } = useLiveScore(subMatch.id, activeSetNumber);
-  const liveScore = liveScoreResp?.liveScore;
+  const liveScore = liveScoreResp;
 
   const { mutate: updateScore } = useUpdateLiveScore();
 
