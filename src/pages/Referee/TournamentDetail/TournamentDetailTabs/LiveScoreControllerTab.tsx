@@ -1,6 +1,8 @@
 import { useMatchesByStatus } from '@/hooks/queries';
+import { useNavigate } from 'react-router-dom';
 
 export default function LiveScoreControllerTab() {
+  const navigate = useNavigate();
   const { data: activeMatchesData, isLoading } = useMatchesByStatus('in_progress', 1, 1);
   const activeMatch = activeMatchesData?.rows?.[0];
 
@@ -55,8 +57,14 @@ export default function LiveScoreControllerTab() {
              </div>
            </div>
            <p className="text-xs text-muted-foreground mt-4 text-center">
-             Detailed sub-match point tracking is currently pending API integration.
+             Detailed sub-match point tracking is available in Match Execution.
            </p>
+           <button 
+             onClick={() => navigate(`/referee/matches/${activeMatch.id}`)}
+             className="mt-6 px-4 py-2 bg-primary text-primary-foreground font-bold rounded-lg hover:opacity-90 w-full"
+           >
+             Open Match Execution
+           </button>
         </div>
 
         {/* Player 2 */}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ChevronRight } from "lucide-react";
 import {
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export default function MatchCenter() {
+  const navigate = useNavigate();
   const { data: userResp } = useCurrentUser();
   const userId = userResp?.id || 0;
 
@@ -131,7 +133,11 @@ export default function MatchCenter() {
                   </div>
 
                   <div className="flex items-center justify-center w-10 shrink-0 ml-auto">
-                    <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center group-hover:bg-cyan-500/20 group-hover:text-cyan-400 transition-colors cursor-pointer">
+                    <div
+                      onClick={() => navigate(`/elo/history`)}
+                      className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center group-hover:bg-cyan-500/20 group-hover:text-cyan-400 transition-colors cursor-pointer"
+                      title="View Elo Details"
+                    >
                       <ChevronRight className="h-5 w-5" />
                     </div>
                   </div>

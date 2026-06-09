@@ -255,6 +255,12 @@ export const chiefRefereeSidebarConfig: SidebarConfig = {
           icon: ClipboardList,
         },
         {
+          key: "pending-matches",
+          label: t("portal.referee.pendingMatches") || "Pending Verification",
+          to: "/referee/pending-matches",
+          icon: BadgeCheck,
+        },
+        {
           key: "tournaments",
           label: t("nav.tournaments"),
           to: "/referee/tournaments",
@@ -310,10 +316,22 @@ export const proPlayerSidebarConfig: SidebarConfig = {
           icon: BarChart3,
         },
         {
-          key: "history",
-          label: t("nav.history") || "History",
-          to: "/history",
+          key: "team",
+          label: t("nav.team") || "Team",
+          to: "/team",
+          icon: Users,
+        },
+        {
+          key: "matches",
+          label: t("nav.matches") || "Match Center",
+          to: "/matches",
           icon: History,
+        },
+        {
+          key: "elo-history",
+          label: t("nav.eloHistory") || "Elo History",
+          to: "/elo/history",
+          icon: TrendingUp,
         },
       ],
     },
