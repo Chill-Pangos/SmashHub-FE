@@ -23,6 +23,9 @@ export interface TournamentData {
   location: string;
   startDate: string;
   endDate: string;
+  registrationStartDate: string;
+  registrationEndDate: string;
+  bracketGenerationDate: string;
   categories: CategoryFormState[]; // Đổi từ category (object) sang categories (array)
   schedule: {
     activeTables: number;

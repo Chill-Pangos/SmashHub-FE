@@ -2,16 +2,10 @@ import type { Match } from "./match.types";
 
 // ==================== Enums ====================
 
-/**
- * Schedule stage enum
- */
 export type ScheduleStage = "group" | "knockout";
 
 // ==================== Schedule ====================
 
-/**
- * Schedule interface
- */
 export interface Schedule {
   id: number;
   contentId: number;
@@ -22,202 +16,74 @@ export interface Schedule {
   knockoutRound?: string | null;
   tableNumber: number;
   scheduledAt?: string;
-  matchTime?: string; // Legacy field
   matchId?: number | null;
   match?: Match | null;
   createdAt: string;
   updatedAt: string;
 }
 
-/**
- * Group result for knockout entry update
- */
-export interface GroupResult {
-  groupName: string;
-  qualifiedEntryIds: number[];
-}
-
 // ==================== Request Types ====================
 
-/**
- * Create schedule request
- */
-export interface CreateScheduleRequest {
-  contentId: number;
-  categoryId?: number;
-  matchTime: string;
-  tableNumber?: number;
-  matchId?: number | null;
+export interface GenerateTournamentScheduleRequest {
+  categoryId: number;
 }
 
-/**
- * Update schedule request
- */
-export interface UpdateScheduleRequest {
-  contentId?: number;
-  categoryId?: number;
-  matchTime?: string;
-  tableNumber?: number;
-  matchId?: number | null;
-}
-
-/**
- * Generate schedule request
- */
-export interface GenerateScheduleRequest {
-  contentId: number;
-  categoryId?: number;
-  startDate: string;
-  endDate: string;
-}
-
-/**
- * Update knockout entries request
- */
-export interface UpdateKnockoutEntriesRequest {
-  contentId: number;
-  categoryId?: number;
-  groupResults: GroupResult[];
-}
-
-/**
- * Generate group stage schedule request
- */
 export interface GenerateGroupStageScheduleRequest {
-  contentId: number;
-  categoryId?: number;
-  startDate: string;
-  endDate: string;
+  categoryId: number;
 }
 
-/**
- * Generate complete schedule request
- */
-export interface GenerateCompleteScheduleRequest {
-  contentId: number;
-  categoryId?: number;
-  startDate: string;
-  endDate: string;
-  groupStageEndDate?: string;
+export interface GenerateKnockoutScheduleRequest {
+  categoryId: number;
 }
 
-/**
- * Generate knockout only schedule request
- */
-export interface GenerateKnockoutOnlyScheduleRequest {
-  contentId: number;
-  categoryId?: number;
-  startDate: string;
-  endDate: string;
-}
-
-/**
- * Generate knockout stage schedule request
- */
-export interface GenerateKnockoutStageScheduleRequest {
-  contentId: number;
-  categoryId?: number;
-  startDate: string;
-  endDate: string;
+export interface SyncMatchEntriesRequest {
+  categoryId: number;
 }
 
 // ==================== Response Types ====================
 
-export type CreateScheduleResponse = Schedule;
 export type GetScheduleResponse = { success: boolean; data: Schedule };
-export type GetSchedulesResponse = { success: boolean; data: { schedules: Schedule[]; pagination: any } };
-
-export type UpdateScheduleResponse = Schedule;
-export type DeleteScheduleResponse = void;
-
-/**
- * Generate schedule response
- */
-export interface GenerateScheduleResponse {
-  success: boolean;
-  message: string;
-  data: {
-    schedulesCreated: number;
-    matchesCreated: number;
-  };
-}
-
-/**
- * Update knockout entries response
- */
-export interface UpdateKnockoutEntriesResponse {
-  success: boolean;
-  message: string;
-  data: {
-    updatedBrackets: number;
-  };
-}
+export type GetSchedulesByContentData = { schedules: Schedule[]; count: number; page: number; limit: number; };
+export type GetSchedulesByContentResponse = { success: boolean; data: GetSchedulesByContentData };
 
 export interface GenerateGroupStageScheduleResponse {
   success: boolean;
   message: string;
-  warning?: string;
   data: {
     totalSchedules: number;
     totalMatches: number;
-    schedules: Schedule[];
-    matches: Match[];
   };
 }
 
-/**
- * Generate complete schedule response
- */
-export interface GenerateCompleteScheduleResponse {
+export interface GenerateKnockoutScheduleResponse {
+  success: boolean;
+  message: string;
+  data: {
+    totalSchedules: number;
+    totalMatches: number;
+  };
+}
+
+export interface GenerateTournamentScheduleResponse {
   success: boolean;
   message: string;
   data: {
     groupStage: {
-      totalMatches: number;
-      groups: string[];
       schedules: Schedule[];
+      matches: Match[];
     };
     knockoutStage: {
-      totalMatches: number;
-      rounds: string[];
       schedules: Schedule[];
+      matches: Match[];
     };
-  };
-  error?: {
-    code: string;
-    message: string;
   };
 }
 
-/**
- * Generate knockout only schedule response
- */
-export interface GenerateKnockoutOnlyScheduleResponse {
+export interface SyncMatchEntriesResponse {
   success: boolean;
   message: string;
   data: {
-    totalMatches: number;
-    totalEntries: number;
-    bracketSize: number;
-    rounds: string[];
-    schedules: Schedule[];
-  };
-  error?: {
-    code: string;
-    message: string;
+    updatedSchedules: number;
+    syncedMatches: number;
   };
 }
-
-export type GenerateKnockoutStageScheduleResponse = GenerateGroupStageScheduleResponse;
-
-/**
- * Get schedules by content response data
- */
-export interface GetSchedulesByContentData {
-  schedules: Schedule[];
-  count: number;
-  page: number;
-  limit: number;
-}
-
-export type GetSchedulesByContentResponse = { success: boolean; data: GetSchedulesByContentData };

@@ -1,4 +1,3 @@
-
 // ==================== Enums ====================
 
 /**
@@ -144,11 +143,16 @@ export interface GenerateFromEntriesRequest {
   categoryId: number;
 }
 
+export interface SaveKnockoutAssignmentsRequest {
+  categoryId: number;
+  entryIds?: number[];
+  assignments?: number[];
+}
+
 /**
  * Advance winner request
  */
 export interface AdvanceWinnerRequest {
-  bracketId: number;
   winnerEntryId: number;
 }
 
@@ -184,6 +188,25 @@ export interface ValidateKnockoutBracketResponse {
     valid: boolean;
     errors?: string[];
   };
+}
+
+export interface PreviewKnockoutBracketTreeResponse {
+  success: boolean;
+  data: {
+    entryIds?: number[];
+    bracketTree?: KnockoutBracketTree;
+    categoryId?: number;
+    totalRounds?: number;
+    totalBrackets?: number;
+    rounds?: KnockoutBracketRound[];
+  };
+  message?: string;
+}
+
+export interface SaveKnockoutAssignmentsResponse {
+  success: boolean;
+  data: KnockoutBracketTree;
+  message: string;
 }
 
 export interface GenerateKnockoutBracketTreeResponse {

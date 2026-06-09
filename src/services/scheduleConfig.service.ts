@@ -82,11 +82,10 @@ class ScheduleConfigService {
    * POST /api/schedule-configs/{tournamentId}/schedule-config/validate
    */
   async validateScheduleConfig(
-    tournamentId: number,
     data: ValidateScheduleConfigRequest,
   ): Promise<ValidateScheduleConfigResponse> {
     const response = await axiosInstance.post<ValidateScheduleConfigResponse>(
-      `${this.baseURL}/tournament/${tournamentId}/validate`,
+      `${this.baseURL}/validate`,
       data,
     );
     return response.data;

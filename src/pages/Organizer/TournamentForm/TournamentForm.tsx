@@ -13,6 +13,9 @@ const INITIAL_DATA: TournamentData = {
   location: "",
   startDate: "",
   endDate: "",
+  registrationStartDate: "",
+  registrationEndDate: "",
+  bracketGenerationDate: "",
   categories: [],
   schedule: {
     activeTables: 12,

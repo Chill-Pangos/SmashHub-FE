@@ -2,16 +2,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { matchSetService } from "@/services";
 import { queryKeys } from "./queryKeys";
 import type {
-  MatchSet,
   CreateMatchSetRequest,
+  UpdateLiveScoreRequest,
+  SubmitFinalScoreRequest,
   UpdateMatchSetRequest,
 } from "@/types";
 
 // ==================== Query Hooks ====================
 
-/**
- * Hook để lấy match set theo ID
- */
 export const useMatchSet = (id: number, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: queryKeys.matchSets.detail(id),
@@ -20,27 +18,29 @@ export const useMatchSet = (id: number, options?: { enabled?: boolean }) => {
   });
 };
 
-/**
- * Hook để lấy match sets theo match ID
- */
-export const useMatchSetsByMatch = (
-  matchId: number,
+export const useLiveScore = (subMatchId: number, setNumber?: number, options?: { enabled?: boolean }) => {
+  return useQuery({
+    queryKey: [...queryKeys.matchSets.byMatch(subMatchId), "live-score", setNumber],
+    queryFn: () => matchSetService.getLiveScore(subMatchId, setNumber),
+    enabled: (options?.enabled ?? true) && subMatchId > 0,
+  });
+};
+
+export const useMatchSetsBySubMatch = (
+  subMatchId: number,
   page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: queryKeys.matchSets.byMatch(matchId, { page, limit }),
-    queryFn: () => matchSetService.getMatchSetsByMatch(matchId, page, limit),
-    enabled: (options?.enabled ?? true) && matchId > 0,
+    queryKey: queryKeys.matchSets.byMatch(subMatchId, { page, limit }),
+    queryFn: () => matchSetService.getMatchSetsByMatch(subMatchId, page, limit),
+    enabled: (options?.enabled ?? true) && subMatchId > 0,
   });
 };
 
 // ==================== Mutation Hooks ====================
 
-/**
- * Hook để tạo match set mới
- */
 export const useCreateMatchSet = () => {
   const queryClient = useQueryClient();
 
@@ -51,24 +51,44 @@ export const useCreateMatchSet = () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.matchSets.all,
       });
-      if (result.matchId) {
+      if (result.subMatchId) {
         queryClient.invalidateQueries({
-          queryKey: queryKeys.matchSets.byMatch(result.matchId),
-        });
-        // Also invalidate related match
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.matches.detail(result.matchId),
+          queryKey: queryKeys.matchSets.byMatch(result.subMatchId),
         });
       }
     },
   });
 };
 
-// useCreateMatchSetWithScore removed
+export const useUpdateLiveScore = () => {
+  const queryClient = useQueryClient();
 
-/**
- * Hook để cập nhật match set
- */
+  return useMutation({
+    mutationFn: (data: UpdateLiveScoreRequest) => matchSetService.updateLiveScore(data),
+    onSuccess: (_result, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.matchSets.byMatch(variables.subMatchId), "live-score"],
+      });
+    },
+  });
+};
+
+export const useSubmitFinalScore = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: SubmitFinalScoreRequest) => matchSetService.submitFinalScore(data),
+    onSuccess: (_result, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.matchSets.byMatch(variables.subMatchId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.matchSets.all,
+      });
+    },
+  });
+};
+
 export const useUpdateMatchSet = () => {
   const queryClient = useQueryClient();
 
@@ -80,48 +100,20 @@ export const useUpdateMatchSet = () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.matchSets.lists(),
       });
-      // Also invalidate related match
-      if (result.matchId) {
+      if (result.subMatchId) {
         queryClient.invalidateQueries({
-          queryKey: queryKeys.matches.detail(result.matchId),
+          queryKey: queryKeys.matchSets.byMatch(result.subMatchId),
         });
       }
     },
   });
 };
 
-/**
- * Hook để xóa match set
- */
 export const useDeleteMatchSet = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: number) => matchSetService.deleteMatchSet(id),
-    onMutate: async (id: number) => {
-      await queryClient.cancelQueries({
-        queryKey: queryKeys.matchSets.all,
-      });
-
-      const previousMatchSets = queryClient.getQueriesData({
-        queryKey: queryKeys.matchSets.all,
-      });
-
-      queryClient.setQueriesData(
-        { queryKey: queryKeys.matchSets.lists() },
-        (old: MatchSet[] | undefined) =>
-          old?.filter((ms) => ms.id !== id) ?? [],
-      );
-
-      return { previousMatchSets };
-    },
-    onError: (_err, _id, context) => {
-      if (context?.previousMatchSets) {
-        context.previousMatchSets.forEach(([key, data]) => {
-          queryClient.setQueryData(key, data);
-        });
-      }
-    },
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.matchSets.all,

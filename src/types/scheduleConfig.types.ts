@@ -56,6 +56,7 @@ export interface CreateScheduleConfigRequest {
   lunchBreakStartMinute?: number | null;
   lunchBreakEndHour?: number | null;
   lunchBreakEndMinute?: number | null;
+  lunchBreakDurationMinutes?: number | null;
   notes?: string | null;
 }
 
@@ -76,11 +77,35 @@ export interface UpdateScheduleConfigRequest {
   lunchBreakStartMinute?: number | null;
   lunchBreakEndHour?: number | null;
   lunchBreakEndMinute?: number | null;
+  lunchBreakDurationMinutes?: number | null;
   notes?: string | null;
 }
 
 export interface ValidateScheduleConfigRequest {
-  totalMatches: number;
+  category: {
+    maxEntries: number;
+    isGroupStage?: boolean;
+  };
+  scheduleConfig: {
+    startDate: string;
+    endDate: string;
+    registrationStartDate: string;
+    registrationEndDate: string;
+    bracketGenerationDate: string;
+    numberOfTables?: number;
+    matchDurationMinutes?: number;
+    breakDurationMinutes?: number;
+    dailyStartHour?: number;
+    dailyStartMinute?: number;
+    dailyEndHour?: number;
+    dailyEndMinute?: number;
+    lunchBreakStartHour?: number | null;
+    lunchBreakStartMinute?: number | null;
+    lunchBreakEndHour?: number | null;
+    lunchBreakEndMinute?: number | null;
+    lunchBreakDurationMinutes?: number | null;
+    notes?: string | null;
+  };
 }
 
 export interface PreviewScheduleConfigRequest extends CreateScheduleConfigRequest {
@@ -103,16 +128,10 @@ export interface ValidateScheduleConfigResponse {
   details?: {
     totalMatches: number;
     totalSlots: number;
-    lastMatchEndTime: string;
+    estimatedEndTime: string;
     tournamentEndTime: string;
     overflowMinutes: number;
   };
-  suggestions?: {
-    type: string;
-    description: string;
-    impact: unknown;
-    priority: string;
-  }[];
 }
 
 export interface PreviewScheduleConfigResponse {

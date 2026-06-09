@@ -1,22 +1,22 @@
 import { useState } from "react";
-import { Search, Filter, MapPin, Shield, ChevronRight, Users, UserPlus, Settings, LogOut } from "lucide-react";
+import { Search, Shield, ChevronRight, UserPlus, Settings, LogOut } from "lucide-react";
 import type { Tournament, TournamentCategory } from "@/types/tournament.types";
 import { useMyEntries, useEntriesByCategory } from "@/hooks/queries/useEntryQueries";
-import { useCurrentUser } from "@/hooks/queries/useAuthQueries";
+
 
 interface RegistrationTabProps {
   tournamentId: number;
   tournament: Tournament;
 }
 
-export default function RegistrationTab({ tournamentId, tournament }: RegistrationTabProps) {
+export default function RegistrationTab({ tournament }: RegistrationTabProps) {
   const categories = tournament?.categories || [];
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
-    categories.length > 0 ? categories[0].id : null
+    categories.length > 0 ? (categories[0].id || null) : null
   );
 
   const { data: myEntriesData, isLoading: isLoadingMyEntries } = useMyEntries();
-  const { data: currentUser } = useCurrentUser();
+
 
   const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
 
@@ -41,7 +41,7 @@ export default function RegistrationTab({ tournamentId, tournament }: Registrati
           {categories.map((cat) => (
             <button
               key={cat.id}
-              onClick={() => setSelectedCategoryId(cat.id)}
+              onClick={() => setSelectedCategoryId(cat.id || null)}
               className={`px-4 py-2 text-sm font-semibold rounded-lg border whitespace-nowrap transition-colors ${
                 selectedCategoryId === cat.id
                   ? "bg-primary text-primary-foreground border-primary"
@@ -149,7 +149,7 @@ function ManageEntryView({ entryWithRole, category }: { entryWithRole: any, cate
 }
 
 function SearchAndJoinTeamView({ category }: { category: TournamentCategory }) {
-  const { data: teamsData, isLoading } = useEntriesByCategory(category.id, 1, 50, { isAcceptingMembers: true });
+  const { data: teamsData, isLoading } = useEntriesByCategory(category.id || 0, 1, 50, { isAcceptingMembers: true });
   
   // Create a placeholder for single/double registration if it's not a team format
   const isTeamFormat = category.type !== 'single';

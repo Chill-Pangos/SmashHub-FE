@@ -83,7 +83,7 @@ export const useTournamentFlowSnapshot = ({
   const tournamentDetailQuery = useTournament(resolvedTournamentId, {
     enabled: enabled && resolvedTournamentId > 0,
   });
-  const refereesQuery = useRefereesByTournament(resolvedTournamentId, 0, 50, {
+  const refereesQuery = useRefereesByTournament(resolvedTournamentId, 1, 50, undefined, {
     enabled: enabled && resolvedTournamentId > 0,
   });
   const entriesQuery = useEntriesByCategory(resolvedCategoryId, 0, 100, {

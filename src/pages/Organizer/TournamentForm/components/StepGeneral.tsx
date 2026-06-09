@@ -51,6 +51,9 @@ export const StepGeneral: React.FC<StepProps> = ({
   const handleNext = () => {
     const startDate = data.startDate ? new Date(data.startDate) : null;
     const endDate = data.endDate ? new Date(data.endDate) : null;
+    const regStartDate = data.registrationStartDate ? new Date(data.registrationStartDate) : null;
+    const regEndDate = data.registrationEndDate ? new Date(data.registrationEndDate) : null;
+    const bracketDate = data.bracketGenerationDate ? new Date(data.bracketGenerationDate) : null;
 
     if (!data.name?.trim()) {
       setValidationError(t("tournamentManager.createTournamentForm.general.validation.nameRequired"));
@@ -79,6 +82,36 @@ export const StepGeneral: React.FC<StepProps> = ({
 
     if (startDate.getTime() > endDate.getTime()) {
       setValidationError(t("tournamentManager.createTournamentForm.general.validation.dateOrderInvalid"));
+      return;
+    }
+
+    if (!regStartDate || Number.isNaN(regStartDate.getTime())) {
+      setValidationError("Vui lòng nhập thời gian mở đăng ký.");
+      return;
+    }
+
+    if (!regEndDate || Number.isNaN(regEndDate.getTime())) {
+      setValidationError("Vui lòng nhập thời gian đóng đăng ký.");
+      return;
+    }
+
+    if (!bracketDate || Number.isNaN(bracketDate.getTime())) {
+      setValidationError("Vui lòng nhập ngày chốt Bracket.");
+      return;
+    }
+
+    if (regStartDate.getTime() >= regEndDate.getTime()) {
+      setValidationError("Thời gian đóng đăng ký phải sau thời gian mở.");
+      return;
+    }
+
+    if (regEndDate.getTime() >= bracketDate.getTime()) {
+      setValidationError("Ngày chốt Bracket phải sau khi đóng đăng ký.");
+      return;
+    }
+
+    if (bracketDate.getTime() >= startDate.getTime()) {
+      setValidationError("Ngày chốt Bracket phải trước ngày bắt đầu giải đấu.");
       return;
     }
 
@@ -246,6 +279,42 @@ export const StepGeneral: React.FC<StepProps> = ({
               type="date"
               value={data.endDate || ""}
               onChange={(e) => updateData({ endDate: e.target.value })}
+              className="bg-input/50"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold text-muted-foreground uppercase">
+              Mở đăng ký
+            </Label>
+            <Input
+              type="datetime-local"
+              value={data.registrationStartDate || ""}
+              onChange={(e) => updateData({ registrationStartDate: e.target.value })}
+              className="bg-input/50"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold text-muted-foreground uppercase">
+              Đóng đăng ký
+            </Label>
+            <Input
+              type="datetime-local"
+              value={data.registrationEndDate || ""}
+              onChange={(e) => updateData({ registrationEndDate: e.target.value })}
+              className="bg-input/50"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold text-muted-foreground uppercase">
+              Ngày tạo Bracket
+            </Label>
+            <Input
+              type="date"
+              value={data.bracketGenerationDate || ""}
+              onChange={(e) => updateData({ bracketGenerationDate: e.target.value })}
               className="bg-input/50"
             />
           </div>

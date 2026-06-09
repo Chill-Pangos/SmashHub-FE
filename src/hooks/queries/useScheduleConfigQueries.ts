@@ -82,13 +82,8 @@ export const useDeleteScheduleConfig = () => {
 
 export const useValidateScheduleConfig = () => {
   return useMutation({
-    mutationFn: ({
-      tournamentId,
-      data,
-    }: {
-      tournamentId: number;
-      data: ValidateScheduleConfigRequest;
-    }) => scheduleConfigService.validateScheduleConfig(tournamentId, data),
+    mutationFn: (data: ValidateScheduleConfigRequest) => 
+      scheduleConfigService.validateScheduleConfig(data),
   });
 };
 

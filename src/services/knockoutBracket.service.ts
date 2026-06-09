@@ -6,10 +6,12 @@ import type {
   AdvanceWinnerResponse,
   ValidateKnockoutBracketResponse,
   GenerateKnockoutPlaceholdersRequest,
-  GenerateKnockoutBracketTreeResponse,
+  PreviewKnockoutBracketTreeResponse,
   FillQualifiersRequest,
   GenerateFromEntriesRequest,
   GetKnockoutBracketsByEntryResponse,
+  SaveKnockoutAssignmentsRequest,
+  SaveKnockoutAssignmentsResponse,
 } from "@/types/knockoutBracket.types";
 
 /**
@@ -19,61 +21,46 @@ import type {
 class KnockoutBracketService {
   private readonly baseURL = "/knockout-brackets";
 
-  /**
-   * Generate bracket placeholders
-   * POST /api/knockout-brackets/placeholders
-   */
-  async generatePlaceholders(
+  async previewPlaceholders(
     data: GenerateKnockoutPlaceholdersRequest,
-  ): Promise<GenerateKnockoutBracketTreeResponse> {
-    const response = await axiosInstance.post<GenerateKnockoutBracketTreeResponse>(
-      `${this.baseURL}/placeholders`,
+  ): Promise<PreviewKnockoutBracketTreeResponse> {
+    const response = await axiosInstance.post<PreviewKnockoutBracketTreeResponse>(
+      `${this.baseURL}/preview-placeholders`,
       data,
     );
     return response.data;
   }
 
-  /**
-   * Fill qualifiers into bracket
-   * POST /api/knockout-brackets/fill-qualifiers
-   */
-  async fillQualifiers(
+  async previewFillQualifiers(
     data: FillQualifiersRequest,
-  ): Promise<GenerateKnockoutBracketTreeResponse> {
-    const response = await axiosInstance.post<GenerateKnockoutBracketTreeResponse>(
-      `${this.baseURL}/fill-qualifiers`,
+  ): Promise<PreviewKnockoutBracketTreeResponse> {
+    const response = await axiosInstance.post<PreviewKnockoutBracketTreeResponse>(
+      `${this.baseURL}/preview-fill-qualifiers`,
       data,
     );
     return response.data;
   }
 
-  /**
-   * Generate bracket from entries
-   * POST /api/knockout-brackets/from-entries
-   */
-  async generateFromEntries(
+  async previewFromEntries(
     data: GenerateFromEntriesRequest,
-  ): Promise<GenerateKnockoutBracketTreeResponse> {
-    const response = await axiosInstance.post<GenerateKnockoutBracketTreeResponse>(
-      `${this.baseURL}/from-entries`,
+  ): Promise<PreviewKnockoutBracketTreeResponse> {
+    const response = await axiosInstance.post<PreviewKnockoutBracketTreeResponse>(
+      `${this.baseURL}/preview-from-entries`,
       data,
     );
     return response.data;
   }
 
-  /**
-   * Advance winner
-   * POST /api/knockout-brackets/advance-winner
-   *
-   * @param data Request with bracketId and winnerEntryId
-   * @returns Promise with updated knockout bracket
-   *
-   * @example
-   * const updated = await knockoutBracketService.advanceWinner({
-   *   bracketId: 5,
-   *   winnerEntryId: 10
-   * });
-   */
+  async saveAssignments(
+    data: SaveKnockoutAssignmentsRequest,
+  ): Promise<SaveKnockoutAssignmentsResponse> {
+    const response = await axiosInstance.post<SaveKnockoutAssignmentsResponse>(
+      `${this.baseURL}/save-assignments`,
+      data,
+    );
+    return response.data;
+  }
+
   async advanceWinner(
     id: number,
     data: AdvanceWinnerRequest,
@@ -82,14 +69,9 @@ class KnockoutBracketService {
       `${this.baseURL}/${id}/advance-winner`,
       data,
     );
-
     return response.data;
   }
 
-  /**
-   * Validate knockout brackets
-   * POST /api/knockout-brackets/validate
-   */
   async validateKnockoutBrackets(
     categoryId: number,
   ): Promise<ValidateKnockoutBracketResponse> {
@@ -99,10 +81,6 @@ class KnockoutBracketService {
     return response.data;
   }
 
-  /**
-   * Get knockout bracket tree by category ID
-   * GET /api/knockout-brackets/tree/{categoryId}
-   */
   async getKnockoutBracketTreeByCategory(
     categoryId: number,
   ): Promise<GetKnockoutBracketTreeResponse> {
@@ -112,10 +90,6 @@ class KnockoutBracketService {
     return response.data;
   }
 
-  /**
-   * Get knockout standings by category ID
-   * GET /api/knockout-brackets/standings/{categoryId}
-   */
   async getKnockoutStandingsByCategory(
     categoryId: number,
   ): Promise<GetKnockoutStandingsResponse> {
@@ -125,10 +99,6 @@ class KnockoutBracketService {
     return response.data;
   }
 
-  /**
-   * Get entry brackets by category ID
-   * GET /api/knockout-brackets/category/{categoryId}/entry
-   */
   async getKnockoutBracketsByEntry(
     categoryId: number,
     options?: { entryId?: number; entryName?: string; page?: number; limit?: number }
@@ -141,5 +111,4 @@ class KnockoutBracketService {
   }
 }
 
-// Export singleton instance
 export default new KnockoutBracketService();

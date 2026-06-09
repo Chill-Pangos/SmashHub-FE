@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, ArrowLeft, Rocket, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCreateTournament } from "@/hooks/queries/useTournamentQueries";
+import { useCreateScheduleConfig } from "@/hooks/queries/useScheduleConfigQueries";
 import { showToast, showApiError } from "@/utils/toast.utils";
 import type { CreateTournamentRequest } from "@/types/tournament.types"; // Đường dẫn tới file types tổng của bạn
 
@@ -12,8 +13,9 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const createTournament = useCreateTournament();
+  const createScheduleConfig = useCreateScheduleConfig();
 
-  const isSubmitting = createTournament.isPending;
+  const isSubmitting = createTournament.isPending || createScheduleConfig.isPending;
 
   // ── Submit ───────────────────────────────────────────────────────────────────
 
@@ -61,11 +63,40 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
     };
 
     try {
-      await showToast.promise(createTournament.mutateAsync(payload), {
-        loading: t("tournamentManager.createTournamentForm.review.initializing"),
-        success: t("tournamentManager.createTournamentForm.review.successAlert"),
-        error: t("tournamentManager.createTournamentForm.review.errorAlert"),
+      showToast.loading(t("tournamentManager.createTournamentForm.review.initializing"));
+      const tournamentRes = await createTournament.mutateAsync(payload);
+
+      const parseTimeToMinutes = (timeStr: string) => {
+        const [hours, minutes] = timeStr.split(":").map(Number);
+        return hours * 60 + minutes;
+      };
+
+      const lunchBreakStartMinutes = data.schedule.hasBreak ? parseTimeToMinutes(data.schedule.breakStartTime) : null;
+      const lunchBreakEndMinutes = lunchBreakStartMinutes !== null ? lunchBreakStartMinutes + data.schedule.breakDurationMinutes : null;
+
+      await createScheduleConfig.mutateAsync({
+        tournamentId: tournamentRes.id,
+        startDate: new Date(data.startDate).toISOString(),
+        endDate: new Date(data.endDate).toISOString(),
+        registrationStartDate: new Date(data.registrationStartDate).toISOString(),
+        registrationEndDate: new Date(data.registrationEndDate).toISOString(),
+        bracketGenerationDate: new Date(data.bracketGenerationDate).toISOString(),
+        numberOfTables: Number(data.schedule.activeTables),
+        matchDurationMinutes: Number(data.schedule.matchDurationMinutes),
+        breakDurationMinutes: 10,
+        dailyStartHour: parseInt(data.schedule.dailyStartTime.split(":")[0]),
+        dailyStartMinute: parseInt(data.schedule.dailyStartTime.split(":")[1]),
+        dailyEndHour: parseInt(data.schedule.dailyEndTime.split(":")[0]),
+        dailyEndMinute: parseInt(data.schedule.dailyEndTime.split(":")[1]),
+        lunchBreakStartHour: lunchBreakStartMinutes !== null ? Math.floor(lunchBreakStartMinutes / 60) : null,
+        lunchBreakStartMinute: lunchBreakStartMinutes !== null ? lunchBreakStartMinutes % 60 : null,
+        lunchBreakEndHour: lunchBreakEndMinutes !== null ? Math.floor(lunchBreakEndMinutes / 60) : null,
+        lunchBreakEndMinute: lunchBreakEndMinutes !== null ? lunchBreakEndMinutes % 60 : null,
+        lunchBreakDurationMinutes: data.schedule.hasBreak ? data.schedule.breakDurationMinutes : null,
+        notes: data.schedule.notes || "",
       });
+
+      showToast.success(t("tournamentManager.createTournamentForm.review.successAlert"));
 
       navigate("/organizer/tournaments");
     } catch (error) {

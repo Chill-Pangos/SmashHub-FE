@@ -152,6 +152,7 @@ export default function ScheduleTab({
           <ScheduleGeneration
             tournamentId={tournamentId}
             categoryId={selectedCategoryId}
+            isGroupStage={options.find(o => o.id === selectedCategoryId)?.isGroupStage}
           />
         )}
 

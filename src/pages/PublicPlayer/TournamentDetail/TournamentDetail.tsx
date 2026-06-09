@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTournament } from "@/hooks/queries"; // Đảm bảo đường dẫn này đúng với project của bạn
-import type { Tournament } from "@/types/tournament.types";
+
 import { Calendar, MapPin } from "lucide-react";
 import {
   OverviewTab,

@@ -6,16 +6,13 @@ import type {
   FillQualifiersRequest,
   GenerateFromEntriesRequest,
   AdvanceWinnerRequest,
+  SaveKnockoutAssignmentsRequest,
 } from "@/types";
 
 const getCategoryId = (data: { categoryId: number }) => data.categoryId;
 
 // ==================== Query Hooks ====================
 
-
-/**
- * Hook to get knockout bracket tree by category
- */
 export const useKnockoutBracketTreeByCategory = (
   categoryId: number,
   options?: { enabled?: boolean },
@@ -28,9 +25,6 @@ export const useKnockoutBracketTreeByCategory = (
   });
 };
 
-/**
- * Hook to get knockout standings by category
- */
 export const useKnockoutStandingsByCategory = (
   categoryId: number,
   options?: { enabled?: boolean },
@@ -43,9 +37,6 @@ export const useKnockoutStandingsByCategory = (
   });
 };
 
-/**
- * Hook to get entry brackets by category
- */
 export const useKnockoutBracketsByEntry = (
   categoryId: number,
   options?: { enabled?: boolean; entryId?: number; entryName?: string; page?: number; limit?: number },
@@ -60,57 +51,33 @@ export const useKnockoutBracketsByEntry = (
 
 // ==================== Mutation Hooks ====================
 
-/**
- * Hook để generate bracket placeholders
- */
-export const useGenerateKnockoutPlaceholders = () => {
-  const queryClient = useQueryClient();
-
+export const usePreviewKnockoutPlaceholders = () => {
   return useMutation({
     mutationFn: (data: GenerateKnockoutPlaceholdersRequest) =>
-      knockoutBracketService.generatePlaceholders(data),
-    onSuccess: (_result, data) => {
-      const categoryId = getCategoryId(data);
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.knockoutBrackets.byCategory(categoryId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.knockoutBrackets.all,
-      });
-    },
+      knockoutBracketService.previewPlaceholders(data),
   });
 };
 
-/**
- * Hook để fill qualifiers into bracket
- */
-export const useFillQualifiers = () => {
-  const queryClient = useQueryClient();
-
+export const usePreviewFillQualifiers = () => {
   return useMutation({
     mutationFn: (data: FillQualifiersRequest) =>
-      knockoutBracketService.fillQualifiers(data),
-    onSuccess: (_result, data) => {
-      const categoryId = getCategoryId(data);
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.knockoutBrackets.byCategory(categoryId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.knockoutBrackets.all,
-      });
-    },
+      knockoutBracketService.previewFillQualifiers(data),
   });
 };
 
-/**
- * Hook để generate bracket từ entries
- */
-export const useGenerateFromEntries = () => {
+export const usePreviewFromEntries = () => {
+  return useMutation({
+    mutationFn: (data: GenerateFromEntriesRequest) =>
+      knockoutBracketService.previewFromEntries(data),
+  });
+};
+
+export const useSaveKnockoutAssignments = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: GenerateFromEntriesRequest) =>
-      knockoutBracketService.generateFromEntries(data),
+    mutationFn: (data: SaveKnockoutAssignmentsRequest) =>
+      knockoutBracketService.saveAssignments(data),
     onSuccess: (_result, data) => {
       const categoryId = getCategoryId(data);
       queryClient.invalidateQueries({
@@ -123,9 +90,6 @@ export const useGenerateFromEntries = () => {
   });
 };
 
-/**
- * Hook để advance winner
- */
 export const useAdvanceWinner = () => {
   const queryClient = useQueryClient();
 
@@ -140,9 +104,6 @@ export const useAdvanceWinner = () => {
   });
 };
 
-/**
- * Hook to validate knockout brackets
- */
 export const useValidateKnockoutBrackets = (
   categoryId: number,
   options?: { enabled?: boolean },

@@ -2,38 +2,41 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoreVertical } from "lucide-react";
+import type { RefereeUser } from "@/types/tournamentReferee.types";
 
-export interface Referee {
-  id: string;
-  name: string;
-  email: string;
+export interface RefereeDisplay {
+  id: number;
+  user?: RefereeUser;
   status: "CONFIRMED" | "PENDING";
-  role: "CHIEF" | "ASSISTANT";
-  avatarUrl?: string;
+  role: "chief" | "referee";
 }
 
 interface RefereeCardProps {
-  referee: Referee;
+  referee: RefereeDisplay;
   isChief?: boolean;
 }
 
 export function RefereeCard({ referee, isChief }: RefereeCardProps) {
+  const name = referee.user
+    ? `${referee.user.firstName} ${referee.user.lastName}`
+    : "Unknown User";
+
   return (
     <div className="flex items-center justify-between p-4 bg-card border border-border rounded-xl">
       <div className="flex items-center gap-4">
         <Avatar className="h-10 w-10 border border-border">
-          <AvatarImage src={referee.avatarUrl} alt={referee.name} />
+          <AvatarImage src={referee.user?.avatarUrl} alt={name} />
           <AvatarFallback className="bg-muted text-muted-foreground font-medium">
-            {referee.name.substring(0, 2).toUpperCase()}
+            {name.substring(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div>
           <p className="text-sm font-semibold text-card-foreground">
-            {referee.name}
+            {name}
           </p>
           <p className="text-xs text-muted-foreground flex items-center gap-1">
             {isChief && <span className="text-primary mr-1">CHIEF</span>}
-            {referee.email}
+            {referee.user?.email}
           </p>
         </div>
       </div>

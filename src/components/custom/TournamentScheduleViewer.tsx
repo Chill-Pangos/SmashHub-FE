@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, MapPin } from "lucide-react";
-import { useSchedulesByContent } from "@/hooks/queries";
+import { useSchedulesByCategory } from "@/hooks/queries";
 import { format } from "date-fns";
 import { vi, enUS } from "date-fns/locale";
 import type {
@@ -52,7 +52,7 @@ export default function TournamentScheduleViewer({
     data: schedulesData,
     isLoading,
     error,
-  } = useSchedulesByContent(contentId, {
+  } = useSchedulesByCategory(contentId, {
     stage,
     limit,
     enabled: !hasOverrides && contentId > 0,
@@ -66,8 +66,8 @@ export default function TournamentScheduleViewer({
     const schedules = resolvedSchedules?.schedules || [];
     const grouped: Record<string, Schedule[]> = {};
 
-    schedules.forEach((schedule) => {
-      const dateStr = schedule.scheduledAt || schedule.matchTime;
+    schedules.forEach((schedule: Schedule) => {
+      const dateStr = schedule.scheduledAt;
       if (!dateStr) return;
 
       const date = format(new Date(dateStr), "yyyy-MM-dd");
@@ -80,8 +80,8 @@ export default function TournamentScheduleViewer({
     // Sort each day's schedules by time
     Object.keys(grouped).forEach((date) => {
       grouped[date].sort((a, b) => {
-        const timeA = new Date(a.scheduledAt || a.matchTime || 0).getTime();
-        const timeB = new Date(b.scheduledAt || b.matchTime || 0).getTime();
+        const timeA = new Date(a.scheduledAt || 0).getTime();
+        const timeB = new Date(b.scheduledAt || 0).getTime();
         return timeA - timeB;
       });
     });
@@ -265,7 +265,7 @@ export default function TournamentScheduleViewer({
                         <TableRow key={schedule.id}>
                           <TableCell className="font-medium">
                             {formatTime(
-                              schedule.scheduledAt || schedule.matchTime,
+                              schedule.scheduledAt,
                             )}
                           </TableCell>
                           <TableCell>

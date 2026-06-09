@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   ArrowLeft,
 } from "lucide-react";
+import { useValidateScheduleConfig } from "@/hooks/queries/useScheduleConfigQueries";
 
 export const StepSchedule: React.FC<StepProps> = ({
   data,
@@ -105,14 +106,60 @@ export const StepSchedule: React.FC<StepProps> = ({
     return null;
   };
 
-  const handleValidate = () => {
+  const { mutateAsync: validateConfig } = useValidateScheduleConfig();
+
+  const handleValidate = async () => {
+    setValidationError(null);
+    setIsValidated(false);
+
+    const localError = validateSchedule();
+    if (localError) {
+      setValidationError(localError);
+      return;
+    }
+
     setIsChecking(true);
-    setTimeout(() => {
-      const nextValidationError = validateSchedule();
+    try {
+      const lunchBreakStartMinutes = data.schedule.hasBreak ? parseTimeToMinutes(data.schedule.breakStartTime) : null;
+      const lunchBreakEndMinutes = lunchBreakStartMinutes !== null ? lunchBreakStartMinutes + data.schedule.breakDurationMinutes : null;
+
+      const res = await validateConfig({
+        category: {
+          maxEntries: (data.categories || []).reduce((acc, cat) => acc + (cat.maxEntries || 0), 0),
+          isGroupStage: (data.categories || []).some(cat => cat.isGroupStage),
+        },
+        scheduleConfig: {
+          startDate: new Date(data.startDate).toISOString(),
+          endDate: new Date(data.endDate).toISOString(),
+          registrationStartDate: new Date(data.registrationStartDate).toISOString(),
+          registrationEndDate: new Date(data.registrationEndDate).toISOString(),
+          bracketGenerationDate: new Date(data.bracketGenerationDate).toISOString(),
+          numberOfTables: Number(data.schedule.activeTables),
+          matchDurationMinutes: Number(data.schedule.matchDurationMinutes),
+          breakDurationMinutes: 10, // Assuming standard break duration between matches
+          dailyStartHour: parseInt(data.schedule.dailyStartTime.split(":")[0]),
+          dailyStartMinute: parseInt(data.schedule.dailyStartTime.split(":")[1]),
+          dailyEndHour: parseInt(data.schedule.dailyEndTime.split(":")[0]),
+          dailyEndMinute: parseInt(data.schedule.dailyEndTime.split(":")[1]),
+          lunchBreakStartHour: lunchBreakStartMinutes !== null ? Math.floor(lunchBreakStartMinutes / 60) : null,
+          lunchBreakStartMinute: lunchBreakStartMinutes !== null ? lunchBreakStartMinutes % 60 : null,
+          lunchBreakEndHour: lunchBreakEndMinutes !== null ? Math.floor(lunchBreakEndMinutes / 60) : null,
+          lunchBreakEndMinute: lunchBreakEndMinutes !== null ? lunchBreakEndMinutes % 60 : null,
+          lunchBreakDurationMinutes: data.schedule.hasBreak ? data.schedule.breakDurationMinutes : null,
+          notes: data.schedule.notes || "",
+        }
+      });
+
+      if (res.isValid) {
+        setIsValidated(true);
+      } else {
+        setValidationError(res.message || "Invalid schedule configuration.");
+      }
+    } catch (err: any) {
+      setValidationError(err.response?.data?.message || "Failed to validate schedule configuration.");
+    } finally {
       setIsChecking(false);
-      setValidationError(nextValidationError);
-      setIsValidated(!nextValidationError);
-    }, 1000);
+    }
   };
 
   const schedule = data.schedule;
