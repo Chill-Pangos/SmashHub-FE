@@ -20,6 +20,10 @@ import type {
   MatchStatus,
   GetAthleteUpcomingMatchesResponse,
   GetAthleteMatchHistoryResponse,
+  GetMatchesByCategoryResponse,
+  GetRefereeMatchesResponse,
+  BulkStartMatchesRequest,
+  BulkStartMatchesResponse,
 } from "@/types/match.types";
 
 /**
@@ -386,6 +390,48 @@ class MatchService {
     const response = await axiosInstance.get<GetAthleteMatchHistoryResponse>(
       `${this.baseURL}/athlete/${userId}/history`,
       { params: { page, limit } },
+    );
+    return response.data;
+  }
+
+  async getMatchesByCategory(
+    categoryId: number,
+    params?: {
+      stage?: string;
+      status?: string;
+      resultStatus?: string;
+      page?: number;
+      limit?: number;
+    }
+  ): Promise<GetMatchesByCategoryResponse> {
+    const response = await axiosInstance.get<GetMatchesByCategoryResponse>(
+      `${this.baseURL}/category/${categoryId}`,
+      { params }
+    );
+    return response.data;
+  }
+
+  async bulkStartMatches(
+    data: BulkStartMatchesRequest
+  ): Promise<BulkStartMatchesResponse> {
+    const response = await axiosInstance.post<BulkStartMatchesResponse>(
+      `${this.baseURL}/bulk-start`,
+      data
+    );
+    return response.data;
+  }
+
+  async getRefereeMatches(
+    params: {
+      categoryId: number;
+      status?: string;
+      page?: number;
+      limit?: number;
+    }
+  ): Promise<GetRefereeMatchesResponse> {
+    const response = await axiosInstance.get<GetRefereeMatchesResponse>(
+      `${this.baseURL}/referee/my`,
+      { params }
     );
     return response.data;
   }

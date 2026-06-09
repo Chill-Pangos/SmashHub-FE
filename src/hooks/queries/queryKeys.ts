@@ -89,6 +89,10 @@ export const queryKeys = {
       [...queryKeys.matches.all, "pendingWithElo", matchId] as const,
     eloPreview: (matchId: number) =>
       [...queryKeys.matches.all, "eloPreview", matchId] as const,
+    byCategory: (categoryId: number, filters?: object) =>
+      [...queryKeys.matches.all, "category", categoryId, filters] as const,
+    refereeMy: (filters?: object) =>
+      [...queryKeys.matches.all, "referee", "my", filters] as const,
   },
 
   // ==================== Match Set Keys ====================
@@ -393,6 +397,8 @@ export const queryKeys = {
         entryMemberId,
         filters,
       ] as const,
+    pendingLineups: () => [...queryKeys.subMatchPlayers.all, "lineups", "pending"] as const,
+    rejectedLineups: () => [...queryKeys.subMatchPlayers.all, "lineups", "rejected"] as const,
   },
 } as const;
 

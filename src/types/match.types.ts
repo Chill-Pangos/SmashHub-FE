@@ -137,6 +137,13 @@ export interface RejectMatchRequest {
   reviewNotes: string;
 }
 
+/**
+ * Bulk start matches request
+ */
+export interface BulkStartMatchesRequest {
+  matchIds: number[];
+}
+
 // ==================== Response Types ====================
 
 /**
@@ -163,6 +170,31 @@ export type GetMatchesByScheduleResponse = { rows: Match[]; count: number };
  * Get matches by status response
  */
 export type GetMatchesByStatusResponse = { rows: Match[]; count: number };
+
+/**
+ * Get matches by category response
+ */
+export interface GetMatchesByCategoryResponse {
+  schedules: any[];
+}
+
+/**
+ * Get referee matches response
+ */
+export interface GetRefereeMatchesResponse {
+  message: string;
+  categoryId: number;
+  statuses: string[] | null;
+  count: number;
+  offset: number;
+  limit: number;
+  matches: Match[];
+}
+
+/**
+ * Bulk start matches response
+ */
+export type BulkStartMatchesResponse = void;
 
 /**
  * Update match response

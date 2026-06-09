@@ -2,6 +2,13 @@ import axiosInstance from "@/config/axiosConfig";
 import type {
   SubMatchPlayerMatchesResponse,
   SubMatchPlayersResponse,
+  LineupSubmitRequest,
+  LineupSubmitResponse,
+  GetPendingLineupsResponse,
+  ApproveLineupResponse,
+  RejectLineupRequest,
+  RejectLineupResponse,
+  GetRejectedLineupsResponse,
 } from "@/types/subMatchPlayer.types";
 
 class SubMatchPlayerService {
@@ -40,6 +47,43 @@ class SubMatchPlayerService {
     const response = await axiosInstance.get<SubMatchPlayerMatchesResponse>(
       `${this.baseURL}/entry-member/${entryMemberId}`,
       { params: { page, limit } },
+    );
+    return response.data;
+  }
+
+  async submitLineup(matchId: number, data: LineupSubmitRequest): Promise<LineupSubmitResponse> {
+    const response = await axiosInstance.post<LineupSubmitResponse>(
+      `${this.baseURL}/match/${matchId}/lineup-submit`,
+      data
+    );
+    return response.data;
+  }
+
+  async getPendingLineups(): Promise<GetPendingLineupsResponse> {
+    const response = await axiosInstance.get<GetPendingLineupsResponse>(
+      `${this.baseURL}/lineup-requests/pending`
+    );
+    return response.data;
+  }
+
+  async approveLineups(matchId: number): Promise<ApproveLineupResponse> {
+    const response = await axiosInstance.post<ApproveLineupResponse>(
+      `${this.baseURL}/match/${matchId}/lineup-approve`
+    );
+    return response.data;
+  }
+
+  async rejectLineups(matchId: number, data: RejectLineupRequest): Promise<RejectLineupResponse> {
+    const response = await axiosInstance.post<RejectLineupResponse>(
+      `${this.baseURL}/match/${matchId}/lineup-reject`,
+      data
+    );
+    return response.data;
+  }
+
+  async getRejectedLineups(): Promise<GetRejectedLineupsResponse> {
+    const response = await axiosInstance.get<GetRejectedLineupsResponse>(
+      `${this.baseURL}/lineup-requests/rejected`
     );
     return response.data;
   }

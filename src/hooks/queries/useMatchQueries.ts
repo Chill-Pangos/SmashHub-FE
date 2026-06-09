@@ -6,6 +6,7 @@ import type {
   UpdateMatchRequest,
   ApproveMatchRequest,
   RejectMatchRequest,
+  BulkStartMatchesRequest,
 } from "@/types";
 
 // ==================== Query Hooks ====================
@@ -103,6 +104,46 @@ export const useEloPreview = (id: number, options?: { enabled?: boolean }) => {
   });
 };
 
+/**
+ * Hook để lấy matches theo category (Chief Referee)
+ */
+export const useMatchesByCategory = (
+  categoryId: number,
+  filters?: {
+    stage?: string;
+    status?: string;
+    resultStatus?: string;
+    page?: number;
+    limit?: number;
+  },
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: queryKeys.matches.byCategory(categoryId, filters),
+    queryFn: () => matchService.getMatchesByCategory(categoryId, filters),
+    enabled: (options?.enabled ?? true) && categoryId > 0,
+  });
+};
+
+/**
+ * Hook để lấy assigned matches cho referee
+ */
+export const useRefereeMatches = (
+  filters: {
+    categoryId: number;
+    status?: string;
+    page?: number;
+    limit?: number;
+  },
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: queryKeys.matches.refereeMy(filters),
+    queryFn: () => matchService.getRefereeMatches(filters),
+    enabled: (options?.enabled ?? true) && filters.categoryId > 0,
+  });
+};
+
 // ==================== Mutation Hooks ====================
 
 // useCreateMatch removed (not in docs)
@@ -142,6 +183,20 @@ export const useDeleteMatch = () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.matches.all,
       });
+    },
+  });
+};
+
+/**
+ * Hook để bulk start matches
+ */
+export const useBulkStartMatches = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: BulkStartMatchesRequest) => matchService.bulkStartMatches(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.matches.all });
     },
   });
 };

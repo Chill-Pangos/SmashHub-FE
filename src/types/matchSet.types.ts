@@ -46,8 +46,22 @@ export interface UpdateMatchSetRequest {
 export type CreateMatchSetResponse = MatchSet;
 export type GetMatchSetResponse = MatchSet;
 export type GetMatchSetsResponse = { rows: MatchSet[]; count: number };
-export type GetMatchSetsByMatchResponse = { sets: MatchSet[]; pagination: any };
+export interface GetMatchSetsByMatchResponse {
+  message: string;
+  subMatchId: number;
+  count: number;
+  sets: MatchSet[];
+}
 export type UpdateMatchSetResponse = MatchSet;
 export type DeleteMatchSetResponse = void;
-export type UpdateLiveScoreResponse = MatchSet | { success: boolean; message: string };
+export interface UpdateLiveScoreResponse {
+  message: string;
+  liveScore: any | null;
+  isCompleted: boolean;
+  persistedSet?: MatchSet;
+  nextSetNumber: number;
+  subMatchReadyToFinalize?: boolean;
+  winningTeam?: string;
+  finalizationNotice?: any;
+}
 export type SubmitFinalScoreResponse = MatchSet;

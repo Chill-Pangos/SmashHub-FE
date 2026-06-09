@@ -32,7 +32,20 @@ export interface SubMatch {
 }
 
 export type SubMatchResponse = SubMatch;
-export type SubMatchesResponse = { subMatches: SubMatch[]; pagination: any };
-export type StartSubMatchResponse = SubMatch;
-export type FinalizeSubMatchResponse = SubMatch;
+export interface SubMatchesResponse {
+  message: string;
+  matchId: number;
+  count: number;
+  subMatches: SubMatch[];
+}
+export interface StartSubMatchResponse {
+  message: string;
+  lineupReady: boolean;
+  subMatch: SubMatch;
+}
+export interface FinalizeSubMatchResponse {
+  message: string;
+  matchReadyToFinalize: boolean;
+  subMatch: SubMatch;
+}
 export type AssignSubMatchPlayersResponse = any[]; // Should be SubMatchPlayer[]

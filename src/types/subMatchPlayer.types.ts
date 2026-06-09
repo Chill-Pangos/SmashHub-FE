@@ -21,6 +21,40 @@ export interface SubMatchPlayersByEntryMemberParams extends PaginationParams {
   page?: number;
 }
 
+export interface LineupSubmitRequest {
+  lineups: {
+    subMatchId: number;
+    entryMemberIds: number[];
+  }[];
+}
+
+export interface LineupSubmitResponse {
+  message: string;
+  lineups: any[];
+}
+
+export interface GetPendingLineupsResponse {
+  lineups: any[];
+}
+
+export interface ApproveLineupResponse {
+  message: string;
+  players: SubMatchPlayer[];
+}
+
+export interface RejectLineupRequest {
+  reviewNotes?: string;
+}
+
+export interface RejectLineupResponse {
+  message: string;
+  rejected: any[];
+}
+
+export interface GetRejectedLineupsResponse {
+  rejected: any[];
+}
+
 export type SubMatchPlayersResponse = { players: SubMatchPlayer[]; pagination: any };
 export type SubMatchPlayerResponse = SubMatchPlayer;
 export type SubMatchPlayerMatchesResponse = { matches: SubMatchPlayer[]; pagination: any };
