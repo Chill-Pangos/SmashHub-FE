@@ -1,5 +1,5 @@
 import {
-  AlertTriangle,
+  AlertTriangleIcon,
   Info,
   LayoutGrid,
   Trophy,
@@ -91,7 +91,7 @@ export default function OverviewTab({ tournament }: OverviewTabProps) {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-1">
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
-            <AlertTriangle className="h-5 w-5 text-foreground" />
+            <AlertTriangleIcon className="h-5 w-5 text-foreground" />
             <h2 className="text-lg font-semibold text-foreground">
               Critical Alerts
             </h2>
@@ -100,7 +100,7 @@ export default function OverviewTab({ tournament }: OverviewTabProps) {
           <div className="space-y-3">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-lg border border-destructive/20 bg-destructive/5 p-4">
               <div className="flex items-start gap-3">
-                <AlertTriangle className="h-5 w-5 shrink-0 text-destructive mt-0.5" />
+                <AlertTriangleIcon className="h-5 w-5 shrink-0 text-destructive mt-0.5" />
                 <div>
                   <h3 className="font-semibold text-destructive">
                     Court 4 Net Sensor Malfunction

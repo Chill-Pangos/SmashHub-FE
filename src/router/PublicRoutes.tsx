@@ -10,7 +10,7 @@ import EmailVerification from "@/pages/Auth/EmailVerification/EmailVerification"
 import ChangePassword from "@/pages/Auth/ChangePassword/ChangePassword";
 import Landing from "@/pages/PublicPlayer/Landing";
 import TournamentListing from "@/pages/PublicPlayer/TournamentListing";
-import TournamentDetail from "@/pages/PublicPlayer/TournamentDetail";
+import TournamentDetail from "@/pages/PublicPlayer/TournamentDetail/TournamentDetail";
 import EntryRegistration from "@/pages/PublicPlayer/EntryRegistration";
 import TeamManagement from "@/pages/PublicPlayer/TeamManagement";
 import Checkout from "@/pages/PublicPlayer/Checkout";
