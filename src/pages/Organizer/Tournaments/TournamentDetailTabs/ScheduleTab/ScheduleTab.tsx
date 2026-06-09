@@ -65,23 +65,18 @@ export default function ScheduleTab({
     }
   }, [options, selectedCategoryId]);
 
-  // Cờ kiểm tra xem có phải đang ở Mock Mode không
-  const isMockMode = tournamentId === 1;
-
   const schedulesQuery = useSchedulesByCategory(selectedCategoryId, {
     page: 1,
     limit: 100,
-    // Tắt gọi API nếu đang ở Mock Mode
-    enabled: selectedCategoryId > 0 && !isMockMode,
+    enabled: selectedCategoryId > 0,
   });
 
   const schedulesData = schedulesQuery.data?.data;
   const scheduleCount = schedulesData?.schedules?.length ?? 0;
   
-  // Ép trạng thái UI theo Mock Mode hoặc Data thật
-  const hasSchedule = isMockMode ? true : scheduleCount > 0;
-  const isLoading = isMockMode ? false : schedulesQuery.isLoading;
-  const error = isMockMode ? null : schedulesQuery.error;
+  const hasSchedule = scheduleCount > 0;
+  const isLoading = schedulesQuery.isLoading;
+  const error = schedulesQuery.error;
 
   return (
     <div className="space-y-4">

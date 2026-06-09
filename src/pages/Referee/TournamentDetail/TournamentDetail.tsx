@@ -5,14 +5,24 @@ import LiveScoreControllerTab from "./TournamentDetailTabs/LiveScoreControllerTa
 import ResultsSubmissionTab from "./TournamentDetailTabs/ResultsSubmissionTab";
 import { Search } from "lucide-react";
 
-// 🟢 REACT QUERY: Call API để lấy thông tin giải đấu và Role của user hiện tại
-// const { data: userProfile } = useQuery({ queryKey: ['userProfile'], queryFn: fetchProfile })
+import { useCurrentUser } from "@/hooks/queries/useAuthQueries";
 
 export default function TournamentDetail() {
-  // Mock Role: Chuyển đổi để xem nhanh 2 giao diện referee/chief_referee
-  const [role, setRole] = useState<"chief_referee" | "referee">(
-    "chief_referee",
-  );
+  const { data: userData } = useCurrentUser();
+  const roleItem = userData?.roles?.[0];
+  const roleName = typeof roleItem === 'object' ? roleItem?.name : undefined;
+  
+  // Determine role based on actual user roles, fallback to referee
+  const [role, setRole] = useState<"chief_referee" | "referee">("referee");
+
+  useEffect(() => {
+    if (roleName === "chief_referee" || roleName === "CHIEF_REFEREE") {
+      setRole("chief_referee");
+    } else {
+      setRole("referee");
+    }
+  }, [roleName]);
+
   const [activeTab, setActiveTab] = useState<string>(
     role === "chief_referee" ? "control_center" : "live_score",
   );
@@ -31,22 +41,7 @@ export default function TournamentDetail() {
             : "Referee Dashboard"}
         </h1>
         <div className="flex items-center gap-4">
-          <div className="flex items-center rounded-full border border-border bg-muted p-1">
-            <button
-              type="button"
-              onClick={() => setRole("chief_referee")}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${role === "chief_referee" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Chief Referee
-            </button>
-            <button
-              type="button"
-              onClick={() => setRole("referee")}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${role === "referee" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Referee
-            </button>
-          </div>
+
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input

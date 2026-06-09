@@ -1,34 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Filter, CheckCircle, X } from "lucide-react";
-
-const MOCK_PENDING = [
-  {
-    id: "#4092",
-    p1: "J. Doe",
-    p2: "M. Smith",
-    score: "3 - 1",
-    status: "PENDING",
-    time: "10m ago",
-    court: "Court 4",
-  },
-  {
-    id: "#4091",
-    p1: "S. Williams",
-    p2: "A. Chen",
-    score: "-",
-    status: "DISPUTED",
-    time: "25m ago",
-    court: "Court 1",
-  },
-];
+import { usePendingMatches, useApproveMatch, useRejectMatch } from "@/hooks/queries";
+import type { Match } from "@/types";
 
 export default function MatchResultsReviewTab() {
-  const [selectedMatch, setSelectedMatch] = useState(MOCK_PENDING[0]);
+  const { data: pendingData, isLoading } = usePendingMatches(1, 100);
+  const pendingMatches = pendingData?.matches || [];
+
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  // Tính toán mock win (chỉ để render UI tương đồng với ResultsSubmissionTab)
-  const p1Wins = selectedMatch.score.startsWith("3");
-  const p2Wins = selectedMatch.score.endsWith("3");
+  useEffect(() => {
+    if (pendingMatches.length > 0 && !selectedMatch) {
+      setSelectedMatch(pendingMatches[0]);
+    } else if (pendingMatches.length === 0) {
+      setSelectedMatch(null);
+    }
+  }, [pendingMatches, selectedMatch]);
+
+  const approveMatchMutation = useApproveMatch();
+  const rejectMatchMutation = useRejectMatch();
+
+  const handleApprove = () => {
+    if (selectedMatch) {
+      approveMatchMutation.mutate({ id: selectedMatch.id });
+    }
+  };
+
+  const handleReject = () => {
+    if (selectedMatch) {
+      rejectMatchMutation.mutate({ id: selectedMatch.id, data: { reviewNotes: "Rejected by Chief Referee" } });
+    }
+  };
+
+  if (isLoading) {
+    return <div className="p-4">Loading pending matches...</div>;
+  }
+
+  if (pendingMatches.length === 0 || !selectedMatch) {
+    return <div className="p-4 text-muted-foreground">No pending matches to review.</div>;
+  }
+
+  const p1Name = selectedMatch.entryA?.team?.name || "Player A";
+  const p2Name = selectedMatch.entryB?.team?.name || "Player B";
+  const setsWonA = selectedMatch.setsWonA || 0;
+  const setsWonB = selectedMatch.setsWonB || 0;
+  const scoreStr = `${setsWonA} - ${setsWonB}`;
+  
+  const p1Wins = setsWonA > setsWonB;
+  const p2Wins = setsWonB > setsWonA;
 
   const detailContent = (
     <>
@@ -43,9 +63,10 @@ export default function MatchResultsReviewTab() {
         </div>
         <div className="text-right">
           <span className="bg-chart-4/20 text-chart-4 text-xs font-bold px-3 py-1 rounded-full block mb-1">
-            Match ID: {selectedMatch.id}
+            Match ID: #{selectedMatch.id}
           </span>
-          <p className="text-xs text-muted-foreground font-semibold mt-2">Duration: 1h 14m</p>
+          {/* Missing true duration from API, stubbing it */}
+          <p className="text-xs text-muted-foreground font-semibold mt-2">Duration: N/A</p>
         </div>
       </div>
 
@@ -53,97 +74,46 @@ export default function MatchResultsReviewTab() {
       <div className="bg-background rounded-xl p-6 border border-border mb-6 flex justify-between items-center shrink-0">
         <div className={`flex flex-col items-center w-1/3 ${p2Wins ? 'opacity-50' : ''}`}>
           <div className={`w-16 h-16 rounded-full bg-secondary mb-2 ${p1Wins ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}></div>
-          <p className="font-bold">{selectedMatch.p1}</p>
+          <p className="font-bold">{p1Name}</p>
           <div className="flex items-center gap-2 mt-0.5">
             {p1Wins && <span className="text-[10px] text-primary font-bold uppercase">Winner</span>}
           </div>
         </div>
         
         <div className="text-5xl font-black font-mono w-1/3 text-center">
-          {selectedMatch.score}
+          {scoreStr}
         </div>
 
         <div className={`flex flex-col items-center w-1/3 ${p1Wins ? 'opacity-50' : ''}`}>
           <div className={`w-16 h-16 rounded-full bg-secondary mb-2 ${p2Wins ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}></div>
-          <p className="font-bold">{selectedMatch.p2}</p>
+          <p className="font-bold">{p2Name}</p>
           <div className="flex items-center gap-2 mt-0.5">
             {p2Wins && <span className="text-[10px] text-primary font-bold uppercase">Winner</span>}
           </div>
         </div>
       </div>
 
-      {/* 🔴 Đã update thành Table thay vì Grid */}
       <div className="bg-background border border-border rounded-xl p-6 mb-6 shrink-0">
         <h3 className="font-bold flex items-center gap-2 mb-6">
           Set Breakdown
         </h3>
-        <table className="w-full text-left">
-          <thead className="text-xs text-muted-foreground font-bold border-b border-border">
-            <tr>
-              <th className="pb-4">Player</th>
-              <th className="pb-4 text-center">Set 1</th>
-              <th className="pb-4 text-center">Set 2</th>
-              <th className="pb-4 text-center">Set 3</th>
-              <th className="pb-4 text-center">Set 4</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-b border-border/50">
-              <td className="py-4 font-semibold text-foreground flex items-center gap-2">
-                {selectedMatch.p1}{" "}
-                {p1Wins && <span className="w-2 h-2 bg-primary rounded-full"></span>}
-              </td>
-              <td className="py-4 text-center font-mono font-bold text-lg">11</td>
-              <td className="py-4 text-center font-mono font-bold text-lg">11</td>
-              <td className="py-4 text-center font-mono text-lg text-muted-foreground font-normal">6</td>
-              <td className="py-4 text-center font-mono font-bold text-lg">12</td>
-            </tr>
-            <tr>
-              <td className="py-4 font-semibold text-muted-foreground">
-                {selectedMatch.p2}
-                {p2Wins && <span className="w-2 h-2 bg-primary rounded-full ml-2"></span>}
-              </td>
-              <td className="py-4 text-center font-mono text-lg text-muted-foreground">8</td>
-              <td className="py-4 text-center font-mono text-lg text-muted-foreground">9</td>
-              <td className="py-4 text-center font-mono text-lg font-bold text-foreground">11</td>
-              <td className="py-4 text-center font-mono text-lg text-muted-foreground">10</td>
-            </tr>
-          </tbody>
-        </table>
+        {/* INCOMPLETE MAPPING: We need to map selectedMatch.matchSets when available. Currently stubbed visual. */}
+        <p className="text-sm text-muted-foreground">Detailed set points are not yet mapped from API.</p>
       </div>
 
       <h3 className="font-bold text-sm mb-3 flex items-center gap-2 shrink-0">
         ELO Impact Preview
       </h3>
+      {/* INCOMPLETE MAPPING: We need usePendingMatchWithElo here to get real Elo Impact */}
       <div className="flex gap-4 mb-8 shrink-0">
-        <div className="flex-1 bg-background border border-border rounded-lg p-4 flex justify-between items-center">
-          <div>
-            <p className="font-bold">{selectedMatch.p1}</p>
-            <p className="text-xs text-muted-foreground">
-              1450 → <span className="text-foreground">1474</span>
-            </p>
-          </div>
-          <span className="text-chart-3 font-bold">+24</span>
-        </div>
-        <div className="flex-1 bg-background border border-border rounded-lg p-4 flex justify-between items-center">
-          <div>
-            <p className="font-bold">{selectedMatch.p2}</p>
-            <p className="text-xs text-muted-foreground">
-              1510 → <span className="text-foreground">1492</span>
-            </p>
-          </div>
-          <span className="text-destructive font-bold">-18</span>
-        </div>
+        <p className="text-sm text-muted-foreground">Elo preview not mapped yet.</p>
       </div>
 
       <div className="flex justify-end gap-3 mt-auto pt-4 border-t border-border shrink-0">
-        <button className="px-6 py-2 rounded-md font-semibold text-destructive border border-destructive/50 hover:bg-destructive/10 transition-colors">
+        <button onClick={handleReject} disabled={rejectMatchMutation.isPending} className="px-6 py-2 rounded-md font-semibold text-destructive border border-destructive/50 hover:bg-destructive/10 transition-colors disabled:opacity-50">
           Reject
         </button>
-        <button className="px-6 py-2 rounded-md font-semibold text-chart-4 border border-chart-4/50 hover:bg-chart-4/10 transition-colors">
-          Dispute
-        </button>
-        <button className="px-8 py-2 rounded-md font-semibold bg-primary text-primary-foreground hover:opacity-90 flex items-center gap-2 shadow-[var(--auth-primary-glow)]">
+        <button onClick={handleApprove} disabled={approveMatchMutation.isPending} className="px-8 py-2 rounded-md font-semibold bg-primary text-primary-foreground hover:opacity-90 flex items-center gap-2 shadow-[var(--auth-primary-glow)] disabled:opacity-50">
           <CheckCircle className="w-4 h-4" /> Approve
         </button>
       </div>
@@ -166,7 +136,13 @@ export default function MatchResultsReviewTab() {
         </div>
 
         <div className="flex flex-col gap-3 overflow-y-auto pr-2 pb-10">
-          {MOCK_PENDING.map((match) => (
+          {pendingMatches.map((match) => {
+             const mP1 = match.entryA?.team?.name || "Player A";
+             const mP2 = match.entryB?.team?.name || "Player B";
+             const mScore = `${match.setsWonA || 0} - ${match.setsWonB || 0}`;
+             const mTime = match.schedule?.scheduledAt ? new Date(match.schedule.scheduledAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "N/A";
+             const mCourt = match.schedule?.tableNumber ? `Court ${match.schedule.tableNumber}` : "TBD";
+             return (
             <div
               key={match.id}
               onClick={() => {
@@ -178,30 +154,30 @@ export default function MatchResultsReviewTab() {
               <div className="flex gap-4">
                 <div className="flex flex-col justify-center">
                   <span className="text-[10px] text-muted-foreground font-bold">ID</span>
-                  <span className="text-sm font-bold text-primary">{match.id}</span>
+                  <span className="text-sm font-bold text-primary">#{match.id}</span>
                 </div>
                 <div>
                   <p className="font-semibold text-sm">
-                    {match.p1} <span className="text-muted-foreground mx-1">⚔</span> {match.p2}
+                    {mP1} <span className="text-muted-foreground mx-1">⚔</span> {mP2}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
                     <span
-                      className={`text-[10px] px-2 py-0.5 rounded font-bold ${match.status === "PENDING" ? "bg-primary/20 text-primary" : "bg-destructive/20 text-destructive"}`}
+                      className={`text-[10px] px-2 py-0.5 rounded font-bold ${match.status === "completed" ? "bg-primary/20 text-primary" : "bg-destructive/20 text-destructive"}`}
                     >
                       {match.status}
                     </span>
                     <span className="text-[10px] text-muted-foreground">
-                      {match.court} • {match.time}
+                      {mCourt} • {mTime}
                     </span>
                   </div>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-lg font-black">{match.score}</p>
+                <p className="text-lg font-black">{mScore}</p>
                 <p className="text-[10px] text-muted-foreground">Final Score</p>
               </div>
             </div>
-          ))}
+          )})}
         </div>
       </div>
 
