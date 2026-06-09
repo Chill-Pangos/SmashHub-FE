@@ -133,7 +133,7 @@ export default function ScheduleTab({
         </div>
       )}
 
-      {options.length > 0 && selectedCategoryId > 0 && error && (
+      {options.length > 0 && selectedCategoryId > 0 && error && !(!hasSchedule || error) && (
         <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
           Failed to load schedule for this category.
         </div>
@@ -142,8 +142,7 @@ export default function ScheduleTab({
       {options.length > 0 &&
         selectedCategoryId > 0 &&
         !isLoading &&
-        !error &&
-        !hasSchedule && (
+        (!hasSchedule || error) && (
           <ScheduleGeneration
             tournamentId={tournamentId}
             categoryId={selectedCategoryId}

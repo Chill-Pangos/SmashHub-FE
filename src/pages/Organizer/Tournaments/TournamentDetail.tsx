@@ -133,11 +133,10 @@ export default function TournamentDetail() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors ${
-                activeTab === tab
+              className={`whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors ${activeTab === tab
                   ? "border-primary text-foreground"
                   : "border-transparent text-muted-foreground hover:border-border hover:text-foreground"
-              }`}
+                }`}
             >
               {tab}
             </button>
