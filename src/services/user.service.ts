@@ -55,13 +55,17 @@ class UserService {
     return this.toUser(root.data);
   }
 
-  private normalizeRoles(roles?: UserRoleInput[]): UserRole[] {
+  private normalizeRoles(roles?: UserRoleInput[]): UserRoleInput[] {
     if (!Array.isArray(roles)) {
       return [];
     }
 
     return roles
       .map((role) => {
+        if (typeof role === "number") {
+          return role;
+        }
+
         if (!role || typeof role !== "object") {
           return null;
         }
@@ -104,16 +108,16 @@ class UserService {
    * Supports both server pagination payloads and plain arrays.
    */
   async getUsersPaginated(
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<PaginatedUsersResult> {
     const response = await axiosInstance.get<
       GetUsersPaginatedApiResponse | User[]
     >(this.baseURL, {
-      params: { skip, limit },
+      params: { page, limit },
     });
 
-    const parsed = parsePaginatedResponse<User>(response.data, { skip, limit });
+    const parsed = parsePaginatedResponse<User>(response.data, { page, limit });
 
     return {
       ...parsed,
@@ -125,15 +129,15 @@ class UserService {
    * Get all users with pagination
    * GET /api/users
    *
-   * @param skip Number of records to skip (default: 0)
+  * @param page Page number (default: 1)
    * @param limit Maximum number of records to return (default: 10)
    * @returns Promise with array of users
    *
    * @example
    * const users = await userService.getUsers(0, 50);
    */
-  async getUsers(skip: number = 0, limit: number = 10): Promise<User[]> {
-    const result = await this.getUsersPaginated(skip, limit);
+  async getUsers(page: number = 1, limit: number = 10): Promise<User[]> {
+    const result = await this.getUsersPaginated(page, limit);
     return result.items;
   }
 
@@ -215,17 +219,17 @@ class UserService {
    */
   async searchUsersPaginated(
     query: string,
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<PaginatedUsersResult> {
     const response = await axiosInstance.get<unknown>(
       `${this.baseURL}/search`,
       {
-        params: { query, skip, limit },
+        params: { query, page, limit },
       },
     );
 
-    const parsed = parsePaginatedResponse<User>(response.data, { skip, limit });
+    const parsed = parsePaginatedResponse<User>(response.data, { page, limit });
 
     return {
       ...parsed,
@@ -238,7 +242,7 @@ class UserService {
    * GET /api/users/search
    *
    * @param query Search query (email or name)
-   * @param skip Number of records to skip (default: 0)
+  * @param page Page number (default: 1)
    * @param limit Maximum number of records to return (default: 10)
    * @returns Promise with array of users
    *
@@ -247,10 +251,10 @@ class UserService {
    */
   async searchUsers(
     query: string,
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<User[]> {
-    const result = await this.searchUsersPaginated(query, skip, limit);
+    const result = await this.searchUsersPaginated(query, page, limit);
     return result.items;
   }
 }

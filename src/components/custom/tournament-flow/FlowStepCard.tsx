@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import FlowEndpointList from "./FlowEndpointList";
-import type { TournamentFlowStep } from "@/pages/TournamentManager/TournamentFullFlow/types";
+import type { TournamentFlowStep } from "./types";
 
 interface FlowStepCardProps {
   step: TournamentFlowStep;

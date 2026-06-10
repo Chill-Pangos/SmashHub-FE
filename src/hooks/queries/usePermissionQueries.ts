@@ -9,13 +9,13 @@ import type { CreatePermissionRequest, UpdatePermissionRequest } from "@/types";
  * Hook to get permissions with pagination metadata.
  */
 export const usePermissionsPaginated = (
-  skip = 0,
+  page = 1,
   limit = 50,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: queryKeys.permissions.list({ skip, limit }),
-    queryFn: () => permissionService.getAllPermissionsPaginated(skip, limit),
+    queryKey: queryKeys.permissions.list({ page, limit }),
+    queryFn: () => permissionService.getAllPermissionsPaginated(page, limit),
     enabled: options?.enabled ?? true,
   });
 };
@@ -24,11 +24,11 @@ export const usePermissionsPaginated = (
  * Hook to get all permissions with pagination
  */
 export const usePermissions = (
-  skip = 0,
+  page = 1,
   limit = 50,
   options?: { enabled?: boolean },
 ) => {
-  const query = usePermissionsPaginated(skip, limit, options);
+  const query = usePermissionsPaginated(page, limit, options);
 
   return {
     ...query,

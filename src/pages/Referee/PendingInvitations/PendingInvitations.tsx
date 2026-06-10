@@ -1,34 +1,81 @@
-/**
- * Pending Invitations Page
- * Displays tournament invitations awaiting referee acceptance/rejection
- *
- * Features to implement:
- * - Fetch list of pending tournament invitations for current referee (API: GET /referee/invitations?status=pending)
- * - Display as cards or table with columns: tournament name, organizer, event date, location, status
- * - Filter: by tournament status, date range
- * - Search: by tournament name, organizer name
- * - Actions per invitation:
- *   - Accept button → sends PATCH /referee/invitations/:id/accept → redirects user to tournaments/:id
- *   - Decline button → sends PATCH /referee/invitations/:id/decline → shows success toast
- * - Empty state: "No pending invitations"
- * - Loading state with skeleton cards
- * - Error handling with retry button
- *
- * Accepted invitations should appear in the Tournaments list immediately
- * State management: Consider using React Query for invitation list + mutations
- */
+import {
+  useMyRefereeInvitations,
+  useAcceptRefereeInvitation,
+  useRejectRefereeInvitation,
+} from "@/hooks/queries/useTournamentRefereeQueries";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function PendingInvitations() {
+  const { data: invitationsResp, isLoading } = useMyRefereeInvitations(
+    1,
+    50,
+    "pending"
+  );
+  const invitations = invitationsResp?.invitations || [];
+
+  const { mutate: acceptInvite, isPending: accepting } =
+    useAcceptRefereeInvitation();
+  const { mutate: rejectInvite, isPending: rejecting } =
+    useRejectRefereeInvitation();
+
+  const handleAccept = (invitationId: number) => {
+    acceptInvite({ invitationId });
+  };
+
+  const handleReject = (invitationId: number) => {
+    rejectInvite({ invitationId });
+  };
+
   return (
-    <div className="px-6 py-10">
+    <div className="px-6 py-10 space-y-6">
       <h1 className="text-2xl font-semibold">Pending Invitations</h1>
       <p className="text-muted-foreground">
-        Placeholder for the Pending Invitations screen.
+        Review your tournament referee invitations.
       </p>
-      <p className="text-sm text-muted-foreground mt-4">
-        TODO: Display list of pending tournament invitations with Accept/Decline
-        actions
-      </p>
+
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : invitations.length > 0 ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {invitations.map((inv: any) => (
+            <Card key={inv.id}>
+              <CardHeader>
+                <CardTitle>{inv.tournament?.name || "Tournament"}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <p className="text-sm">
+                    <strong>Role:</strong> {inv.role}
+                  </p>
+                  <p className="text-sm">
+                    <strong>Status:</strong> {inv.status}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    className="w-full"
+                    onClick={() => handleAccept(inv.id)}
+                    disabled={accepting || rejecting}
+                  >
+                    Accept
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="w-full"
+                    onClick={() => handleReject(inv.id)}
+                    disabled={accepting || rejecting}
+                  >
+                    Reject
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <p className="text-muted-foreground">No pending invitations.</p>
+      )}
     </div>
   );
 }

@@ -1,38 +1,57 @@
-/**
- * Schedule Tab (Tournament Detail - Referee View)
- * View-only match schedule and calendar
- *
- * Features to implement:
- * - Display tournament schedule:
- *   - Calendar view or list view of matches
- *   - Match details: ID, players/teams, date/time, category, stage, status
- * - Filters:
- *   - By date range
- *   - By category/event
- *   - By stage (Round Robin, Knockout, etc.)
- *   - By match status (Scheduled, Ongoing, Completed)
- * - Search:
- *   - By player name
- *   - By match ID
- * - Click match → show expanded details (but view-only)
- * - All fields READ-ONLY
- * - Reference: Organizer's ScheduleTab for layout consistency
- */
+import { useMatches } from '@/hooks/queries';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 export default function ScheduleTab() {
+  const { data, isLoading } = useMatches(1, 100);
+  const matches = data?.rows || [];
+  const navigate = useNavigate();
+
+  if (isLoading) {
+    return <div className="p-6 text-muted-foreground">Loading schedule...</div>;
+  }
+
   return (
     <div className="rounded-2xl border border-border/30 bg-card p-6">
-      <h2 className="text-xl font-semibold">Schedule</h2>
-      <p className="text-muted-foreground mt-4">
-        TODO: Display tournament schedule with filters and search (view-only)
-      </p>
-      <ul className="text-sm text-muted-foreground mt-4 space-y-2">
-        <li>• Calendar/list view of matches</li>
-        <li>• Match details: ID, players, date/time, category, status</li>
-        <li>• Filters: date, category, stage, status</li>
-        <li>• Search: by player name or match ID</li>
-        <li>• Click match to expand details (view-only)</li>
-      </ul>
+      <h2 className="text-xl font-semibold mb-6">Match Schedule</h2>
+      
+      {matches.length === 0 ? (
+        <p className="text-muted-foreground text-center py-10">No matches scheduled.</p>
+      ) : (
+        <div className="space-y-4">
+          {matches.map((match) => {
+            const player1 = match.entryA?.team?.name || "Player 1";
+            const player2 = match.entryB?.team?.name || "Player 2";
+            const category = match.schedule?.tournamentContent?.name || "Category";
+
+            return (
+              <div 
+                key={match.id} 
+                className="flex items-center justify-between p-4 border border-border rounded-xl hover:bg-secondary/20 transition-colors"
+              >
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-sm font-bold text-primary">Match #{match.id}</span>
+                    <Badge variant="outline">{category}</Badge>
+                    <Badge>{match.status}</Badge>
+                  </div>
+                  <p className="font-semibold">
+                    {player1} <span className="text-muted-foreground mx-2">vs</span> {player2}
+                  </p>
+                </div>
+                <div>
+                  <Button 
+                    onClick={() => navigate(`/referee/matches/${match.id}`)}
+                  >
+                    Match Execution
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

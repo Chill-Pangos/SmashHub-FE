@@ -1,5 +1,3 @@
-import type { ApiResponse } from "./auth.types";
-
 // ==================== Match Set ====================
 
 /**
@@ -8,6 +6,7 @@ import type { ApiResponse } from "./auth.types";
 export interface MatchSet {
   id: number;
   matchId: number;
+  subMatchId: number;
   setNumber: number;
   entryAScore: number;
   entryBScore: number;
@@ -17,67 +16,52 @@ export interface MatchSet {
 
 // ==================== Request Types ====================
 
-/**
- * Create match set request
- */
 export interface CreateMatchSetRequest {
-  matchId: number;
-  setNumber: number;
+  subMatchId: number;
   entryAScore: number;
   entryBScore: number;
 }
 
-/**
- * Create match set with score request (recommended)
- */
-export interface CreateMatchSetWithScoreRequest {
-  matchId: number;
-  entryAScore: number;
-  entryBScore: number;
-}
-
-/**
- * Update match set request
- */
-export interface UpdateMatchSetRequest {
+export interface UpdateLiveScoreRequest {
+  subMatchId: number;
   setNumber?: number;
-  entryAScore?: number;
-  entryBScore?: number;
+  entryAScore: number;
+  entryBScore: number;
+}
+
+export interface SubmitFinalScoreRequest {
+  subMatchId: number;
+  setNumber?: number;
+  entryAScore: number;
+  entryBScore: number;
+}
+
+export interface UpdateMatchSetRequest {
+  entryAScore: number;
+  entryBScore: number;
 }
 
 // ==================== Response Types ====================
 
-/**
- * Create match set response
- */
-export type CreateMatchSetResponse = ApiResponse<MatchSet>;
-
-/**
- * Get match set response
- */
-export type GetMatchSetResponse = ApiResponse<MatchSet>;
-
-/**
- * Get match sets response
- */
-export type GetMatchSetsResponse = ApiResponse<MatchSet[]>;
-
-/**
- * Get match sets by match response
- */
-export type GetMatchSetsByMatchResponse = ApiResponse<MatchSet[]>;
-
-/**
- * Update match set response
- */
-export type UpdateMatchSetResponse = ApiResponse<MatchSet>;
-
-/**
- * Delete match set response
- */
-export type DeleteMatchSetResponse = ApiResponse<void>;
-
-/**
- * Create match set with score response
- */
-export type CreateMatchSetWithScoreResponse = ApiResponse<MatchSet>;
+export type CreateMatchSetResponse = MatchSet;
+export type GetMatchSetResponse = MatchSet;
+export type GetMatchSetsResponse = { rows: MatchSet[]; count: number };
+export interface GetMatchSetsByMatchResponse {
+  message: string;
+  subMatchId: number;
+  count: number;
+  sets: MatchSet[];
+}
+export type UpdateMatchSetResponse = MatchSet;
+export type DeleteMatchSetResponse = void;
+export interface UpdateLiveScoreResponse {
+  message: string;
+  liveScore: any | null;
+  isCompleted: boolean;
+  persistedSet?: MatchSet;
+  nextSetNumber: number;
+  subMatchReadyToFinalize?: boolean;
+  winningTeam?: string;
+  finalizationNotice?: any;
+}
+export type SubmitFinalScoreResponse = MatchSet;

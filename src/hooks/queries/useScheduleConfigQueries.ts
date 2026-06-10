@@ -5,6 +5,8 @@ import type {
   CreateScheduleConfigRequest,
   UpdateScheduleConfigRequest,
   ValidateScheduleConfigRequest,
+  PreviewScheduleConfigRequest,
+  PreviewUpdateScheduleConfigRequest,
 } from "@/types/scheduleConfig.types";
 
 // ==================== Query Hooks ====================
@@ -64,14 +66,47 @@ export const useUpdateScheduleConfig = () => {
   });
 };
 
+export const useDeleteScheduleConfig = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (tournamentId: number) =>
+      scheduleConfigService.deleteScheduleConfig(tournamentId),
+    onSuccess: (_result, tournamentId) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.scheduleConfigs.byTournament(tournamentId),
+      });
+    },
+  });
+};
+
 export const useValidateScheduleConfig = () => {
+  return useMutation({
+    mutationFn: (data: ValidateScheduleConfigRequest) => 
+      scheduleConfigService.validateScheduleConfig(data),
+  });
+};
+
+export const usePreviewCreateScheduleConfig = () => {
   return useMutation({
     mutationFn: ({
       tournamentId,
       data,
     }: {
       tournamentId: number;
-      data: ValidateScheduleConfigRequest;
-    }) => scheduleConfigService.validateScheduleConfig(tournamentId, data),
+      data: PreviewScheduleConfigRequest;
+    }) => scheduleConfigService.previewCreateScheduleConfig(tournamentId, data),
+  });
+};
+
+export const usePreviewUpdateScheduleConfig = () => {
+  return useMutation({
+    mutationFn: ({
+      tournamentId,
+      data,
+    }: {
+      tournamentId: number;
+      data: PreviewUpdateScheduleConfigRequest;
+    }) => scheduleConfigService.previewUpdateScheduleConfig(tournamentId, data),
   });
 };

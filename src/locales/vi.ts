@@ -771,6 +771,7 @@ export default {
         minutesShort: "phút",
         minuteShort: "phút",
         successAlert: "Đã tạo giải đấu thành công! Quay về Dashboard.",
+        errorAlert:"Đã có lỗi xảy ra trong quá trình tạo giải đấu. Xem chi tiết ở phía dưới.",
       },
     },
     fullFlow: {
@@ -1593,7 +1594,7 @@ export default {
       maxEloGreaterThanMin: "ELO tối đa phải lớn hơn ELO tối thiểu",
     },
     filters: {
-      skipMin: "Skip phải lớn hơn hoặc bằng 0",
+      pageMin: "Số trang phải lớn hơn hoặc bằng 1",
       limitMin: "Limit phải lớn hơn 0",
       limitMax: "Limit không được quá 100",
       userIdInvalid: "User ID không hợp lệ",

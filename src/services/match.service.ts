@@ -8,7 +8,6 @@ import type {
   GetMatchesResponse,
   GetMatchesByScheduleResponse,
   GetMatchesByStatusResponse,
-  DeleteMatchResponse,
   StartMatchResponse,
   FinalizeMatchResponse,
   GetPendingMatchesResponse,
@@ -21,6 +20,10 @@ import type {
   MatchStatus,
   GetAthleteUpcomingMatchesResponse,
   GetAthleteMatchHistoryResponse,
+  GetMatchesByCategoryResponse,
+  GetRefereeMatchesResponse,
+  BulkStartMatchesRequest,
+  BulkStartMatchesResponse,
 } from "@/types/match.types";
 
 /**
@@ -66,11 +69,11 @@ class MatchService {
    * const matches = await matchService.getAllMatches(0, 20);
    */
   async getAllMatches(
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<GetMatchesResponse> {
     const response = await axiosInstance.get<GetMatchesResponse>(this.baseURL, {
-      params: { skip, limit },
+      params: { page, limit },
     });
 
     return response.data;
@@ -108,12 +111,12 @@ class MatchService {
    */
   async getMatchesBySchedule(
     scheduleId: number,
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<GetMatchesByScheduleResponse> {
     const response = await axiosInstance.get<GetMatchesByScheduleResponse>(
       `${this.baseURL}/schedule/${scheduleId}`,
-      { params: { skip, limit } },
+      { params: { page, limit } },
     );
 
     return response.data;
@@ -133,12 +136,12 @@ class MatchService {
    */
   async getMatchesByStatus(
     status: MatchStatus,
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<GetMatchesByStatusResponse> {
     const response = await axiosInstance.get<GetMatchesByStatusResponse>(
       `${this.baseURL}/status/${status}`,
-      { params: { skip, limit } },
+      { params: { page, limit } },
     );
 
     return response.data;
@@ -180,14 +183,8 @@ class MatchService {
    * @example
    * await matchService.deleteMatch(1);
    */
-  async deleteMatch(id: number): Promise<DeleteMatchResponse> {
-    await axiosInstance.delete(`${this.baseURL}/${id}`);
-
-    return {
-      success: true,
-      message: "Match deleted successfully",
-      data: undefined,
-    };
+  async deleteMatch(matchId: number): Promise<void> {
+    await axiosInstance.delete(`${this.baseURL}/${matchId}`);
   }
 
   /**
@@ -204,12 +201,12 @@ class MatchService {
    * const pendingMatches = await matchService.getPendingMatches(0, 20);
    */
   async getPendingMatches(
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<GetPendingMatchesResponse> {
     const response = await axiosInstance.get<GetPendingMatchesResponse>(
       `${this.baseURL}/pending`,
-      { params: { skip, limit } },
+      { params: { page, limit } },
     );
     return response.data;
   }
@@ -361,14 +358,13 @@ class MatchService {
    */
   async getAthleteUpcomingMatches(
     userId: number,
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<GetAthleteUpcomingMatchesResponse> {
-    const response =
-      await axiosInstance.get<GetAthleteUpcomingMatchesResponse>(
-        `${this.baseURL}/athlete/${userId}/upcoming`,
-        { params: { skip, limit } },
-      );
+    const response = await axiosInstance.get<GetAthleteUpcomingMatchesResponse>(
+      `${this.baseURL}/athlete/${userId}/upcoming`,
+      { params: { page, limit } },
+    );
     return response.data;
   }
 
@@ -388,12 +384,54 @@ class MatchService {
    */
   async getAthleteMatchHistory(
     userId: number,
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<GetAthleteMatchHistoryResponse> {
     const response = await axiosInstance.get<GetAthleteMatchHistoryResponse>(
       `${this.baseURL}/athlete/${userId}/history`,
-      { params: { skip, limit } },
+      { params: { page, limit } },
+    );
+    return response.data;
+  }
+
+  async getMatchesByCategory(
+    categoryId: number,
+    params?: {
+      stage?: string;
+      status?: string;
+      resultStatus?: string;
+      page?: number;
+      limit?: number;
+    }
+  ): Promise<GetMatchesByCategoryResponse> {
+    const response = await axiosInstance.get<GetMatchesByCategoryResponse>(
+      `${this.baseURL}/category/${categoryId}`,
+      { params }
+    );
+    return response.data;
+  }
+
+  async bulkStartMatches(
+    data: BulkStartMatchesRequest
+  ): Promise<BulkStartMatchesResponse> {
+    const response = await axiosInstance.post<BulkStartMatchesResponse>(
+      `${this.baseURL}/bulk-start`,
+      data
+    );
+    return response.data;
+  }
+
+  async getRefereeMatches(
+    params: {
+      categoryId: number;
+      status?: string;
+      page?: number;
+      limit?: number;
+    }
+  ): Promise<GetRefereeMatchesResponse> {
+    const response = await axiosInstance.get<GetRefereeMatchesResponse>(
+      `${this.baseURL}/referee/my`,
+      { params }
     );
     return response.data;
   }

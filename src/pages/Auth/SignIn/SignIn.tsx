@@ -1,6 +1,6 @@
 import { useState, type FormEvent, type ChangeEvent, useCallback } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Mail, Lock, ArrowRight, Briefcase, Fingerprint } from "lucide-react";
+import { Mail, Lock, ArrowRight/* , Briefcase, Fingerprint */ } from "lucide-react";
 import tableTennisBgLight from "@/assets/table_tennis_bg_light.png";
 import tableTennisBgDark from "@/assets/table_tennis_bg_dark.png";
 import { useCurrentUser, useLogin, useTranslation } from "@/hooks";
@@ -26,7 +26,7 @@ const SignIn = () => {
     password: "",
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
-  const quickAccessItems = [
+ /*  const quickAccessItems = [
     {
       icon: <Briefcase className="w-5 h-5" />,
       label: t("authFlow.signIn.sso"),
@@ -35,7 +35,7 @@ const SignIn = () => {
       icon: <Fingerprint className="w-5 h-5" />,
       label: t("authFlow.signIn.biometric"),
     },
-  ];
+  ]; */
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -469,30 +469,13 @@ const SignIn = () => {
 
             {/* Password */}
             <div className="flex flex-col gap-1.5">
-              <div className="flex justify-between items-center">
-                <label
-                  htmlFor="password"
-                  className="text-xs font-bold tracking-widest uppercase"
-                  style={{ color: "var(--foreground-muted)" }}
-                >
-                  {t("auth.password")}
-                </label>
-                <NavLink
-                  to="/forgot-password"
-                  className="text-xs font-bold transition-colors duration-200"
-                  style={{ color: "var(--accent)" }}
-                  onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLAnchorElement).style.color =
-                      "var(--primary)")
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLAnchorElement).style.color =
-                      "var(--accent)")
-                  }
-                >
-                  {t("auth.forgotPassword")}
-                </NavLink>
-              </div>
+              <label
+                htmlFor="password"
+                className="text-xs font-bold tracking-widest uppercase"
+                style={{ color: "var(--foreground-muted)" }}
+              >
+                {t("auth.password")}
+              </label>
               <div className="relative">
                 <Lock
                   className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-200"
@@ -609,12 +592,12 @@ const SignIn = () => {
                   "linear-gradient(to right, transparent, var(--border))",
               }}
             />
-            <span
+           {/*  <span
               className="px-4 text-xs font-bold tracking-widest uppercase"
               style={{ color: "var(--foreground-muted)" }}
             >
               {t("authFlow.signIn.continueWith")}
-            </span>
+            </span> */}
             <div
               className="flex-grow h-px"
               style={{
@@ -624,8 +607,26 @@ const SignIn = () => {
             />
           </div>
 
+          <div className="flex justify-center mb-6">
+            <NavLink
+              to="/forgot-password"
+              className="text-sm font-bold transition-colors duration-200"
+              style={{ color: "var(--accent)" }}
+              onMouseEnter={(e) =>
+                ((e.currentTarget as HTMLAnchorElement).style.color =
+                  "var(--primary)")
+              }
+              onMouseLeave={(e) =>
+                ((e.currentTarget as HTMLAnchorElement).style.color =
+                  "var(--accent)")
+              }
+            >
+              {t("auth.forgotPassword")}
+            </NavLink>
+          </div>
+
           {/* Social buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
+         {/*  <div className="flex flex-col sm:flex-row gap-4">
             {quickAccessItems.map(({ icon, label }) => (
               <button
                 key={label}
@@ -663,7 +664,7 @@ const SignIn = () => {
                 {label}
               </button>
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

@@ -769,6 +769,7 @@ export default {
         minuteShort: "m",
         successAlert:
           "Tournament created successfully! Returning to Dashboard.",
+        errorAlert:"Tournament was failed to created! See more detail below.",
       },
     },
     fullFlow: {
@@ -1445,7 +1446,7 @@ export default {
       maxEloGreaterThanMin: "Maximum ELO must be greater than minimum ELO",
     },
     filters: {
-      skipMin: "Skip must be greater than or equal to 0",
+      pageMin: "Page must be greater than or equal to 1",
       limitMin: "Limit must be greater than 0",
       limitMax: "Limit must not exceed 100",
       userIdInvalid: "User ID is invalid",

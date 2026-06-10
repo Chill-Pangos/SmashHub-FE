@@ -15,6 +15,8 @@ const LIST_KEYS = [
   "entries",
   "matches",
   "schedules",
+  "userRoles",
+  "rolePermissions",
 ];
 
 const toObject = (value: unknown): JsonRecord | null => {
@@ -51,10 +53,10 @@ const toBoolean = (value: unknown): boolean | null => {
 const normalizePaginationParams = (
   params?: PaginationParams,
 ): Required<PaginationParams> => {
-  const skip = Math.max(0, Number(params?.skip ?? 0));
+  const page = Math.max(1, Number(params?.page ?? 1));
   const limit = Math.max(1, Number(params?.limit ?? 10));
 
-  return { skip, limit };
+  return { page, limit };
 };
 
 const getFirstNumber = (
@@ -109,44 +111,35 @@ const extractItemsFromObject = <T>(source: JsonRecord): T[] | null => {
 };
 
 const buildMeta = <T>(
-  items: T[],
+  _items: T[],
   total: number,
-  skip: number,
+  page: number,
   limit: number,
-  isServerPaginated: boolean,
   explicitHasNext?: boolean | null,
   explicitHasPrevious?: boolean | null,
-  explicitCurrentPage?: number | null,
   explicitTotalPages?: number | null,
 ): PaginatedResult<T>["meta"] => {
   const safeLimit = Math.max(1, limit);
   const safeTotal = Math.max(0, total);
-  const currentPage = Math.max(
-    1,
-    explicitCurrentPage ?? Math.floor(skip / safeLimit) + 1,
-  );
+  const currentPage = Math.max(1, page);
   const totalPages = Math.max(
     1,
     explicitTotalPages ?? Math.ceil((safeTotal || 1) / safeLimit),
   );
   const hasPrevious =
     explicitHasPrevious ??
-    (explicitCurrentPage !== null ? currentPage > 1 : skip > 0);
+    currentPage > 1;
   const hasNext =
     explicitHasNext ??
-    (explicitTotalPages !== null
-      ? currentPage < totalPages
-      : skip + items.length < safeTotal);
+    currentPage < totalPages;
 
   return {
-    skip,
+    page: currentPage,
     limit: safeLimit,
     total: safeTotal,
-    currentPage,
     totalPages,
-    hasNext,
-    hasPrevious,
-    isServerPaginated,
+    hasNextPage: hasNext,
+    hasPrevPage: hasPrevious,
   };
 };
 
@@ -154,17 +147,16 @@ const paginateLocally = <T>(
   items: T[],
   params: Required<PaginationParams>,
 ): PaginatedResult<T> => {
-  const pagedItems = items.slice(params.skip, params.skip + params.limit);
+  const start = (params.page - 1) * params.limit;
+  const pagedItems = items.slice(start, start + params.limit);
 
   return {
     items: pagedItems,
     meta: buildMeta(
       pagedItems,
       items.length,
-      params.skip,
+      params.page,
       params.limit,
-      false,
-      null,
       null,
       null,
       null,
@@ -193,11 +185,9 @@ export const parsePaginatedResponse = <T>(
       meta: buildMeta(
         [],
         0,
-        normalizedParams.skip,
+        normalizedParams.page,
         normalizedParams.limit,
         false,
-        false,
-        normalizedParams.skip > 0,
         null,
         null,
       ),
@@ -217,11 +207,9 @@ export const parsePaginatedResponse = <T>(
       meta: buildMeta(
         [],
         0,
-        normalizedParams.skip,
+        normalizedParams.page,
         normalizedParams.limit,
         false,
-        false,
-        normalizedParams.skip > 0,
         null,
         null,
       ),
@@ -242,8 +230,8 @@ export const parsePaginatedResponse = <T>(
     nestedMeta,
     dataMeta,
   );
-  const responseSkip = getFirstNumber(
-    ["skip", "offset"],
+  const responsePage = getFirstNumber(
+    ["page", "currentPage", "pageIndex"],
     root,
     nestedDataObject,
     nestedMeta,
@@ -251,13 +239,6 @@ export const parsePaginatedResponse = <T>(
   );
   const responseLimit = getFirstNumber(
     ["limit", "pageSize", "size"],
-    root,
-    nestedDataObject,
-    nestedMeta,
-    dataMeta,
-  );
-  const responsePage = getFirstNumber(
-    ["page", "currentPage", "pageIndex"],
     root,
     nestedDataObject,
     nestedMeta,
@@ -287,7 +268,6 @@ export const parsePaginatedResponse = <T>(
 
   const hasPaginationMetadata =
     total !== null ||
-    responseSkip !== null ||
     responseLimit !== null ||
     responsePage !== null ||
     responseTotalPages !== null ||
@@ -299,23 +279,11 @@ export const parsePaginatedResponse = <T>(
   }
 
   const effectiveLimit = Math.max(1, responseLimit ?? normalizedParams.limit);
-  const effectiveSkip = Math.max(
-    0,
-    responseSkip ??
-      (responsePage !== null
-        ? (Math.max(1, responsePage) - 1) * effectiveLimit
-        : normalizedParams.skip),
-  );
-  const effectiveCurrentPage =
-    responsePage !== null
-      ? Math.max(1, responsePage)
-      : Math.floor(effectiveSkip / effectiveLimit) + 1;
+  const effectivePage = Math.max(1, responsePage ?? normalizedParams.page);
   const effectiveTotal = Math.max(
     0,
     total ??
-      (responseTotalPages !== null
-        ? responseTotalPages * effectiveLimit
-        : effectiveSkip + items.length),
+      (responseTotalPages !== null ? responseTotalPages * effectiveLimit : items.length),
   );
   const effectiveTotalPages =
     responseTotalPages !== null
@@ -327,12 +295,10 @@ export const parsePaginatedResponse = <T>(
     meta: buildMeta(
       items,
       effectiveTotal,
-      effectiveSkip,
+      effectivePage,
       effectiveLimit,
-      true,
       hasNext,
       hasPrevious,
-      effectiveCurrentPage,
       effectiveTotalPages,
     ),
   };

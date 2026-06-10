@@ -9,15 +9,14 @@ import {
 
 const INITIAL_DATA: TournamentData = {
   name: "",
-  tier: "pro",
+  tier: 3, 
   location: "",
   startDate: "",
   endDate: "",
-  category: {
-    format: "mens_singles",
-    maxEntries: 32,
-    pointSystem: "standard_11",
-  },
+  registrationStartDate: "",
+  registrationEndDate: "",
+  bracketGenerationDate: "",
+  categories: [],
   schedule: {
     activeTables: 12,
     matchDurationMinutes: 45,
@@ -121,4 +120,5 @@ const TournamentForm = () => {
     </div>
   );
 };
+
 export default TournamentForm;

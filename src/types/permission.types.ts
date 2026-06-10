@@ -28,28 +28,12 @@ export interface CreatePermissionRequest {
 }
 
 /**
- * Response from create permission API
- */
-export interface CreatePermissionResponse {
-  success: boolean;
-  message: string;
-  data: Permission;
-}
-
-// ==================== Update Permission ====================
-
-/**
  * Request body for updating a permission
  * PUT /api/permissions/:id
  */
 export interface UpdatePermissionRequest {
   name?: string;
 }
-
-/**
- * Response from update permission API
- */
-export type UpdatePermissionResponse = Permission;
 
 // ==================== Permission Validation ====================
 

@@ -11,6 +11,9 @@ import {
   Gavel,
   BarChart3,
   Settings2,
+  Gamepad2,
+  TrendingUp,
+  History,
 } from "lucide-react";
 
 export type PortalSidebarItem = {
@@ -252,6 +255,12 @@ export const chiefRefereeSidebarConfig: SidebarConfig = {
           icon: ClipboardList,
         },
         {
+          key: "pending-matches",
+          label: t("portal.referee.pendingMatches") || "Pending Verification",
+          to: "/referee/pending-matches",
+          icon: BadgeCheck,
+        },
+        {
           key: "tournaments",
           label: t("nav.tournaments"),
           to: "/referee/tournaments",
@@ -276,6 +285,67 @@ export const chiefRefereeSidebarConfig: SidebarConfig = {
   ],
 };
 
+/**
+ * Pro Player Portal Sidebar Configuration
+ */
+export const proPlayerSidebarConfig: SidebarConfig = {
+  brand: {
+    title: "SmashHub",
+    subtitle: "Pro Player Portal",
+    icon: Gamepad2,
+  },
+  sections: (t) => [
+    {
+      items: [
+        {
+          key: "tournaments",
+          label: t("nav.tournaments") || "Tournaments",
+          to: "/tournaments",
+          icon: Trophy,
+        },
+        {
+          key: "elo",
+          label: t("nav.elo") || "Elo",
+          to: "/elo",
+          icon: TrendingUp,
+        },
+        {
+          key: "analytics",
+          label: t("nav.analytics") || "Analytics",
+          to: "/analytics",
+          icon: BarChart3,
+        },
+        {
+          key: "team",
+          label: t("nav.team") || "Team",
+          to: "/team",
+          icon: Users,
+        },
+        {
+          key: "matches",
+          label: t("nav.matches") || "Match Center",
+          to: "/matches",
+          icon: History,
+        },
+        {
+          key: "elo-history",
+          label: t("nav.eloHistory") || "Elo History",
+          to: "/elo/history",
+          icon: TrendingUp,
+        },
+      ],
+    },
+  ],
+  footerItems: (t, logout) => [
+    {
+      key: "logout",
+      label: t("auth.signOut") || "Sign Out",
+      onClick: logout,
+      icon: LogOut,
+    },
+  ],
+};
+
 export function getRefereeSidebarConfig(
   isChiefReferee: boolean,
 ): SidebarConfig {
@@ -286,12 +356,13 @@ export function getRefereeSidebarConfig(
  * Get sidebar config by portal type
  */
 export function getSidebarConfig(
-  portalType: "organizer" | "admin" | "referee",
+  portalType: "organizer" | "admin" | "referee" | "player",
 ): SidebarConfig {
   const configs: Record<string, SidebarConfig> = {
     organizer: organizerSidebarConfig,
     admin: adminSidebarConfig,
     referee: refereeSidebarConfig,
+    player: proPlayerSidebarConfig,
   };
 
   return configs[portalType] || organizerSidebarConfig;

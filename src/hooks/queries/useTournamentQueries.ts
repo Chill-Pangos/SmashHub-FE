@@ -15,10 +15,10 @@ import type {
 /**
  * Hook để lấy tất cả tournaments với pagination
  */
-export const useTournaments = (skip = 0, limit = 10) => {
+export const useTournaments = (page = 1, limit = 10) => {
   return useQuery({
-    queryKey: queryKeys.tournaments.list({ skip, limit }),
-    queryFn: () => tournamentService.getAllTournaments(skip, limit),
+    queryKey: queryKeys.tournaments.list({ page, limit }),
+    queryFn: () => tournamentService.getAllTournaments(page, limit),
     select: (data) => data.tournaments,
   });
 };
@@ -54,14 +54,14 @@ export const useTournament = (id: number, options?: { enabled?: boolean }) => {
  */
 export const useTournamentsByStatus = (
   status: TournamentStatus,
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
     queryKey: queryKeys.tournaments.byStatus(status),
     queryFn: () =>
-      tournamentService.getTournamentsByStatus(status, skip, limit),
+      tournamentService.getTournamentsByStatus(status, page, limit),
     enabled: options?.enabled ?? true,
     select: (data) => data.tournaments,
   });

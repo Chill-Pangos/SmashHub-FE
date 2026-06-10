@@ -9,13 +9,13 @@ import type { CreateRoleRequest, UpdateRoleRequest } from "@/types";
  * Hook để lấy roles với meta phân trang.
  */
 export const useRolesPaginated = (
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: queryKeys.roles.list({ skip, limit }),
-    queryFn: () => roleService.getAllRolesPaginated(skip, limit),
+    queryKey: queryKeys.roles.list({ page, limit }),
+    queryFn: () => roleService.getAllRolesPaginated(page, limit),
     enabled: options?.enabled ?? true,
   });
 };
@@ -24,15 +24,15 @@ export const useRolesPaginated = (
  * Hook để lấy tất cả roles với pagination
  */
 export const useRoles = (
-  skip = 0,
+  page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
-  const query = useRolesPaginated(skip, limit, options);
+  const query = useRolesPaginated(page, limit, options);
 
   return {
     ...query,
-    data: query.data?.items ?? [],
+    data: query.data?.roles ?? [],
   };
 };
 

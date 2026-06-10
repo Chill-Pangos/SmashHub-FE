@@ -1,4 +1,3 @@
-import type { ApiResponse } from "./auth.types";
 import type { TournamentContent } from "./tournament.types";
 import type { MatchSet } from "./matchSet.types";
 
@@ -138,52 +137,87 @@ export interface RejectMatchRequest {
   reviewNotes: string;
 }
 
+/**
+ * Bulk start matches request
+ */
+export interface BulkStartMatchesRequest {
+  matchIds: number[];
+}
+
 // ==================== Response Types ====================
 
 /**
  * Create match response
  */
-export type CreateMatchResponse = ApiResponse<Match>;
+export type CreateMatchResponse = Match;
 
 /**
  * Get match response
  */
-export type GetMatchResponse = ApiResponse<Match>;
+export type GetMatchResponse = Match;
 
 /**
  * Get matches response
  */
-export type GetMatchesResponse = ApiResponse<Match[]>;
+export type GetMatchesResponse = { rows: Match[]; count: number };
 
 /**
  * Get matches by schedule response
  */
-export type GetMatchesByScheduleResponse = ApiResponse<Match[]>;
+export type GetMatchesByScheduleResponse = { rows: Match[]; count: number };
 
 /**
  * Get matches by status response
  */
-export type GetMatchesByStatusResponse = ApiResponse<Match[]>;
+export type GetMatchesByStatusResponse = { rows: Match[]; count: number };
+
+/**
+ * Get matches by category response
+ */
+export interface GetMatchesByCategoryResponse {
+  schedules: any[];
+}
+
+/**
+ * Get referee matches response
+ */
+export interface GetRefereeMatchesResponse {
+  message: string;
+  categoryId: number;
+  statuses: string[] | null;
+  count: number;
+  offset: number;
+  limit: number;
+  matches: Match[];
+}
+
+/**
+ * Bulk start matches response
+ */
+export type BulkStartMatchesResponse = void;
 
 /**
  * Update match response
  */
-export type UpdateMatchResponse = ApiResponse<Match>;
+export type UpdateMatchResponse = Match;
 
 /**
  * Delete match response
  */
-export type DeleteMatchResponse = ApiResponse<void>;
+export type DeleteMatchResponse = void;
 
 /**
  * Start match response
  */
-export type StartMatchResponse = ApiResponse<Match>;
+export type StartMatchResponse = Match;
 
 /**
  * Finalize match response
  */
-export type FinalizeMatchResponse = ApiResponse<Match>;
+export interface FinalizeMatchResponse {
+  message: string;
+  match: Match;
+}
 
 /**
  * Get pending matches response
@@ -191,6 +225,21 @@ export type FinalizeMatchResponse = ApiResponse<Match>;
 export interface GetPendingMatchesResponse {
   matches: Match[];
   count: number;
+}
+
+// Normalize athlete responses to use page/limit
+export interface GetAthleteUpcomingMatchesResponse {
+  matches: Match[];
+  count: number;
+  offset?: number;
+  limit?: number;
+}
+
+export interface GetAthleteMatchHistoryResponse {
+  matches: Match[];
+  count: number;
+  offset?: number;
+  limit?: number;
 }
 
 /**
@@ -242,14 +291,7 @@ export type PreviewEloChangesResponse = EloPreview;
 export interface ApproveMatchResponse {
   success: boolean;
   message: string;
-  data: {
-    id: number;
-    status: MatchStatus;
-    resultStatus: MatchResultStatus;
-    winnerEntryId: number;
-    reviewNotes?: string;
-    eloUpdated: boolean;
-  };
+  match: Match;
 }
 
 /**
@@ -258,13 +300,7 @@ export interface ApproveMatchResponse {
 export interface RejectMatchResponse {
   success: boolean;
   message: string;
-  data: {
-    id: number;
-    status: MatchStatus;
-    resultStatus: MatchResultStatus;
-    winnerEntryId: null;
-    reviewNotes: string;
-  };
+  match: Match;
 }
 
 // ==================== Athlete Match Types ====================
@@ -272,19 +308,4 @@ export interface RejectMatchResponse {
 /**
  * Get athlete upcoming matches response
  */
-export interface GetAthleteUpcomingMatchesResponse {
-  matches: Match[];
-  count: number;
-  skip: number;
-  limit: number;
-}
-
-/**
- * Get athlete match history response
- */
-export interface GetAthleteMatchHistoryResponse {
-  matches: Match[];
-  count: number;
-  skip: number;
-  limit: number;
-}
+/* removed previous duplicate definitions */

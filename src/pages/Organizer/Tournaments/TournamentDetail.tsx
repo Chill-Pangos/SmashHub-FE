@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTournament } from "@/hooks/queries"; // Đảm bảo đường dẫn này đúng với project của bạn
-import type { Tournament } from "@/types/tournament.types";
+
 import { Calendar, MapPin } from "lucide-react";
 import {
   EntriesManagement,
@@ -11,44 +11,7 @@ import {
   ScheduleTab,
 } from "@/pages/Organizer/Tournaments/TournamentDetailTabs";
 
-// --- MOCK DATA ---
-// Gán chặt kiểu : Tournament cho biến này để TS hiểu các chuỗi là literal type ("single", "upcoming", v.v.)
-const MOCK_TOURNAMENT: Tournament = {
-  id: 1,
-  name: "Spring Championship 2026",
-  tier: 3,
-  status: "upcoming",
-  startDate: "2026-03-15T09:00:00Z",
-  endDate: "2026-03-20T18:00:00Z",
-  registrationStartDate: "2026-02-15T00:00:00Z",
-  registrationEndDate: "2026-03-10T23:59:59Z",
-  bracketGenerationDate: "2026-03-12T10:00:00Z",
-  location: "National Stadium",
-  numberOfTables: 4,
-  createdBy: 5,
-  createdAt: "2026-02-10T14:30:00Z",
-  updatedAt: "2026-02-10T14:30:00Z",
-  categories: [
-    {
-      id: 1,
-      tournamentId: 1,
-      name: "Men's Singles",
-      type: "single",
-      maxEntries: 32,
-      maxSets: 3,
-      numberOfSingles: 3,
-      numberOfDoubles: 0,
-      minAge: 18,
-      maxAge: 65,
-      minElo: 1000,
-      maxElo: 2500,
-      gender: "male",
-      isGroupStage: false,
-      createdAt: "2026-02-10T14:30:00Z",
-      updatedAt: "2026-02-10T14:30:00Z",
-    },
-  ],
-};
+
 
 export default function TournamentDetail() {
   const { tournamentId } = useParams();
@@ -61,12 +24,9 @@ export default function TournamentDetail() {
     error: apiError,
   } = useTournament(id);
 
-  // --- LOGIC OVERRIDE MOCK DATA ---
-  // Nếu ID trên URL là 1, chúng ta dùng Mock Data. Nếu không, dùng API.
-  const isMock = id === 1;
-  const tournament = isMock ? MOCK_TOURNAMENT : apiData;
-  const isLoading = isMock ? false : apiLoading;
-  const error = isMock ? null : apiError;
+  const tournament = apiData;
+  const isLoading = apiLoading;
+  const error = apiError;
 
   // State cho Tabs
   const [activeTab, setActiveTab] = useState("Overview");
@@ -142,11 +102,7 @@ export default function TournamentDetail() {
             ID: TRN-{new Date(tournament.createdAt).getFullYear()}-
             {tournament.id.toString().padStart(3, "0")}
           </span>
-          {isMock && (
-            <span className="rounded bg-chart-4/20 border border-chart-4/50 px-2 py-1 text-xs font-bold uppercase tracking-wider text-chart-4">
-              MOCK DATA
-            </span>
-          )}
+
         </div>
 
         {/* Title */}
@@ -177,11 +133,10 @@ export default function TournamentDetail() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors ${
-                activeTab === tab
+              className={`whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors ${activeTab === tab
                   ? "border-primary text-foreground"
                   : "border-transparent text-muted-foreground hover:border-border hover:text-foreground"
-              }`}
+                }`}
             >
               {tab}
             </button>

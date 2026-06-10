@@ -306,7 +306,7 @@ export default function TournamentDetailViewer({
             </Card>
           ) : selectedContentId ? (
             <TournamentBracketViewer
-              contentId={selectedContentId}
+              categoryId={selectedContentId}
               hasGroupStage={hasGroupStage}
             />
           ) : contents.length === 0 ? (

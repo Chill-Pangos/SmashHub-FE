@@ -1,4 +1,3 @@
-import type { ApiResponse } from "./auth.types";
 
 // ==================== Enums ====================
 
@@ -100,6 +99,7 @@ export interface Tournament {
  */
 export interface CreateTournamentRequest {
   name: string;
+  tier: number;
   startDate: string;
   endDate: string;
   location: string;
@@ -128,7 +128,7 @@ export interface UpdateTournamentRequest {
  */
 export interface TournamentSearchFilters {
   // Pagination
-  skip?: number;
+  page?: number;
   limit?: number;
   // User filters
   userId?: number;
@@ -210,27 +210,27 @@ export interface TournamentCategory {
 }
 
 export interface CreateTournamentCategoryRequest {
-  tournamentId: number;
-  name: string;
+  tournamentId?: number;
   type: TournamentCategoryType;
+  name: string;
   maxEntries: number;
   maxSets: number;
-  teamFormat?: string | null;
-  entryFee?: number | null;
-  numberOfSingles?: number | null;
-  numberOfDoubles?: number | null;
-  minAge?: number | null;
-  maxAge?: number | null;
-  minElo?: number | null;
-  maxElo?: number | null;
-  gender?: Gender | null;
-  isGroupStage?: boolean;
-  racketCheck?: boolean;
+  teamFormat: string | null;
+  minAge: number | null;
+  maxAge: number | null;
+  minElo: number | null;
+  maxElo: number | null;
+  maxMembersPerEntry: number | null;
+  gender: "male" | "female" | "mixed";
+  isGroupStage: boolean;
+  entryFee: number | string | null;
+  numberOfSingles: number;
+  numberOfDoubles: number;
 }
 
 export interface UpdateTournamentCategoryRequest {
   name?: string;
-  type?: TournamentCategoryType;
+  type?: "single" | "double" | "team";
   maxEntries?: number;
   maxSets?: number;
   teamFormat?: string | null;
@@ -251,44 +251,43 @@ export interface UpdateTournamentCategoryRequest {
 /**
  * Create tournament response
  */
-export type CreateTournamentResponse = ApiResponse<Tournament>;
+export type CreateTournamentResponse = Tournament;
 
 /**
  * Get tournament response
  */
-export type GetTournamentResponse = ApiResponse<Tournament>;
+export type GetTournamentResponse = Tournament;
 
 /**
  * Get tournaments list response
  */
-export type GetTournamentsResponse = ApiResponse<TournamentListResponse>;
+export type GetTournamentsResponse = TournamentListResponse;
 
 /**
  * Tournament search response (with pagination)
  */
-export type SearchTournamentsResponse =
-  ApiResponse<TournamentSearchResponseWithPagination>;
+export type SearchTournamentsResponse = TournamentSearchResponseWithPagination;
 
 /**
  * Get tournaments by status response
  */
-export type GetTournamentsByStatusResponse = ApiResponse<Tournament[]>;
+export type GetTournamentsByStatusResponse = TournamentListResponse;
 
 /**
  * Update tournament response
  */
-export type UpdateTournamentResponse = ApiResponse<Tournament>;
+export type UpdateTournamentResponse = Tournament;
 
 /**
  * Delete tournament response
  */
-export type DeleteTournamentResponse = ApiResponse<void>;
+export type DeleteTournamentResponse = void;
 
-export type CreateTournamentCategoryResponse = ApiResponse<TournamentCategory>;
-export type GetTournamentCategoryResponse = ApiResponse<TournamentCategory>;
-export type GetTournamentCategoriesResponse = ApiResponse<TournamentCategory[]>;
-export type UpdateTournamentCategoryResponse = ApiResponse<TournamentCategory>;
-export type DeleteTournamentCategoryResponse = ApiResponse<void>;
+export type CreateTournamentCategoryResponse = TournamentCategory;
+export type GetTournamentCategoryResponse = TournamentCategory;
+export type GetTournamentCategoriesResponse = TournamentCategory[];
+export type UpdateTournamentCategoryResponse = TournamentCategory;
+export type DeleteTournamentCategoryResponse = void;
 
 // ==================== Upcoming Status Changes ====================
 

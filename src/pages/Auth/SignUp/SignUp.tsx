@@ -346,7 +346,7 @@ const SignUp = () => {
       </div>
 
       {/* ── Right: Auth Form ── */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 lg:p-8 relative overflow-y-auto">
+      <div className="w-full lg:w-1/2 flex flex-col p-4 lg:p-8 relative overflow-y-auto">
         {/* Ambient glow */}
         <div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none rounded-full"
@@ -361,7 +361,7 @@ const SignUp = () => {
 
         {/* Glassmorphic Card */}
         <div
-          className="relative w-full z-10 my-8"
+          className="relative w-full z-10 my-auto mx-auto shrink-0"
           style={{
             maxWidth: "440px",
             background: "var(--auth-surface)",

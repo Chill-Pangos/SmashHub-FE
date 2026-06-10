@@ -115,6 +115,10 @@ export const RoleProvider: React.FC<RoleProviderProps> = ({ children }) => {
 
     return userRoles
       .map((role) => {
+        if (typeof role === "number") {
+          return roleState.roles.find((item) => item.id === role)?.name ?? null;
+        }
+
         if (!role || typeof role !== "object") {
           return null;
         }

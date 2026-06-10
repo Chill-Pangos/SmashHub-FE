@@ -2,36 +2,17 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { scheduleService } from "@/services";
 import { queryKeys } from "./queryKeys";
 import type {
-  Schedule,
   ScheduleStage,
-  CreateScheduleRequest,
-  UpdateScheduleRequest,
-  GenerateScheduleRequest,
-  UpdateKnockoutEntriesRequest,
+  GenerateTournamentScheduleRequest,
   GenerateGroupStageScheduleRequest,
-  GenerateCompleteScheduleRequest,
-  GenerateKnockoutOnlyScheduleRequest,
-  GenerateKnockoutStageScheduleRequest,
+  GenerateKnockoutScheduleRequest,
+  SyncMatchEntriesRequest,
 } from "@/types";
 
-const getCategoryId = (data: { contentId: number; categoryId?: number }) =>
-  data.categoryId ?? data.contentId;
+const getCategoryId = (data: { categoryId: number }) => data.categoryId;
 
 // ==================== Query Hooks ====================
 
-/**
- * Hook để lấy tất cả schedules với pagination
- */
-export const useSchedules = (skip = 0, limit = 10) => {
-  return useQuery({
-    queryKey: queryKeys.schedules.list({ skip, limit }),
-    queryFn: () => scheduleService.getAllSchedules(skip, limit),
-  });
-};
-
-/**
- * Hook để lấy schedule theo ID
- */
 export const useSchedule = (id: number, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: queryKeys.schedules.detail(id),
@@ -40,14 +21,11 @@ export const useSchedule = (id: number, options?: { enabled?: boolean }) => {
   });
 };
 
-/**
- * Hook để lấy schedules theo category ID
- */
 export const useSchedulesByCategory = (
   categoryId: number,
   options?: {
     stage?: ScheduleStage;
-    skip?: number;
+    page?: number;
     limit?: number;
     enabled?: boolean;
   },
@@ -55,161 +33,38 @@ export const useSchedulesByCategory = (
   return useQuery({
     queryKey: [
       ...queryKeys.schedules.byCategory(categoryId),
-      { stage: options?.stage, skip: options?.skip, limit: options?.limit },
+      { stage: options?.stage, page: options?.page, limit: options?.limit },
     ],
     queryFn: () =>
       scheduleService.getSchedulesByCategory(categoryId, {
         stage: options?.stage,
-        skip: options?.skip,
+        page: options?.page,
         limit: options?.limit,
       }),
     enabled: (options?.enabled ?? true) && categoryId > 0,
   });
 };
 
-/**
- * @deprecated Use useSchedulesByCategory instead.
- */
-export const useSchedulesByContent = (
-  contentId: number,
-  options?: {
-    stage?: ScheduleStage;
-    skip?: number;
-    limit?: number;
-    enabled?: boolean;
-  },
-) => useSchedulesByCategory(contentId, options);
-
 // ==================== Mutation Hooks ====================
 
-/**
- * Hook để tạo schedule mới
- */
-export const useCreateSchedule = () => {
+export const useGenerateTournamentSchedule = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateScheduleRequest) =>
-      scheduleService.createSchedule(data),
-    onSuccess: (result) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.schedules.all,
-      });
-      if (result.data) {
-        const categoryId = getCategoryId(result.data);
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.schedules.byCategory(categoryId),
-        });
-      }
-    },
-  });
-};
-
-/**
- * Hook để cập nhật schedule
- */
-export const useUpdateSchedule = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateScheduleRequest }) =>
-      scheduleService.updateSchedule(id, data),
-    onSuccess: (result, { id }) => {
-      queryClient.setQueryData(queryKeys.schedules.detail(id), result);
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.schedules.lists(),
-      });
-    },
-  });
-};
-
-/**
- * Hook để xóa schedule
- */
-export const useDeleteSchedule = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: number) => scheduleService.deleteSchedule(id),
-    onMutate: async (id: number) => {
-      await queryClient.cancelQueries({
-        queryKey: queryKeys.schedules.all,
-      });
-
-      const previousSchedules = queryClient.getQueriesData({
-        queryKey: queryKeys.schedules.all,
-      });
-
-      queryClient.setQueriesData(
-        { queryKey: queryKeys.schedules.lists() },
-        (old: Schedule[] | undefined) => old?.filter((s) => s.id !== id) ?? [],
-      );
-
-      return { previousSchedules };
-    },
-    onError: (_err, _id, context) => {
-      if (context?.previousSchedules) {
-        context.previousSchedules.forEach(([key, data]) => {
-          queryClient.setQueryData(key, data);
-        });
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.schedules.all,
-      });
-    },
-  });
-};
-
-/**
- * Hook để generate schedule
- */
-export const useGenerateSchedule = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: GenerateScheduleRequest) =>
-      scheduleService.generateSchedule(data),
+    mutationFn: (data: GenerateTournamentScheduleRequest) =>
+      scheduleService.generateTournamentSchedule(data),
     onSuccess: (_result, data) => {
       const categoryId = getCategoryId(data);
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.schedules.all,
-      });
       queryClient.invalidateQueries({
         queryKey: queryKeys.schedules.byCategory(categoryId),
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.matches.all,
+        queryKey: queryKeys.schedules.all,
       });
     },
   });
 };
 
-/**
- * Hook để update knockout entries
- */
-export const useUpdateKnockoutEntries = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: UpdateKnockoutEntriesRequest) =>
-      scheduleService.updateKnockoutEntries(data),
-    onSuccess: (_result, data) => {
-      const categoryId = getCategoryId(data);
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.knockoutBrackets.byCategory(categoryId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.knockoutBrackets.all,
-      });
-    },
-  });
-};
-
-/**
- * Hook để generate group stage schedule
- */
 export const useGenerateGroupStageSchedule = () => {
   const queryClient = useQueryClient();
 
@@ -219,100 +74,46 @@ export const useGenerateGroupStageSchedule = () => {
     onSuccess: (_result, data) => {
       const categoryId = getCategoryId(data);
       queryClient.invalidateQueries({
-        queryKey: queryKeys.schedules.all,
-      });
-      queryClient.invalidateQueries({
         queryKey: queryKeys.schedules.byCategory(categoryId),
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.matches.all,
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.groupStandings.byCategory(categoryId),
+        queryKey: queryKeys.schedules.all,
       });
     },
   });
 };
 
-/**
- * Hook để generate complete schedule (group + knockout)
- */
-export const useGenerateCompleteSchedule = () => {
+export const useGenerateKnockoutSchedule = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: GenerateCompleteScheduleRequest) =>
-      scheduleService.generateCompleteSchedule(data),
+    mutationFn: (data: GenerateKnockoutScheduleRequest) =>
+      scheduleService.generateKnockoutSchedule(data),
     onSuccess: (_result, data) => {
       const categoryId = getCategoryId(data);
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.schedules.all,
-      });
       queryClient.invalidateQueries({
         queryKey: queryKeys.schedules.byCategory(categoryId),
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.matches.all,
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.groupStandings.byCategory(categoryId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.knockoutBrackets.byCategory(categoryId),
+        queryKey: queryKeys.schedules.all,
       });
     },
   });
 };
 
-/**
- * Hook để generate knockout only schedule
- */
-export const useGenerateKnockoutOnlySchedule = () => {
+export const useSyncMatchEntries = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: GenerateKnockoutOnlyScheduleRequest) =>
-      scheduleService.generateKnockoutOnlySchedule(data),
+    mutationFn: (data: SyncMatchEntriesRequest) =>
+      scheduleService.syncMatchEntries(data),
     onSuccess: (_result, data) => {
       const categoryId = getCategoryId(data);
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.schedules.all,
-      });
       queryClient.invalidateQueries({
         queryKey: queryKeys.schedules.byCategory(categoryId),
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.matches.all,
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.knockoutBrackets.byCategory(categoryId),
-      });
-    },
-  });
-};
-
-/**
- * Hook để generate knockout stage schedule
- */
-export const useGenerateKnockoutStageSchedule = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: GenerateKnockoutStageScheduleRequest) =>
-      scheduleService.generateKnockoutStageSchedule(data),
-    onSuccess: (_result, data) => {
-      const categoryId = getCategoryId(data);
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.schedules.all,
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.schedules.byCategory(categoryId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.matches.all,
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.knockoutBrackets.byCategory(categoryId),
+        queryKey: queryKeys.matches.all, // Since matches are synced
       });
     },
   });

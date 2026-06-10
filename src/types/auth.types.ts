@@ -72,6 +72,7 @@ export interface User {
   email: string;
   roles?: UserRoleInput[];
   isEmailVerified: boolean;
+  eloScore?: number | null;
   password?: string;
   gender?: string | null;
   avatarUrl?: string | null;

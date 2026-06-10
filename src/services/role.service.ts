@@ -1,12 +1,9 @@
 import axiosInstance from "@/config/axiosConfig";
-import { parsePaginatedResponse } from "@/utils/pagination.utils";
 import type {
   Role,
   CreateRoleRequest,
-  CreateRoleResponse,
   UpdateRoleRequest,
-  UpdateRoleResponse,
-  PaginatedRolesResult,
+  GetRolesResponse,
 } from "@/types/role.types";
 
 /**
@@ -29,46 +26,36 @@ class RoleService {
    *   description: "Can create, update and manage tournaments"
    * });
    */
-  async createRole(data: CreateRoleRequest): Promise<CreateRoleResponse> {
+  async createRole(data: CreateRoleRequest): Promise<Role> {
     const response = await axiosInstance.post<Role>(this.baseURL, data);
-
-    // Transform axios response to ApiResponse format
-    return {
-      success: true,
-      message: "Role created successfully",
-      data: response.data,
-    };
+    return response.data;
   }
 
-  /**
-   * Get roles in a pagination-ready shape.
-   * Supports both server pagination payloads and plain arrays.
-   */
   async getAllRolesPaginated(
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
-  ): Promise<PaginatedRolesResult> {
-    const response = await axiosInstance.get<unknown>(this.baseURL, {
-      params: { skip, limit },
+  ): Promise<GetRolesResponse> {
+    const response = await axiosInstance.get<GetRolesResponse>(this.baseURL, {
+      params: { page, limit },
     });
 
-    return parsePaginatedResponse<Role>(response.data, { skip, limit });
+    return response.data;
   }
 
   /**
    * Get all roles with pagination
    * GET /api/roles
    *
-   * @param skip Number of records to skip (default: 0)
+  * @param page Page number (default: 1)
    * @param limit Maximum number of records to return (default: 10)
    * @returns Promise with array of roles
    *
    * @example
-   * const roles = await roleService.getAllRoles(0, 20);
+  * const roles = await roleService.getAllRoles(1, 20);
    */
-  async getAllRoles(skip: number = 0, limit: number = 10): Promise<Role[]> {
-    const result = await this.getAllRolesPaginated(skip, limit);
-    return result.items;
+  async getAllRoles(page: number = 1, limit: number = 10): Promise<Role[]> {
+    const result = await this.getAllRolesPaginated(page, limit);
+    return result.roles;
   }
 
   /**
@@ -107,7 +94,7 @@ class RoleService {
 
   /**
    * Update role
-   * PUT /api/roles/:id
+   * PATCH /api/roles/:id
    *
    * @param id Role ID
    * @param data Partial role data to update
@@ -121,8 +108,8 @@ class RoleService {
   async updateRole(
     id: number,
     data: UpdateRoleRequest,
-  ): Promise<UpdateRoleResponse> {
-    const response = await axiosInstance.put<UpdateRoleResponse>(
+  ): Promise<Role> {
+    const response = await axiosInstance.patch<Role>(
       `${this.baseURL}/${id}`,
       data,
     );

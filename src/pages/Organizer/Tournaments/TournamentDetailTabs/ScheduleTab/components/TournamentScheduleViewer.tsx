@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Wand2 } from "lucide-react";
 import { GroupStageBoard, type Group } from "./GroupStageBoard";
-import { ChampionshipBracket,type KnockoutMatch } from "./ChampionshipBracket";
+import { ChampionshipBracket, type KnockoutMatch } from "./ChampionshipBracket";
 
 interface TournamentScheduleViewerProps {
   contentId: number;
@@ -9,53 +9,51 @@ interface TournamentScheduleViewerProps {
   schedulesOverride?: unknown;
 }
 
-// --- MOCK DATA ---
-const MOCK_GROUPS: Group[] = [
-  {
-    name: "Group A",
-    standings: [
-      { rank: 1, player: "Fan Zhendong", p: 3, w: 3, l: 0, pts: 6 },
-      { rank: 2, player: "Hugo Calderano", p: 3, w: 2, l: 1, pts: 5 },
-      { rank: 3, player: "Truls Moregard", p: 3, w: 1, l: 2, pts: 4 },
-    ],
-    matches: [
-      { time: "10:00", playerA: "Fan Zhendong", playerB: "Hugo Calderano", status: "COMPLETED", scoreA: 3, scoreB: 2 },
-      { time: "11:30", playerA: "Fan Zhendong", playerB: "Truls Moregard", status: "COMPLETED", scoreA: 3, scoreB: 1 },
-      { time: "13:00", playerA: "Hugo Calderano", playerB: "Truls Moregard", status: "COMPLETED", scoreA: 3, scoreB: 0 },
-    ]
-  },
-  {
-    name: "Group B",
-    standings: [
-      { rank: 1, player: "Ma Long", p: 3, w: 3, l: 0, pts: 6 },
-      { rank: 2, player: "Tomokazu Harimoto", p: 3, w: 2, l: 1, pts: 5 },
-      { rank: 3, player: "Lin Yun-Ju", p: 3, w: 1, l: 2, pts: 4 },
-    ],
-    matches: [
-      { time: "10:00", playerA: "Ma Long", playerB: "Tomokazu Harimoto", status: "COMPLETED", scoreA: 3, scoreB: 1 },
-      { time: "11:30", playerA: "Ma Long", playerB: "Lin Yun-Ju", status: "COMPLETED", scoreA: 3, scoreB: 0 },
-      { time: "13:00", playerA: "Tomokazu Harimoto", playerB: "Lin Yun-Ju", status: "COMPLETED", scoreA: 3, scoreB: 2 },
-    ]
-  }
-];
-
-const MOCK_KNOCKOUT_MATCHES: KnockoutMatch[] = [
-  { round: "Quarter-Finals", time: "14:00", status: "COMPLETED", playerA: "Fan Zhendong", scoreA: 3, playerB: "Darko Jorgic", scoreB: 1, isLive: false },
-  { round: "Quarter-Finals", time: "15:00", status: "LIVE", playerA: "Hugo Calderano", scoreA: 2, playerB: "Felix Lebrun", scoreB: 2, isLive: true },
-  { round: "Semi-Finals", time: "18:00", status: "UPCOMING", playerA: "Fan Zhendong", scoreA: null, playerB: "TBD", scoreB: null, isLive: false }
-];
+import { useGroupStandingsByCategory, useMatchesByCategory } from "@/hooks/queries";
 
 export default function TournamentScheduleViewer({
   contentId,
-  tournamentId,
   // schedulesOverride, // Map real data sau này
 }: TournamentScheduleViewerProps) {
   
-  const isMockMode = tournamentId === 1;
+  // Fetch real group standings
+  const { data: standingsData } = useGroupStandingsByCategory(contentId);
+  const rawStandings = (standingsData as any)?.data || [];
 
-  // Nếu là mock thì dùng MOCK DATA, nếu không thì dùng data thật (hiện tại để [] trống chờ ghép api)
-  const groups = isMockMode ? MOCK_GROUPS : []; 
-  const knockoutMatches = isMockMode ? MOCK_KNOCKOUT_MATCHES : [];
+  // TODO: Map rawStandings to groups and fetch matches for each group
+  // MAPPING INCOMPLETE: Backend API returns flat standings. Need an API or logic to group them and fetch matches per group.
+  const groups: Group[] = Array.from(new Set(rawStandings.map((s: any) => s.groupName))).map((groupName: any) => {
+    return {
+      name: groupName,
+      standings: rawStandings
+        .filter((s: any) => s.groupName === groupName)
+        .map((s: any) => ({
+          rank: s.position || 0,
+          player: s.entryId?.toString() || "Unknown", // Assuming entryId for now, ideally needs join with user data
+          p: s.matchesPlayed || 0,
+          w: s.matchesWon || 0,
+          l: s.matchesLost || 0,
+          pts: s.points || 0,
+        })),
+      matches: [], // Missing group matches API mapping
+    };
+  });
+
+  // Fetch real knockout matches
+  const { data: knockoutData } = useMatchesByCategory(contentId, { stage: "knockout" });
+  const rawKnockout = (knockoutData as any)?.schedules || [];
+  
+  // TODO: MAPPING INCOMPLETE: Backend returns Match[], need to map to KnockoutMatch format
+  const knockoutMatches: KnockoutMatch[] = rawKnockout.map((m: any) => ({
+    round: m.roundName || `Round ${m.roundNumber}`,
+    time: m.scheduledAt ? new Date(m.scheduledAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "TBD",
+    status: m.matches?.[0]?.status || "PENDING",
+    playerA: m.matches?.[0]?.entryAId?.toString() || "TBD",
+    scoreA: m.matches?.[0]?.setsWonA?.toString() || "-",
+    playerB: m.matches?.[0]?.entryBId?.toString() || "TBD",
+    scoreB: m.matches?.[0]?.setsWonB?.toString() || "-",
+    isLive: m.matches?.[0]?.status === "in_progress"
+  }));
 
   const hasGroupStage = groups.length > 0;
   const hasKnockoutStage = knockoutMatches.length > 0;
@@ -82,7 +80,7 @@ export default function TournamentScheduleViewer({
           <p className="text-sm text-muted-foreground mb-6 text-center max-w-md mt-2">
             All group stage matches are finished. You can now generate the Championship Bracket based on the final standings.
           </p>
-          <Button onClick={handleGenerateKnockout} className="bg-primary text-primary-foreground font-bold hover:bg-primary/90 shadow-auth-primary-glow">
+          <Button onClick={handleGenerateKnockout} className="bg-primary text-primary-foreground font-bold hover:bg-primary/90 shadow-[var(--auth-primary-glow)]">
             Generate Knockout Bracket
           </Button>
         </div>

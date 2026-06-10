@@ -3,9 +3,7 @@ import { parsePaginatedResponse } from "@/utils/pagination.utils";
 import type {
   Permission,
   CreatePermissionRequest,
-  CreatePermissionResponse,
   UpdatePermissionRequest,
-  UpdatePermissionResponse,
   PaginatedPermissionsResult,
 } from "@/types/permission.types";
 
@@ -22,14 +20,9 @@ class PermissionService {
    */
   async createPermission(
     data: CreatePermissionRequest,
-  ): Promise<CreatePermissionResponse> {
+  ): Promise<Permission> {
     const response = await axiosInstance.post<Permission>(this.baseURL, data);
-
-    return {
-      success: true,
-      message: "Permission created successfully",
-      data: response.data,
-    };
+    return response.data;
   }
 
   /**
@@ -37,14 +30,14 @@ class PermissionService {
    * Supports both server pagination payloads and plain arrays.
    */
   async getAllPermissionsPaginated(
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<PaginatedPermissionsResult> {
     const response = await axiosInstance.get<unknown>(this.baseURL, {
-      params: { skip, limit },
+      params: { page, limit },
     });
 
-    return parsePaginatedResponse<Permission>(response.data, { skip, limit });
+    return parsePaginatedResponse<Permission>(response.data, { page, limit });
   }
 
   /**
@@ -52,10 +45,10 @@ class PermissionService {
    * GET /api/permissions
    */
   async getAllPermissions(
-    skip: number = 0,
+    page: number = 1,
     limit: number = 10,
   ): Promise<Permission[]> {
-    const result = await this.getAllPermissionsPaginated(skip, limit);
+    const result = await this.getAllPermissionsPaginated(page, limit);
     return result.items;
   }
 
@@ -77,7 +70,7 @@ class PermissionService {
   async updatePermission(
     id: number,
     data: UpdatePermissionRequest,
-  ): Promise<UpdatePermissionResponse> {
+  ): Promise<Permission> {
     const response = await axiosInstance.put<Permission>(
       `${this.baseURL}/${id}`,
       data,

@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import type { TournamentFlowEndpoint } from "@/pages/TournamentManager/TournamentFullFlow/types";
+import type { TournamentFlowEndpoint } from "./types";
 
 interface FlowEndpointListProps {
   endpoints: TournamentFlowEndpoint[];

@@ -1,55 +1,47 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Medal, Search, UserPlus, Users } from "lucide-react";
-import { InviteRefereeModal, type Referee, RefereeCard } from "./components";
+import { InviteRefereeModal, RefereeCard } from "./components";
+import { useRefereesByTournament, useTournamentRefereeInvitations } from "@/hooks/queries";
+import type { RefereeDisplay } from "./components/RefereeCard";
 
 interface RefereeManagementProps {
   tournamentId: number;
 }
 
-const MOCK_REFEREES: Referee[] = [
-  {
-    id: "1",
-    name: "Sarah Jenkins",
-    email: "s.jenkins@example.com",
-    status: "CONFIRMED",
-    role: "ASSISTANT",
-  },
-  {
-    id: "2",
-    name: "David Chen",
-    email: "d.chen@example.com",
-    status: "PENDING",
-    role: "ASSISTANT",
-  },
-  {
-    id: "3",
-    name: "Alexei Volkov",
-    email: "a.volkov@example.com",
-    status: "CONFIRMED",
-    role: "ASSISTANT",
-  },
-  {
-    id: "4",
-    name: "Maria Rodriguez",
-    email: "m.rodriguez@example.com",
-    status: "PENDING",
-    role: "ASSISTANT",
-  },
-];
-
 export default function RefereeManagement({
   tournamentId,
 }: RefereeManagementProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [inviteMode, setInviteMode] = useState<"CHIEF" | "ASSISTANT">(
-    "ASSISTANT",
-  );
+  const [inviteMode, setInviteMode] = useState<"chief" | "referee">("referee");
+  const [search, setSearch] = useState("");
 
-  const chiefReferee = null;
-  const assistantReferees = MOCK_REFEREES;
+  const { data: refsData } = useRefereesByTournament(tournamentId);
+  const { data: invData } = useTournamentRefereeInvitations(tournamentId);
 
-  const handleOpenInvite = (mode: "CHIEF" | "ASSISTANT") => {
+  const allDisplays = useMemo(() => {
+    const list: RefereeDisplay[] = [];
+    if (refsData?.referees) {
+      refsData.referees.forEach(r => {
+        list.push({ id: r.id, user: r.referee, status: "CONFIRMED", role: r.role });
+      });
+    }
+    if (invData?.invitations) {
+      invData.invitations.filter(i => i.status === "pending").forEach(i => {
+        list.push({ id: i.id, user: i.referee, status: "PENDING", role: i.role });
+      });
+    }
+    return list;
+  }, [refsData, invData]);
+
+  const chiefReferee = allDisplays.find(r => r.role === "chief");
+  const assistantReferees = allDisplays.filter(r => r.role === "referee" && (
+    r.user?.firstName.toLowerCase().includes(search.toLowerCase()) ||
+    r.user?.lastName.toLowerCase().includes(search.toLowerCase()) ||
+    r.user?.email.toLowerCase().includes(search.toLowerCase())
+  ));
+
+  const handleOpenInvite = (mode: "chief" | "referee") => {
     setInviteMode(mode);
     setIsModalOpen(true);
   };
@@ -68,7 +60,7 @@ export default function RefereeManagement({
         </div>
         <Button
           className="bg-primary text-primary-foreground font-bold hover:bg-primary/90 shadow-auth-icon-shadow"
-          onClick={() => handleOpenInvite("ASSISTANT")}
+          onClick={() => handleOpenInvite("referee")}
         >
           <UserPlus className="mr-2 h-4 w-4" /> INVITE REFEREE
         </Button>
@@ -94,7 +86,7 @@ export default function RefereeManagement({
           <RefereeCard referee={chiefReferee} isChief />
         ) : (
           <div
-            onClick={() => handleOpenInvite("CHIEF")}
+            onClick={() => handleOpenInvite("chief")}
             className="flex flex-col items-center justify-center py-8 bg-auth-ghost-bg border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-auth-ghost-bg-hover transition-colors"
           >
             <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center mb-3">
@@ -116,7 +108,7 @@ export default function RefereeManagement({
               Assistant Referees
             </h3>
             <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded font-bold">
-              {assistantReferees.length} ASSIGNED
+              {assistantReferees.length} ASSIGNED/INVITED
             </span>
           </div>
           <div className="relative">
@@ -124,6 +116,8 @@ export default function RefereeManagement({
             <input
               type="text"
               placeholder="Search officials..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               className="pl-9 pr-4 py-1.5 text-sm bg-input border border-border rounded-md text-foreground focus:outline-none focus:border-primary placeholder:text-muted-foreground"
             />
           </div>
@@ -133,6 +127,9 @@ export default function RefereeManagement({
           {assistantReferees.map((ref) => (
             <RefereeCard key={ref.id} referee={ref} />
           ))}
+          {assistantReferees.length === 0 && (
+            <p className="text-sm text-muted-foreground col-span-2">No referees found.</p>
+          )}
         </div>
       </div>
 
@@ -140,6 +137,7 @@ export default function RefereeManagement({
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         inviteMode={inviteMode}
+        tournamentId={tournamentId}
       />
     </div>
   );
