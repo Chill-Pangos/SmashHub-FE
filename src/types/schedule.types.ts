@@ -49,34 +49,36 @@ export type GetSchedulesByContentResponse = { success: boolean; data: GetSchedul
 export interface GenerateGroupStageScheduleResponse {
   success: boolean;
   message: string;
+  warning?: string;
   data: {
     totalSchedules: number;
     totalMatches: number;
+    schedules: Schedule[];
+    matches: Match[];
   };
 }
 
 export interface GenerateKnockoutScheduleResponse {
   success: boolean;
   message: string;
+  warning?: string;
   data: {
     totalSchedules: number;
     totalMatches: number;
+    schedules: Schedule[];
+    matches: Match[];
   };
 }
 
 export interface GenerateTournamentScheduleResponse {
   success: boolean;
   message: string;
+  warnings?: string[];
   data: {
-    groupStage: {
-      schedules: Schedule[];
-      matches: Match[];
-    };
-    knockoutStage: {
-      schedules: Schedule[];
-      matches: Match[];
-    };
-  };
+    categoryId: number;
+    totalSchedules: number;
+    totalMatches: number;
+  }[];
 }
 
 export interface SyncMatchEntriesResponse {
