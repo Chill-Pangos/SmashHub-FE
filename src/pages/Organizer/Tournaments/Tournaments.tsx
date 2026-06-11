@@ -4,15 +4,18 @@ import {
   useTournaments,
   useUpcomingTournamentStatusChanges,
 } from "@/hooks/queries";
+import ServerPagination from "@/components/custom/ServerPagination";
 
 export default function OrganizerTournaments() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<string | undefined>(undefined);
   const [page, setPage] = useState(1);
-  const [limit] = useState(50);
+  const [limit, setLimit] = useState(10);
 
   // Fetch tournaments from API
-  const { data: apiTournaments = [], isLoading } = useTournaments(page, limit);
+  const { data, isLoading } = useTournaments(page, limit);
+  const apiTournaments = data?.tournaments || [];
+  const pagination = data?.pagination;
 
   // Get upcoming status changes
   const { data: upcomingChanges } = useUpcomingTournamentStatusChanges(24);
@@ -34,9 +37,9 @@ export default function OrganizerTournaments() {
     }
 
     if (sort === "start_asc")
-      items.sort((a, b) => a.startDate.localeCompare(b.startDate));
+      items.sort((a, b) => (a.startDate || "").localeCompare(b.startDate || ""));
     if (sort === "start_desc")
-      items.sort((a, b) => b.startDate.localeCompare(a.startDate));
+      items.sort((a, b) => (b.startDate || "").localeCompare(a.startDate || ""));
     if (sort === "participants_desc") {
       items.sort((a, b) => {
         const aParticipants =
@@ -62,11 +65,13 @@ export default function OrganizerTournaments() {
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
   const thisWeek = filtered.filter((t) => {
+    if (!t.startDate) return false;
     const d = new Date(t.startDate);
     return d >= startOfWeek && d <= endOfWeek;
   });
 
   const thisMonth = filtered.filter((t) => {
+    if (!t.startDate) return false;
     const d = new Date(t.startDate);
     return d >= startOfMonth && d <= endOfMonth && !thisWeek.includes(t);
   });
@@ -185,6 +190,24 @@ export default function OrganizerTournaments() {
               <TournamentList items={others} />
             </div>
           </section>
+
+          {pagination && (
+            <div className="mt-6">
+              <ServerPagination
+                skip={(page - 1) * limit}
+                limit={limit}
+                total={pagination.total}
+                hasNext={pagination.hasNextPage}
+                hasPrevious={pagination.hasPrevPage}
+                isLoading={isLoading}
+                onSkipChange={(nextSkip) => setPage(Math.floor(nextSkip / limit) + 1)}
+                onLimitChange={(nextLimit) => {
+                  setLimit(nextLimit);
+                  setPage(1);
+                }}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>

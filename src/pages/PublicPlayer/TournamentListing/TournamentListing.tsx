@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Calendar, MapPin, Users, Search } from "lucide-react";
 import { useTournaments } from "@/hooks/queries";
 import type { Tournament } from "@/types";
+import ServerPagination from "@/components/custom/ServerPagination";
 
 function formatDateRange(start?: string, end?: string) {
   if (!start) return "TBD";
@@ -14,10 +15,12 @@ function formatDateRange(start?: string, end?: string) {
 
 export default function TournamentListing() {
   const [query, setQuery] = useState("");
-  const [page] = useState(1);
-  const [limit] = useState(50);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
-  const { data: apiTournaments = [], isLoading } = useTournaments(page, limit);
+  const { data, isLoading } = useTournaments(page, limit);
+  const apiTournaments = data?.tournaments || [];
+  const pagination = data?.pagination;
 
   const filtered = useMemo(() => {
     let items = apiTournaments.slice();
@@ -62,51 +65,70 @@ export default function TournamentListing() {
           <p className="text-muted-foreground">No tournaments found.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {filtered.map((t: Tournament) => {
-            const participants =
-              t.categories?.reduce((sum, cat) => sum + (cat.maxEntries || 0), 0) ?? 0;
-            return (
-              <Link
-                key={t.id}
-                to={`/tournaments/${t.id}`}
-                className="group flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-xl border border-border bg-card p-5 hover:border-primary/50 transition-colors"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="rounded bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
-                      {t.status}
-                    </span>
-                    {t.tier && (
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        Tier {t.tier}
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {filtered.map((t: Tournament) => {
+              const participants =
+                t.categories?.reduce((sum, cat) => sum + (cat.maxEntries || 0), 0) ?? 0;
+              return (
+                <Link
+                  key={t.id}
+                  to={`/tournaments/${t.id}`}
+                  className="group flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-xl border border-border bg-card p-5 hover:border-primary/50 transition-colors"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="rounded bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                        {t.status}
                       </span>
-                    )}
-                  </div>
-                  <h3 className="truncate text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-                    {t.name}
-                  </h3>
-                  <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground font-medium">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5" />
-                      <span>{formatDateRange(t.startDate, t.endDate)}</span>
+                      {t.tier && (
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Tier {t.tier}
+                        </span>
+                      )}
                     </div>
-                    {t.location && (
+                    <h3 className="truncate text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+                      {t.name}
+                    </h3>
+                    <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground font-medium">
                       <div className="flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5" />
-                        <span>{t.location}</span>
+                        <Calendar className="h-3.5 w-3.5" />
+                        <span>{formatDateRange(t.startDate, t.endDate)}</span>
                       </div>
-                    )}
-                    <div className="flex items-center gap-1.5">
-                      <Users className="h-3.5 w-3.5" />
-                      <span>{participants} capacity</span>
+                      {t.location && (
+                        <div className="flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5" />
+                          <span>{t.location}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1.5">
+                        <Users className="h-3.5 w-3.5" />
+                        <span>{participants} capacity</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+                </Link>
+              );
+            })}
+          </div>
+          {pagination && (
+            <div className="mt-8">
+              <ServerPagination
+                skip={(page - 1) * limit}
+                limit={limit}
+                total={pagination.total}
+                hasNext={pagination.hasNextPage}
+                hasPrevious={pagination.hasPrevPage}
+                isLoading={isLoading}
+                onSkipChange={(nextSkip) => setPage(Math.floor(nextSkip / limit) + 1)}
+                onLimitChange={(nextLimit) => {
+                  setLimit(nextLimit);
+                  setPage(1);
+                }}
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

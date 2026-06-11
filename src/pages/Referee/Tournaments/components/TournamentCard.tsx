@@ -107,23 +107,21 @@ export default function TournamentCard({
               {tournament.status}
             </span>
             <span>
-              <Link
-                to={`/referee/tournaments/${tournament.id}`}
+              <span
                 className="inline-flex items-center gap-2 rounded-md bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
                 onClick={(e) => e.stopPropagation()}
               >
                 View details
-              </Link>
+              </span>
             </span>
           </div>
         ) : (
-          <Link
-            to={`/referee/tournaments/${tournament.id}`}
+          <span
             className="inline-flex items-center gap-2 rounded-md bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
             onClick={(e) => e.stopPropagation()}
           >
             View details
-          </Link>
+          </span>
         )}
       </div>
     </Link>

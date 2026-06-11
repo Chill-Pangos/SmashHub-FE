@@ -59,6 +59,13 @@ const extractCount = (source: unknown): number => {
     }
   }
 
+  if ("pagination" in source) {
+    const nested = extractCount(source.pagination);
+    if (nested > 0) {
+      return nested;
+    }
+  }
+
   for (const key of FALLBACK_METRIC_KEYS) {
     if (key in source) {
       const count = extractCount(source[key]);

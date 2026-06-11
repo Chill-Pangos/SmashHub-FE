@@ -19,7 +19,6 @@ export const useTournaments = (page = 1, limit = 10) => {
   return useQuery({
     queryKey: queryKeys.tournaments.list({ page, limit }),
     queryFn: () => tournamentService.getAllTournaments(page, limit),
-    select: (data) => data.tournaments,
   });
 };
 
