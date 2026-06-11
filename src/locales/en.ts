@@ -173,6 +173,7 @@ export default {
       title: "Referee Control",
       openSidebar: "Open referee sidebar",
       pendingInvitations: "Pending Invitations",
+      pendingMatches: "Pending Verification",
       assignedMatches: "Assigned Matches",
       invitations: "Invitations",
       approvals: "Approvals",
