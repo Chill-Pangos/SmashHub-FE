@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Search, Shield, ChevronRight, UserPlus, Settings, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import type { Tournament, TournamentCategory } from "@/types/tournament.types";
 import { useMyEntries, useEntriesByCategory } from "@/hooks/queries/useEntryQueries";
 
@@ -9,7 +10,7 @@ interface RegistrationTabProps {
   tournament: Tournament;
 }
 
-export default function RegistrationTab({ tournament }: RegistrationTabProps) {
+export default function RegistrationTab({ tournamentId, tournament }: RegistrationTabProps) {
   const categories = tournament?.categories || [];
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
     categories.length > 0 ? (categories[0].id || null) : null
@@ -21,9 +22,16 @@ export default function RegistrationTab({ tournament }: RegistrationTabProps) {
   const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
 
   // Check if user already has an entry for the selected category
-  const myEntryWithRole = myEntriesData?.rows?.find(
-    (row) => row.entry.categoryId === selectedCategoryId
+  const myEntryWithRoleRaw = myEntriesData?.rows?.find(
+    (row: any) => {
+      const catId = row.entry ? row.entry.categoryId : row.categoryId;
+      return catId === selectedCategoryId;
+    }
   );
+
+  const myEntryWithRole = myEntryWithRoleRaw 
+    ? (myEntryWithRoleRaw.entry ? myEntryWithRoleRaw : { entry: myEntryWithRoleRaw, role: myEntryWithRoleRaw.role || "member" })
+    : undefined;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -65,7 +73,7 @@ export default function RegistrationTab({ tournament }: RegistrationTabProps) {
       ) : myEntryWithRole ? (
         <ManageEntryView entryWithRole={myEntryWithRole} category={selectedCategory} />
       ) : (
-        <SearchAndJoinTeamView category={selectedCategory} />
+        <SearchAndJoinTeamView category={selectedCategory} tournamentId={tournamentId} />
       )}
     </div>
   );
@@ -148,7 +156,8 @@ function ManageEntryView({ entryWithRole, category }: { entryWithRole: any, cate
   );
 }
 
-function SearchAndJoinTeamView({ category }: { category: TournamentCategory }) {
+function SearchAndJoinTeamView({ category, tournamentId }: { category: TournamentCategory, tournamentId: number }) {
+  const navigate = useNavigate();
   const { data: teamsData, isLoading } = useEntriesByCategory(category.id || 0, 1, 50, { isAcceptingMembers: true });
   
   // Create a placeholder for single/double registration if it's not a team format
@@ -162,7 +171,10 @@ function SearchAndJoinTeamView({ category }: { category: TournamentCategory }) {
             <h3 className="font-bold text-primary">Need a Team?</h3>
             <p className="text-sm text-primary/80 mt-1">Join an existing team or create your own.</p>
           </div>
-          <button className="px-4 py-2 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-colors shadow-sm">
+          <button
+            onClick={() => navigate(`/tournaments/${tournamentId}/register`)}
+            className="px-4 py-2 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
+          >
             Create Team
           </button>
         </div>
@@ -172,7 +184,10 @@ function SearchAndJoinTeamView({ category }: { category: TournamentCategory }) {
         <div className="bg-primary/10 border border-primary/20 rounded-xl p-6 text-center">
           <h3 className="font-bold text-lg text-primary mb-2">Register for Singles</h3>
           <p className="text-sm text-primary/80 mb-4">You have not registered for this category yet.</p>
-          <button className="px-6 py-2.5 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-colors shadow-sm">
+          <button
+            onClick={() => navigate(`/tournaments/${tournamentId}/register`)}
+            className="px-6 py-2.5 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
+          >
             Register Now
           </button>
         </div>
@@ -232,7 +247,10 @@ function SearchAndJoinTeamView({ category }: { category: TournamentCategory }) {
                       </span>
                     </div>
                     
-                    <button className="w-full py-2 mt-2 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground font-bold flex items-center justify-center gap-2 transition-colors">
+                    <button 
+                      onClick={() => navigate(`/tournaments/${tournamentId}/register`)}
+                      className="w-full py-2 mt-2 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground font-bold flex items-center justify-center gap-2 transition-colors"
+                    >
                       Request to Join
                       <ChevronRight className="h-4 w-4" />
                     </button>
