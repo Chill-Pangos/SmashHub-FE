@@ -1,4 +1,4 @@
-import { Navigate, Route } from "react-router-dom";
+import { Route } from "react-router-dom";
 import RoleGuard from "@/components/custom/RoleGuard";
 import RefereeLayout from "@/layouts/RefereeLayout";
 import PendingInvitations from "@/pages/Referee/PendingInvitations";
@@ -7,6 +7,7 @@ import TournamentDetail from "@/pages/Referee/TournamentDetail";
 import Notifications from "@/pages/Referee/Notifications";
 import MatchExecution from "@/pages/Referee/MatchExecution/MatchExecution";
 import PendingMatchesGlobal from "@/pages/Referee/PendingMatchesGlobal";
+import RefereeDashboard from "@/pages/Referee/RefereeDashboard/RefereeDashboard";
 
 /**
  * Referee Routes
@@ -26,7 +27,7 @@ export default function RefereeRoutes() {
       >
         <Route
           path="/referee"
-          element={<Navigate to="/referee/invitations" replace />}
+          element={<RefereeDashboard />}
         />
         <Route path="/referee/invitations" element={<PendingInvitations />} />
         <Route path="/referee/tournaments" element={<Tournaments />} />

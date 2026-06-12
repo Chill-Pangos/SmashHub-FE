@@ -7,36 +7,29 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/store";
-import { useSearchTournaments } from "@/hooks/queries/useTournamentQueries";
-import { Trophy, Users, CheckCircle, Activity } from "lucide-react";
+import { useAthleteUpcomingMatches, useAthleteMatchHistory } from "@/hooks/queries/useMatchQueries";
+import { Trophy, Calendar, History, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import type { Tournament } from "@/types";
 
-export default function OrganizerDashboard() {
+export default function UserDashboard() {
   const { t } = useTranslation();
   const { user } = useAuth();
   
-  // Use search to find tournaments for this organizer
-  const { data: tournaments, isLoading } = useSearchTournaments(
-    { limit: 10, page: 1 },
-    { enabled: !!user?.id }
-  );
+  const { data: upcomingMatchesData, isLoading: isLoadingUpcoming } = useAthleteUpcomingMatches(user?.id || 0, 1, 5, { enabled: !!user?.id });
+  const { data: historyMatchesData, isLoading: isLoadingHistory } = useAthleteMatchHistory(user?.id || 0, 1, 5, { enabled: !!user?.id });
 
-  const totalTournaments = tournaments?.length || 0;
-  
-  // Example calculation for active vs completed. Assuming status 'IN_PROGRESS' or 'PUBLISHED' means active
-  const activeTournaments = tournaments?.filter((t: Tournament) => t.status === "ongoing" || t.status === "registration_open").length || 0;
-  const completedTournaments = tournaments?.filter((t: Tournament) => t.status === "completed").length || 0;
+  const upcomingMatchesCount = upcomingMatchesData?.count || 0;
+  const historyMatchesCount = historyMatchesData?.count || 0;
 
   return (
-    <div className="space-y-6 px-6 py-10">
+    <div className="space-y-6">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">
-          {t("organizer.dashboard.title", "Organizer Dashboard")}
+          {t("user.dashboard.title", "My Dashboard")}
         </h2>
         <p className="text-muted-foreground">
-          {t("organizer.dashboard.description", "Manage your tournaments and check performance.")}
+          {t("user.dashboard.description", "Welcome back, ")} {user?.firstName} {user?.lastName}
         </p>
       </div>
 
@@ -44,16 +37,16 @@ export default function OrganizerDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t("organizer.dashboard.totalTournaments", "Total Tournaments")}
+              {t("user.dashboard.eloRating", "Current ELO")}
             </CardTitle>
-            <Trophy className="h-4 w-4 text-muted-foreground" />
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoading ? "..." : totalTournaments}
+              {user?.eloScore || 1200}
             </div>
             <p className="text-xs text-muted-foreground">
-              {t("organizer.dashboard.created", "Created by you")}
+              {t("user.dashboard.rankingPoints", "Ranking points")}
             </p>
           </CardContent>
         </Card>
@@ -61,16 +54,16 @@ export default function OrganizerDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t("organizer.dashboard.activeTournaments", "Active Tournaments")}
+              {t("user.dashboard.upcomingMatches", "Upcoming Matches")}
             </CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoading ? "..." : activeTournaments}
+              {isLoadingUpcoming ? "..." : upcomingMatchesCount}
             </div>
             <p className="text-xs text-muted-foreground">
-              {t("organizer.dashboard.currentlyRunning", "Currently running or published")}
+              {t("user.dashboard.scheduledMatches", "Matches scheduled")}
             </p>
           </CardContent>
         </Card>
@@ -78,16 +71,16 @@ export default function OrganizerDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t("organizer.dashboard.completedTournaments", "Completed")}
+              {t("user.dashboard.matchesPlayed", "Matches Played")}
             </CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            <History className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoading ? "..." : completedTournaments}
+              {isLoadingHistory ? "..." : historyMatchesCount}
             </div>
             <p className="text-xs text-muted-foreground">
-              {t("organizer.dashboard.finished", "Successfully finished")}
+              {t("user.dashboard.totalHistorical", "Total matches finished")}
             </p>
           </CardContent>
         </Card>
@@ -95,14 +88,14 @@ export default function OrganizerDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t("organizer.dashboard.totalParticipants", "Total Participants")}
+              {t("user.dashboard.winRate", "Win Rate")}
             </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <Trophy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">--</div>
+            <div className="text-2xl font-bold">--%</div>
             <p className="text-xs text-muted-foreground">
-              {t("organizer.dashboard.acrossAll", "Across all tournaments")}
+              {t("user.dashboard.performance", "Overall performance")}
             </p>
           </CardContent>
         </Card>
@@ -111,22 +104,22 @@ export default function OrganizerDashboard() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>{t("organizer.dashboard.quickActions", "Quick Actions")}</CardTitle>
+            <CardTitle>{t("user.dashboard.quickActions", "Quick Actions")}</CardTitle>
             <CardDescription>
-              {t("organizer.dashboard.manageTournaments", "Manage your tournaments directly.")}
+              {t("user.dashboard.accessFeatures", "Quickly access main features.")}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
             <Button asChild variant="outline" className="justify-start">
-              <Link to="/organizer/tournaments/new">
+              <Link to="/tournaments">
                 <Trophy className="mr-2 h-4 w-4" />
-                {t("organizer.dashboard.createTournament", "Create Tournament")}
+                {t("user.dashboard.findTournaments", "Find Tournaments")}
               </Link>
             </Button>
             <Button asChild variant="outline" className="justify-start">
-              <Link to="/organizer/tournaments">
-                <Users className="mr-2 h-4 w-4" />
-                {t("organizer.dashboard.viewTournaments", "View Tournaments")}
+              <Link to="/profile">
+                <TrendingUp className="mr-2 h-4 w-4" />
+                {t("user.dashboard.viewProfile", "View Profile")}
               </Link>
             </Button>
           </CardContent>

@@ -20,6 +20,7 @@ import EloLeaderboard from "@/pages/PublicPlayer/EloLeaderboard";
 import EloHistory from "@/pages/PublicPlayer/EloHistory";
 import UserProfile from "@/pages/PublicPlayer/UserProfile";
 import Analytics from "@/pages/PublicPlayer/Analytics";
+import UserDashboard from "@/pages/PublicPlayer/UserDashboard/UserDashboard";
 
 /**
  * Public Routes
@@ -49,6 +50,7 @@ export default function PublicRoutes() {
 
         {/* Private portal routes */}
         <Route element={<PrivateLayout />}>
+          <Route path="dashboard" element={<UserDashboard />} />
           <Route path="profile" element={<UserProfile />} />
           <Route
             path="tournaments/:tournamentId/register"
