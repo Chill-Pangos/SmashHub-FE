@@ -298,6 +298,13 @@ export const proPlayerSidebarConfig: SidebarConfig = {
     {
       items: [
         {
+          key: "dashboard",
+          label: t("nav.dashboard") || "Dashboard",
+          to: "/dashboard",
+          icon: BarChart3,
+          end: true,
+        },
+        {
           key: "tournaments",
           label: t("nav.tournaments") || "Tournaments",
           to: "/tournaments",
