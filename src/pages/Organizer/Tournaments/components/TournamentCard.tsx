@@ -1,6 +1,18 @@
-import { Link } from "react-router-dom";
-import { Calendar, MapPin, Users } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Calendar, MapPin, Users, Edit, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { Tournament } from "@/types";
+import { useDeleteTournament } from "@/hooks/queries/useTournamentQueries";
 
 function formatDateRange(start?: string, end?: string) {
   if (!start) return "TBD";
@@ -43,9 +55,31 @@ export default function TournamentCard({
   const thumbnailUrl = getThumbnailUrl();
   const participants = getParticipants(tournament);
   const shortDescription = getShortDescription(tournament);
+  const deleteTournament = useDeleteTournament();
+  const navigate = useNavigate();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    deleteTournament.mutate(tournament.id);
+    setIsDeleteDialogOpen(false);
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/organizer/tournaments/${tournament.id}/edit`);
+  };
+
   return (
-    <Link
-      to={`/organizer/tournaments/${tournament.id}`}
+    <>
+      <Link
+        to={`/organizer/tournaments/${tournament.id}`}
       className={`group flex w-full items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm hover:shadow-md transition ${className}`}
       aria-label={tournament.name}
     >
@@ -121,24 +155,71 @@ export default function TournamentCard({
             <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
               {tournament.status}
             </span>
-            <span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleEdit}
+                className="inline-flex items-center justify-center rounded-md bg-secondary/10 p-1.5 text-secondary hover:bg-secondary/20 transition-colors"
+                title="Sửa"
+              >
+                <Edit className="h-4 w-4" />
+              </button>
+              <button
+                onClick={handleDeleteClick}
+                className="inline-flex items-center justify-center rounded-md bg-destructive/10 p-1.5 text-destructive hover:bg-destructive/20 transition-colors"
+                title="Xóa"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
               <span
                 className="inline-flex items-center gap-2 rounded-md bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
                 onClick={(e) => e.stopPropagation()}
               >
                 View details
               </span>
-            </span>
+            </div>
           </div>
         ) : (
-          <span
-            className="inline-flex items-center gap-2 rounded-md bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
-            onClick={(e) => e.stopPropagation()}
-          >
-            View details
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleEdit}
+              className="inline-flex items-center justify-center rounded-md bg-secondary/10 p-1.5 text-secondary hover:bg-secondary/20 transition-colors"
+              title="Sửa"
+            >
+              <Edit className="h-4 w-4" />
+            </button>
+            <button
+              onClick={handleDeleteClick}
+              className="inline-flex items-center justify-center rounded-md bg-destructive/10 p-1.5 text-destructive hover:bg-secondary/20 transition-colors"
+              title="Xóa"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+            <span
+              className="inline-flex items-center gap-2 rounded-md bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
+              onClick={(e) => e.stopPropagation()}
+            >
+              View details
+            </span>
+          </div>
         )}
       </div>
     </Link>
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xóa giải đấu</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa giải đấu <strong>{tournament.name}</strong> không? Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Hủy</AlertDialogCancel>
+            <AlertDialogAction onClick={(e) => { e.stopPropagation(); handleDeleteConfirm(); }} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
