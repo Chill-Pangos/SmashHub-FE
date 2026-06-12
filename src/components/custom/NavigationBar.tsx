@@ -14,6 +14,7 @@ import ThemeToggle from "./ThemeToggle";
 import LanguageSwitcher from "./LanguageSwitcher";
 import useScrollHide from "@/hooks/useScrollHide";
 import { useAuth } from "@/store/useAuth";
+import { getImageUrl } from "@/utils/api.utils";
 import { useRole } from "@/store/useRole";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -116,7 +117,7 @@ const NavigationBar = () => {
                   >
                     <Avatar className="h-10 w-10">
                       {user.avatarUrl && (
-                        <AvatarImage src={user.avatarUrl} alt={displayName} />
+                        <AvatarImage src={getImageUrl(user.avatarUrl)} alt={displayName} />
                       )}
                       <AvatarFallback className="bg-primary text-primary-foreground">
                         {getUserInitials(displayName)}

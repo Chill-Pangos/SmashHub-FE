@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/store/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useUpdateUserProfile, useUploadAvatar } from "@/hooks/queries/useUserQueries";
+import { getImageUrl } from "@/utils/api.utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,7 +91,7 @@ export default function UserProfile() {
               onClick={handleAvatarClick}
             >
               <Avatar className="h-32 w-32 border-4 border-background shadow-sm transition-opacity group-hover:opacity-80">
-                {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.firstName} />}
+                {user.avatarUrl && <AvatarImage src={getImageUrl(user.avatarUrl)} alt={user.firstName} />}
                 <AvatarFallback className="text-4xl bg-primary/10 text-primary">
                   {user.firstName?.[0]?.toUpperCase()}
                 </AvatarFallback>

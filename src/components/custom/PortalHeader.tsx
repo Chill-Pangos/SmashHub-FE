@@ -26,6 +26,7 @@ import { useAuth } from "@/store/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
 import { useRole } from "@/store/useRole";
+import { getImageUrl } from "@/utils/api.utils";
 import { ROUTE_META, PORTAL_FALLBACKS } from "@/config/headerBreadcrumbConfig";
 import type { User as AuthUser } from "@/types";
 
@@ -151,7 +152,7 @@ export default function PortalHeader() {
               >
                 <Avatar className="h-8 w-8">
                   {user?.avatarUrl ? (
-                    <AvatarImage src={user.avatarUrl} alt={profileLabel} />
+                    <AvatarImage src={getImageUrl(user.avatarUrl)} alt={profileLabel} />
                   ) : null}
                   <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
                     {initials ? (
