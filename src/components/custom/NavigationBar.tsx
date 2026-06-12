@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSwitcher from "./LanguageSwitcher";
 import useScrollHide from "@/hooks/useScrollHide";
@@ -115,6 +115,9 @@ const NavigationBar = () => {
                     className="relative h-10 w-10 rounded-full"
                   >
                     <Avatar className="h-10 w-10">
+                      {user.avatarUrl && (
+                        <AvatarImage src={user.avatarUrl} alt={displayName} />
+                      )}
                       <AvatarFallback className="bg-primary text-primary-foreground">
                         {getUserInitials(displayName)}
                       </AvatarFallback>

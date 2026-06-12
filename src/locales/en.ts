@@ -145,6 +145,24 @@ export default {
     contact: "Contact",
   },
 
+  profile: {
+    title: "User Profile",
+    avatarTitle: "Avatar",
+    avatarDesc: "Click to upload a new avatar.",
+    detailsTitle: "Profile Details",
+    detailsDesc: "Manage your personal information.",
+    firstName: "First Name",
+    lastName: "Last Name",
+    email: "Email",
+    phoneNumber: "Phone Number",
+    dob: "Date of Birth",
+    selectDate: "Select Date",
+    gender: "Gender",
+    selectGender: "Select gender",
+    male: "Male",
+    female: "Female",
+  },
+
   portal: {
     admin: {
       title: "Admin Control",

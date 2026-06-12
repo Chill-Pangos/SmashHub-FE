@@ -214,6 +214,29 @@ class UserService {
   }
 
   /**
+   * Upload user avatar
+   * POST /api/users/:id/avatar
+   */
+  async uploadAvatar(id: number, file: File): Promise<{ avatarUrl: string }> {
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    const response = await axiosInstance.post<{ avatarUrl: string }>(
+      `${this.baseURL}/${id}/avatar`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+
+    // Depending on interceptor, response.data could be { data: { avatarUrl: string } }
+    // but looking at extractUserFromResponse it seems standard Axios config
+    return response.data;
+  }
+
+  /**
    * Search users in a pagination-ready shape.
    * Supports both server pagination payloads and plain arrays.
    */
