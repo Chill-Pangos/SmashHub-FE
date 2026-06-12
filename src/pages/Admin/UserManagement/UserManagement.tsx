@@ -10,7 +10,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Edit2, Trash2, Plus, Search } from "lucide-react";
-import { useSearchUsersPaginated } from "@/hooks/queries/useUserQueries";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useSearchUsersPaginated, useUsersPaginated } from "@/hooks/queries/useUserQueries";
 import UserFormModal from "./components/UserFormModal";
 import DeleteUserDialog from "./components/DeleteUserDialog";
 import type { AdminUser } from "@/types/user.types";
@@ -18,7 +25,7 @@ import { Badge } from "@/components/ui/badge";
 
 export default function UserManagement() {
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const [limit, setLimit] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
@@ -26,11 +33,21 @@ export default function UserManagement() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
 
-  const { data, isLoading } = useSearchUsersPaginated(
+  const { data: listData, isLoading: isListLoading } = useUsersPaginated(
+    page,
+    limit,
+    { enabled: !debouncedQuery }
+  );
+
+  const { data: searchData, isLoading: isSearchLoading } = useSearchUsersPaginated(
     debouncedQuery,
     page,
-    limit
+    limit,
+    { enabled: !!debouncedQuery }
   );
+
+  const data = debouncedQuery ? searchData : listData;
+  const isLoading = debouncedQuery ? isSearchLoading : isListLoading;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,11 +70,12 @@ export default function UserManagement() {
     setDeleteOpen(true);
   };
 
+  // The service layer's parsePaginatedResponse transforms the raw API {users, pagination} into {items, meta}
   const users = data?.items || [];
   const pagination = data?.meta;
 
   return (
-    <div className="px-6 py-10 max-w-7xl mx-auto flex flex-col gap-6">
+    <div className="p-6 h-full w-full flex-1 flex flex-col gap-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
@@ -183,16 +201,34 @@ export default function UserManagement() {
           </Table>
         </div>
 
-        {pagination && pagination.totalPages > 1 && (
-          <div className="p-4 border-t flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              Showing <span className="font-medium">{(page - 1) * limit + 1}</span> to{" "}
-              <span className="font-medium">
-                {Math.min(page * limit, pagination.total)}
-              </span>{" "}
-              of <span className="font-medium">{pagination.total}</span> users
-            </p>
-            <div className="flex gap-2">
+        {pagination && pagination.totalPages > 0 && (
+          <div className="p-4 border-t flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-muted-foreground whitespace-nowrap">Rows per page:</p>
+              <Select
+                value={limit.toString()}
+                onValueChange={(val) => {
+                  setLimit(Number(val));
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="h-8 w-[70px]">
+                  <SelectValue placeholder={limit} />
+                </SelectTrigger>
+                <SelectContent side="top">
+                  {[10, 20, 50, 100].map((pageSize) => (
+                    <SelectItem key={pageSize} value={`${pageSize}`}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-muted-foreground whitespace-nowrap ml-4">
+                Showing {(page - 1) * limit + 1} to {Math.min(page * limit, pagination.total)} of {pagination.total} users
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -201,6 +237,30 @@ export default function UserManagement() {
               >
                 Previous
               </Button>
+              
+              <div className="flex items-center gap-1 hidden sm:flex">
+                {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                  let pageNum = page - 2 + i;
+                  if (page < 3) pageNum = i + 1;
+                  else if (page > pagination.totalPages - 2) pageNum = pagination.totalPages - 4 + i;
+                  
+                  if (pageNum > 0 && pageNum <= pagination.totalPages) {
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={page === pageNum ? "default" : "outline"}
+                        size="sm"
+                        className="w-8 h-8 p-0"
+                        onClick={() => setPage(pageNum)}
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+
               <Button
                 variant="outline"
                 size="sm"
@@ -209,6 +269,32 @@ export default function UserManagement() {
               >
                 Next
               </Button>
+
+              <div className="flex items-center gap-2 ml-2">
+                <span className="text-sm text-muted-foreground hidden sm:inline">Go to:</span>
+                <Input
+                  type="number"
+                  min={1}
+                  max={pagination.totalPages}
+                  className="h-8 w-16"
+                  defaultValue={page}
+                  key={page}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const val = Number((e.currentTarget as HTMLInputElement).value);
+                      if (val >= 1 && val <= pagination.totalPages) {
+                        setPage(val);
+                      }
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const val = Number(e.currentTarget.value);
+                    if (val >= 1 && val <= pagination.totalPages) {
+                      setPage(val);
+                    }
+                  }}
+                />
+              </div>
             </div>
           </div>
         )}
