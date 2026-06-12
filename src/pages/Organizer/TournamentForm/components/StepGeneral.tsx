@@ -12,6 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { DatePicker } from "@/components/ui/date-picker";
+import type { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 import { Info, Users, Trash2, Plus, AlertCircle } from "lucide-react";
 
 const DEFAULT_CATEGORY: CategoryFormState = {
@@ -203,6 +207,49 @@ export const StepGeneral: React.FC<StepProps> = ({
     updateData({ categories: currentCategories });
   };
 
+  const handleTournamentDateRangeChange = (range: DateRange | undefined) => {
+    if (!range) {
+      updateData({ startDate: "", endDate: "" });
+      return;
+    }
+    updateData({
+      startDate: range.from ? format(range.from, "yyyy-MM-dd") : "",
+      endDate: range.to ? format(range.to, "yyyy-MM-dd") : "",
+    });
+  };
+
+  const tournamentDateRange: DateRange | undefined =
+    data.startDate || data.endDate
+      ? {
+          from: data.startDate ? new Date(data.startDate) : undefined,
+          to: data.endDate ? new Date(data.endDate) : undefined,
+        }
+      : undefined;
+
+  const handleRegistrationDateRangeChange = (range: DateRange | undefined) => {
+    if (!range) {
+      updateData({ registrationStartDate: "", registrationEndDate: "" });
+      return;
+    }
+    updateData({
+      registrationStartDate: range.from ? format(range.from, "yyyy-MM-dd'T'00:00") : "",
+      registrationEndDate: range.to ? format(range.to, "yyyy-MM-dd'T'23:59") : "",
+    });
+  };
+
+  const registrationDateRange: DateRange | undefined =
+    data.registrationStartDate || data.registrationEndDate
+      ? {
+          from: data.registrationStartDate ? new Date(data.registrationStartDate) : undefined,
+          to: data.registrationEndDate ? new Date(data.registrationEndDate) : undefined,
+        }
+      : undefined;
+
+  const bracketDate = data.bracketGenerationDate ? new Date(data.bracketGenerationDate) : undefined;
+  const handleBracketDateChange = (date: Date | undefined) => {
+    updateData({ bracketGenerationDate: date ? format(date, "yyyy-MM-dd") : "" });
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Tournament Details */}
@@ -248,8 +295,8 @@ export const StepGeneral: React.FC<StepProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2 md:col-span-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
             <Label className="text-xs font-semibold text-muted-foreground uppercase">
               {t("tournamentManager.createTournamentForm.general.location")}
             </Label>
@@ -262,60 +309,35 @@ export const StepGeneral: React.FC<StepProps> = ({
           </div>
           <div className="space-y-2">
             <Label className="text-xs font-semibold text-muted-foreground uppercase">
-              {t("tournamentManager.createTournamentForm.general.startDate")}
+              Thời gian diễn ra
             </Label>
-            <Input
-              type="date"
-              value={data.startDate || ""}
-              onChange={(e) => updateData({ startDate: e.target.value })}
-              className="bg-input/50"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase">
-              {t("tournamentManager.createTournamentForm.general.endDate")}
-            </Label>
-            <Input
-              type="date"
-              value={data.endDate || ""}
-              onChange={(e) => updateData({ endDate: e.target.value })}
-              className="bg-input/50"
+            <DateRangePicker
+              date={tournamentDateRange}
+              setDate={handleTournamentDateRangeChange}
+              placeholder="Chọn ngày bắt đầu và kết thúc"
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-xs font-semibold text-muted-foreground uppercase">
-              Mở đăng ký
+              Thời gian đăng ký
             </Label>
-            <Input
-              type="datetime-local"
-              value={data.registrationStartDate || ""}
-              onChange={(e) => updateData({ registrationStartDate: e.target.value })}
-              className="bg-input/50"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase">
-              Đóng đăng ký
-            </Label>
-            <Input
-              type="datetime-local"
-              value={data.registrationEndDate || ""}
-              onChange={(e) => updateData({ registrationEndDate: e.target.value })}
-              className="bg-input/50"
+            <DateRangePicker
+              date={registrationDateRange}
+              setDate={handleRegistrationDateRangeChange}
+              placeholder="Chọn ngày mở và đóng đăng ký"
             />
           </div>
           <div className="space-y-2">
             <Label className="text-xs font-semibold text-muted-foreground uppercase">
               Ngày tạo Bracket
             </Label>
-            <Input
-              type="date"
-              value={data.bracketGenerationDate || ""}
-              onChange={(e) => updateData({ bracketGenerationDate: e.target.value })}
-              className="bg-input/50"
+            <DatePicker
+              date={bracketDate}
+              setDate={handleBracketDateChange}
+              placeholder="Chọn ngày chốt Bracket"
             />
           </div>
         </div>
