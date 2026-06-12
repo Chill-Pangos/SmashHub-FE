@@ -63,7 +63,7 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
     };
 
     try {
-      showToast.loading(t("tournamentManager.createTournamentForm.review.initializing"));
+      const toastId = showToast.loading(t("tournamentManager.createTournamentForm.review.initializing"));
       const tournamentRes = await createTournament.mutateAsync(payload);
 
       const parseTimeToMinutes = (timeStr: string) => {
@@ -96,10 +96,12 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
         notes: data.schedule.notes || "",
       });
 
+      showToast.dismiss(toastId);
       showToast.success(t("tournamentManager.createTournamentForm.review.successAlert"));
 
       navigate("/organizer/tournaments");
     } catch (error) {
+      showToast.dismiss(); // dismiss all loading toasts just in case
       showApiError(error);
     }
   };
