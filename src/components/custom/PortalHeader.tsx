@@ -103,6 +103,18 @@ export default function PortalHeader() {
   const profileLabel = user ? displayName : t("nav.profile");
   const routeMeta = resolveRouteMeta(pathname, t);
 
+  const handleProfileClick = () => {
+    if (pathname.startsWith("/organizer")) {
+      navigate("/organizer/profile");
+    } else if (pathname.startsWith("/admin")) {
+      navigate("/admin/profile");
+    } else if (pathname.startsWith("/referee")) {
+      navigate("/referee/profile");
+    } else {
+      navigate("/profile");
+    }
+  };
+
   const roleNames = getRoleNames(user?.roles ?? []);
   const roleDisplayNames = getRoleDisplayNames(roleNames);
 
@@ -186,7 +198,7 @@ export default function PortalHeader() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate("/profile")}>
+              <DropdownMenuItem onClick={handleProfileClick}>
                 <User className="mr-2 h-4 w-4" />
                 <span>{t("nav.profile")}</span>
               </DropdownMenuItem>

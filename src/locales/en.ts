@@ -143,6 +143,9 @@ export default {
     help: "Help",
     about: "About",
     contact: "Contact",
+    analytics: "Analytics",
+    team: "My Team",
+    eloHistory: "Elo History",
   },
 
   profile: {

@@ -143,6 +143,9 @@ export default {
     help: "Trợ giúp",
     about: "Giới thiệu",
     contact: "Liên hệ",
+    analytics: "Phân tích",
+    team: "Đội của tôi",
+    eloHistory: "Lịch sử ELO",
   },
 
   profile: {

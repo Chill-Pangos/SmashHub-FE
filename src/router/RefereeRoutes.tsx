@@ -8,6 +8,7 @@ import Notifications from "@/pages/Referee/Notifications";
 import MatchExecution from "@/pages/Referee/MatchExecution/MatchExecution";
 import PendingMatchesGlobal from "@/pages/Referee/PendingMatchesGlobal";
 import RefereeDashboard from "@/pages/Referee/RefereeDashboard/RefereeDashboard";
+import UserProfile from "@/pages/PublicPlayer/UserProfile/UserProfile";
 
 /**
  * Referee Routes
@@ -38,6 +39,7 @@ export default function RefereeRoutes() {
         <Route path="/referee/matches/:matchId" element={<MatchExecution />} />
         <Route path="/referee/pending-matches" element={<PendingMatchesGlobal />} />
         <Route path="/referee/notifications" element={<Notifications />} />
+        <Route path="/referee/profile" element={<UserProfile />} />
       </Route>
     </>
   );

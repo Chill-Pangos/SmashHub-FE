@@ -14,6 +14,7 @@ import {
   Gamepad2,
   TrendingUp,
   History,
+  User,
 } from "lucide-react";
 
 export type PortalSidebarItem = {
@@ -115,6 +116,12 @@ export const organizerSidebarConfig: SidebarConfig = {
   }),
   footerItems: (t, logout) => [
     {
+      key: "profile",
+      label: t("nav.profile") || "Profile",
+      to: "/organizer/profile",
+      icon: User,
+    },
+    {
       key: "logout",
       label: t("auth.signOut"),
       onClick: logout,
@@ -183,6 +190,12 @@ export const adminSidebarConfig: SidebarConfig = {
   ],
   footerItems: (t, logout) => [
     {
+      key: "profile",
+      label: t("nav.profile") || "Profile",
+      to: "/admin/profile",
+      icon: User,
+    },
+    {
       key: "logout",
       label: t("auth.signOut"),
       onClick: logout,
@@ -226,6 +239,12 @@ export const refereeSidebarConfig: SidebarConfig = {
     },
   ],
   footerItems: (t, logout) => [
+    {
+      key: "profile",
+      label: t("nav.profile") || "Profile",
+      to: "/referee/profile",
+      icon: User,
+    },
     {
       key: "logout",
       label: t("auth.signOut"),
@@ -276,6 +295,12 @@ export const chiefRefereeSidebarConfig: SidebarConfig = {
     },
   ],
   footerItems: (t, logout) => [
+    {
+      key: "profile",
+      label: t("nav.profile") || "Profile",
+      to: "/referee/profile",
+      icon: User,
+    },
     {
       key: "logout",
       label: t("auth.signOut"),
@@ -344,6 +369,12 @@ export const proPlayerSidebarConfig: SidebarConfig = {
     },
   ],
   footerItems: (t, logout) => [
+    {
+      key: "profile",
+      label: t("nav.profile") || "Profile",
+      to: "/profile",
+      icon: User,
+    },
     {
       key: "logout",
       label: t("auth.signOut") || "Sign Out",
