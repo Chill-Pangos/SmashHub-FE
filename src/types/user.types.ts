@@ -16,11 +16,8 @@ export interface CreateUserRequest {
   email: string;
   password: string;
   gender?: string | null;
-  avatarUrl?: string | null;
   dob?: string | null;
   phoneNumber?: string | null;
-  isEmailVerified?: boolean;
-  roles?: number[];
 }
 
 /**
@@ -33,7 +30,6 @@ export interface UpdateUserRequest {
   email?: string;
   password?: string;
   gender?: string | null;
-  avatarUrl?: string | null;
   dob?: string | null;
   phoneNumber?: string | null;
 }

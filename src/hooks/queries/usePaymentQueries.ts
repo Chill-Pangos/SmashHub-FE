@@ -2,11 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { paymentService } from "@/services";
 import { queryKeys } from "./queryKeys";
 import type {
-  ConfirmPaymentRequest,
-  CreateCashPaymentRequest,
-  CreateOnlinePaymentRequest,
   CreatePaymentRequest,
-  UpdatePaymentProofRequest,
 } from "@/types/payment.types";
 
 export const usePaymentsByEntry = (
@@ -105,42 +101,12 @@ export const useCreatePayment = () => {
   });
 };
 
-export const useCreateCashPayment = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: CreateCashPaymentRequest) =>
-      paymentService.createCashPayment(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.payments.all });
-    },
-  });
-};
-
-export const useCreateOnlinePayment = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: CreateOnlinePaymentRequest) =>
-      paymentService.createOnlinePayment(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.payments.all });
-    },
-  });
-};
-
 export const useConfirmPayment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      paymentId,
-      data,
-    }: {
-      paymentId: number;
-      data: ConfirmPaymentRequest;
-    }) => paymentService.confirmPayment(paymentId, data),
-    onSuccess: (_result, { paymentId }) => {
+    mutationFn: (paymentId: number) => paymentService.confirmPayment(paymentId),
+    onSuccess: (_result, paymentId) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.payments.detail(paymentId),
       });
@@ -167,8 +133,9 @@ export const useRefundPayment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (paymentId: number) => paymentService.refundPayment(paymentId),
-    onSuccess: (_result, paymentId) => {
+    mutationFn: ({ paymentId, file }: { paymentId: number; file: File }) =>
+      paymentService.refundPayment(paymentId, file),
+    onSuccess: (_result, { paymentId }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.payments.detail(paymentId),
       });
@@ -181,13 +148,8 @@ export const useUpdatePaymentProof = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      paymentId,
-      data,
-    }: {
-      paymentId: number;
-      data: UpdatePaymentProofRequest;
-    }) => paymentService.updatePaymentProof(paymentId, data),
+    mutationFn: ({ paymentId, file }: { paymentId: number; file: File }) =>
+      paymentService.updatePaymentProof(paymentId, file),
     onSuccess: (_result, { paymentId }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.payments.detail(paymentId),

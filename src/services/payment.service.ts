@@ -1,13 +1,9 @@
 import axiosInstance from "@/config/axiosConfig";
 import type {
-  ConfirmPaymentRequest,
-  CreateCashPaymentRequest,
-  CreateOnlinePaymentRequest,
   CreatePaymentRequest,
   GetPaymentsResponse,
   PaymentResponse,
   PaymentStatisticsResponse,
-  UpdatePaymentProofRequest,
 } from "@/types/payment.types";
 
 class PaymentService {
@@ -16,26 +12,6 @@ class PaymentService {
   async createPayment(data: CreatePaymentRequest): Promise<PaymentResponse> {
     const response = await axiosInstance.post<PaymentResponse>(
       this.baseURL,
-      data,
-    );
-    return response.data;
-  }
-
-  async createCashPayment(
-    data: CreateCashPaymentRequest,
-  ): Promise<PaymentResponse> {
-    const response = await axiosInstance.post<PaymentResponse>(
-      `${this.baseURL}/record-cash`,
-      data,
-    );
-    return response.data;
-  }
-
-  async createOnlinePayment(
-    data: CreateOnlinePaymentRequest,
-  ): Promise<PaymentResponse> {
-    const response = await axiosInstance.post<PaymentResponse>(
-      `${this.baseURL}/record-online`,
       data,
     );
     return response.data;
@@ -99,11 +75,9 @@ class PaymentService {
 
   async confirmPayment(
     paymentId: number,
-    data: ConfirmPaymentRequest,
   ): Promise<PaymentResponse> {
     const response = await axiosInstance.post<PaymentResponse>(
       `${this.baseURL}/${paymentId}/confirm`,
-      data,
     );
     return response.data;
   }
@@ -115,20 +89,37 @@ class PaymentService {
     return response.data;
   }
 
-  async refundPayment(paymentId: number): Promise<PaymentResponse> {
+  async refundPayment(paymentId: number, refundProof: File): Promise<PaymentResponse> {
+    const formData = new FormData();
+    formData.append("refundProof", refundProof);
+
     const response = await axiosInstance.post<PaymentResponse>(
       `${this.baseURL}/${paymentId}/refund`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
     );
     return response.data;
   }
 
   async updatePaymentProof(
     paymentId: number,
-    data: UpdatePaymentProofRequest,
+    file: File,
   ): Promise<PaymentResponse> {
+    const formData = new FormData();
+    formData.append("proof", file);
+
     const response = await axiosInstance.put<PaymentResponse>(
       `${this.baseURL}/${paymentId}/proof`,
-      data,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
     );
     return response.data;
   }
