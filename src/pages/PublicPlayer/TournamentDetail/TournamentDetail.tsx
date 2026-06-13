@@ -7,6 +7,7 @@ import {
   OverviewTab,
   ScheduleTab,
   RegistrationTab,
+  PaymentTab,
 } from "@/pages/PublicPlayer/TournamentDetail/TournamentDetailTabs";
 import { useTranslation } from "react-i18next";
 
@@ -28,6 +29,7 @@ export default function TournamentDetail() {
     t("publicPlayer.tournamentDetail.overview", "Overview"),
     t("publicPlayer.tournamentDetail.scheduleTab.title", "Schedule"),
     t("publicPlayer.tournamentDetail.registrationTab.title", "Registration"),
+    t("publicPlayer.paymentTab.title", "Payment"),
   ];
 
   if (isLoading) {
@@ -73,6 +75,9 @@ export default function TournamentDetail() {
     }
     if (activeTab === t("publicPlayer.tournamentDetail.registrationTab.title", "Registration")) {
       return <RegistrationTab tournamentId={id} tournament={tournament} />;
+    }
+    if (activeTab === t("publicPlayer.paymentTab.title", "Payment")) {
+      return <PaymentTab tournamentId={id} tournament={tournament} />;
     }
     return null;
   };

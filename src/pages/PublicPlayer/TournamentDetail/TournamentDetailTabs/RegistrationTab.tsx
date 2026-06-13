@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Search, Shield, ChevronRight, UserPlus, Settings, LogOut } from "lucide-react";
+import { Search, Shield, ChevronRight, UserPlus, Settings, LogOut, CreditCard, CheckCircle2, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Tournament, TournamentCategory } from "@/types/tournament.types";
-import { useMyEntries, useEntriesByCategory } from "@/hooks/queries/useEntryQueries";
+import { useMyEntries, useEntriesByCategory, useConfirmLineup } from "@/hooks/queries/useEntryQueries";
+import { usePaymentsByEntry } from "@/hooks/queries/usePaymentQueries";
 import { useTranslation } from "react-i18next";
 
 
@@ -86,6 +87,35 @@ function ManageEntryView({ entryWithRole, category }: { entryWithRole: any, cate
   const { entry, role } = entryWithRole;
   const isCaptain = role === "captain";
 
+  const confirmLineupMutation = useConfirmLineup();
+
+  // Payment status for this entry
+  const { data: paymentsResponse } = usePaymentsByEntry(entry.id, 1, 5);
+  const latestPayment = paymentsResponse?.data?.rows?.[0];
+  const paymentStatus = latestPayment?.status;
+
+  const handleConfirmLineup = () => {
+    confirmLineupMutation.mutate(entry.id);
+  };
+
+  const paymentStatusBadge = () => {
+    if (!paymentStatus) return null;
+    const config: Record<string, { color: string; label: string }> = {
+      pending: { color: "text-orange-500 bg-orange-500/10 border-orange-500/20", label: t("publicPlayer.paymentTab.statusPending", "Payment Pending") },
+      completed: { color: "text-green-500 bg-green-500/10 border-green-500/20", label: t("publicPlayer.paymentTab.statusCompleted", "Payment Confirmed") },
+      failed: { color: "text-destructive bg-destructive/10 border-destructive/20", label: t("publicPlayer.paymentTab.statusFailed", "Payment Rejected") },
+      refunded: { color: "text-blue-500 bg-blue-500/10 border-blue-500/20", label: t("publicPlayer.paymentTab.statusRefunded", "Refunded") },
+    };
+    const info = config[paymentStatus];
+    if (!info) return null;
+    return (
+      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${info.color}`}>
+        <CreditCard className="w-3 h-3" />
+        {info.label}
+      </span>
+    );
+  };
+
   return (
     <div className="rounded-xl border border-border bg-card p-6 shadow-sm space-y-6">
       <div className="flex justify-between items-start">
@@ -95,8 +125,11 @@ function ManageEntryView({ entryWithRole, category }: { entryWithRole: any, cate
             {t("publicPlayer.tournamentDetail.categories").replace("ies", "y")}: {category.name}
           </p>
         </div>
-        <div className="px-3 py-1 rounded bg-secondary text-secondary-foreground text-xs font-bold uppercase tracking-wider">
-          {role}
+        <div className="flex items-center gap-2">
+          {paymentStatusBadge()}
+          <div className="px-3 py-1 rounded bg-secondary text-secondary-foreground text-xs font-bold uppercase tracking-wider">
+            {role}
+          </div>
         </div>
       </div>
 
@@ -139,9 +172,25 @@ function ManageEntryView({ entryWithRole, category }: { entryWithRole: any, cate
             <button className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg text-sm font-medium hover:bg-secondary/80 transition-colors">
               <Settings className="w-4 h-4" /> {t("publicPlayer.tournamentDetail.registrationTab.editTeam")}
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
-              <Shield className="w-4 h-4" /> {t("publicPlayer.tournamentDetail.registrationTab.confirmPay")}
-            </button>
+            {!entry.isConfirmed ? (
+              <button
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+                onClick={handleConfirmLineup}
+                disabled={confirmLineupMutation.isPending}
+              >
+                {confirmLineupMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Shield className="w-4 h-4" />
+                )}
+                {t("publicPlayer.tournamentDetail.registrationTab.confirmLineup", "Confirm Lineup")}
+              </button>
+            ) : (
+              <span className="flex items-center gap-2 px-4 py-2 bg-green-500/10 text-green-500 border border-green-500/20 rounded-lg text-sm font-medium">
+                <CheckCircle2 className="w-4 h-4" />
+                {t("publicPlayer.tournamentDetail.registrationTab.lineupConfirmed", "Lineup Confirmed")}
+              </span>
+            )}
             <button className="flex items-center gap-2 px-4 py-2 border border-destructive/50 text-destructive rounded-lg text-sm font-medium hover:bg-destructive hover:text-destructive-foreground transition-colors ml-auto">
               <LogOut className="w-4 h-4" /> {t("publicPlayer.tournamentDetail.registrationTab.leaveTeam")}
             </button>

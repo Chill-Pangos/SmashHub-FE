@@ -11,6 +11,7 @@ import {
   RefereeManagement,
   ScheduleConfig,
   ScheduleTab,
+  PaymentManagement,
 } from "@/pages/Organizer/Tournaments/TournamentDetailTabs";
 
 
@@ -42,6 +43,7 @@ export default function TournamentDetail() {
     "Overview",
     "Referees",
     "Entries",
+    "Payments",
     "Schedule",
     "Schedule Config",
   ];
@@ -89,6 +91,8 @@ export default function TournamentDetail() {
         return <RefereeManagement tournamentId={id} />;
       case "Entries":
         return <EntriesManagement tournamentId={id} />;
+      case "Payments":
+        return <PaymentManagement tournamentId={id} />;
       case "Schedule":
         return <ScheduleTab tournamentId={id} tournament={tournament} />;
       case "Schedule Config":
