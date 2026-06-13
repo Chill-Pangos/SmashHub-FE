@@ -11,6 +11,8 @@ import ChangePassword from "@/pages/Auth/ChangePassword/ChangePassword";
 import Landing from "@/pages/PublicPlayer/Landing";
 import TournamentListing from "@/pages/PublicPlayer/TournamentListing";
 import TournamentDetail from "@/pages/PublicPlayer/TournamentDetail/TournamentDetail";
+import PublicTournamentListing from "@/pages/PublicPlayer/TournamentListing/PublicTournamentListing";
+import PublicTournamentDetail from "@/pages/PublicPlayer/TournamentDetail/PublicTournamentDetail";
 import EntryRegistration from "@/pages/PublicPlayer/EntryRegistration";
 import TeamManagement from "@/pages/PublicPlayer/TeamManagement";
 import Checkout from "@/pages/PublicPlayer/Checkout";
@@ -22,6 +24,33 @@ import UserProfile from "@/pages/PublicPlayer/UserProfile";
 import Analytics from "@/pages/PublicPlayer/Analytics";
 import UserDashboard from "@/pages/PublicPlayer/UserDashboard/UserDashboard";
 import ChatbotScreen from "@/pages/Shared/Chatbot/ChatbotScreen";
+import { useAuth } from "@/store/useAuth";
+
+const TournamentsRouteWrapper = () => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? (
+    <ProPlayerLayout>
+      <TournamentListing />
+    </ProPlayerLayout>
+  ) : (
+    <PublicLayout>
+      <PublicTournamentListing />
+    </PublicLayout>
+  );
+};
+
+const TournamentDetailRouteWrapper = () => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? (
+    <ProPlayerLayout>
+      <TournamentDetail />
+    </ProPlayerLayout>
+  ) : (
+    <PublicLayout>
+      <PublicTournamentDetail />
+    </PublicLayout>
+  );
+};
 
 /**
  * Public Routes
@@ -38,14 +67,16 @@ export default function PublicRoutes() {
         <Route path="reset-password" element={<ResetPassword />} />
         <Route path="verify-email" element={<EmailVerification />} />
       </Route>
+
+      {/* Conditionally rendered layouts for tournaments based on auth status */}
+      <Route path="tournaments" element={<TournamentsRouteWrapper />} />
+      <Route
+        path="tournaments/:tournamentId"
+        element={<TournamentDetailRouteWrapper />}
+      />
+
       {/* Routes utilizing the Pro Player Portal layout */}
       <Route element={<ProPlayerLayout />}>
-        {/* Public portal routes */}
-        <Route path="tournaments" element={<TournamentListing />} />
-        <Route
-          path="tournaments/:tournamentId"
-          element={<TournamentDetail />}
-        />
         <Route path="brackets" element={<BracketsStandings />} />
         <Route path="elo" element={<EloLeaderboard />} />
 

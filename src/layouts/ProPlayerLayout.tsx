@@ -9,7 +9,11 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { proPlayerSidebarConfig } from "@/config/sidebarConfigs";
 import PortalHeader from "@/components/custom/PortalHeader";
 
-export default function ProPlayerLayout() {
+interface ProPlayerLayoutProps {
+  children?: React.ReactNode;
+}
+
+export default function ProPlayerLayout({ children }: ProPlayerLayoutProps) {
   const { t } = useTranslation();
   const { logout } = useAuthOperations();
 
@@ -40,7 +44,7 @@ export default function ProPlayerLayout() {
           <div className="mb-6">
             <PortalHeader />
           </div>
-          <Outlet />
+          {children || <Outlet />}
         </div>
       </main>
     </div>

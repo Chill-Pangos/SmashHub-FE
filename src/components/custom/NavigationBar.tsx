@@ -20,12 +20,21 @@ import { useAuthOperations } from "@/hooks/useAuthOperations";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { User as AuthUser } from "@/types";
 
-const getNavItems = (t: (key: string) => string) => [
-  { name: t("nav.home"), to: "/" },
-  { name: t("nav.tournaments"), to: "/tournaments" },
-  { name: t("nav.brackets"), to: "/brackets" },
-  { name: t("nav.elo"), to: "/elo" },
-];
+const getNavItems = (t: (key: string) => string, isAuthenticated: boolean) => {
+  const items = [
+    { name: t("nav.home"), to: "/" },
+    { name: t("nav.tournaments"), to: "/tournaments" },
+  ];
+  
+  if (isAuthenticated) {
+    items.push(
+      { name: t("nav.brackets"), to: "/brackets" },
+      { name: t("nav.elo"), to: "/elo" }
+    );
+  }
+  
+  return items;
+};
 
 const NavigationBar = () => {
   const { t } = useTranslation();
@@ -35,7 +44,7 @@ const NavigationBar = () => {
     useRole();
   const { logout } = useAuthOperations();
   const navigate = useNavigate();
-  const navItems = getNavItems(t);
+  const navItems = getNavItems(t, isAuthenticated);
 
   const handleLogout = async () => {
     await logout();

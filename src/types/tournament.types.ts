@@ -78,6 +78,7 @@ export interface CreateTournamentContentRequest {
 export interface Tournament {
   id: number;
   name: string;
+  introduction?: string | null;
   tier?: number;
   status: TournamentStatus;
   startDate: string;
