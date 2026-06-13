@@ -15,6 +15,7 @@ import {
   TrendingUp,
   History,
   User,
+  Bot,
 } from "lucide-react";
 
 export type PortalSidebarItem = {
@@ -105,6 +106,12 @@ export const organizerSidebarConfig: SidebarConfig = {
           to: "/organizer/categories",
           icon: BadgeCheck,
         },
+        {
+          key: "chatbot",
+          label: t("nav.chatbot") || "AI Assistant",
+          to: "/organizer/chatbot",
+          icon: Bot,
+        },
       ],
     },
   ],
@@ -185,6 +192,12 @@ export const adminSidebarConfig: SidebarConfig = {
           to: "/admin/notifications",
           icon: Bell,
         },
+        {
+          key: "chatbot",
+          label: t("nav.chatbot") || "AI Assistant",
+          to: "/admin/chatbot",
+          icon: Bot,
+        },
       ],
     },
   ],
@@ -234,6 +247,12 @@ export const refereeSidebarConfig: SidebarConfig = {
           label: t("nav.notifications"),
           to: "/referee/notifications",
           icon: Bell,
+        },
+        {
+          key: "chatbot",
+          label: t("nav.chatbot") || "AI Assistant",
+          to: "/referee/chatbot",
+          icon: Bot,
         },
       ],
     },
@@ -290,6 +309,12 @@ export const chiefRefereeSidebarConfig: SidebarConfig = {
           label: t("nav.notifications"),
           to: "/referee/notifications",
           icon: Bell,
+        },
+        {
+          key: "chatbot",
+          label: t("nav.chatbot") || "AI Assistant",
+          to: "/referee/chatbot",
+          icon: Bot,
         },
       ],
     },
@@ -364,6 +389,12 @@ export const proPlayerSidebarConfig: SidebarConfig = {
           label: t("nav.eloHistory") || "Elo History",
           to: "/elo/history",
           icon: TrendingUp,
+        },
+        {
+          key: "chatbot",
+          label: t("nav.chatbot") || "AI Assistant",
+          to: "/chatbot",
+          icon: Bot,
         },
       ],
     },

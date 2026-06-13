@@ -9,6 +9,7 @@ import MatchExecution from "@/pages/Referee/MatchExecution/MatchExecution";
 import PendingMatchesGlobal from "@/pages/Referee/PendingMatchesGlobal";
 import RefereeDashboard from "@/pages/Referee/RefereeDashboard/RefereeDashboard";
 import UserProfile from "@/pages/PublicPlayer/UserProfile/UserProfile";
+import ChatbotScreen from "@/pages/Shared/Chatbot/ChatbotScreen";
 
 /**
  * Referee Routes
@@ -40,6 +41,7 @@ export default function RefereeRoutes() {
         <Route path="/referee/pending-matches" element={<PendingMatchesGlobal />} />
         <Route path="/referee/notifications" element={<Notifications />} />
         <Route path="/referee/profile" element={<UserProfile />} />
+        <Route path="/referee/chatbot" element={<ChatbotScreen />} />
       </Route>
     </>
   );

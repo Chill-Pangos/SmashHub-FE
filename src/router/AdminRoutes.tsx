@@ -6,6 +6,7 @@ import RolesPermissions from "@/pages/Admin/RolesPermissions/RolesPermissions";
 import NotificationCenter from "@/pages/Admin/NotificationCenter/NotificationCenter";
 import AdminDashboard from "@/pages/Admin/AdminDashboard/AdminDashboard";
 import UserProfile from "@/pages/PublicPlayer/UserProfile/UserProfile";
+import ChatbotScreen from "@/pages/Shared/Chatbot/ChatbotScreen";
 
 /**
  * Admin Routes
@@ -26,6 +27,7 @@ export default function AdminRoutes() {
         <Route path="/admin/roles" element={<RolesPermissions />} />
         <Route path="/admin/notifications" element={<NotificationCenter />} />
         <Route path="/admin/profile" element={<UserProfile />} />
+        <Route path="/admin/chatbot" element={<ChatbotScreen />} />
       </Route>
     </>
   );

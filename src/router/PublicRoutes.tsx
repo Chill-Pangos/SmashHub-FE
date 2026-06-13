@@ -21,6 +21,7 @@ import EloHistory from "@/pages/PublicPlayer/EloHistory";
 import UserProfile from "@/pages/PublicPlayer/UserProfile";
 import Analytics from "@/pages/PublicPlayer/Analytics";
 import UserDashboard from "@/pages/PublicPlayer/UserDashboard/UserDashboard";
+import ChatbotScreen from "@/pages/Shared/Chatbot/ChatbotScreen";
 
 /**
  * Public Routes
@@ -63,6 +64,7 @@ export default function PublicRoutes() {
           <Route path="analytics" element={<Analytics />} />
           <Route path="elo/history" element={<EloHistory />} />
           <Route path="change-password" element={<ChangePassword />} />
+          <Route path="chatbot" element={<ChatbotScreen />} />
         </Route>
       </Route>
     </>
