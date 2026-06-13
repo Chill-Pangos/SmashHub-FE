@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useTournament } from "@/hooks/queries"; // Đảm bảo đường dẫn này đúng với project của bạn
+import scheduleConfigService from "@/services/scheduleConfig.service";
 
 import { Calendar, MapPin } from "lucide-react";
 import {
@@ -27,6 +29,12 @@ export default function TournamentDetail() {
   const tournament = apiData;
   const isLoading = apiLoading;
   const error = apiError;
+
+  const { data: scheduleConfig } = useQuery({
+    queryKey: ['schedule-config', id],
+    queryFn: () => scheduleConfigService.getScheduleConfigByTournament(id),
+    enabled: !!id,
+  });
 
   // State cho Tabs
   const [activeTab, setActiveTab] = useState("Overview");
@@ -61,7 +69,8 @@ export default function TournamentDetail() {
   // --- Hàm hỗ trợ xử lý dữ liệu ---
 
   // Format ngày tháng (VD: Oct 15 - Oct 18, 2026)
-  const formatEventDate = (start: string, end: string) => {
+  const formatEventDate = (start?: string, end?: string) => {
+    if (!start || !end) return "TBD";
     const startDate = new Date(start);
     const endDate = new Date(end);
     const options: Intl.DateTimeFormatOptions = {
@@ -75,7 +84,7 @@ export default function TournamentDetail() {
   const renderTabContent = () => {
     switch (activeTab) {
       case "Overview":
-        return <OverviewTab tournament={tournament} />;
+        return <OverviewTab tournament={tournament} scheduleConfig={scheduleConfig} />;
       case "Referees":
         return <RefereeManagement tournamentId={id} />;
       case "Entries":
@@ -115,7 +124,7 @@ export default function TournamentDetail() {
           <div className="flex items-center gap-1.5">
             <Calendar className="h-4 w-4" />
             <span>
-              {formatEventDate(tournament.startDate, tournament.endDate)}
+              {formatEventDate(scheduleConfig?.startDate, scheduleConfig?.endDate)}
             </span>
           </div>
           <div className="h-4 w-px bg-border hidden sm:block"></div>

@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import scheduleConfigService from "@/services/scheduleConfig.service";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -13,23 +15,31 @@ interface ScheduleConfigProps {
 export interface ScheduleConfigData {
   id?: number;
   tournamentId: number;
+  startDate?: string;
+  endDate?: string;
+  registrationStartDate?: string;
+  registrationEndDate?: string;
+  bracketGenerationDate?: string;
+  numberOfTables: number;
   matchDurationMinutes: number;
   breakDurationMinutes: number;
   dailyStartHour: number;
   dailyStartMinute: number;
   dailyEndHour: number;
   dailyEndMinute: number;
-  lunchBreakStartHour: number | null;
-  lunchBreakStartMinute: number | null;
-  lunchBreakEndHour: number | null;
-  lunchBreakEndMinute: number | null;
-  lunchBreakDurationMinutes: number | null;
+  lunchBreakStartHour?: number | null;
+  lunchBreakStartMinute?: number | null;
+  lunchBreakEndHour?: number | null;
+  lunchBreakEndMinute?: number | null;
+  lunchBreakDurationMinutes?: number | null;
+  notes?: string | null;
 }
 
 export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
-  // 👉 CALL REACT QUERY HERE:
-  // const { data: configData, isLoading } = useQuery(['schedule-config', tournamentId], fetchScheduleConfig);
-  // const saveMutation = useMutation({ mutationFn: saveScheduleConfig });
+  const { data: configData } = useQuery({
+    queryKey: ['schedule-config', tournamentId],
+    queryFn: () => scheduleConfigService.getScheduleConfigByTournament(tournamentId),
+  });
 
   // State quản lý Form (Khởi tạo giá trị mặc định khớp với ảnh UI)
   const [tables, setTables] = useState(12);
@@ -44,6 +54,38 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
   const [breakStartTime, setBreakStartTime] = useState("13:00"); // 1 PM
   const [breakDuration, setBreakDuration] = useState(60);
 
+  useEffect(() => {
+    if (configData) {
+      const data = configData as unknown as ScheduleConfigData;
+      if (data.numberOfTables !== undefined) {
+        setTables(data.numberOfTables);
+      }
+      if (data.matchDurationMinutes !== undefined) {
+        setMatchDuration(data.matchDurationMinutes);
+      }
+      
+      const formatTime = (hour: number, min: number) => {
+        return `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+      };
+      
+      if (data.dailyStartHour !== undefined && data.dailyStartMinute !== undefined) {
+        setFacilityOpen(formatTime(data.dailyStartHour, data.dailyStartMinute));
+      }
+      
+      if (data.dailyEndHour !== undefined && data.dailyEndMinute !== undefined) {
+        setFacilityClose(formatTime(data.dailyEndHour, data.dailyEndMinute));
+      }
+      
+      if (data.lunchBreakStartHour != null && data.lunchBreakStartMinute != null && data.lunchBreakDurationMinutes != null) {
+        setHasBreaks(true);
+        setBreakStartTime(formatTime(data.lunchBreakStartHour as number, data.lunchBreakStartMinute as number));
+        setBreakDuration(data.lunchBreakDurationMinutes);
+      } else {
+        setHasBreaks(false);
+      }
+    }
+  }, [configData]);
+
   // Parse time ra số giờ để truyền vào ValidationStats tính toán
   const openHour = parseInt(facilityOpen.split(":")[0]) || 8;
   const closeHour = parseInt(facilityClose.split(":")[0]) || 22;
@@ -52,6 +94,7 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
     // Chuẩn bị payload khớp với type Backend yêu cầu
     const payload: ScheduleConfigData = {
       tournamentId,
+      numberOfTables: tables,
       matchDurationMinutes: matchDuration,
       breakDurationMinutes: 10, // Default break between matches
       dailyStartHour: openHour,
@@ -60,7 +103,7 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
       dailyEndMinute: parseInt(facilityClose.split(":")[1]) || 0,
       lunchBreakStartHour: hasBreaks ? parseInt(breakStartTime.split(":")[0]) : null,
       lunchBreakStartMinute: hasBreaks ? parseInt(breakStartTime.split(":")[1]) : null,
-      lunchBreakEndHour: null, // Có thể tính bằng start + duration nếu backend cần
+      lunchBreakEndHour: null,
       lunchBreakEndMinute: null,
       lunchBreakDurationMinutes: hasBreaks ? breakDuration : null,
     };
