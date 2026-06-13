@@ -7,8 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, User, Clock, Trophy, Shield, Calendar } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function PendingInvitations() {
+  const { t } = useTranslation();
   const { data: invitationsResp, isLoading } = useMyRefereeInvitations(
     1,
     50,
@@ -44,16 +46,16 @@ export default function PendingInvitations() {
     <div className="px-6 py-10 space-y-6">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Pending Invitations</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t("pendingInvitations.title", "Pending Invitations")}</h1>
           <p className="text-muted-foreground mt-2">
-            Review and respond to your tournament referee invitations.
+            {t("pendingInvitations.description", "Review and respond to your tournament referee invitations.")}
           </p>
         </div>
       </div>
 
       {isLoading ? (
         <div className="flex items-center justify-center h-40">
-          <p className="text-muted-foreground animate-pulse">Loading invitations...</p>
+          <p className="text-muted-foreground animate-pulse">{t("pendingInvitations.loading", "Loading invitations...")}</p>
         </div>
       ) : invitations.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -64,10 +66,10 @@ export default function PendingInvitations() {
                 <CardHeader className="pb-3 border-b border-border/50 bg-muted/20">
                   <div className="flex justify-between items-start gap-2">
                     <CardTitle className="text-lg leading-tight line-clamp-2">
-                      {inv.tournament?.name || "Unknown Tournament"}
+                      {inv.tournament?.name || t("pendingInvitations.unknownTournament", "Unknown Tournament")}
                     </CardTitle>
                     <Badge variant={isChief ? "default" : "secondary"} className="shrink-0 uppercase text-[10px]">
-                      {isChief ? "Chief Referee" : "Referee"}
+                      {isChief ? t("pendingInvitations.chiefReferee", "Chief Referee") : t("pendingInvitations.referee", "Referee")}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -75,16 +77,16 @@ export default function PendingInvitations() {
                   <div className="space-y-2.5 text-sm">
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Trophy className="w-4 h-4 shrink-0" />
-                      <span>Tier {inv.tournament?.tier || "-"} Tournament</span>
+                      <span>{t("pendingInvitations.tierTournament", { tier: inv.tournament?.tier || "-", defaultValue: `Tier ${inv.tournament?.tier || "-"} Tournament` })}</span>
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <MapPin className="w-4 h-4 shrink-0" />
-                      <span className="truncate">{inv.tournament?.location || "TBA"}</span>
+                      <span className="truncate">{inv.tournament?.location || t("pendingInvitations.tba", "TBA")}</span>
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <User className="w-4 h-4 shrink-0" />
                       <span className="truncate">
-                        Invited by: {inv.inviter?.firstName} {inv.inviter?.lastName}
+                        {t("pendingInvitations.invitedBy", "Invited by:")} {inv.inviter?.firstName} {inv.inviter?.lastName}
                       </span>
                     </div>
                   </div>
@@ -93,14 +95,14 @@ export default function PendingInvitations() {
                     <div className="flex items-center justify-between text-muted-foreground">
                       <div className="flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5" />
-                        <span>Created:</span>
+                        <span>{t("pendingInvitations.created", "Created:")}</span>
                       </div>
                       <span className="font-medium text-foreground">{formatDate(inv.createdAt)}</span>
                     </div>
                     <div className="flex items-center justify-between text-muted-foreground">
                       <div className="flex items-center gap-1.5 text-amber-500/80">
                         <Clock className="w-3.5 h-3.5" />
-                        <span>Expires:</span>
+                        <span>{t("pendingInvitations.expires", "Expires:")}</span>
                       </div>
                       <span className="font-medium text-amber-500/90">{formatDate(inv.expiresAt)}</span>
                     </div>
@@ -113,14 +115,14 @@ export default function PendingInvitations() {
                     onClick={() => handleReject(inv.id)}
                     disabled={accepting || rejecting}
                   >
-                    Decline
+                    {t("pendingInvitations.decline", "Decline")}
                   </Button>
                   <Button
                     className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
                     onClick={() => handleAccept(inv.id)}
                     disabled={accepting || rejecting}
                   >
-                    Accept
+                    {t("pendingInvitations.accept", "Accept")}
                   </Button>
                 </CardFooter>
               </Card>
@@ -130,9 +132,9 @@ export default function PendingInvitations() {
       ) : (
         <div className="flex flex-col items-center justify-center p-12 border border-dashed rounded-xl bg-card/50 text-center">
           <Shield className="w-12 h-12 text-muted-foreground/30 mb-4" />
-          <h3 className="text-lg font-medium text-foreground">No Pending Invitations</h3>
+          <h3 className="text-lg font-medium text-foreground">{t("pendingInvitations.noPending", "No Pending Invitations")}</h3>
           <p className="text-sm text-muted-foreground mt-1">
-            You don't have any pending referee invitations right now.
+            {t("pendingInvitations.noPendingDesc", "You don't have any pending referee invitations right now.")}
           </p>
         </div>
       )}

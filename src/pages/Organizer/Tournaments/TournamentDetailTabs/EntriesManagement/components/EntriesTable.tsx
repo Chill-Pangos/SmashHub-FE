@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { MoreVertical, CheckCircle, Trash2, CreditCard } from "lucide-react";
 import type { Entry } from "./types"; // Import type đã tạo
 import { ActionModal } from "./ActionModal";
+import { useTranslation } from "react-i18next";
 
 interface EntriesTableProps {
   entries: Entry[];
@@ -15,6 +16,7 @@ interface EntriesTableProps {
 }
 
 export function EntriesTable({ entries, selectedIds, onSelectAll, onSelectRow }: EntriesTableProps) {
+  const { t } = useTranslation();
   const [modalState, setModalState] = useState<{ isOpen: boolean; type: "delete" | "approve"; entryId: number | null }>({
     isOpen: false,
     type: "approve",
@@ -45,12 +47,12 @@ export function EntriesTable({ entries, selectedIds, onSelectAll, onSelectRow }:
                   onCheckedChange={(c) => onSelectAll(!!c)}
                 />
               </th>
-              <th className="py-4 font-semibold uppercase tracking-wider">Entry Name</th>
-              <th className="py-4 font-semibold uppercase tracking-wider">Members</th>
-              <th className="py-4 font-semibold uppercase tracking-wider">Category</th>
-              <th className="py-4 font-semibold uppercase tracking-wider text-center">Lineup Status</th>
-              <th className="py-4 font-semibold uppercase tracking-wider text-center">Payment Status</th>
-              <th className="py-4 font-semibold uppercase tracking-wider text-right pr-4">Actions</th>
+              <th className="py-4 font-semibold uppercase tracking-wider">{t('tournamentManager.entriesManagement.entryName', 'Entry Name')}</th>
+              <th className="py-4 font-semibold uppercase tracking-wider">{t('tournamentManager.entriesManagement.members', 'Members')}</th>
+              <th className="py-4 font-semibold uppercase tracking-wider">{t('tournamentManager.entriesManagement.category', 'Category')}</th>
+              <th className="py-4 font-semibold uppercase tracking-wider text-center">{t('tournamentManager.entriesManagement.lineupStatus', 'Lineup Status')}</th>
+              <th className="py-4 font-semibold uppercase tracking-wider text-center">{t('tournamentManager.entriesManagement.paymentStatus', 'Payment Status')}</th>
+              <th className="py-4 font-semibold uppercase tracking-wider text-right pr-4">{t('tournamentManager.entriesManagement.actions', 'Actions')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -69,12 +71,12 @@ export function EntriesTable({ entries, selectedIds, onSelectAll, onSelectRow }:
                     <Avatar className="h-10 w-10 border border-border rounded-lg shadow-auth-icon-shadow">
                       <AvatarImage src={entry.avatarUrl} />
                       <AvatarFallback className="bg-muted text-muted-foreground rounded-lg">
-                        {entry.name === "N/A" ? "NA" : entry.name.substring(0, 2).toUpperCase()}
+                        {entry.name === t('tournamentManager.entriesManagement.na', 'N/A') ? "NA" : entry.name.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="font-semibold text-foreground">{entry.name}</p>
-                      <p className="text-xs text-muted-foreground">ID: {entry.entryIdString}</p>
+                      <p className="text-xs text-muted-foreground">{t('tournamentManager.entriesManagement.id', 'ID:')} {entry.entryIdString}</p>
                     </div>
                   </div>
                 </td>
@@ -101,15 +103,15 @@ export function EntriesTable({ entries, selectedIds, onSelectAll, onSelectRow }:
 
                 <td className="py-3 text-center">
                   <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-bold tracking-wide
-                    ${entry.lineupStatus === 'CONFIRMED' ? 'border-primary/50 text-primary bg-primary/10' : 'border-chart-4/50 text-chart-4 bg-chart-4/10'}`}>
-                    <div className={`w-1.5 h-1.5 rounded-full ${entry.lineupStatus === 'CONFIRMED' ? 'bg-primary' : 'bg-chart-4'}`} />
+                    ${entry.lineupStatus === t('tournamentManager.entriesManagement.confirmed', 'CONFIRMED') ? 'border-primary/50 text-primary bg-primary/10' : 'border-chart-4/50 text-chart-4 bg-chart-4/10'}`}>
+                    <div className={`w-1.5 h-1.5 rounded-full ${entry.lineupStatus === t('tournamentManager.entriesManagement.confirmed', 'CONFIRMED') ? 'bg-primary' : 'bg-chart-4'}`} />
                     {entry.lineupStatus}
                   </div>
                 </td>
 
                 <td className="py-3 text-center">
                   <div className={`inline-flex px-3 py-1 rounded-full border text-[11px] font-bold tracking-wider
-                    ${entry.paymentStatus === 'PAID' ? 'border-border text-muted-foreground bg-background' : 'border-destructive/30 text-destructive bg-destructive/10'}`}>
+                    ${entry.paymentStatus === t('tournamentManager.entriesManagement.paid', 'PAID') ? 'border-border text-muted-foreground bg-background' : 'border-destructive/30 text-destructive bg-destructive/10'}`}>
                     {entry.paymentStatus}
                   </div>
                 </td>
@@ -123,16 +125,16 @@ export function EntriesTable({ entries, selectedIds, onSelectAll, onSelectRow }:
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="bg-popover border-border">
                       <DropdownMenuItem onClick={() => setModalState({ isOpen: true, type: "approve", entryId: entry.id })} className="cursor-pointer">
-                        <CheckCircle className="mr-2 h-4 w-4 text-primary" /> Approve Lineup
+                        <CheckCircle className="mr-2 h-4 w-4 text-primary" /> {t('tournamentManager.entriesManagement.approveLineup', 'Approve Lineup')}
                       </DropdownMenuItem>
                       <DropdownMenuItem className="cursor-pointer">
-                        <CreditCard className="mr-2 h-4 w-4 text-muted-foreground" /> Mark as Paid
+                        <CreditCard className="mr-2 h-4 w-4 text-muted-foreground" /> {t('tournamentManager.entriesManagement.markAsPaid', 'Mark as Paid')}
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         onClick={() => setModalState({ isOpen: true, type: "delete", entryId: entry.id })}
                         className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
                       >
-                        <Trash2 className="mr-2 h-4 w-4" /> Delete Entry
+                        <Trash2 className="mr-2 h-4 w-4" /> {t('tournamentManager.entriesManagement.deleteEntry', 'Delete Entry')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -146,8 +148,8 @@ export function EntriesTable({ entries, selectedIds, onSelectAll, onSelectRow }:
       <ActionModal 
         isOpen={modalState.isOpen}
         onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
-        title={modalState.type === "delete" ? "Delete Entry?" : "Approve Lineup?"}
-        description={modalState.type === "delete" ? "This action cannot be undone. This will permanently remove the entry from the tournament." : "Are you sure you want to confirm this lineup? They will be locked for the brackets."}
+        title={modalState.type === "delete" ? t('tournamentManager.entriesManagement.deleteEntryTitle', 'Delete Entry?') : t('tournamentManager.entriesManagement.approveLineupTitle', 'Approve Lineup?')}
+        description={modalState.type === "delete" ? t('tournamentManager.entriesManagement.deleteWarning', 'This action cannot be undone. This will permanently remove the entry from the tournament.') : t('tournamentManager.entriesManagement.approveWarning', 'Are you sure you want to confirm this lineup? They will be locked for the brackets.')}
         actionType={modalState.type === "delete" ? "destructive" : "primary"}
         onConfirm={handleActionConfirm}
       />

@@ -8,6 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTranslation } from "react-i18next";
 
 interface DeleteConfirmDialogProps {
   open: boolean;
@@ -26,6 +27,7 @@ export default function DeleteConfirmDialog({
   onConfirm,
   isLoading,
 }: DeleteConfirmDialogProps) {
+  const { t } = useTranslation();
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -34,13 +36,13 @@ export default function DeleteConfirmDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>{t("adminRoles.cancel", "Cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isLoading}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {isLoading ? "Deleting..." : "Delete"}
+            {isLoading ? t("adminRoles.deleting", "Deleting...") : t("adminRoles.delete", "Delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

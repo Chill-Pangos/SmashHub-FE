@@ -25,8 +25,10 @@ export interface Group {
 interface GroupStageBoardProps {
   group: Group;
 }
+import { useTranslation } from "react-i18next";
 
 export function GroupStageBoard({ group }: GroupStageBoardProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
       <h3 className="text-xl font-bold text-primary mb-6">{group.name}</h3>
@@ -35,12 +37,12 @@ export function GroupStageBoard({ group }: GroupStageBoardProps) {
       <table className="w-full text-sm mb-8">
         <thead>
           <tr className="text-muted-foreground border-b border-border text-left">
-            <th className="pb-3 font-semibold w-8">Rk</th>
-            <th className="pb-3 font-semibold">Player</th>
-            <th className="pb-3 font-semibold text-center w-8">P</th>
-            <th className="pb-3 font-semibold text-center w-8">W</th>
-            <th className="pb-3 font-semibold text-center w-8">L</th>
-            <th className="pb-3 font-semibold text-center w-8">Pts</th>
+            <th className="pb-3 font-semibold w-8">{t('tournamentManager.scheduleTab.rank', 'Rk')}</th>
+            <th className="pb-3 font-semibold">{t('tournamentManager.scheduleTab.player', 'Player')}</th>
+            <th className="pb-3 font-semibold text-center w-8">{t('tournamentManager.scheduleTab.played', 'P')}</th>
+            <th className="pb-3 font-semibold text-center w-8">{t('tournamentManager.scheduleTab.won', 'W')}</th>
+            <th className="pb-3 font-semibold text-center w-8">{t('tournamentManager.scheduleTab.lost', 'L')}</th>
+            <th className="pb-3 font-semibold text-center w-8">{t('tournamentManager.scheduleTab.points', 'Pts')}</th>
           </tr>
         </thead>
         <tbody>
@@ -65,7 +67,7 @@ export function GroupStageBoard({ group }: GroupStageBoardProps) {
       {/* Matches List */}
       <div className="space-y-4">
         <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
-          {group.name} Matches
+          {t('tournamentManager.scheduleTab.matches', '{{groupName}} Matches').replace('{{groupName}}', group.name)}
         </h4>
         {group.matches.map((match, idx) => (
           <div key={idx} className="flex items-center justify-between text-sm py-2">

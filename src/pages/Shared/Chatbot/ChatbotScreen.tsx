@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "react-i18next";
 import { Send, Bot, User, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/store/useAuth";
@@ -61,7 +61,7 @@ export default function ChatbotScreen() {
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "bot",
-        content: t("chatbot.mockResponse") || "This is a mock response from the AI assistant.",
+        content: t("chatbot.mockResponse", "This is a mock response from the AI assistant. I am not connected to an API yet."),
       };
       setMessages((prev) => [...prev, botMessage]);
       setIsLoading(false);
@@ -80,12 +80,12 @@ export default function ChatbotScreen() {
           <div className="p-2 bg-primary/10 rounded-lg">
             <Bot className="w-5 h-5 text-primary" />
           </div>
-          <h2 className="font-semibold text-lg">{t("chatbot.title") || "AI Assistant"}</h2>
+          <h2 className="font-semibold text-lg">{t("chatbot.title", "AI Assistant")}</h2>
         </div>
         <button
           onClick={handleClear}
           className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-lg hover:bg-muted"
-          title={t("chatbot.clearHistory") || "Clear History"}
+          title={t("chatbot.clearHistory", "Clear History")}
         >
           <Trash2 className="w-5 h-5" />
         </button>
@@ -98,7 +98,7 @@ export default function ChatbotScreen() {
             <div className="p-4 bg-muted rounded-full">
               <Bot className="w-8 h-8 opacity-50" />
             </div>
-            <p>{t("chatbot.emptyState") || "How can I help you today?"}</p>
+            <p>{t("chatbot.emptyState", "How can I help you today?")}</p>
           </div>
         ) : (
           messages.map((msg) => (
@@ -158,7 +158,7 @@ export default function ChatbotScreen() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={t("chatbot.placeholder") || "Ask me anything..."}
+            placeholder={t("chatbot.placeholder", "Ask me anything...")}
             className="flex-1 bg-muted/50 border-0 rounded-full pl-6 pr-12 py-3 focus:ring-2 focus:ring-primary focus:outline-none transition-shadow"
             disabled={isLoading}
           />

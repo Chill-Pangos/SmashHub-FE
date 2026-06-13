@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import type { Role } from "@/types/role.types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface AssignPermissionsModalProps {
   open: boolean;
@@ -30,6 +31,7 @@ export default function AssignPermissionsModal({
   onOpenChange,
   role,
 }: AssignPermissionsModalProps) {
+  const { t } = useTranslation();
   // Fetch all permissions
   const { data: permissionsData, isLoading: isLoadingAll } = usePermissionsPaginated(1, 100);
   const allPermissions = permissionsData?.items || [];
@@ -56,14 +58,14 @@ export default function AssignPermissionsModal({
       removePermission.mutate(
         { roleId: role.id, permissionId },
         {
-          onError: (err: any) => toast.error(err.message || "Failed to remove permission"),
+          onError: (err: any) => toast.error(err.message || t("adminRoles.removePermissionError", "Failed to remove permission")),
         }
       );
     } else {
       assignPermission.mutate(
         { roleId: role.id, permissionId },
         {
-          onError: (err: any) => toast.error(err.message || "Failed to assign permission"),
+          onError: (err: any) => toast.error(err.message || t("adminRoles.assignPermissionError", "Failed to assign permission")),
         }
       );
     }
@@ -75,7 +77,7 @@ export default function AssignPermissionsModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Assign Permissions: {role?.name}</DialogTitle>
+          <DialogTitle>{t("adminRoles.assignPermissionsTitle", { name: role?.name, defaultValue: `Assign Permissions: ${role?.name}` })}</DialogTitle>
         </DialogHeader>
         
         <div className="py-4">
@@ -85,7 +87,7 @@ export default function AssignPermissionsModal({
             </div>
           ) : allPermissions.length === 0 ? (
             <div className="text-center text-muted-foreground p-4">
-              No permissions found in the system.
+              {t("adminRoles.noPermissionsSystem", "No permissions found in the system.")}
             </div>
           ) : (
             <ScrollArea className="h-[300px] pr-4">
@@ -126,7 +128,7 @@ export default function AssignPermissionsModal({
 
         <DialogFooter>
           <Button type="button" onClick={() => onOpenChange(false)}>
-            Close
+            {t("adminRoles.close", "Close")}
           </Button>
         </DialogFooter>
       </DialogContent>

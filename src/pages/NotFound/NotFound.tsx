@@ -1,6 +1,6 @@
 import { LayoutDashboard, HeadphonesIcon } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "react-i18next";
 
 const NotFound = () => {
   const { t } = useTranslation();
@@ -79,20 +79,20 @@ const NotFound = () => {
                 }}
               >
                 <span className="text-xs font-bold tracking-widest uppercase text-white">
-                  {t("notFoundPage.badge")}
+                  {t("notFoundPage.badge", "System Alert")}
                 </span>
               </div>
               <h2
                 className="text-3xl font-semibold mb-2"
                 style={{ color: "#dce4e4" }}
               >
-                {t("notFoundPage.title")}
+                {t("notFoundPage.title", "Signal Lost")}
               </h2>
               <p
                 className="text-base leading-relaxed max-w-lg"
                 style={{ color: "#b9cacb" }}
               >
-                {t("notFoundPage.description")}
+                {t("notFoundPage.description", "The requested sector is currently offline or does not exist within the Pro Circuit database. Verify your coordinates and try again.")}
               </p>
             </div>
 
@@ -122,7 +122,7 @@ const NotFound = () => {
                 }}
               >
                 <LayoutDashboard className="w-4 h-4" />
-                {t("notFoundPage.primaryAction")}
+                {t("notFoundPage.primaryAction", "Return to Dashboard")}
               </NavLink>
 
               <a
@@ -145,7 +145,7 @@ const NotFound = () => {
                 }}
               >
                 <HeadphonesIcon className="w-4 h-4" />
-                {t("notFoundPage.secondaryAction")}
+                {t("notFoundPage.secondaryAction", "Contact Support")}
               </a>
             </div>
           </div>

@@ -9,6 +9,7 @@ import {
 import { Calendar as CalendarUI } from "@/components/ui/calendar";
 import type { Tournament } from "@/types/tournament.types";
 import type { ScheduleConfigData } from "./ScheduleConfig/ScheduleConfig";
+import { useTranslation } from "react-i18next";
 
 interface OverviewTabProps {
   tournament: Tournament;
@@ -16,6 +17,8 @@ interface OverviewTabProps {
 }
 
 export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabProps) {
+  const { t } = useTranslation();
+
   const totalEntries =
     tournament.categories?.reduce(
       (sum, cat) => sum + (cat.maxEntries || 0),
@@ -75,7 +78,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Total Max Entries
+              {t('tournamentManager.overviewTab.totalMaxEntries', 'Total Max Entries')}
             </span>
             <Users className="h-5 w-5 text-muted-foreground/50" />
           </div>
@@ -85,34 +88,34 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
             </span>
           </div>
           <div className="mt-2 text-xs font-medium text-chart-3">
-            ~ Based on {tournament.categories?.length || 0} categories
+            {t('tournamentManager.overviewTab.basedOnCategories', '~ Based on {{count}} categories').replace('{{count}}', (tournament.categories?.length || 0).toString())}
           </div>
         </div>
 
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Format Details
+              {t('tournamentManager.overviewTab.formatDetails', 'Format Details')}
             </span>
             <Trophy className="h-5 w-5 text-muted-foreground/50" />
           </div>
           <div className="mt-3">
             <span className="text-3xl font-bold tracking-tight capitalize">
-              {formatTypes || "N/A"}
+              {formatTypes || t('tournamentManager.overviewTab.na', 'N/A')}
             </span>
           </div>
           <div className="mt-3 h-1.5 w-full rounded-full bg-secondary overflow-hidden">
             <div className="h-full bg-primary" style={{ width: "100%" }}></div>
           </div>
           <div className="mt-2 text-right text-xs font-medium text-muted-foreground">
-            Tier {tournament.tier ?? "-"} Event
+            {t('tournamentManager.overviewTab.tierEvent', 'Tier {{tier}} Event').replace('{{tier}}', (tournament.tier ?? "-").toString())}
           </div>
         </div>
 
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Facility Setup
+              {t('tournamentManager.overviewTab.facilitySetup', 'Facility Setup')}
             </span>
             <LayoutGrid className="h-5 w-5 text-muted-foreground/50" />
           </div>
@@ -121,15 +124,15 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
               {scheduleConfig?.numberOfTables ?? tournament.numberOfTables ?? 0}
             </span>
             <span className="text-sm font-medium text-muted-foreground">
-              Tables
+              {t('tournamentManager.overviewTab.tables', 'Tables')}
             </span>
           </div>
           <div className="mt-3 flex gap-2">
             <span className="rounded bg-secondary px-2 py-0.5 text-xs font-semibold text-secondary-foreground">
-              Group Stage:{" "}
+              {t('tournamentManager.overviewTab.groupStage', 'Group Stage')}:{" "}
               {tournament.categories?.some((c) => c.isGroupStage)
-                ? "Yes"
-                : "No"}
+                ? t('tournamentManager.overviewTab.yes', 'Yes')
+                : t('tournamentManager.overviewTab.no', 'No')}
             </span>
           </div>
         </div>
@@ -141,7 +144,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
         <div className="flex-1 rounded-xl border border-border bg-card p-5 shadow-sm flex flex-col justify-center space-y-6">
           <div className="flex items-center gap-2 border-b border-border pb-4">
             <Calendar className="h-5 w-5 text-primary" />
-            <h3 className="font-bold text-lg">Tournament Timeline</h3>
+            <h3 className="font-bold text-lg">{t('tournamentManager.overviewTab.tournamentTimeline', 'Tournament Timeline')}</h3>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -149,15 +152,15 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-muted-foreground/50" />
                 <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Registration
+                  {t('tournamentManager.overviewTab.registration', 'Registration')}
                 </span>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm font-medium">
-                  Start: {formatDateTime(scheduleConfig?.registrationStartDate)}
+                  {t('tournamentManager.overviewTab.start', 'Start')}: {formatDateTime(scheduleConfig?.registrationStartDate)}
                 </span>
                 <span className="text-sm font-medium">
-                  End: {formatDateTime(scheduleConfig?.registrationEndDate)}
+                  {t('tournamentManager.overviewTab.end', 'End')}: {formatDateTime(scheduleConfig?.registrationEndDate)}
                 </span>
               </div>
             </div>
@@ -166,7 +169,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-muted-foreground/50" />
                 <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Bracket Gen
+                  {t('tournamentManager.overviewTab.bracketGen', 'Bracket Gen')}
                 </span>
               </div>
               <div className="flex items-baseline gap-2">
@@ -180,15 +183,15 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
               <div className="flex items-center gap-2">
                 <CalendarRange className="h-4 w-4 text-primary/50" />
                 <span className="text-xs font-medium uppercase tracking-wider text-primary">
-                  Event Dates
+                  {t('tournamentManager.overviewTab.eventDates', 'Event Dates')}
                 </span>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm font-medium">
-                  Start: {formatDate(scheduleConfig?.startDate)}
+                  {t('tournamentManager.overviewTab.start', 'Start')}: {formatDate(scheduleConfig?.startDate)}
                 </span>
                 <span className="text-sm font-medium">
-                  End: {formatDate(scheduleConfig?.endDate)}
+                  {t('tournamentManager.overviewTab.end', 'End')}: {formatDate(scheduleConfig?.endDate)}
                 </span>
               </div>
             </div>
@@ -207,15 +210,15 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
           <div className="mt-4 flex flex-col gap-2 text-xs font-medium px-2 w-full max-w-[250px]">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 flex-shrink-0 rounded-full bg-blue-100 border border-blue-300 dark:bg-blue-900 dark:border-blue-700" />
-              <span>Registration Period</span>
+              <span>{t('tournamentManager.overviewTab.registrationPeriod', 'Registration Period')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 flex-shrink-0 rounded-full bg-yellow-100 border border-yellow-300 dark:bg-yellow-900 dark:border-yellow-700" />
-              <span>Bracket Generation</span>
+              <span>{t('tournamentManager.overviewTab.bracketGeneration', 'Bracket Generation')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 flex-shrink-0 rounded-full bg-green-100 border border-green-300 dark:bg-green-900 dark:border-green-700" />
-              <span>Event Dates</span>
+              <span>{t('tournamentManager.overviewTab.eventDates', 'Event Dates')}</span>
             </div>
           </div>
         </div>

@@ -14,6 +14,7 @@ import type {
   TournamentContent,
 } from "@/types/tournament.types";
 import ScheduleGeneration from "../ScheduleGeneration";
+import { useTranslation } from "react-i18next";
 
 interface ScheduleTabProps {
   tournamentId: number;
@@ -49,6 +50,7 @@ export default function ScheduleTab({
   tournamentId,
   tournament,
 }: ScheduleTabProps) {
+  const { t } = useTranslation();
   const options = useMemo(() => buildOptions(tournament), [tournament]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number>(0);
 
@@ -82,9 +84,9 @@ export default function ScheduleTab({
     <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold">Schedule</h2>
+          <h2 className="text-xl font-semibold">{t('tournamentManager.scheduleTab.title', 'Schedule')}</h2>
           <p className="text-sm text-muted-foreground">
-            Select a category to view or generate a schedule.
+            {t('tournamentManager.scheduleTab.subtitle', 'Select a category to view or generate a schedule.')}
           </p>
         </div>
         {options.length > 0 && (
@@ -93,7 +95,7 @@ export default function ScheduleTab({
             onValueChange={(value) => setSelectedCategoryId(Number(value))}
           >
             <SelectTrigger className="min-w-[220px]">
-              <SelectValue placeholder="Select category" />
+              <SelectValue placeholder={t('tournamentManager.scheduleTab.selectCategory', 'Select category')} />
             </SelectTrigger>
             <SelectContent>
               {options.map((option) => (
@@ -108,14 +110,13 @@ export default function ScheduleTab({
 
       {options.length === 0 && (
         <div className="rounded-xl border border-dashed border-border bg-card/50 p-6 text-sm text-muted-foreground">
-          No categories are available yet. Add categories before generating
-          schedules.
+          {t('tournamentManager.scheduleTab.noCategories', 'No categories are available yet. Add categories before generating schedules.')}
         </div>
       )}
 
       {options.length > 0 && !selectedCategoryId && (
         <div className="rounded-xl border border-dashed border-border bg-card/50 p-6 text-sm text-muted-foreground">
-          Select a category to continue.
+          {t('tournamentManager.scheduleTab.selectCategoryToContinue', 'Select a category to continue.')}
         </div>
       )}
 
@@ -135,7 +136,7 @@ export default function ScheduleTab({
 
       {options.length > 0 && selectedCategoryId > 0 && error && !(!hasSchedule || error) && (
         <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
-          Failed to load schedule for this category.
+          {t('tournamentManager.scheduleTab.failedToLoad', 'Failed to load schedule for this category.')}
         </div>
       )}
 

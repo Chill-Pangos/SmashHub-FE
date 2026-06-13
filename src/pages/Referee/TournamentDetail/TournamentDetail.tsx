@@ -6,8 +6,10 @@ import ResultsSubmissionTab from "./TournamentDetailTabs/ResultsSubmissionTab";
 import { Search } from "lucide-react";
 
 import { useCurrentUser } from "@/hooks/queries/useAuthQueries";
+import { useTranslation } from "react-i18next";
 
 export default function TournamentDetail() {
+  const { t } = useTranslation();
   const { data: userData } = useCurrentUser();
   const roleItem = userData?.roles?.[0];
   const roleName = typeof roleItem === 'object' ? roleItem?.name : undefined;
@@ -37,8 +39,8 @@ export default function TournamentDetail() {
       <header className="flex justify-between items-center pb-4 border-b border-border">
         <h1 className="text-2xl font-bold text-primary">
           {role === "chief_referee"
-            ? "Chief Referee Dashboard"
-            : "Referee Dashboard"}
+            ? t("referee.tournamentDetail.chiefRefereeDashboard", "Chief Referee Dashboard")
+            : t("referee.tournamentDetail.refereeDashboard", "Referee Dashboard")}
         </h1>
         <div className="flex items-center gap-4">
 
@@ -46,7 +48,7 @@ export default function TournamentDetail() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search matches..."
+              placeholder={t("referee.tournamentDetail.searchMatches", "Search matches...")}
               className="bg-input border border-border rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
             />
           </div>
@@ -61,13 +63,13 @@ export default function TournamentDetail() {
               onClick={() => setActiveTab("control_center")}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === "control_center" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             >
-              Match Control Center
+              {t("referee.tournamentDetail.matchControlCenter", "Match Control Center")}
             </button>
             <button
               onClick={() => setActiveTab("results_review")}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === "results_review" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             >
-              Approval Dashboard
+              {t("referee.tournamentDetail.approvalDashboard", "Approval Dashboard")}
             </button>
           </>
         ) : (
@@ -76,13 +78,13 @@ export default function TournamentDetail() {
               onClick={() => setActiveTab("live_score")}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === "live_score" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             >
-              Live Score Controller
+              {t("referee.tournamentDetail.liveScoreController", "Live Score Controller")}
             </button>
             <button
               onClick={() => setActiveTab("results_submission")}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === "results_submission" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             >
-              Final Submission
+              {t("referee.tournamentDetail.finalSubmission", "Final Submission")}
             </button>
           </>
         )}

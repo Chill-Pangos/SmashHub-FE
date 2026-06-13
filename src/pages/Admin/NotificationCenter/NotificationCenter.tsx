@@ -3,34 +3,36 @@ import SendNotificationForm from "./components/SendNotificationForm";
 import ConnectedUsersList from "./components/ConnectedUsersList";
 import { Activity, Clock, Server, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 
 export default function NotificationCenter() {
+  const { t } = useTranslation();
   const { data: statusData } = useServiceStatus();
 
   return (
     <div className="px-6 py-10 max-w-7xl mx-auto flex flex-col gap-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Notification Center</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t("adminNotifications.title", "Notification Center")}</h1>
         <p className="text-muted-foreground mt-1">
-          Monitor real-time connections and broadcast messages to users.
+          {t("adminNotifications.description", "Monitor real-time connections and broadcast messages to users.")}
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Service Status</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("adminNotifications.serviceStatus", "Service Status")}</CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold capitalize">
-              {statusData?.status || "Unknown"}
+              {statusData?.status || t("adminNotifications.unknown", "Unknown")}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {statusData?.success ? (
-                <span className="text-green-500">Operational</span>
+                <span className="text-green-500">{t("adminNotifications.operational", "Operational")}</span>
               ) : (
-                <span className="text-destructive">Service Unreachable</span>
+                <span className="text-destructive">{t("adminNotifications.unreachable", "Service Unreachable")}</span>
               )}
             </p>
           </CardContent>
@@ -38,7 +40,7 @@ export default function NotificationCenter() {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Connected Users</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("adminNotifications.connectedUsers", "Connected Users")}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -46,27 +48,27 @@ export default function NotificationCenter() {
               {statusData?.connectedUsers ?? 0}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Active WebSocket connections
+              {t("adminNotifications.activeConnections", "Active WebSocket connections")}
             </p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Protocol</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("adminNotifications.protocol", "Protocol")}</CardTitle>
             <Server className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">Socket.IO</div>
+            <div className="text-2xl font-bold">{t("adminNotifications.socketIo", "Socket.IO")}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Real-time engine
+              {t("adminNotifications.realTimeEngine", "Real-time engine")}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Last Ping</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("adminNotifications.lastPing", "Last Ping")}</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -74,7 +76,7 @@ export default function NotificationCenter() {
               {statusData?.timestamp ? new Date(statusData.timestamp).toLocaleTimeString() : "--:--:--"}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Auto-refreshes every 30s
+              {t("adminNotifications.autoRefresh", "Auto-refreshes every 30s")}
             </p>
           </CardContent>
         </Card>

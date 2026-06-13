@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Settings2, Clock, Coffee, Monitor, Hourglass } from "lucide-react";
 import { ValidationStats } from "./components/ValidationStats";
+import { useTranslation } from "react-i18next";
 
 interface ScheduleConfigProps {
   tournamentId: number;
@@ -36,6 +37,7 @@ export interface ScheduleConfigData {
 }
 
 export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
+  const { t } = useTranslation();
   const { data: configData } = useQuery({
     queryKey: ['schedule-config', tournamentId],
     queryFn: () => scheduleConfigService.getScheduleConfigByTournament(tournamentId),
@@ -118,20 +120,20 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Schedule Configuration</h2>
+          <h2 className="text-2xl font-bold text-foreground">{t('tournamentManager.scheduleConfig.title', 'Schedule Configuration')}</h2>
           <p className="text-sm text-muted-foreground">
-            Manage global timing parameters and table allocations.
+            {t('tournamentManager.scheduleConfig.subtitle', 'Manage global timing parameters and table allocations.')}
           </p>
         </div>
         <div className="flex gap-3">
           <Button variant="outline" className="border-border text-foreground hover:bg-muted">
-            Reset to Defaults
+            {t('tournamentManager.scheduleConfig.resetToDefaults', 'Reset to Defaults')}
           </Button>
           <Button 
             className="bg-primary text-primary-foreground font-bold hover:bg-primary/90 shadow-auth-primary-glow"
             onClick={handleSave}
           >
-            Save Configuration
+            {t('tournamentManager.scheduleConfig.saveConfiguration', 'Save Configuration')}
           </Button>
         </div>
       </div>
@@ -145,12 +147,12 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
           <div className="bg-card border border-border rounded-xl p-6">
             <div className="flex items-center gap-2 mb-6">
               <Settings2 className="w-5 h-5 text-primary" />
-              <h3 className="text-lg font-bold text-foreground">Global Parameters</h3>
+              <h3 className="text-lg font-bold text-foreground">{t('tournamentManager.scheduleConfig.globalParameters', 'Global Parameters')}</h3>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Number of Tables</label>
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{t('tournamentManager.scheduleConfig.numberOfTables', 'Number of Tables')}</label>
                 <div className="relative">
                   <Monitor className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input 
@@ -162,7 +164,7 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Base Match Duration (mins)</label>
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{t('tournamentManager.scheduleConfig.baseMatchDuration', 'Base Match Duration (mins)')}</label>
                 <div className="relative">
                   <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input 
@@ -180,12 +182,12 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
           <div className="bg-card border border-border rounded-xl p-6">
             <div className="flex items-center gap-2 mb-6">
               <Clock className="w-5 h-5 text-primary" />
-              <h3 className="text-lg font-bold text-foreground">Operating Hours</h3>
+              <h3 className="text-lg font-bold text-foreground">{t('tournamentManager.scheduleConfig.operatingHours', 'Operating Hours')}</h3>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Facility Open</label>
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{t('tournamentManager.scheduleConfig.facilityOpen', 'Facility Open')}</label>
                 <div className="relative">
                   <Input 
                     type="time" 
@@ -196,7 +198,7 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Facility Close</label>
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{t('tournamentManager.scheduleConfig.facilityClose', 'Facility Close')}</label>
                 <div className="relative">
                   <Input 
                     type="time" 
@@ -214,7 +216,7 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <Coffee className="w-5 h-5 text-primary" />
-                <h3 className="text-lg font-bold text-foreground">Scheduled Breaks</h3>
+                <h3 className="text-lg font-bold text-foreground">{t('tournamentManager.scheduleConfig.scheduledBreaks', 'Scheduled Breaks')}</h3>
               </div>
               <Switch 
                 checked={hasBreaks} 
@@ -225,7 +227,7 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
             
             <div className={`grid grid-cols-1 sm:grid-cols-2 gap-6 transition-opacity duration-300 ${hasBreaks ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Start Time</label>
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{t('tournamentManager.scheduleConfig.startTime', 'Start Time')}</label>
                 <div className="relative">
                   <Input 
                     type="time" 
@@ -236,7 +238,7 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Duration (mins)</label>
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{t('tournamentManager.scheduleConfig.durationMins', 'Duration (mins)')}</label>
                 <div className="relative">
                   <Hourglass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input 

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Select,
   SelectContent,
@@ -14,15 +15,16 @@ export default function TournamentFilters({
   onSearch?: (q: string) => void;
   onSort?: (value: string) => void;
 }) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
 
   const sortOptions = useMemo(
     () => [
-      { value: "start_asc", label: "Start date ↑" },
-      { value: "start_desc", label: "Start date ↓" },
-      { value: "participants_desc", label: "Participants ↓" },
+      { value: "start_asc", label: t('referee.tournaments.startDateAsc', 'Start date ↑') },
+      { value: "start_desc", label: t('referee.tournaments.startDateDesc', 'Start date ↓') },
+      { value: "participants_desc", label: t('referee.tournaments.participantsDesc', 'Participants ↓') },
     ],
-    [],
+    [t],
   );
 
   return (
@@ -30,7 +32,7 @@ export default function TournamentFilters({
       <div className="flex w-full max-w-md items-center gap-2">
         <input
           type="search"
-          placeholder="Search tournaments"
+          placeholder={t('referee.tournaments.searchTournaments', 'Search tournaments')}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -43,7 +45,7 @@ export default function TournamentFilters({
       <div className="ml-auto flex items-center gap-2">
         <Select onValueChange={(v) => onSort?.(v)}>
           <SelectTrigger className="min-w-[160px]">
-            <SelectValue placeholder="Sort by..." />
+            <SelectValue placeholder={t('referee.tournaments.sortBy', 'Sort by...')} />
           </SelectTrigger>
           <SelectContent>
             {sortOptions.map((s) => (

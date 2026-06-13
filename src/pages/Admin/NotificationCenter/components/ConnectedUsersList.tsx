@@ -11,8 +11,10 @@ import { useConnectedUsers, useDisconnectUser } from "@/hooks/queries/useNotific
 import { Users, PowerOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 
 export default function ConnectedUsersList() {
+  const { t } = useTranslation();
   const { data, isLoading, refetch } = useConnectedUsers();
   const disconnectUser = useDisconnectUser();
 
@@ -21,11 +23,11 @@ export default function ConnectedUsersList() {
       { userId },
       {
         onSuccess: () => {
-          toast.success(`User ${userId} disconnected`);
+          toast.success(t("adminNotifications.userDisconnected", { userId, defaultValue: `User ${userId} disconnected` }));
           refetch();
         },
         onError: (err: any) => {
-          toast.error(err.message || "Failed to disconnect user");
+          toast.error(err.message || t("adminNotifications.disconnectFailed", "Failed to disconnect user"));
         },
       }
     );
@@ -39,11 +41,11 @@ export default function ConnectedUsersList() {
       <div className="p-4 border-b flex items-center justify-between bg-muted/20">
         <h2 className="font-semibold flex items-center gap-2">
           <Users className="h-4 w-4" />
-          Connected Users
+          {t("adminNotifications.connectedUsers", "Connected Users")}
           <Badge variant="secondary" className="ml-2">{total}</Badge>
         </h2>
         <Button variant="outline" size="sm" onClick={() => refetch()}>
-          Refresh
+          {t("adminNotifications.refresh", "Refresh")}
         </Button>
       </div>
 
@@ -51,8 +53,8 @@ export default function ConnectedUsersList() {
         <Table>
           <TableHeader className="bg-muted/50 sticky top-0">
             <TableRow>
-              <TableHead>User ID</TableHead>
-              <TableHead className="text-right">Action</TableHead>
+              <TableHead>{t("adminNotifications.userId", "User ID")}</TableHead>
+              <TableHead className="text-right">{t("adminNotifications.action", "Action")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -61,14 +63,14 @@ export default function ConnectedUsersList() {
                 <TableCell colSpan={2} className="h-32 text-center">
                   <div className="flex flex-col items-center justify-center text-muted-foreground">
                     <Loader2 className="h-6 w-6 animate-spin mb-2" />
-                    Fetching connections...
+                    {t("adminNotifications.fetching", "Fetching connections...")}
                   </div>
                 </TableCell>
               </TableRow>
             ) : users.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={2} className="h-32 text-center text-muted-foreground">
-                  No active connections found.
+                  {t("adminNotifications.noConnections", "No active connections found.")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -83,7 +85,7 @@ export default function ConnectedUsersList() {
                       onClick={() => handleDisconnect(userId)}
                       disabled={disconnectUser.isPending}
                     >
-                      <PowerOff className="h-4 w-4 mr-1" /> Disconnect
+                      <PowerOff className="h-4 w-4 mr-1" /> {t("adminNotifications.disconnect", "Disconnect")}
                     </Button>
                   </TableCell>
                 </TableRow>

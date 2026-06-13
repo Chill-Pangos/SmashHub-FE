@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { useCreatePermission, useUpdatePermission } from "@/hooks/queries/usePermissionQueries";
 import { toast } from "sonner";
 import type { Permission, CreatePermissionRequest, UpdatePermissionRequest } from "@/types/permission.types";
+import { useTranslation } from "react-i18next";
 
 interface PermissionFormModalProps {
   open: boolean;
@@ -20,6 +21,7 @@ interface PermissionFormModalProps {
 }
 
 export default function PermissionFormModal({ open, onOpenChange, permission }: PermissionFormModalProps) {
+  const { t } = useTranslation();
   const isEdit = !!permission;
   const [formData, setFormData] = useState<CreatePermissionRequest | UpdatePermissionRequest>({
     name: "",
@@ -53,22 +55,22 @@ export default function PermissionFormModal({ open, onOpenChange, permission }: 
         { id: permission.id, data: formData as UpdatePermissionRequest },
         {
           onSuccess: () => {
-            toast.success("Permission updated successfully");
+            toast.success(t("adminRoles.permissionUpdated", "Permission updated successfully"));
             onOpenChange(false);
           },
           onError: (error: any) => {
-            toast.error(error.message || "Failed to update permission");
+            toast.error(error.message || t("adminRoles.updatePermissionError", "Failed to update permission"));
           },
         }
       );
     } else {
       createPermission.mutate(formData as CreatePermissionRequest, {
         onSuccess: () => {
-          toast.success("Permission created successfully");
+          toast.success(t("adminRoles.permissionCreated", "Permission created successfully"));
           onOpenChange(false);
         },
         onError: (error: any) => {
-          toast.error(error.message || "Failed to create permission");
+          toast.error(error.message || t("adminRoles.createPermissionError", "Failed to create permission"));
         },
       });
     }
@@ -81,12 +83,12 @@ export default function PermissionFormModal({ open, onOpenChange, permission }: 
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{isEdit ? "Edit Permission" : "Create Permission"}</DialogTitle>
+            <DialogTitle>{isEdit ? t("adminRoles.editPermission", "Edit Permission") : t("adminRoles.createPermission", "Create Permission")}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
-                Name
+                {t("adminRoles.name", "Name")}
               </Label>
               <Input
                 id="name"
@@ -100,10 +102,10 @@ export default function PermissionFormModal({ open, onOpenChange, permission }: 
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("adminRoles.cancel", "Cancel")}
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : "Save changes"}
+              {isLoading ? t("adminRoles.saving", "Saving...") : t("adminRoles.saveChanges", "Save changes")}
             </Button>
           </DialogFooter>
         </form>

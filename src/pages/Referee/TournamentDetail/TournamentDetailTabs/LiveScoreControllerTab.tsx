@@ -1,7 +1,9 @@
 import { useMatchesByStatus } from '@/hooks/queries';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function LiveScoreControllerTab() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: activeMatchesData, isLoading } = useMatchesByStatus('in_progress', 1, 1);
   const activeMatch = activeMatchesData?.rows?.[0];
@@ -10,11 +12,11 @@ export default function LiveScoreControllerTab() {
   // Currently we only have match-level status and setsWonA/setsWonB.
 
   if (isLoading) {
-    return <div className="text-muted-foreground p-10 text-center border border-dashed border-border rounded-xl">Loading active match...</div>
+    return <div className="text-muted-foreground p-10 text-center border border-dashed border-border rounded-xl">{t("referee.liveScoreController.loading", "Loading active match...")}</div>
   }
 
   if (!activeMatch) {
-    return <div className="text-muted-foreground p-10 text-center border border-dashed border-border rounded-xl">No active matches to track. Select a match from schedule to start.</div>
+    return <div className="text-muted-foreground p-10 text-center border border-dashed border-border rounded-xl">{t("referee.liveScoreController.noActiveMatches", "No active matches to track. Select a match from schedule to start.")}</div>
   }
 
   const p1Name = activeMatch.entryA?.team?.name || "Player 1";
@@ -36,14 +38,14 @@ export default function LiveScoreControllerTab() {
                <span className="text-5xl font-black text-primary font-mono">{setsWonA}</span>
                <button className="w-10 h-10 rounded-full bg-primary/20 text-primary text-xl font-bold hover:bg-primary/40">+</button>
              </div>
-             <p className="text-xs text-muted-foreground mt-4 font-semibold">Match Sets Won</p>
+             <p className="text-xs text-muted-foreground mt-4 font-semibold">{t("referee.liveScoreController.matchSetsWon", "Match Sets Won")}</p>
            </div>
         </div>
 
         {/* Center Panel */}
         <div className="bg-secondary/20 border border-border rounded-2xl p-6 flex flex-col items-center justify-center">
            <div className="w-full flex justify-between items-center text-xs font-bold text-muted-foreground mb-4">
-             <span>LIVE MATCH</span>
+             <span>{t("referee.liveScoreController.liveMatch", "LIVE MATCH")}</span>
              <span className="font-mono text-foreground">#{activeMatch.id}</span>
            </div>
            
@@ -57,13 +59,13 @@ export default function LiveScoreControllerTab() {
              </div>
            </div>
            <p className="text-xs text-muted-foreground mt-4 text-center">
-             Detailed sub-match point tracking is available in Match Execution.
+             {t("referee.liveScoreController.detailTracking", "Detailed sub-match point tracking is available in Match Execution.")}
            </p>
            <button 
              onClick={() => navigate(`/referee/matches/${activeMatch.id}`)}
              className="mt-6 px-4 py-2 bg-primary text-primary-foreground font-bold rounded-lg hover:opacity-90 w-full"
            >
-             Open Match Execution
+             {t("referee.liveScoreController.openMatchExecution", "Open Match Execution")}
            </button>
         </div>
 
@@ -77,7 +79,7 @@ export default function LiveScoreControllerTab() {
                <span className="text-5xl font-black font-mono">{setsWonB}</span>
                <button className="w-10 h-10 rounded-full bg-secondary text-foreground text-xl font-bold hover:bg-muted">+</button>
              </div>
-             <p className="text-xs text-muted-foreground mt-4 font-semibold opacity-80">Match Sets Won</p>
+             <p className="text-xs text-muted-foreground mt-4 font-semibold opacity-80">{t("referee.liveScoreController.matchSetsWon", "Match Sets Won")}</p>
            </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { Calendar, MapPin, Users, Search } from "lucide-react";
 import { useTournaments } from "@/hooks/queries";
 import type { Tournament } from "@/types";
 import ServerPagination from "@/components/custom/ServerPagination";
+import { useTranslation } from "react-i18next";
 
 function formatDateRange(start?: string, end?: string) {
   if (!start) return "TBD";
@@ -14,6 +15,7 @@ function formatDateRange(start?: string, end?: string) {
 }
 
 export default function PublicTournamentListing() {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -41,9 +43,9 @@ export default function PublicTournamentListing() {
     <div className="container mx-auto px-6 py-12 space-y-8 max-w-5xl">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Upcoming Tournaments</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t("publicPlayer.tournaments.upcoming")}</h1>
           <p className="text-muted-foreground mt-1">
-            Discover and join our exciting competitive events.
+            {t("publicPlayer.tournaments.discover")}
           </p>
         </div>
         <div className="relative w-full md:w-72">
@@ -59,10 +61,10 @@ export default function PublicTournamentListing() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-20 text-muted-foreground animate-pulse">Loading tournaments...</div>
+        <div className="text-center py-20 text-muted-foreground animate-pulse">{t("publicPlayer.tournaments.loading")}</div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-20 rounded-xl border border-border bg-card shadow-sm">
-          <p className="text-muted-foreground text-lg">No tournaments found.</p>
+          <p className="text-muted-foreground text-lg">{t("publicPlayer.tournaments.notFound")}</p>
         </div>
       ) : (
         <>

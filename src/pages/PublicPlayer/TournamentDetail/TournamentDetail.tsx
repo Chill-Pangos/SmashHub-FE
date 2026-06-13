@@ -8,8 +8,10 @@ import {
   ScheduleTab,
   RegistrationTab,
 } from "@/pages/PublicPlayer/TournamentDetail/TournamentDetailTabs";
+import { useTranslation } from "react-i18next";
 
 export default function TournamentDetail() {
+  const { t } = useTranslation();
   const { tournamentId } = useParams();
   const id = tournamentId ? parseInt(tournamentId, 10) : 0;
 
@@ -21,18 +23,18 @@ export default function TournamentDetail() {
   } = useTournament(id);
 
   // State cho Tabs
-  const [activeTab, setActiveTab] = useState("Overview");
+  const [activeTab, setActiveTab] = useState(t("publicPlayer.tournamentDetail.overview", "Overview"));
   const tabs = [
-    "Overview",
-    "Schedule",
-    "Registration",
+    t("publicPlayer.tournamentDetail.overview", "Overview"),
+    t("publicPlayer.tournamentDetail.scheduleTab.title", "Schedule"),
+    t("publicPlayer.tournamentDetail.registrationTab.title", "Registration"),
   ];
 
   if (isLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center rounded-2xl border border-border bg-card">
         <p className="text-muted-foreground animate-pulse">
-          Loading tournament details...
+          {t("publicPlayer.tournamentDetail.loading")}
         </p>
       </div>
     );
@@ -63,16 +65,16 @@ export default function TournamentDetail() {
   };
 
   const renderTabContent = () => {
-    switch (activeTab) {
-      case "Overview":
-        return <OverviewTab tournament={tournament} />;
-      case "Schedule":
-        return <ScheduleTab tournamentId={id} tournament={tournament} />;
-      case "Registration":
-        return <RegistrationTab tournamentId={id} tournament={tournament} />;
-      default:
-        return null;
+    if (activeTab === t("publicPlayer.tournamentDetail.overview", "Overview")) {
+      return <OverviewTab tournament={tournament} />;
     }
+    if (activeTab === t("publicPlayer.tournamentDetail.scheduleTab.title", "Schedule")) {
+      return <ScheduleTab tournamentId={id} tournament={tournament} />;
+    }
+    if (activeTab === t("publicPlayer.tournamentDetail.registrationTab.title", "Registration")) {
+      return <RegistrationTab tournamentId={id} tournament={tournament} />;
+    }
+    return null;
   };
 
   return (

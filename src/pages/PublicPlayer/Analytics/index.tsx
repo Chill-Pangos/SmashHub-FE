@@ -15,6 +15,7 @@ import {
   PolarRadiusAxis,
   ResponsiveContainer,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 
 const radarData = [
   { subject: "Aggression", A: 85, fullMark: 100 },
@@ -43,14 +44,15 @@ const generateHeatmapData = () => {
 const heatmapData = generateHeatmapData();
 
 export default function Analytics() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="space-y-1">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Personal Analytics
+          {t("publicPlayer.analytics.personalAnalytics")}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Season 14 Performance Overview
+          {t("publicPlayer.analytics.seasonPerformance")}
         </p>
       </div>
 
@@ -61,7 +63,7 @@ export default function Analytics() {
           <div className="flex items-center gap-2 mb-3">
             <Trophy className="h-4 w-4 text-muted-foreground" />
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Total Tournaments
+              {t("publicPlayer.analytics.totalTournaments")}
             </span>
           </div>
           <div className="flex items-end gap-2">
@@ -77,7 +79,7 @@ export default function Analytics() {
           <div className="flex items-center gap-2 mb-3">
             <Activity className="h-4 w-4 text-muted-foreground" />
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Win/Loss Ratio
+              {t("publicPlayer.analytics.winLossRatio")}
             </span>
           </div>
           <div className="flex items-end gap-2">
@@ -94,7 +96,7 @@ export default function Analytics() {
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Peak ELO
+              {t("publicPlayer.analytics.peakElo")}
             </span>
           </div>
           <div className="flex items-center justify-between">
@@ -110,7 +112,7 @@ export default function Analytics() {
           <div className="flex items-center gap-2 mb-3">
             <Award className="h-4 w-4 text-muted-foreground" />
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Podium Finishes
+              {t("publicPlayer.analytics.podiumFinishes")}
             </span>
           </div>
           <div className="flex items-center justify-between mt-2">
@@ -133,7 +135,7 @@ export default function Analytics() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Win Rate by Category (Radar Chart) */}
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <h3 className="text-lg font-semibold mb-6">Win Rate by Category</h3>
+          <h3 className="text-lg font-semibold mb-6">{t("publicPlayer.analytics.winRateByCategory")}</h3>
           <div className="h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
@@ -158,9 +160,9 @@ export default function Analytics() {
         {/* Match Volume Heatmap */}
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm flex flex-col">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold">Match Volume Heatmap</h3>
+            <h3 className="text-lg font-semibold">{t("publicPlayer.analytics.matchVolumeHeatmap")}</h3>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>Less</span>
+              <span>{t("publicPlayer.analytics.less")}</span>
               <div className="flex gap-1">
                 <div className="w-3 h-3 rounded-sm bg-border"></div>
                 <div className="w-3 h-3 rounded-sm bg-cyan-950"></div>
@@ -168,7 +170,7 @@ export default function Analytics() {
                 <div className="w-3 h-3 rounded-sm bg-cyan-600"></div>
                 <div className="w-3 h-3 rounded-sm bg-cyan-400"></div>
               </div>
-              <span>More</span>
+              <span>{t("publicPlayer.analytics.more")}</span>
             </div>
           </div>
           
@@ -206,16 +208,16 @@ export default function Analytics() {
 
       {/* Recent Milestones */}
       <div>
-        <h3 className="text-lg font-semibold mb-4">Recent Milestones</h3>
+        <h3 className="text-lg font-semibold mb-4">{t("publicPlayer.analytics.recentMilestones")}</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card/50">
             <div className="p-3 bg-yellow-500/10 text-yellow-500 rounded-full">
               <Flame className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-semibold text-sm">10 Winstreak</h4>
+              <h4 className="font-semibold text-sm">10 {t("publicPlayer.analytics.winstreak")}</h4>
               <p className="text-xs text-muted-foreground">
-                Achieved Ranked Matchmaking
+                {t("publicPlayer.analytics.achievedRanked")}
               </p>
             </div>
           </div>
@@ -225,9 +227,9 @@ export default function Analytics() {
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-semibold text-sm">Pro Tier Reached</h4>
+              <h4 className="font-semibold text-sm">{t("publicPlayer.analytics.proTierReached")}</h4>
               <p className="text-xs text-muted-foreground">
-                Crossed 2100 ELO threshold
+                {t("publicPlayer.analytics.crossedEloThreshold").replace("ELO", "2100 ELO")}
               </p>
             </div>
           </div>
@@ -237,7 +239,7 @@ export default function Analytics() {
               <Medal className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-semibold text-sm">Regional Finalist</h4>
+              <h4 className="font-semibold text-sm">{t("publicPlayer.analytics.regionalFinalist")}</h4>
               <p className="text-xs text-muted-foreground">
                 NA East Winter Circuit
               </p>

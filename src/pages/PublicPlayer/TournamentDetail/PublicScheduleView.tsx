@@ -1,12 +1,14 @@
 import { Calendar, Clock, Coffee, PlayCircle } from "lucide-react";
 import { Calendar as CalendarUI } from "@/components/ui/calendar";
 import type { ScheduleConfigResponse } from "@/types/scheduleConfig.types";
+import { useTranslation } from "react-i18next";
 
 interface PublicScheduleViewProps {
   config: ScheduleConfigResponse;
 }
 
 export default function PublicScheduleView({ config }: PublicScheduleViewProps) {
+  const { t } = useTranslation();
   const formatTime = (hour: number | null | undefined, minute: number | null | undefined) => {
     if (hour == null || minute == null) return "N/A";
     const h = hour.toString().padStart(2, "0");
@@ -58,15 +60,15 @@ export default function PublicScheduleView({ config }: PublicScheduleViewProps) 
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                 <Calendar className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="text-lg font-semibold">Tournament Dates</h3>
+              <h3 className="text-lg font-semibold">{t("publicPlayer.tournamentDetail.scheduleTab.eventDates", "Tournament Dates")}</h3>
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-center py-2 border-b border-border/50">
-                <span className="text-sm text-muted-foreground">Start Date</span>
+                <span className="text-sm text-muted-foreground">{t("publicPlayer.tournamentDetail.scheduleTab.startDate", "Start Date")}</span>
                 <span className="font-medium">{formatDate(config.startDate)}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-border/50">
-                <span className="text-sm text-muted-foreground">End Date</span>
+                <span className="text-sm text-muted-foreground">{t("publicPlayer.tournamentDetail.scheduleTab.endDate", "End Date")}</span>
                 <span className="font-medium">{formatDate(config.endDate)}</span>
               </div>
             </div>
@@ -78,15 +80,15 @@ export default function PublicScheduleView({ config }: PublicScheduleViewProps) 
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
                 <PlayCircle className="h-5 w-5 text-secondary-foreground" />
               </div>
-              <h3 className="text-lg font-semibold">Registration Period</h3>
+              <h3 className="text-lg font-semibold">{t("publicPlayer.tournamentDetail.scheduleTab.registrationPeriod", "Registration Period")}</h3>
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-center py-2 border-b border-border/50">
-                <span className="text-sm text-muted-foreground">Opens</span>
+                <span className="text-sm text-muted-foreground">{t("publicPlayer.tournamentDetail.scheduleTab.opens", "Opens")}</span>
                 <span className="font-medium">{formatDate(config.registrationStartDate)}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-border/50">
-                <span className="text-sm text-muted-foreground">Closes</span>
+                <span className="text-sm text-muted-foreground">{t("publicPlayer.tournamentDetail.scheduleTab.closes", "Closes")}</span>
                 <span className="font-medium">{formatDate(config.registrationEndDate)}</span>
               </div>
             </div>
@@ -105,15 +107,15 @@ export default function PublicScheduleView({ config }: PublicScheduleViewProps) 
           <div className="mt-6 flex flex-col gap-3 text-sm font-medium w-full">
             <div className="flex items-center gap-3">
               <div className="w-4 h-4 flex-shrink-0 rounded-full bg-blue-100 border border-blue-300 dark:bg-blue-900 dark:border-blue-700" />
-              <span>Registration Period</span>
+              <span>{t("publicPlayer.tournamentDetail.scheduleTab.registrationPeriod", "Registration Period")}</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-4 h-4 flex-shrink-0 rounded-full bg-yellow-100 border border-yellow-300 dark:bg-yellow-900 dark:border-yellow-700" />
-              <span>Bracket Generation</span>
+              <span>{t("publicPlayer.tournamentDetail.scheduleTab.bracketGeneration", "Bracket Generation")}</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-4 h-4 flex-shrink-0 rounded-full bg-green-100 border border-green-300 dark:bg-green-900 dark:border-green-700" />
-              <span>Event Dates</span>
+              <span>{t("publicPlayer.tournamentDetail.scheduleTab.eventDates", "Event Dates")}</span>
             </div>
           </div>
         </div>
@@ -124,10 +126,10 @@ export default function PublicScheduleView({ config }: PublicScheduleViewProps) 
         <div className="p-6 border-b border-border bg-secondary/20">
           <h3 className="text-lg font-semibold flex items-center gap-2">
             <Clock className="h-5 w-5 text-primary" />
-            Daily Schedule Format
+            {t("publicPlayer.tournamentDetail.scheduleTab.dailySchedule", "Daily Schedule Format")}
           </h3>
           <p className="text-sm text-muted-foreground mt-1">
-            Standard format for match days during the tournament.
+            {t("publicPlayer.tournamentDetail.scheduleTab.dailyFormatDesc", "Standard format for match days during the tournament.")}
           </p>
         </div>
         
@@ -142,7 +144,7 @@ export default function PublicScheduleView({ config }: PublicScheduleViewProps) 
                 <span className="text-xl font-bold text-foreground">
                   {formatTime(config.dailyStartHour, config.dailyStartMinute)}
                 </span>
-                <span className="font-semibold text-primary">Matches Begin</span>
+                <span className="font-semibold text-primary">{t("publicPlayer.tournamentDetail.scheduleTab.matchesBegin", "Matches Begin")}</span>
                 <span className="text-sm text-muted-foreground mt-1">
                   Each match is scheduled for {config.matchDurationMinutes} minutes, with a {config.breakDurationMinutes}-minute break between matches.
                 </span>
@@ -159,7 +161,7 @@ export default function PublicScheduleView({ config }: PublicScheduleViewProps) 
                   <span className="text-xl font-bold text-foreground">
                     {formatTime(config.lunchBreakStartHour, config.lunchBreakStartMinute)} - {formatTime(config.lunchBreakEndHour, config.lunchBreakEndMinute)}
                   </span>
-                  <span className="font-semibold text-secondary-foreground">Lunch Break</span>
+                  <span className="font-semibold text-secondary-foreground">{t("publicPlayer.tournamentDetail.scheduleTab.lunchBreak", "Lunch Break")}</span>
                   <span className="text-sm text-muted-foreground mt-1">
                     Play pauses for {config.lunchBreakDurationMinutes} minutes.
                   </span>
@@ -176,9 +178,9 @@ export default function PublicScheduleView({ config }: PublicScheduleViewProps) 
                 <span className="text-xl font-bold text-foreground">
                   {formatTime(config.dailyEndHour, config.dailyEndMinute)}
                 </span>
-                <span className="font-semibold text-muted-foreground">End of Play</span>
+                <span className="font-semibold text-muted-foreground">{t("publicPlayer.tournamentDetail.scheduleTab.endOfPlay", "End of Play")}</span>
                 <span className="text-sm text-muted-foreground mt-1">
-                  All matches for the day must conclude by this time.
+                  {t("publicPlayer.tournamentDetail.scheduleTab.endOfPlayDesc", "All matches for the day must conclude by this time.")}
                 </span>
               </div>
             </div>
@@ -186,7 +188,7 @@ export default function PublicScheduleView({ config }: PublicScheduleViewProps) 
           
           {config.notes && (
             <div className="mt-8 rounded-xl bg-secondary/30 p-4 border border-secondary/50">
-              <h4 className="font-semibold text-sm mb-1">Additional Notes</h4>
+              <h4 className="font-semibold text-sm mb-1">{t("publicPlayer.tournamentDetail.scheduleTab.additionalNotes", "Additional Notes")}</h4>
               <p className="text-sm text-muted-foreground">{config.notes}</p>
             </div>
           )}

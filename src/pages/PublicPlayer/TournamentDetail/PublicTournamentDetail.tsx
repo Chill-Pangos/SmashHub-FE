@@ -6,8 +6,10 @@ import type { ScheduleConfigResponse } from "@/types/scheduleConfig.types";
 import { Calendar, MapPin, AlertCircle } from "lucide-react";
 import { OverviewTab } from "@/pages/PublicPlayer/TournamentDetail/TournamentDetailTabs";
 import PublicScheduleView from "./PublicScheduleView";
+import { useTranslation } from "react-i18next";
 
 export default function PublicTournamentDetail() {
+  const { t } = useTranslation();
   const { tournamentId } = useParams();
   const id = tournamentId ? parseInt(tournamentId, 10) : 0;
 
@@ -17,8 +19,8 @@ export default function PublicTournamentDetail() {
   const [isScheduleLoading, setIsScheduleLoading] = useState(false);
   const [scheduleError, setScheduleError] = useState<string | null>(null);
 
-  const [activeTab, setActiveTab] = useState("Overview");
-  const tabs = ["Overview", "Schedule"];
+  const [activeTab, setActiveTab] = useState(t("publicPlayer.tournamentDetail.overview", "Overview"));
+  const tabs = [t("publicPlayer.tournamentDetail.overview", "Overview"), t("publicPlayer.tournamentDetail.scheduleTab.title", "Schedule")];
 
   useEffect(() => {
     const fetchScheduleConfig = async () => {
@@ -48,7 +50,7 @@ export default function PublicTournamentDetail() {
     return (
       <div className="container mx-auto px-6 py-12 max-w-5xl">
         <div className="flex h-[40vh] items-center justify-center rounded-2xl border border-border bg-card">
-          <p className="text-muted-foreground animate-pulse">Loading tournament details...</p>
+          <p className="text-muted-foreground animate-pulse">{t("publicPlayer.tournamentDetail.loading")}</p>
         </div>
       </div>
     );
@@ -91,28 +93,27 @@ export default function PublicTournamentDetail() {
   };
 
   const renderTabContent = () => {
-    switch (activeTab) {
-      case "Overview":
-        return <OverviewTab tournament={tournament} scheduleConfig={scheduleConfig || undefined} />;
-      case "Schedule":
-        if (isScheduleLoading) {
-          return (
-            <div className="py-12 text-center text-muted-foreground animate-pulse">
-              Loading schedule configuration...
-            </div>
-          );
-        }
-        if (scheduleError || !scheduleConfig) {
-          return (
-            <div className="py-12 text-center rounded-xl border border-border bg-card/50">
-              <p className="text-muted-foreground">{scheduleError || "No schedule information available."}</p>
-            </div>
-          );
-        }
-        return <PublicScheduleView config={scheduleConfig} />;
-      default:
-        return null;
+    if (activeTab === t("publicPlayer.tournamentDetail.overview", "Overview")) {
+      return <OverviewTab tournament={tournament} scheduleConfig={scheduleConfig || undefined} />;
     }
+    if (activeTab === t("publicPlayer.tournamentDetail.scheduleTab.title", "Schedule")) {
+      if (isScheduleLoading) {
+        return (
+          <div className="py-12 text-center text-muted-foreground animate-pulse">
+            {t("publicPlayer.tournamentDetail.loadingSchedule")}
+          </div>
+        );
+      }
+      if (scheduleError || !scheduleConfig) {
+        return (
+          <div className="py-12 text-center rounded-xl border border-border bg-card/50">
+            <p className="text-muted-foreground">{scheduleError || "No schedule information available."}</p>
+          </div>
+        );
+      }
+      return <PublicScheduleView config={scheduleConfig} />;
+    }
+    return null;
   };
 
   return (

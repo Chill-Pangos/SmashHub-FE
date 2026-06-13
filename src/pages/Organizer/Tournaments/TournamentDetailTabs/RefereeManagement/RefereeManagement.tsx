@@ -4,6 +4,7 @@ import { Medal, Search, UserPlus, Users } from "lucide-react";
 import { InviteRefereeModal, RefereeCard } from "./components";
 import { useRefereesByTournament, useTournamentRefereeInvitations } from "@/hooks/queries";
 import type { RefereeDisplay } from "./components/RefereeCard";
+import { useTranslation } from "react-i18next";
 
 interface RefereeManagementProps {
   tournamentId: number;
@@ -12,6 +13,7 @@ interface RefereeManagementProps {
 export default function RefereeManagement({
   tournamentId,
 }: RefereeManagementProps) {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inviteMode, setInviteMode] = useState<"chief" | "referee">("referee");
   const [search, setSearch] = useState("");
@@ -50,35 +52,34 @@ export default function RefereeManagement({
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Referees</h2>
+          <h2 className="text-xl font-semibold text-foreground">{t('tournamentManager.refereeManagement.title', 'Referees')}</h2>
           <p className="text-sm text-muted-foreground">
-            Manage tournament officials and assign roles.
+            {t('tournamentManager.refereeManagement.subtitle', 'Manage tournament officials and assign roles.')}
           </p>
           <p className="text-xs text-muted-foreground">
-            Tournament #{tournamentId}
+            {t('tournamentManager.refereeManagement.tournamentId', 'Tournament #{{id}}').replace('{{id}}', tournamentId.toString())}
           </p>
         </div>
         <Button
           className="bg-primary text-primary-foreground font-bold hover:bg-primary/90 shadow-auth-icon-shadow"
           onClick={() => handleOpenInvite("referee")}
         >
-          <UserPlus className="mr-2 h-4 w-4" /> INVITE REFEREE
+          <UserPlus className="mr-2 h-4 w-4" /> {t('tournamentManager.refereeManagement.inviteReferee', 'INVITE REFEREE')}
         </Button>
       </div>
 
       <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
         <p className="text-sm text-muted-foreground font-medium">
-          Assign a chief referee and manage assistant referees for this
-          tournament.
+          {t('tournamentManager.refereeManagement.description', 'Assign a chief referee and manage assistant referees for this tournament.')}
         </p>
       </div>
 
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Medal className="h-5 w-5 text-chart-4" />
-          <h3 className="text-lg font-bold text-foreground">Chief Referee</h3>
+          <h3 className="text-lg font-bold text-foreground">{t('tournamentManager.refereeManagement.chiefReferee', 'Chief Referee')}</h3>
           <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded font-bold">
-            MAX 1
+            {t('tournamentManager.refereeManagement.max1', 'MAX 1')}
           </span>
         </div>
 
@@ -92,9 +93,9 @@ export default function RefereeManagement({
             <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center mb-3">
               <span className="text-xl text-muted-foreground">+</span>
             </div>
-            <p className="font-bold text-foreground">Assign Chief Referee</p>
+            <p className="font-bold text-foreground">{t('tournamentManager.refereeManagement.assignChiefReferee', 'Assign Chief Referee')}</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Select a primary official to oversee tournament rules.
+              {t('tournamentManager.refereeManagement.assignChiefDesc', 'Select a primary official to oversee tournament rules.')}
             </p>
           </div>
         )}
@@ -105,17 +106,17 @@ export default function RefereeManagement({
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-muted-foreground" />
             <h3 className="text-lg font-bold text-foreground">
-              Assistant Referees
+              {t('tournamentManager.refereeManagement.assistantReferees', 'Assistant Referees')}
             </h3>
             <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded font-bold">
-              {assistantReferees.length} ASSIGNED/INVITED
+              {t('tournamentManager.refereeManagement.assignedInvited', '{{count}} ASSIGNED/INVITED').replace('{{count}}', assistantReferees.length.toString())}
             </span>
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search officials..."
+              placeholder={t('tournamentManager.refereeManagement.searchPlaceholder', 'Search officials...')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 pr-4 py-1.5 text-sm bg-input border border-border rounded-md text-foreground focus:outline-none focus:border-primary placeholder:text-muted-foreground"
@@ -128,7 +129,7 @@ export default function RefereeManagement({
             <RefereeCard key={ref.id} referee={ref} />
           ))}
           {assistantReferees.length === 0 && (
-            <p className="text-sm text-muted-foreground col-span-2">No referees found.</p>
+            <p className="text-sm text-muted-foreground col-span-2">{t('tournamentManager.refereeManagement.noRefereesFound', 'No referees found.')}</p>
           )}
         </div>
       </div>

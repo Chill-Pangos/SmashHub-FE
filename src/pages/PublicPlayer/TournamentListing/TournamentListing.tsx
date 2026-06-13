@@ -4,6 +4,7 @@ import { Calendar, MapPin, Users, Search } from "lucide-react";
 import { useTournaments } from "@/hooks/queries";
 import type { Tournament } from "@/types";
 import ServerPagination from "@/components/custom/ServerPagination";
+import { useTranslation } from "react-i18next";
 
 function formatDateRange(start?: string, end?: string) {
   if (!start) return "TBD";
@@ -14,6 +15,7 @@ function formatDateRange(start?: string, end?: string) {
 }
 
 export default function TournamentListing() {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -41,9 +43,9 @@ export default function TournamentListing() {
     <div className="px-6 py-10 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Tournaments</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t("publicPlayer.tournaments.title")}</h1>
           <p className="text-muted-foreground mt-1">
-            Discover and join upcoming tournaments.
+            {t("publicPlayer.tournaments.subtitle")}
           </p>
         </div>
         <div className="relative w-full md:w-72">
@@ -59,10 +61,10 @@ export default function TournamentListing() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-10 text-muted-foreground">Loading tournaments...</div>
+        <div className="text-center py-10 text-muted-foreground">{t("publicPlayer.tournaments.loading")}</div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-10 rounded-xl border border-border bg-card">
-          <p className="text-muted-foreground">No tournaments found.</p>
+          <p className="text-muted-foreground">{t("publicPlayer.tournaments.notFound")}</p>
         </div>
       ) : (
         <>

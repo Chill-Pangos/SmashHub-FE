@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Check, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const SUBMISSION_QUEUE = [
   {
@@ -41,6 +42,7 @@ const SUBMISSION_QUEUE = [
 ];
 
 export default function ResultsSubmissionTab() {
+  const { t } = useTranslation();
   const [selectedMatch, setSelectedMatch] = useState(SUBMISSION_QUEUE[0]);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [verifiedScores, setVerifiedScores] = useState(true);
@@ -54,13 +56,13 @@ export default function ResultsSubmissionTab() {
     <>
       <div className="flex justify-between items-start mb-6 shrink-0">
         <div>
-          <h2 className="text-2xl font-black text-foreground">Final Submission</h2>
+          <h2 className="text-2xl font-black text-foreground">{t("referee.resultsSubmission.finalSubmission", "Final Submission")}</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Review set scores before official commitment to the ledger.
+            {t("referee.resultsSubmission.reviewDesc", "Review set scores before official commitment to the ledger.")}
           </p>
         </div>
         <span className="bg-chart-4/20 text-chart-4 text-xs font-bold px-3 py-1 rounded-full mt-1">
-          Match ID: {selectedMatch.id}
+          {t("referee.resultsSubmission.matchId", "Match ID:")} {selectedMatch.id}
         </span>
       </div>
 
@@ -69,8 +71,8 @@ export default function ResultsSubmissionTab() {
           <div className={`w-16 h-16 rounded-full bg-secondary mb-2 ${p1Wins ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}></div>
           <p className="font-bold">{selectedMatch.p1}</p>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[10px] text-muted-foreground font-semibold">Seed #{selectedMatch.seed1}</span>
-            {p1Wins && <span className="text-[10px] text-primary font-bold uppercase">Winner</span>}
+            <span className="text-[10px] text-muted-foreground font-semibold">{t("referee.resultsSubmission.seed", "Seed #")}{selectedMatch.seed1}</span>
+            {p1Wins && <span className="text-[10px] text-primary font-bold uppercase">{t("referee.resultsSubmission.winner", "Winner")}</span>}
           </div>
         </div>
         
@@ -82,23 +84,23 @@ export default function ResultsSubmissionTab() {
           <div className={`w-16 h-16 rounded-full bg-secondary mb-2 ${p2Wins ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}></div>
           <p className="font-bold">{selectedMatch.p2}</p>
           <div className="flex items-center gap-2 mt-0.5">
-            {p2Wins && <span className="text-[10px] text-primary font-bold uppercase">Winner</span>}
-            <span className="text-[10px] text-muted-foreground font-semibold">Seed #{selectedMatch.seed2}</span>
+            {p2Wins && <span className="text-[10px] text-primary font-bold uppercase">{t("referee.resultsSubmission.winner", "Winner")}</span>}
+            <span className="text-[10px] text-muted-foreground font-semibold">{t("referee.resultsSubmission.seed", "Seed #")}{selectedMatch.seed2}</span>
           </div>
         </div>
       </div>
 
       <div className="bg-background border border-border rounded-xl p-6 mb-6 shrink-0">
         <h3 className="font-bold flex items-center gap-2 mb-6">
-          Set Breakdown
+          {t("referee.resultsSubmission.setBreakdown", "Set Breakdown")}
         </h3>
         <table className="w-full text-left">
           <thead className="text-xs text-muted-foreground font-bold border-b border-border">
             <tr>
-              <th className="pb-4">Player</th>
-              <th className="pb-4 text-center">Set 1</th>
-              <th className="pb-4 text-center">Set 2</th>
-              <th className="pb-4 text-center">Set 3</th>
+              <th className="pb-4">{t("referee.resultsSubmission.player", "Player")}</th>
+              <th className="pb-4 text-center">{t("referee.resultsSubmission.set1", "Set 1")}</th>
+              <th className="pb-4 text-center">{t("referee.resultsSubmission.set2", "Set 2")}</th>
+              <th className="pb-4 text-center">{t("referee.resultsSubmission.set3", "Set 3")}</th>
             </tr>
           </thead>
           <tbody>
@@ -132,7 +134,7 @@ export default function ResultsSubmissionTab() {
 
       {/* 🔴 Bổ sung khối ELO Impact Preview từ MatchResultsReviewTab */}
       <h3 className="font-bold text-sm mb-3 flex items-center gap-2 shrink-0">
-        ELO Impact Preview
+        {t("referee.resultsSubmission.eloImpactPreview", "ELO Impact Preview")}
       </h3>
       <div className="flex gap-4 mb-8 shrink-0">
         <div className="flex-1 bg-background border border-border rounded-lg p-4 flex justify-between items-center">
@@ -162,7 +164,7 @@ export default function ResultsSubmissionTab() {
       </div>
 
       <div className="border border-border rounded-xl p-6 flex flex-col bg-card shrink-0">
-        <h3 className="font-bold text-lg mb-6">Validation Checklist</h3>
+        <h3 className="font-bold text-lg mb-6">{t("referee.resultsSubmission.validationChecklist", "Validation Checklist")}</h3>
 
         <div className="flex flex-col gap-5">
           <label className="flex items-start gap-3 cursor-pointer group">
@@ -174,10 +176,10 @@ export default function ResultsSubmissionTab() {
             </div>
             <div>
               <p className={`font-semibold text-sm ${verifiedScores ? "text-foreground" : "text-muted-foreground"}`}>
-                Verify Set Scores
+                {t("referee.resultsSubmission.verifySetScores", "Verify Set Scores")}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Scores match physical card.
+                {t("referee.resultsSubmission.scoresMatchDesc", "Scores match physical card.")}
               </p>
             </div>
           </label>
@@ -191,10 +193,10 @@ export default function ResultsSubmissionTab() {
             </div>
             <div>
               <p className={`font-semibold text-sm ${signaturesLogged ? "text-foreground" : "text-muted-foreground"}`}>
-                Player Signatures Logged
+                {t("referee.resultsSubmission.playerSignatures", "Player Signatures Logged")}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Both competitors acknowledged.
+                {t("referee.resultsSubmission.bothAcknowledged", "Both competitors acknowledged.")}
               </p>
             </div>
           </label>
@@ -208,10 +210,10 @@ export default function ResultsSubmissionTab() {
             </div>
             <div>
               <p className={`font-semibold text-sm ${conductClean ? "text-foreground" : "text-muted-foreground"}`}>
-                Code of Conduct Clean
+                {t("referee.resultsSubmission.conductClean", "Code of Conduct Clean")}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                No violations to report.
+                {t("referee.resultsSubmission.noViolations", "No violations to report.")}
               </p>
             </div>
           </label>
@@ -219,11 +221,10 @@ export default function ResultsSubmissionTab() {
 
         <div className="bg-secondary/30 border border-chart-4/30 rounded-lg p-4 mb-4 mt-8">
           <p className="text-xs font-bold text-chart-4 flex items-center gap-1 mb-1">
-            ⚠️ Irreversible Action
+            {t("referee.resultsSubmission.irreversibleAction", "⚠️ Irreversible Action")}
           </p>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Submitting this card will finalize the match and update global
-            rankings.
+            {t("referee.resultsSubmission.irreversibleDesc", "Submitting this card will finalize the match and update global rankings.")}
           </p>
         </div>
 
@@ -231,7 +232,7 @@ export default function ResultsSubmissionTab() {
           disabled={!verifiedScores || !signaturesLogged}
           className="w-full py-3 rounded-lg font-bold text-sm bg-primary text-primary-foreground shadow-[var(--auth-primary-glow)] disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
         >
-          <Check className="w-4 h-4" /> Submit Official Card
+          <Check className="w-4 h-4" /> {t("referee.resultsSubmission.submitOfficialCard", "Submit Official Card")}
         </button>
       </div>
     </>
@@ -243,10 +244,10 @@ export default function ResultsSubmissionTab() {
       <div className="w-full lg:w-1/3 flex flex-col gap-4 h-full">
         <div>
           <h2 className="text-lg font-bold text-foreground">
-            Awaiting Final Submission
+            {t("referee.resultsSubmission.awaitingSubmission", "Awaiting Final Submission")}
           </h2>
           <p className="text-xs text-muted-foreground mt-1">
-            Select a completed match card to finalize.
+            {t("referee.resultsSubmission.selectToFinalize", "Select a completed match card to finalize.")}
           </p>
         </div>
 
@@ -262,12 +263,12 @@ export default function ResultsSubmissionTab() {
             >
               <div className="flex gap-4">
                 <div className="flex flex-col justify-center">
-                  <span className="text-[10px] text-muted-foreground font-bold">ID</span>
+                  <span className="text-[10px] text-muted-foreground font-bold">{t("referee.resultsSubmission.id", "ID")}</span>
                   <span className="text-sm font-bold text-primary">{match.id}</span>
                 </div>
                 <div>
                   <p className="font-semibold text-sm mt-1">
-                    {match.p1} <span className="text-muted-foreground mx-1">vs</span> {match.p2}
+                    {match.p1} <span className="text-muted-foreground mx-1">{t("referee.resultsSubmission.vs", "vs")}</span> {match.p2}
                   </p>
                   <div className="flex items-center gap-2 mt-2">
                     <span
@@ -276,7 +277,7 @@ export default function ResultsSubmissionTab() {
                       {match.status}
                     </span>
                     <span className="text-[10px] text-muted-foreground">
-                      {match.court} • Completed {match.finishedAt}
+                      {match.court} • {t("referee.resultsSubmission.completed", "Completed")} {match.finishedAt}
                     </span>
                   </div>
                 </div>
@@ -285,7 +286,7 @@ export default function ResultsSubmissionTab() {
                 <p className="text-lg font-black">
                   {match.p1Sets} - {match.p2Sets}
                 </p>
-                <p className="text-[10px] text-muted-foreground">Final Score</p>
+                <p className="text-[10px] text-muted-foreground">{t("referee.resultsSubmission.finalScore", "Final Score")}</p>
               </div>
             </div>
           ))}
@@ -310,7 +311,7 @@ export default function ResultsSubmissionTab() {
         >
           <div className="flex items-center justify-between sticky top-0 bg-card p-4 z-30 border-b border-border mb-4">
             <p className="text-sm font-bold text-foreground">
-              Submission Detail
+              {t("referee.resultsSubmission.submissionDetail", "Submission Detail")}
             </p>
             <button
               type="button"

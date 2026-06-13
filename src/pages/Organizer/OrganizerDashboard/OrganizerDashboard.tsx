@@ -1,4 +1,4 @@
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "react-i18next";
 import {
   Card,
   CardContent,
@@ -33,10 +33,10 @@ export default function OrganizerDashboard() {
     <div className="space-y-6 px-6 py-10">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">
-          {t("organizer.dashboard.title", "Organizer Dashboard")}
+          {t("organizerDashboard.title", "Organizer Dashboard")}
         </h2>
         <p className="text-muted-foreground">
-          {t("organizer.dashboard.description", "Manage your tournaments and check performance.")}
+          {t("organizerDashboard.description", "Manage your tournaments and check performance.")}
         </p>
       </div>
 
@@ -44,7 +44,7 @@ export default function OrganizerDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t("organizer.dashboard.totalTournaments", "Total Tournaments")}
+              {t("organizerDashboard.totalTournaments", "Total Tournaments")}
             </CardTitle>
             <Trophy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -53,7 +53,7 @@ export default function OrganizerDashboard() {
               {isLoading ? "..." : totalTournaments}
             </div>
             <p className="text-xs text-muted-foreground">
-              {t("organizer.dashboard.created", "Created by you")}
+              {t("organizerDashboard.created", "Created by you")}
             </p>
           </CardContent>
         </Card>
@@ -61,7 +61,7 @@ export default function OrganizerDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t("organizer.dashboard.activeTournaments", "Active Tournaments")}
+              {t("organizerDashboard.activeTournaments", "Active Tournaments")}
             </CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -70,7 +70,7 @@ export default function OrganizerDashboard() {
               {isLoading ? "..." : activeTournaments}
             </div>
             <p className="text-xs text-muted-foreground">
-              {t("organizer.dashboard.currentlyRunning", "Currently running or published")}
+              {t("organizerDashboard.currentlyRunning", "Currently running or published")}
             </p>
           </CardContent>
         </Card>
@@ -78,7 +78,7 @@ export default function OrganizerDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t("organizer.dashboard.completedTournaments", "Completed")}
+              {t("organizerDashboard.completedTournaments", "Completed")}
             </CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -87,7 +87,7 @@ export default function OrganizerDashboard() {
               {isLoading ? "..." : completedTournaments}
             </div>
             <p className="text-xs text-muted-foreground">
-              {t("organizer.dashboard.finished", "Successfully finished")}
+              {t("organizerDashboard.finished", "Successfully finished")}
             </p>
           </CardContent>
         </Card>
@@ -95,14 +95,14 @@ export default function OrganizerDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t("organizer.dashboard.totalParticipants", "Total Participants")}
+              {t("organizerDashboard.totalParticipants", "Total Participants")}
             </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">--</div>
             <p className="text-xs text-muted-foreground">
-              {t("organizer.dashboard.acrossAll", "Across all tournaments")}
+              {t("organizerDashboard.acrossAll", "Across all tournaments")}
             </p>
           </CardContent>
         </Card>
@@ -111,22 +111,22 @@ export default function OrganizerDashboard() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>{t("organizer.dashboard.quickActions", "Quick Actions")}</CardTitle>
+            <CardTitle>{t("organizerDashboard.quickActions", "Quick Actions")}</CardTitle>
             <CardDescription>
-              {t("organizer.dashboard.manageTournaments", "Manage your tournaments directly.")}
+              {t("organizerDashboard.manageTournaments", "Manage your tournaments directly.")}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
             <Button asChild variant="outline" className="justify-start">
               <Link to="/organizer/tournaments/new">
                 <Trophy className="mr-2 h-4 w-4" />
-                {t("organizer.dashboard.createTournament", "Create Tournament")}
+                {t("organizerDashboard.createTournament", "Create Tournament")}
               </Link>
             </Button>
             <Button asChild variant="outline" className="justify-start">
               <Link to="/organizer/tournaments">
                 <Users className="mr-2 h-4 w-4" />
-                {t("organizer.dashboard.viewTournaments", "View Tournaments")}
+                {t("organizerDashboard.viewTournaments", "View Tournaments")}
               </Link>
             </Button>
           </CardContent>

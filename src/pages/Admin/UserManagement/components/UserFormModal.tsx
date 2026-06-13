@@ -19,6 +19,7 @@ import {
 import { useCreateUser, useUpdateUser } from "@/hooks/queries/useUserQueries";
 import { toast } from "sonner";
 import type { AdminUser, CreateUserRequest, UpdateUserRequest } from "@/types/user.types";
+import { useTranslation } from "react-i18next";
 
 interface UserFormModalProps {
   open: boolean;
@@ -27,6 +28,7 @@ interface UserFormModalProps {
 }
 
 export default function UserFormModal({ open, onOpenChange, user }: UserFormModalProps) {
+  const { t } = useTranslation();
   const isEdit = !!user;
   const [formData, setFormData] = useState<CreateUserRequest | UpdateUserRequest>({
     firstName: "",
@@ -81,22 +83,22 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
         { id: user.id, data: formData as UpdateUserRequest },
         {
           onSuccess: () => {
-            toast.success("User updated successfully");
+            toast.success(t("adminPage.userFormModal.updateSuccess", "User updated successfully"));
             onOpenChange(false);
           },
           onError: (error: any) => {
-            toast.error(error.message || "Failed to update user");
+            toast.error(error.message || t("adminPage.userFormModal.updateError", "Failed to update user"));
           },
         }
       );
     } else {
       createUser.mutate(formData as CreateUserRequest, {
         onSuccess: () => {
-          toast.success("User created successfully");
+          toast.success(t("adminPage.userFormModal.createSuccess", "User created successfully"));
           onOpenChange(false);
         },
         onError: (error: any) => {
-          toast.error(error.message || "Failed to create user");
+          toast.error(error.message || t("adminPage.userFormModal.createError", "Failed to create user"));
         },
       });
     }
@@ -109,12 +111,12 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{isEdit ? "Edit User" : "Create User"}</DialogTitle>
+            <DialogTitle>{isEdit ? t("adminPage.userFormModal.editUser", "Edit User") : t("adminPage.userFormModal.createUser", "Create User")}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="firstName" className="text-right">
-                First Name
+                {t("adminPage.userFormModal.firstName", "First Name")}
               </Label>
               <Input
                 id="firstName"
@@ -127,7 +129,7 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="lastName" className="text-right">
-                Last Name
+                {t("adminPage.userFormModal.lastName", "Last Name")}
               </Label>
               <Input
                 id="lastName"
@@ -140,7 +142,7 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="email" className="text-right">
-                Email
+                {t("adminPage.userFormModal.email", "Email")}
               </Label>
               <Input
                 id="email"
@@ -155,7 +157,7 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
             {!isEdit && (
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="password" className="text-right">
-                  Password
+                  {t("adminPage.userFormModal.password", "Password")}
                 </Label>
                 <Input
                   id="password"
@@ -170,7 +172,7 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
             )}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="phoneNumber" className="text-right">
-                Phone
+                {t("adminPage.userFormModal.phone", "Phone")}
               </Label>
               <Input
                 id="phoneNumber"
@@ -182,7 +184,7 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="dob" className="text-right">
-                Date of Birth
+                {t("adminPage.userFormModal.dob", "Date of Birth")}
               </Label>
               <Input
                 id="dob"
@@ -195,7 +197,7 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="gender" className="text-right">
-                Gender
+                {t("adminPage.userFormModal.gender", "Gender")}
               </Label>
               <div className="col-span-3">
                 <Select
@@ -203,12 +205,12 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
                   onValueChange={(value) => handleSelectChange(value, "gender")}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select gender" />
+                    <SelectValue placeholder={t("adminPage.userFormModal.selectGender", "Select gender")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
+                    <SelectItem value="male">{t("adminPage.userFormModal.male", "Male")}</SelectItem>
+                    <SelectItem value="female">{t("adminPage.userFormModal.female", "Female")}</SelectItem>
+                    <SelectItem value="other">{t("adminPage.userFormModal.other", "Other")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -216,10 +218,10 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("adminPage.userFormModal.cancel", "Cancel")}
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : "Save changes"}
+              {isLoading ? t("adminPage.userFormModal.saving", "Saving...") : t("adminPage.userFormModal.saveChanges", "Save changes")}
             </Button>
           </DialogFooter>
         </form>

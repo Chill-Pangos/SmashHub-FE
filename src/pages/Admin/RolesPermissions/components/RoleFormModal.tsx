@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useCreateRole, useUpdateRole } from "@/hooks/queries/useRoleQueries";
 import { toast } from "sonner";
 import type { Role, CreateRoleRequest, UpdateRoleRequest } from "@/types/role.types";
+import { useTranslation } from "react-i18next";
 
 interface RoleFormModalProps {
   open: boolean;
@@ -21,6 +22,7 @@ interface RoleFormModalProps {
 }
 
 export default function RoleFormModal({ open, onOpenChange, role }: RoleFormModalProps) {
+  const { t } = useTranslation();
   const isEdit = !!role;
   const [formData, setFormData] = useState<CreateRoleRequest | UpdateRoleRequest>({
     name: "",
@@ -59,22 +61,22 @@ export default function RoleFormModal({ open, onOpenChange, role }: RoleFormModa
         { id: role.id, data: formData as UpdateRoleRequest },
         {
           onSuccess: () => {
-            toast.success("Role updated successfully");
+            toast.success(t("adminRoles.roleUpdated", "Role updated successfully"));
             onOpenChange(false);
           },
           onError: (error: any) => {
-            toast.error(error.message || "Failed to update role");
+            toast.error(error.message || t("adminRoles.updateRoleError", "Failed to update role"));
           },
         }
       );
     } else {
       createRole.mutate(formData as CreateRoleRequest, {
         onSuccess: () => {
-          toast.success("Role created successfully");
+          toast.success(t("adminRoles.roleCreated", "Role created successfully"));
           onOpenChange(false);
         },
         onError: (error: any) => {
-          toast.error(error.message || "Failed to create role");
+          toast.error(error.message || t("adminRoles.createRoleError", "Failed to create role"));
         },
       });
     }
@@ -87,12 +89,12 @@ export default function RoleFormModal({ open, onOpenChange, role }: RoleFormModa
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{isEdit ? "Edit Role" : "Create Role"}</DialogTitle>
+            <DialogTitle>{isEdit ? t("adminRoles.editRole", "Edit Role") : t("adminRoles.createRole", "Create Role")}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
-                Name
+                {t("adminRoles.name", "Name")}
               </Label>
               <Input
                 id="name"
@@ -105,7 +107,7 @@ export default function RoleFormModal({ open, onOpenChange, role }: RoleFormModa
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="description" className="text-right">
-                Description
+                {t("adminRoles.desc", "Description")}
               </Label>
               <Textarea
                 id="description"
@@ -118,10 +120,10 @@ export default function RoleFormModal({ open, onOpenChange, role }: RoleFormModa
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("adminRoles.cancel", "Cancel")}
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : "Save changes"}
+              {isLoading ? t("adminRoles.saving", "Saving...") : t("adminRoles.saveChanges", "Save changes")}
             </Button>
           </DialogFooter>
         </form>

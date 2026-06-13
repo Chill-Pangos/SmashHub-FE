@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import { Calendar, MapPin, Users } from "lucide-react";
 import type { Tournament } from "@/types";
+import { t } from "i18next";
 
 function formatDateRange(start?: string, end?: string) {
-  if (!start) return "TBD";
+  if (!start) return t('publicPlayer.tournamentDetail.scheduleTab.tbd', 'TBD');
   const s = new Date(start).toLocaleDateString();
   if (!end) return s;
   const e = new Date(end).toLocaleDateString();
@@ -24,8 +25,8 @@ function getShortDescription(tournament: Tournament): string {
   if (categoryNames) return categoryNames;
   const categoryCount = tournament.categories?.length || 0;
   return categoryCount > 0
-    ? `${categoryCount} ${categoryCount === 1 ? "category" : "categories"}`
-    : "No categories";
+    ? `${categoryCount} ${t('tournament.categories', 'Categories').toLowerCase()}`
+    : t('publicPlayer.tournamentDetail.scheduleTab.noCategories', 'No categories');
 }
 
 export default function TournamentCard({
@@ -95,7 +96,7 @@ export default function TournamentCard({
 
           <div className="inline-flex items-center gap-1">
             <Users className="h-3.5 w-3.5" />
-            <span>{participants} participants</span>
+            <span>{participants} {t('tournament.currentParticipants', 'Participants')}</span>
           </div>
         </div>
       </div>
@@ -111,7 +112,7 @@ export default function TournamentCard({
                 className="inline-flex items-center gap-2 rounded-md bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
                 onClick={(e) => e.stopPropagation()}
               >
-                View details
+                {t('tournament.tournamentDetails', 'View details')}
               </span>
             </span>
           </div>
@@ -120,7 +121,7 @@ export default function TournamentCard({
             className="inline-flex items-center gap-2 rounded-md bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
             onClick={(e) => e.stopPropagation()}
           >
-            View details
+            {t('tournament.tournamentDetails', 'View details')}
           </span>
         )}
       </div>
