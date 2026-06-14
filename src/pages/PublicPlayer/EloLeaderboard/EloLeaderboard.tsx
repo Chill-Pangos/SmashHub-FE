@@ -13,6 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 
 const performanceData = [
   { date: "SEP 01", elo: 2100 },
@@ -62,20 +63,21 @@ const eloLog = [
 ];
 
 export default function EloLeaderboard() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Performance Tracker
+            {t("publicPlayer.elo.leaderboard.title", "Performance Tracker")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Live Elo rating and historical match analytics.
+            {t("publicPlayer.elo.leaderboard.subtitle", "Live Elo rating and historical match analytics.")}
           </p>
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-500 text-xs font-semibold border border-emerald-500/20">
           <Circle className="h-2 w-2 fill-current" />
-          LIVE DATA
+          {t("publicPlayer.elo.leaderboard.liveData", "LIVE DATA")}
         </div>
       </div>
 
@@ -83,14 +85,14 @@ export default function EloLeaderboard() {
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              CURRENT RATING
+              {t("publicPlayer.elo.leaderboard.currentRating", "CURRENT RATING")}
             </span>
             <TrendingUp className="h-4 w-4 text-cyan-400" />
           </div>
           <div className="flex flex-col">
             <span className="text-5xl font-bold text-foreground">2,450</span>
             <span className="text-sm font-medium text-cyan-400 mt-2">
-              +14 this week
+              {t("publicPlayer.elo.leaderboard.plusThisWeek", "+14 this week").replace("14", "14")}
             </span>
           </div>
         </div>
@@ -98,7 +100,7 @@ export default function EloLeaderboard() {
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              GLOBAL RANK
+              {t("publicPlayer.elo.leaderboard.globalRank", "GLOBAL RANK")}
             </span>
             <Globe className="h-4 w-4 text-muted-foreground" />
           </div>
@@ -108,7 +110,7 @@ export default function EloLeaderboard() {
               <div className="bg-cyan-400 h-full w-[99.5%]"></div>
             </div>
             <span className="text-xs text-muted-foreground mt-2">
-              Top 0.5% of all active players
+              {t("publicPlayer.elo.leaderboard.topPercentage", "Top 0.5% of all active players").replace("0.5", "0.5")}
             </span>
           </div>
         </div>
@@ -116,7 +118,7 @@ export default function EloLeaderboard() {
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              SEASON WIN RATE
+              {t("publicPlayer.elo.leaderboard.seasonWinRate", "SEASON WIN RATE")}
             </span>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </div>
@@ -137,7 +139,7 @@ export default function EloLeaderboard() {
       <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-foreground">
-            Performance Curve
+            {t("publicPlayer.elo.leaderboard.performanceCurve", "Performance Curve")}
           </h3>
           <div className="flex items-center gap-2">
             {["1M", "3M", "ALL"].map((tab) => (
@@ -202,24 +204,24 @@ export default function EloLeaderboard() {
       <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b border-border">
           <h3 className="text-lg font-semibold text-foreground">
-            Elo Change Log
+            {t("publicPlayer.elo.leaderboard.eloChangeLog", "Elo Change Log")}
           </h3>
           <Link
             to="/history"
             className="text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors uppercase tracking-wider"
           >
-            View Full History
+            {t("publicPlayer.elo.leaderboard.viewFullHistory", "View Full History")}
           </Link>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-secondary/50 text-xs uppercase tracking-wider text-muted-foreground border-b border-border">
               <tr>
-                <th className="px-6 py-4 font-semibold">Match / Event</th>
-                <th className="px-6 py-4 font-semibold">Opponent</th>
-                <th className="px-6 py-4 font-semibold">Result</th>
+                <th className="px-6 py-4 font-semibold">{t("publicPlayer.elo.leaderboard.matchEvent", "Match / Event")}</th>
+                <th className="px-6 py-4 font-semibold">{t("publicPlayer.elo.leaderboard.opponent", "Opponent")}</th>
+                <th className="px-6 py-4 font-semibold">{t("publicPlayer.elo.leaderboard.result", "Result")}</th>
                 <th className="px-6 py-4 font-semibold text-right">
-                  Elo Change
+                  {t("publicPlayer.elo.leaderboard.eloChange", "Elo Change")}
                 </th>
               </tr>
             </thead>

@@ -13,6 +13,7 @@ import type {
   TournamentCategory,
   TournamentContent,
 } from "@/types/tournament.types";
+import { useTranslation } from "react-i18next";
 
 
 interface ScheduleTabProps {
@@ -49,6 +50,7 @@ export default function ScheduleTab({
   tournamentId,
   tournament,
 }: ScheduleTabProps) {
+  const { t } = useTranslation();
   const options = useMemo(() => buildOptions(tournament), [tournament]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number>(0);
 
@@ -82,9 +84,9 @@ export default function ScheduleTab({
     <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold">Schedule</h2>
+          <h2 className="text-xl font-semibold">{t("publicPlayer.tournamentDetail.scheduleTab.title")}</h2>
           <p className="text-sm text-muted-foreground">
-            Select a category to view its schedule.
+            {t("publicPlayer.tournamentDetail.scheduleTab.selectCategoryToView")}
           </p>
         </div>
         {options.length > 0 && (
@@ -108,7 +110,7 @@ export default function ScheduleTab({
 
       {options.length === 0 && (
         <div className="rounded-xl border border-dashed border-border bg-card/50 p-6 text-sm text-muted-foreground">
-          No categories are available yet.
+          {t("publicPlayer.tournamentDetail.scheduleTab.noCategories")}
         </div>
       )}
 
@@ -134,7 +136,7 @@ export default function ScheduleTab({
 
       {options.length > 0 && selectedCategoryId > 0 && error && (
         <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
-          Failed to load schedule for this category.
+          {t("publicPlayer.tournamentDetail.scheduleTab.failedToLoad")}
         </div>
       )}
 
@@ -144,7 +146,7 @@ export default function ScheduleTab({
         !error &&
         !hasSchedule && (
           <div className="rounded-xl border border-dashed border-border bg-card/50 p-6 text-sm text-muted-foreground">
-            Schedule has not been generated for this category yet.
+            {t("publicPlayer.tournamentDetail.scheduleTab.notGenerated")}
           </div>
         )}
 

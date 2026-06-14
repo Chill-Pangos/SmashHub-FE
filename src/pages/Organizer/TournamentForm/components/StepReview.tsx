@@ -3,46 +3,52 @@ import type { StepProps } from "./types";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, ArrowLeft, Rocket, Users } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useCreateTournament } from "@/hooks/queries/useTournamentQueries";
-import { useCreateScheduleConfig } from "@/hooks/queries/useScheduleConfigQueries";
+import { useNavigate, useParams } from "react-router-dom";
+import { useCreateTournament, useUpdateTournament } from "@/hooks/queries/useTournamentQueries";
+import { useCreateScheduleConfig, useUpdateScheduleConfig } from "@/hooks/queries/useScheduleConfigQueries";
 import { showToast, showApiError } from "@/utils/toast.utils";
-import type { CreateTournamentRequest } from "@/types/tournament.types"; // Đường dẫn tới file types tổng của bạn
+import type { CreateTournamentRequest, UpdateTournamentRequest } from "@/types/tournament.types";
 
 export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const createTournament = useCreateTournament();
-  const createScheduleConfig = useCreateScheduleConfig();
+  const { tournamentId } = useParams();
+  const id = tournamentId ? parseInt(tournamentId, 10) : 0;
+  const isEditing = id > 0;
 
-  const isSubmitting = createTournament.isPending || createScheduleConfig.isPending;
+  const createTournament = useCreateTournament();
+  const updateTournament = useUpdateTournament();
+  const createScheduleConfig = useCreateScheduleConfig();
+  const updateScheduleConfig = useUpdateScheduleConfig();
+
+  const isSubmitting = createTournament.isPending || createScheduleConfig.isPending || updateTournament.isPending || updateScheduleConfig.isPending;
 
   // ── Submit ───────────────────────────────────────────────────────────────────
 
   const handleSubmit = async () => {
-    // Ép kiểu (cast) payload về đúng CreateTournamentRequest để Typescript không báo lỗi
-    const payload: CreateTournamentRequest = {
+    // Ép kiểu (cast) payload về đúng dạng để Typescript không báo lỗi
+    const payload: CreateTournamentRequest | UpdateTournamentRequest = {
       name: data.name,
       tier: data.tier,
       location: data.location,
       startDate: data.startDate,
       endDate: data.endDate,
-      status: "upcoming",
+      ...(isEditing ? {} : { status: "upcoming" as const }),
       // Map categories từ Form State về chuẩn CreateTournamentCategoryRequest
       categories: (data.categories || []).map((cat) => ({
         name: cat.name,
         type: cat.type,
         maxEntries: cat.maxEntries,
         maxSets: cat.maxSets,
-        
+
         // Team Format chỉ có nếu type === "team", nếu không trả về null
         teamFormat: cat.type === "team" ? (cat.teamFormat || null) : null,
-        
+
         // Theo định nghĩa CreateTournamentCategoryRequest mới nhất của bạn,
         // hai trường này BẮT BUỘC (không được null). Do đó trả về 0 nếu không phải team.
         numberOfSingles: cat.type === "team" ? Number(cat.numberOfSingles) : 0,
         numberOfDoubles: cat.type === "team" ? Number(cat.numberOfDoubles) : 0,
-        
+
         minAge: cat.minAge ? Number(cat.minAge) : null,
         maxAge: cat.maxAge ? Number(cat.maxAge) : null,
         minElo: cat.minElo ? Number(cat.minElo) : null,
@@ -53,18 +59,38 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
               ? Number(cat.maxMembersPerEntry)
               : null
             : null,
-        
+
         gender: cat.gender,
         isGroupStage: cat.isGroupStage,
-        
+
         // Xử lý entryFee từ string/number về number (hoặc null nếu API cho phép null)
-        entryFee: cat.entryFee ? Number(cat.entryFee) : 0, 
+        entryFee: (() => {
+          // 1. Kiểm tra xem có bị dính mảng (Array) từ Slider không
+          let rawValue = Array.isArray(cat.entryFee) ? cat.entryFee[0] : cat.entryFee;
+
+          // 2. Ép kiểu an toàn về số nguyên
+          let numericValue = Number(rawValue);
+
+          // 3. Nếu bị NaN (do chuỗi rác) hoặc falsy, trả về 0
+          if (Number.isNaN(numericValue) || !numericValue) {
+            return 0;
+          }
+
+          return numericValue;
+        })(),
       })),
     };
 
     try {
-      showToast.loading(t("tournamentManager.createTournamentForm.review.initializing"));
-      const tournamentRes = await createTournament.mutateAsync(payload);
+      const toastId = showToast.loading(isEditing ? "Đang cập nhật giải đấu..." : t("tournamentManager.createTournamentForm.review.initializing"));
+      
+      let targetTournamentId = id;
+      if (isEditing) {
+        await updateTournament.mutateAsync({ id, data: payload as UpdateTournamentRequest });
+      } else {
+        const tournamentRes = await createTournament.mutateAsync(payload as CreateTournamentRequest);
+        targetTournamentId = tournamentRes.id;
+      }
 
       const parseTimeToMinutes = (timeStr: string) => {
         const [hours, minutes] = timeStr.split(":").map(Number);
@@ -74,8 +100,7 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
       const lunchBreakStartMinutes = data.schedule.hasBreak ? parseTimeToMinutes(data.schedule.breakStartTime) : null;
       const lunchBreakEndMinutes = lunchBreakStartMinutes !== null ? lunchBreakStartMinutes + data.schedule.breakDurationMinutes : null;
 
-      await createScheduleConfig.mutateAsync({
-        tournamentId: tournamentRes.id,
+      const schedulePayload = {
         startDate: new Date(data.startDate).toISOString(),
         endDate: new Date(data.endDate).toISOString(),
         registrationStartDate: new Date(data.registrationStartDate).toISOString(),
@@ -94,12 +119,26 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
         lunchBreakEndMinute: lunchBreakEndMinutes !== null ? lunchBreakEndMinutes % 60 : null,
         lunchBreakDurationMinutes: data.schedule.hasBreak ? data.schedule.breakDurationMinutes : null,
         notes: data.schedule.notes || "",
-      });
+      };
 
+      if (isEditing) {
+        await updateScheduleConfig.mutateAsync({
+          tournamentId: targetTournamentId,
+          data: schedulePayload
+        });
+      } else {
+        await createScheduleConfig.mutateAsync({
+          tournamentId: targetTournamentId,
+          ...schedulePayload
+        });
+      }
+
+      showToast.dismiss(toastId);
       showToast.success(t("tournamentManager.createTournamentForm.review.successAlert"));
 
       navigate("/organizer/tournaments");
     } catch (error) {
+      showToast.dismiss(); // dismiss all loading toasts just in case
       showApiError(error);
     }
   };
@@ -136,7 +175,7 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
               {
                 matches: Math.floor(
                   ((24 * 60) / data.schedule.matchDurationMinutes) *
-                    data.schedule.activeTables,
+                  data.schedule.activeTables,
                 ),
               },
             )}
@@ -285,9 +324,7 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
           ) : (
             <>
               <Rocket className="w-4 h-4 mr-2" />
-              {t(
-                "tournamentManager.createTournamentForm.review.initializeTournament",
-              )}
+              {isEditing ? "Cập nhật giải đấu" : t("tournamentManager.createTournamentForm.review.initializeTournament")}
             </>
           )}
         </Button>

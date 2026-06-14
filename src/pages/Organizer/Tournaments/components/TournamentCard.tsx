@@ -1,9 +1,23 @@
-import { Link } from "react-router-dom";
-import { Calendar, MapPin, Users } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Calendar, MapPin, Users, Edit, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { Tournament } from "@/types";
+import { useDeleteTournament } from "@/hooks/queries/useTournamentQueries";
 
-function formatDateRange(start?: string, end?: string) {
-  if (!start) return "TBD";
+import { useTranslation } from "react-i18next";
+
+function formatDateRange(start?: string, end?: string, tbdText = "TBD") {
+  if (!start) return tbdText;
   const s = new Date(start).toLocaleDateString();
   if (!end) return s;
   const e = new Date(end).toLocaleDateString();
@@ -24,13 +38,13 @@ function getParticipants(tournament: Tournament): number {
   );
 }
 
-function getShortDescription(tournament: Tournament): string {
+function getShortDescription(tournament: Tournament, categoryText = "category", categoriesText = "categories", noCategoriesText = "No categories"): string {
   const categoryNames = tournament.categories?.map((c) => c.name).join(", ");
   if (categoryNames) return categoryNames;
   const categoryCount = tournament.categories?.length || 0;
   return categoryCount > 0
-    ? `${categoryCount} ${categoryCount === 1 ? "category" : "categories"}`
-    : "No categories";
+    ? `${categoryCount} ${categoryCount === 1 ? categoryText : categoriesText}`
+    : noCategoriesText;
 }
 
 export default function TournamentCard({
@@ -40,12 +54,40 @@ export default function TournamentCard({
   tournament: Tournament;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const thumbnailUrl = getThumbnailUrl();
   const participants = getParticipants(tournament);
-  const shortDescription = getShortDescription(tournament);
+  const shortDescription = getShortDescription(
+    tournament,
+    t('tournamentManager.tournamentsList.category', 'category'),
+    t('tournamentManager.tournamentsList.categories', 'categories'),
+    t('tournamentManager.tournamentsList.noCategories', 'No categories')
+  );
+  const deleteTournament = useDeleteTournament();
+  const navigate = useNavigate();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    deleteTournament.mutate(tournament.id);
+    setIsDeleteDialogOpen(false);
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/organizer/tournaments/${tournament.id}/edit`);
+  };
+
   return (
-    <Link
-      to={`/organizer/tournaments/${tournament.id}`}
+    <>
+      <Link
+        to={`/organizer/tournaments/${tournament.id}`}
       className={`group flex w-full items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm hover:shadow-md transition ${className}`}
       aria-label={tournament.name}
     >
@@ -97,7 +139,7 @@ export default function TournamentCard({
           <div className="inline-flex items-center gap-1">
             <Calendar className="h-3.5 w-3.5" />
             <span>
-              {formatDateRange(tournament.startDate, tournament.endDate)}
+              {formatDateRange(tournament.startDate, tournament.endDate, t('tournamentManager.tournamentsList.tbd', 'TBD'))}
             </span>
           </div>
 
@@ -110,7 +152,7 @@ export default function TournamentCard({
 
           <div className="inline-flex items-center gap-1">
             <Users className="h-3.5 w-3.5" />
-            <span>{participants} participants</span>
+            <span>{participants} {t('tournamentManager.tournamentsList.participants', 'participants')}</span>
           </div>
         </div>
       </div>
@@ -121,26 +163,69 @@ export default function TournamentCard({
             <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
               {tournament.status}
             </span>
-            <span>
-              <Link
-                to={`/organizer/tournaments/${tournament.id}`}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleEdit}
+                className="inline-flex items-center justify-center rounded-md bg-secondary/10 p-1.5 text-secondary hover:bg-secondary/20 transition-colors"
+                title={t('tournamentManager.tournamentsList.edit', 'Sửa')}
+              >
+                <Edit className="h-4 w-4" />
+              </button>
+              <button
+                onClick={handleDeleteClick}
+                className="inline-flex items-center justify-center rounded-md bg-destructive/10 p-1.5 text-destructive hover:bg-destructive/20 transition-colors"
+                title={t('tournamentManager.tournamentsList.delete', 'Xóa')}
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+              <span
                 className="inline-flex items-center gap-2 rounded-md bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
                 onClick={(e) => e.stopPropagation()}
               >
-                View details
-              </Link>
-            </span>
+                {t('tournamentManager.tournamentsList.viewDetails', 'View details')}
+              </span>
+            </div>
           </div>
         ) : (
-          <Link
-            to={`/organizer/tournaments/${tournament.id}`}
-            className="inline-flex items-center gap-2 rounded-md bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
-            onClick={(e) => e.stopPropagation()}
-          >
-            View details
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleEdit}
+              className="inline-flex items-center justify-center rounded-md bg-secondary/10 p-1.5 text-secondary hover:bg-secondary/20 transition-colors"
+              title={t('tournamentManager.tournamentsList.edit', 'Sửa')}
+            >
+              <Edit className="h-4 w-4" />
+            </button>
+            <button
+              onClick={handleDeleteClick}
+              className="inline-flex items-center justify-center rounded-md bg-destructive/10 p-1.5 text-destructive hover:bg-secondary/20 transition-colors"
+              title={t('tournamentManager.tournamentsList.delete', 'Xóa')}
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+            <span
+              className="inline-flex items-center gap-2 rounded-md bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {t('tournamentManager.tournamentsList.viewDetails', 'View details')}
+            </span>
+          </div>
         )}
       </div>
     </Link>
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('tournamentManager.tournamentsList.deleteTitle', 'Xóa giải đấu')}</AlertDialogTitle>
+            <AlertDialogDescription dangerouslySetInnerHTML={{__html: t('tournamentManager.tournamentsList.deleteConfirmDesc', 'Bạn có chắc chắn muốn xóa giải đấu <strong>{{name}}</strong> không? Hành động này không thể hoàn tác.').replace('{{name}}', tournament.name)}} />
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={(e) => e.stopPropagation()}>{t('tournamentManager.tournamentsList.cancel', 'Hủy')}</AlertDialogCancel>
+            <AlertDialogAction onClick={(e) => { e.stopPropagation(); handleDeleteConfirm(); }} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {t('tournamentManager.tournamentsList.delete', 'Xóa')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

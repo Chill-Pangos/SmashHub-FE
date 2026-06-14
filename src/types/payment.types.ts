@@ -19,46 +19,26 @@ export interface Payment {
   proofImageUrl?: string | null;
   paidAt?: string | Date | null;
   confirmedAt?: string | Date | null;
+  refundedAt?: string | Date | null;
+  refundProofImageUrl?: string | null;
   createdAt?: string | Date;
   updatedAt?: string | Date;
   [key: string]: unknown;
 }
 
 export interface PaymentStatistics {
-  totalPayments?: number;
-  totalAmount?: number;
-  pendingCount?: number;
-  completedCount?: number;
-  failedCount?: number;
-  refundedCount?: number;
-  byMethod?: Record<string, number>;
-  [key: string]: unknown;
+  total: number;
+  completed: number;
+  pending: number;
+  failed: number;
+  refunded: number;
+  totalAmount: number;
+  collectedAmount: number;
 }
 
 export interface CreatePaymentRequest {
   entryId: number;
   amount: number;
-  method: PaymentMethod;
-}
-
-export interface CreateCashPaymentRequest {
-  entryId: number;
-  amount: number;
-}
-
-export interface CreateOnlinePaymentRequest {
-  entryId: number;
-  amount: number;
-  transactionRef: string;
-}
-
-export interface ConfirmPaymentRequest {
-  proofImageUrl?: string;
-  transactionRef?: string;
-}
-
-export interface UpdatePaymentProofRequest {
-  proofImageUrl: string;
 }
 
 export interface PaymentListParams extends PaginationParams {

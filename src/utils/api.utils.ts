@@ -202,3 +202,17 @@ export const isNetworkError = (error: unknown): boolean => {
 
   return false;
 };
+
+/**
+ * Format relative image URL to absolute API URL
+ */
+export const getImageUrl = (url?: string | null): string => {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) return url;
+  
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+  const baseUrl = apiUrl.replace(/\/api\/?$/, "");
+  
+  return `${baseUrl}${url.startsWith("/") ? url : `/${url}`}`;
+};
+

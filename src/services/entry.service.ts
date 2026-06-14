@@ -19,6 +19,7 @@ import type {
   DisqualifyEntriesRequest,
   DisqualifyEntriesResponse,
   EntriesResponse,
+  EntryRoleResponse,
 } from "@/types/entry.types";
 
 /**
@@ -265,9 +266,16 @@ class EntryService {
     return response.data;
   }
 
-  // getMyRole removed (it was not in the API doc)
-
   /**
+   * Get my role in entry
+   * GET /api/entries/{entryId}/my-role
+   */
+  async getMyRole(entryId: number): Promise<EntryRoleResponse> {
+    const response = await axiosInstance.get<EntryRoleResponse>(
+      `${this.baseURL}/${entryId}/my-role`,
+    );
+    return response.data;
+  }  /**
    * Get entries by category ID
    * GET /api/entries/category/:categoryId
    *

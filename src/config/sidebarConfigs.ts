@@ -14,6 +14,8 @@ import {
   Gamepad2,
   TrendingUp,
   History,
+  User,
+  Bot,
 } from "lucide-react";
 
 export type PortalSidebarItem = {
@@ -104,6 +106,12 @@ export const organizerSidebarConfig: SidebarConfig = {
           to: "/organizer/categories",
           icon: BadgeCheck,
         },
+        {
+          key: "chatbot",
+          label: t("nav.chatbot") || "AI Assistant",
+          to: "/organizer/chatbot",
+          icon: Bot,
+        },
       ],
     },
   ],
@@ -114,6 +122,12 @@ export const organizerSidebarConfig: SidebarConfig = {
     icon: Workflow,
   }),
   footerItems: (t, logout) => [
+    {
+      key: "profile",
+      label: t("nav.profile") || "Profile",
+      to: "/organizer/profile",
+      icon: User,
+    },
     {
       key: "logout",
       label: t("auth.signOut"),
@@ -178,10 +192,28 @@ export const adminSidebarConfig: SidebarConfig = {
           to: "/admin/notifications",
           icon: Bell,
         },
+        {
+          key: "chatbot",
+          label: t("nav.chatbot") || "AI Assistant",
+          to: "/admin/chatbot",
+          icon: Bot,
+        },
+        {
+          key: "chatbot-management",
+          label: "Chatbot Management",
+          to: "/admin/chatbot-management",
+          icon: Settings2,
+        },
       ],
     },
   ],
   footerItems: (t, logout) => [
+    {
+      key: "profile",
+      label: t("nav.profile") || "Profile",
+      to: "/admin/profile",
+      icon: User,
+    },
     {
       key: "logout",
       label: t("auth.signOut"),
@@ -222,10 +254,22 @@ export const refereeSidebarConfig: SidebarConfig = {
           to: "/referee/notifications",
           icon: Bell,
         },
+        {
+          key: "chatbot",
+          label: t("nav.chatbot") || "AI Assistant",
+          to: "/referee/chatbot",
+          icon: Bot,
+        },
       ],
     },
   ],
   footerItems: (t, logout) => [
+    {
+      key: "profile",
+      label: t("nav.profile") || "Profile",
+      to: "/referee/profile",
+      icon: User,
+    },
     {
       key: "logout",
       label: t("auth.signOut"),
@@ -272,10 +316,22 @@ export const chiefRefereeSidebarConfig: SidebarConfig = {
           to: "/referee/notifications",
           icon: Bell,
         },
+        {
+          key: "chatbot",
+          label: t("nav.chatbot") || "AI Assistant",
+          to: "/referee/chatbot",
+          icon: Bot,
+        },
       ],
     },
   ],
   footerItems: (t, logout) => [
+    {
+      key: "profile",
+      label: t("nav.profile") || "Profile",
+      to: "/referee/profile",
+      icon: User,
+    },
     {
       key: "logout",
       label: t("auth.signOut"),
@@ -297,6 +353,13 @@ export const proPlayerSidebarConfig: SidebarConfig = {
   sections: (t) => [
     {
       items: [
+        {
+          key: "dashboard",
+          label: t("nav.dashboard") || "Dashboard",
+          to: "/dashboard",
+          icon: BarChart3,
+          end: true,
+        },
         {
           key: "tournaments",
           label: t("nav.tournaments") || "Tournaments",
@@ -333,10 +396,22 @@ export const proPlayerSidebarConfig: SidebarConfig = {
           to: "/elo/history",
           icon: TrendingUp,
         },
+        {
+          key: "chatbot",
+          label: t("nav.chatbot") || "AI Assistant",
+          to: "/chatbot",
+          icon: Bot,
+        },
       ],
     },
   ],
   footerItems: (t, logout) => [
+    {
+      key: "profile",
+      label: t("nav.profile") || "Profile",
+      to: "/profile",
+      icon: User,
+    },
     {
       key: "logout",
       label: t("auth.signOut") || "Sign Out",

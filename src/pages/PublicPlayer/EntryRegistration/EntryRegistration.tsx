@@ -4,8 +4,10 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { useTournamentCategoriesByTournament } from "@/hooks/queries/useTournamentCategoryQueries";
 import { useRegisterEntry } from "@/hooks/queries/useEntryQueries";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 export default function EntryRegistration() {
+  const { t } = useTranslation();
   const { tournamentId } = useParams();
   const navigate = useNavigate();
 
@@ -42,7 +44,9 @@ export default function EntryRegistration() {
       },
       {
         onSuccess: () => {
-          navigate("/profile");
+          navigate(`/tournaments/${tournamentId}`, {
+            state: { activeTab: t("publicPlayer.tournamentDetail.registrationTab.title", "Registration") }
+          });
         },
       }
     );
@@ -52,21 +56,21 @@ export default function EntryRegistration() {
     <div className="space-y-6 animate-in fade-in duration-300 px-4 py-8">
       <div className="flex items-center gap-2 mb-2 text-sm text-cyan-400 hover:text-cyan-300 transition-colors w-fit">
         <ArrowLeft className="h-4 w-4" />
-        <Link to={`/tournaments/${tournamentId}`}>Back to Tournament</Link>
+        <Link to={`/tournaments/${tournamentId}`}>{t("publicPlayer.entryRegistration.backToTournament", "Back to Tournament")}</Link>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 space-y-8">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Entry Registration
+              {t("publicPlayer.entryRegistration.title", "Entry Registration")}
             </h1>
           </div>
 
           <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-            <h3 className="font-semibold text-sm mb-4">1. Select Category</h3>
+            <h3 className="font-semibold text-sm mb-4">{t("publicPlayer.entryRegistration.selectCategory", "1. Select Category")}</h3>
             {categoriesLoading ? (
-              <p>Loading...</p>
+              <p>{t("publicPlayer.tournaments.loading", "Loading...")}</p>
             ) : (
               <div className="grid grid-cols-1 gap-4">
                 {categories.map((c: any) => (
@@ -94,26 +98,26 @@ export default function EntryRegistration() {
           {selectedCategoryId && isTeam && (
             <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
               <h3 className="font-semibold text-sm mb-4">
-                2. Team Information
+                {t("publicPlayer.entryRegistration.teamInfo", "2. Team Information")}
               </h3>
               <div className="flex gap-4 mb-4">
                 <Button
                   variant={action === "create_team" ? "default" : "outline"}
                   onClick={() => setAction("create_team")}
                 >
-                  Create New Team
+                  {t("publicPlayer.entryRegistration.createNew", "Create New Team")}
                 </Button>
                 <Button
                   variant={action === "join_team" ? "default" : "outline"}
                   onClick={() => setAction("join_team")}
                 >
-                  Join Existing Team
+                  {t("publicPlayer.entryRegistration.joinExisting", "Join Existing Team")}
                 </Button>
               </div>
 
               {action === "create_team" ? (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Team Name</label>
+                  <label className="text-sm font-medium">{t("publicPlayer.entryRegistration.teamName", "Team Name")}</label>
                   <input
                     type="text"
                     className="w-full px-4 py-2 border rounded-md bg-secondary/50"
@@ -124,7 +128,7 @@ export default function EntryRegistration() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Entry ID</label>
+                  <label className="text-sm font-medium">{t("publicPlayer.entryRegistration.entryId", "Entry ID")}</label>
                   <input
                     type="number"
                     className="w-full px-4 py-2 border rounded-md bg-secondary/50"
@@ -141,7 +145,7 @@ export default function EntryRegistration() {
         <div className="w-full lg:w-[400px]">
           <div className="rounded-xl border border-border bg-card p-6 shadow-sm sticky top-24">
             <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-6">
-              Registration Summary
+              {t("publicPlayer.entryRegistration.summary", "Registration Summary")}
             </h3>
 
             <div className="space-y-6">
@@ -151,7 +155,7 @@ export default function EntryRegistration() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-semibold text-cyan-400">
-                    Category
+                    {t("publicPlayer.entryRegistration.category", "Category")}
                   </span>
                   <span className="font-bold text-foreground">
                     {selectedCategory?.name || "Not selected"}
@@ -165,7 +169,7 @@ export default function EntryRegistration() {
                   disabled={!selectedCategoryId || isPending}
                   onClick={handleRegister}
                 >
-                  {isPending ? "Registering..." : "Confirm Registration"}
+                  {isPending ? t("publicPlayer.tournaments.loading", "Loading...") : t("publicPlayer.tournamentDetail.registrationTab.registerNow", "Confirm Registration")}
                 </Button>
               </div>
             </div>

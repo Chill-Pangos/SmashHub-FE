@@ -26,14 +26,19 @@ import {
   useTournaments,
   useUpcomingTournamentStatusChanges,
 } from "@/hooks/queries";
+import ServerPagination from "@/components/custom/ServerPagination";
+import { useTranslation } from "react-i18next";
 
 export default function Tournaments() {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<string | undefined>(undefined);
   const [page, setPage] = useState(1);
-  const [limit] = useState(50);
+  const [limit, setLimit] = useState(10);
 
-  const { data: apiTournaments = [], isLoading } = useTournaments(page, limit);
+  const { data, isLoading } = useTournaments(page, limit);
+  const apiTournaments = data?.tournaments || [];
+  const pagination = data?.pagination;
   const { data: upcomingChanges } = useUpcomingTournamentStatusChanges(24);
 
   const sample = apiTournaments;
@@ -52,9 +57,9 @@ export default function Tournaments() {
     }
 
     if (sort === "start_asc")
-      items.sort((a, b) => a.startDate.localeCompare(b.startDate));
+      items.sort((a, b) => (a.startDate || "").localeCompare(b.startDate || ""));
     if (sort === "start_desc")
-      items.sort((a, b) => b.startDate.localeCompare(a.startDate));
+      items.sort((a, b) => (b.startDate || "").localeCompare(a.startDate || ""));
     if (sort === "participants_desc") {
       items.sort((a, b) => {
         const aParticipants =
@@ -80,11 +85,13 @@ export default function Tournaments() {
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
   const thisWeek = filtered.filter((t) => {
+    if (!t.startDate) return false;
     const d = new Date(t.startDate);
     return d >= startOfWeek && d <= endOfWeek;
   });
 
   const thisMonth = filtered.filter((t) => {
+    if (!t.startDate) return false;
     const d = new Date(t.startDate);
     return d >= startOfMonth && d <= endOfMonth && !thisWeek.includes(t);
   });
@@ -96,9 +103,9 @@ export default function Tournaments() {
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-border bg-card p-6">
-        <h1 className="text-2xl font-semibold">Tournaments</h1>
+        <h1 className="text-2xl font-semibold">{t('referee.tournaments.title', 'Tournaments')}</h1>
         <p className="mt-2 text-muted-foreground">
-          Manage your tournaments here.
+          {t('referee.tournaments.description', 'Manage your tournaments here.')}
         </p>
         <div className="mt-4">
           <TournamentFilters
@@ -111,7 +118,7 @@ export default function Tournaments() {
         </div>
         {isLoading && (
           <div className="mt-4 text-center text-muted-foreground">
-            Loading tournaments...
+            {t('referee.tournaments.loading', 'Loading tournaments...')}
           </div>
         )}
       </div>
@@ -121,13 +128,13 @@ export default function Tournaments() {
           {upcomingChanges && upcomingChanges.success && (
             <section className="rounded-2xl border border-border bg-card p-4">
               <h2 className="mb-3 text-lg font-medium">
-                Upcoming Status Changes
+                {t('referee.tournaments.upcomingStatus', 'Upcoming Status Changes')}
               </h2>
               <div className="grid gap-3 md:grid-cols-3">
                 {upcomingChanges.data.openingSoon.length > 0 && (
                   <div className="rounded-lg bg-green-50 p-3">
                     <h3 className="text-sm font-medium text-green-900">
-                      Opening Soon
+                      {t('referee.tournaments.openingSoon', 'Opening Soon')}
                     </h3>
                     <ul className="mt-2 space-y-1">
                       {upcomingChanges.data.openingSoon.map((t) => (
@@ -146,7 +153,7 @@ export default function Tournaments() {
                 {upcomingChanges.data.closingSoon.length > 0 && (
                   <div className="rounded-lg bg-orange-50 p-3">
                     <h3 className="text-sm font-medium text-orange-900">
-                      Closing Soon
+                      {t('referee.tournaments.closingSoon', 'Closing Soon')}
                     </h3>
                     <ul className="mt-2 space-y-1">
                       {upcomingChanges.data.closingSoon.map((t) => (
@@ -163,7 +170,7 @@ export default function Tournaments() {
                 {upcomingChanges.data.bracketsSoon.length > 0 && (
                   <div className="rounded-lg bg-blue-50 p-3">
                     <h3 className="text-sm font-medium text-blue-900">
-                      Brackets Generating Soon
+                      {t('referee.tournaments.bracketsSoon', 'Brackets Generating Soon')}
                     </h3>
                     <ul className="mt-2 space-y-1">
                       {upcomingChanges.data.bracketsSoon.map((t) => (
@@ -183,25 +190,43 @@ export default function Tournaments() {
           )}
 
           <section>
-            <h2 className="mb-3 text-lg font-medium">This Week</h2>
+            <h2 className="mb-3 text-lg font-medium">{t('referee.tournaments.thisWeek', 'This Week')}</h2>
             <div className="grid grid-cols-1 gap-3">
               <TournamentList items={thisWeek} />
             </div>
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-medium">This Month</h2>
+            <h2 className="mb-3 text-lg font-medium">{t('referee.tournaments.thisMonth', 'This Month')}</h2>
             <div className="grid grid-cols-1 gap-3">
               <TournamentList items={thisMonth} />
             </div>
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-medium">All Tournaments</h2>
+            <h2 className="mb-3 text-lg font-medium">{t('referee.tournaments.allTournaments', 'All Tournaments')}</h2>
             <div className="grid grid-cols-1 gap-3">
               <TournamentList items={others} />
             </div>
           </section>
+
+          {pagination && (
+            <div className="mt-6">
+              <ServerPagination
+                skip={(page - 1) * limit}
+                limit={limit}
+                total={pagination.total}
+                hasNext={pagination.hasNextPage}
+                hasPrevious={pagination.hasPrevPage}
+                isLoading={isLoading}
+                onSkipChange={(nextSkip) => setPage(Math.floor(nextSkip / limit) + 1)}
+                onLimitChange={(nextLimit) => {
+                  setLimit(nextLimit);
+                  setPage(1);
+                }}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>

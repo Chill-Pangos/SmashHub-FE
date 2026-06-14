@@ -10,6 +10,10 @@ Summary: Preview TBD placeholder bracket tree
 
 Preview bracket placeholders without saving to database. Use /knockout-brackets/save-assignments with categoryId only to persist after organizer review.
 
+Requirements:
+- Tournament status must be brackets_generated
+- scheduleConfig.bracketGenerationDate must be reached
+
 Auth: bearerAuth
 
 Request parameters:
@@ -298,6 +302,10 @@ Tag: Knockout Brackets
 Summary: Preview knockout bracket from eligible entries
 
 Preview shuffled knockout bracket without saving. Response includes entryIds; send same entryIds to /knockout-brackets/save-assignments to persist exactly what organizer reviewed.
+
+Requirements:
+- Tournament status must be brackets_generated
+- scheduleConfig.bracketGenerationDate must be reached
 
 Auth: bearerAuth
 

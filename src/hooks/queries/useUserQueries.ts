@@ -139,6 +139,26 @@ export const useDeleteUser = () => {
 };
 
 /**
+ * Hook để upload avatar
+ */
+export const useUploadAvatar = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, file }: { id: number; file: File }) =>
+      userService.uploadAvatar(id, file),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.users.detail(id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.users.lists(),
+      });
+    },
+  });
+};
+
+/**
  * Hook để người dùng tự cập nhật profile
  */
 export const useUpdateUserProfile = () => {

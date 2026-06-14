@@ -1,4 +1,5 @@
 import { BarChart2, CheckCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ValidationStatsProps {
   tables: number;
@@ -17,6 +18,7 @@ export function ValidationStats({
   hasBreaks,
   breakDuration,
 }: ValidationStatsProps) {
+  const { t } = useTranslation();
   // Logic tính toán tương tự hệ thống thực
   const totalGrossHours = Math.max(0, closeHour - openHour);
   const totalGrossMins = totalGrossHours * 60;
@@ -29,13 +31,13 @@ export function ValidationStats({
     <div className="bg-card border border-border rounded-xl p-6 h-fit sticky top-6">
       <div className="flex items-center gap-2 mb-6">
         <BarChart2 className="w-5 h-5 text-primary" />
-        <h3 className="text-lg font-bold text-foreground">Validation Stats</h3>
+        <h3 className="text-lg font-bold text-foreground">{t('tournamentManager.scheduleConfig.validationStats', 'Validation Stats')}</h3>
       </div>
 
       <div className="space-y-6">
         <div>
           <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
-            Total Available Time
+            {t('tournamentManager.scheduleConfig.totalAvailableTime', 'Total Available Time')}
           </p>
           <p className="text-3xl font-bold text-primary drop-shadow-auth-primary-glow">
             {totalGrossHours}h 00m
@@ -44,24 +46,24 @@ export function ValidationStats({
 
         <div>
           <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
-            Max Matches per Table
+            {t('tournamentManager.scheduleConfig.maxMatchesPerTable', 'Max Matches per Table')}
           </p>
           <p className="text-2xl font-bold text-foreground">{maxMatchesPerTable}</p>
         </div>
 
         <div>
           <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
-            Total Tournament Capacity
+            {t('tournamentManager.scheduleConfig.totalTournamentCapacity', 'Total Tournament Capacity')}
           </p>
           <p className="text-3xl font-bold text-foreground">
-            {totalCapacity} <span className="text-lg text-muted-foreground font-medium">Matches</span>
+            {totalCapacity} <span className="text-lg text-muted-foreground font-medium">{t('tournamentManager.scheduleConfig.matches', 'Matches')}</span>
           </p>
         </div>
 
         <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mt-6 flex items-start gap-3">
           <CheckCircle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Current configuration supports registered participants with a 15% buffer margin.
+            {t('tournamentManager.scheduleConfig.bufferMarginNotice', 'Current configuration supports registered participants with a 15% buffer margin.')}
           </p>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useTournament } from "@/hooks/queries"; // Đảm bảo đường dẫn này đúng với project của bạn
 
 import { Calendar, MapPin } from "lucide-react";
@@ -7,10 +7,14 @@ import {
   OverviewTab,
   ScheduleTab,
   RegistrationTab,
+  PaymentTab,
 } from "@/pages/PublicPlayer/TournamentDetail/TournamentDetailTabs";
+import { useTranslation } from "react-i18next";
 
 export default function TournamentDetail() {
+  const { t } = useTranslation();
   const { tournamentId } = useParams();
+  const location = useLocation();
   const id = tournamentId ? parseInt(tournamentId, 10) : 0;
 
   // Lấy data từ hook API
@@ -21,18 +25,21 @@ export default function TournamentDetail() {
   } = useTournament(id);
 
   // State cho Tabs
-  const [activeTab, setActiveTab] = useState("Overview");
+  const [activeTab, setActiveTab] = useState(
+    location.state?.activeTab || t("publicPlayer.tournamentDetail.overview", "Overview")
+  );
   const tabs = [
-    "Overview",
-    "Schedule",
-    "Registration",
+    t("publicPlayer.tournamentDetail.overview", "Overview"),
+    t("publicPlayer.tournamentDetail.scheduleTab.title", "Schedule"),
+    t("publicPlayer.tournamentDetail.registrationTab.title", "Registration"),
+    t("publicPlayer.paymentTab.title", "Payment"),
   ];
 
   if (isLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center rounded-2xl border border-border bg-card">
         <p className="text-muted-foreground animate-pulse">
-          Loading tournament details...
+          {t("publicPlayer.tournamentDetail.loading")}
         </p>
       </div>
     );
@@ -63,16 +70,25 @@ export default function TournamentDetail() {
   };
 
   const renderTabContent = () => {
-    switch (activeTab) {
-      case "Overview":
-        return <OverviewTab tournament={tournament} />;
-      case "Schedule":
-        return <ScheduleTab tournamentId={id} tournament={tournament} />;
-      case "Registration":
-        return <RegistrationTab tournamentId={id} tournament={tournament} />;
-      default:
-        return null;
+    if (activeTab === t("publicPlayer.tournamentDetail.overview", "Overview")) {
+      return <OverviewTab tournament={tournament} />;
     }
+    if (activeTab === t("publicPlayer.tournamentDetail.scheduleTab.title", "Schedule")) {
+      return <ScheduleTab tournamentId={id} tournament={tournament} />;
+    }
+    if (activeTab === t("publicPlayer.tournamentDetail.registrationTab.title", "Registration")) {
+      return (
+        <RegistrationTab 
+          tournamentId={id} 
+          tournament={tournament} 
+          onNavigateToPayment={() => setActiveTab(t("publicPlayer.paymentTab.title", "Payment"))}
+        />
+      );
+    }
+    if (activeTab === t("publicPlayer.paymentTab.title", "Payment")) {
+      return <PaymentTab tournamentId={id} tournament={tournament} />;
+    }
+    return null;
   };
 
   return (

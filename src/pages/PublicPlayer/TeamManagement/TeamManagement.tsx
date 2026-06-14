@@ -13,8 +13,10 @@ import { useCurrentUser } from "@/hooks/queries/useAuthQueries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 
 export default function TeamManagement() {
+  const { t } = useTranslation();
   const { data: userResp } = useCurrentUser();
   const userId = userResp?.id;
 
@@ -23,11 +25,11 @@ export default function TeamManagement() {
 
   return (
     <div className="px-6 py-10 space-y-6">
-      <h1 className="text-2xl font-semibold">Team Management</h1>
-      <p className="text-muted-foreground">Manage your teams and entries.</p>
+      <h1 className="text-2xl font-semibold">{t("publicPlayer.teamManagement.title")}</h1>
+      <p className="text-muted-foreground">{t("publicPlayer.teamManagement.subtitle")}</p>
 
       {isLoading ? (
-        <p>Loading...</p>
+        <p>{t("publicPlayer.teamManagement.loading")}</p>
       ) : entries.length > 0 ? (
         <div className="space-y-6">
           {entries.map(({ entry, role }: any) => (
@@ -40,13 +42,14 @@ export default function TeamManagement() {
           ))}
         </div>
       ) : (
-        <p>No entries found.</p>
+        <p>{t("publicPlayer.teamManagement.noEntries")}</p>
       )}
     </div>
   );
 }
 
 function TeamCard({ entry, role, userId }: any) {
+  const { t } = useTranslation();
   const { id: entryId } = entry;
 
   const { data: requestsResp } = useEntryJoinRequests(entryId, {
@@ -81,25 +84,25 @@ function TeamCard({ entry, role, userId }: any) {
       <CardContent className="space-y-6">
         <div>
           <p>
-            <strong>Category:</strong> {entry.category?.name}
+            <strong>{t("publicPlayer.teamManagement.category")}</strong> {entry.category?.name}
           </p>
           <p>
-            <strong>Members:</strong> {entry.currentMemberCount} /{" "}
+            <strong>{t("publicPlayer.teamManagement.members")}</strong> {entry.currentMemberCount} /{" "}
             {entry.requiredMemberCount}
           </p>
           <p>
-            <strong>Confirmed:</strong> {entry.isConfirmed ? "Yes" : "No"}
+            <strong>{t("publicPlayer.teamManagement.confirmed")}</strong> {entry.isConfirmed ? "Yes" : "No"}
           </p>
         </div>
 
         {role === "captain" && (
           <div className="space-y-4 border-t pt-4">
-            <h4 className="font-semibold text-lg">Captain Controls</h4>
+            <h4 className="font-semibold text-lg">{t("publicPlayer.teamManagement.captainControls")}</h4>
 
             {/* Join Requests */}
             {joinRequests.length > 0 && (
               <div className="space-y-2">
-                <h5 className="font-medium">Pending Join Requests</h5>
+                <h5 className="font-medium">{t("publicPlayer.teamManagement.pendingRequests")}</h5>
                 {joinRequests.map((req: any) => (
                   <div
                     key={req.id}
@@ -111,14 +114,14 @@ function TeamCard({ entry, role, userId }: any) {
                         size="sm"
                         onClick={() => handleRespond(req.id, "approve")}
                       >
-                        Approve
+                        {t("publicPlayer.teamManagement.approve")}
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
                         onClick={() => handleRespond(req.id, "reject")}
                       >
-                        Reject
+                        {t("publicPlayer.teamManagement.reject")}
                       </Button>
                     </div>
                   </div>
@@ -128,7 +131,7 @@ function TeamCard({ entry, role, userId }: any) {
 
             {/* Members */}
             <div className="space-y-2">
-              <h5 className="font-medium">Members</h5>
+              <h5 className="font-medium">{t("publicPlayer.tournamentDetail.registrationTab.members").replace(":", "")}</h5>
               {members.map((member: any) => (
                 <div
                   key={member.id}
@@ -146,7 +149,7 @@ function TeamCard({ entry, role, userId }: any) {
                         })
                       }
                     >
-                      Make Captain
+                      {t("publicPlayer.teamManagement.makeCaptain")}
                     </Button>
                   )}
                 </div>
@@ -163,7 +166,7 @@ function TeamCard({ entry, role, userId }: any) {
                   })
                 }
               >
-                +1 Required Member
+                {t("publicPlayer.teamManagement.requiredMember")}
               </Button>
               <Button
                 variant="outline"
@@ -176,19 +179,19 @@ function TeamCard({ entry, role, userId }: any) {
                   })
                 }
               >
-                Toggle Accepting Members
+                {t("publicPlayer.teamManagement.toggleAccepting")}
               </Button>
               <Button
                 disabled={entry.isConfirmed}
                 onClick={() => confirmLineup(entryId)}
               >
-                Confirm Lineup
+                {t("publicPlayer.teamManagement.confirmLineup")}
               </Button>
               <Button
                 variant="destructive"
                 onClick={() => deleteEntry(entryId)}
               >
-                Delete Entry
+                {t("publicPlayer.teamManagement.deleteEntry")}
               </Button>
             </div>
           </div>

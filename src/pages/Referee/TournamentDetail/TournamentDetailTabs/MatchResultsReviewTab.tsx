@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Filter, CheckCircle, X } from "lucide-react";
 import { usePendingMatches, useApproveMatch, useRejectMatch } from "@/hooks/queries";
 import type { Match } from "@/types";
+import { useTranslation } from "react-i18next";
 
 export default function MatchResultsReviewTab() {
+  const { t } = useTranslation();
   const { data: pendingData, isLoading } = usePendingMatches(1, 100);
   const pendingMatches = pendingData?.matches || [];
 
@@ -34,11 +36,11 @@ export default function MatchResultsReviewTab() {
   };
 
   if (isLoading) {
-    return <div className="p-4">Loading pending matches...</div>;
+    return <div className="p-4">{t("referee.matchResultsReview.loading", "Loading pending matches...")}</div>;
   }
 
   if (pendingMatches.length === 0 || !selectedMatch) {
-    return <div className="p-4 text-muted-foreground">No pending matches to review.</div>;
+    return <div className="p-4 text-muted-foreground">{t("referee.matchResultsReview.noMatches", "No pending matches to review.")}</div>;
   }
 
   const p1Name = selectedMatch.entryA?.team?.name || "Player A";
@@ -55,18 +57,18 @@ export default function MatchResultsReviewTab() {
       <div className="flex justify-between items-start mb-6 shrink-0">
         <div>
           <h2 className="text-2xl font-black text-foreground">
-            Match Details
+            {t("referee.matchResultsReview.matchDetails", "Match Details")}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Review completed match before finalizing verification.
+            {t("referee.matchResultsReview.reviewDesc", "Review completed match before finalizing verification.")}
           </p>
         </div>
         <div className="text-right">
           <span className="bg-chart-4/20 text-chart-4 text-xs font-bold px-3 py-1 rounded-full block mb-1">
-            Match ID: #{selectedMatch.id}
+            {t("referee.matchResultsReview.matchId", "Match ID:")} #{selectedMatch.id}
           </span>
           {/* Missing true duration from API, stubbing it */}
-          <p className="text-xs text-muted-foreground font-semibold mt-2">Duration: N/A</p>
+          <p className="text-xs text-muted-foreground font-semibold mt-2">{t("referee.matchResultsReview.duration", "Duration:")} {t("referee.matchResultsReview.na", "N/A")}</p>
         </div>
       </div>
 
@@ -76,7 +78,7 @@ export default function MatchResultsReviewTab() {
           <div className={`w-16 h-16 rounded-full bg-secondary mb-2 ${p1Wins ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}></div>
           <p className="font-bold">{p1Name}</p>
           <div className="flex items-center gap-2 mt-0.5">
-            {p1Wins && <span className="text-[10px] text-primary font-bold uppercase">Winner</span>}
+            {p1Wins && <span className="text-[10px] text-primary font-bold uppercase">{t("referee.matchResultsReview.winner", "Winner")}</span>}
           </div>
         </div>
         
@@ -88,33 +90,33 @@ export default function MatchResultsReviewTab() {
           <div className={`w-16 h-16 rounded-full bg-secondary mb-2 ${p2Wins ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}></div>
           <p className="font-bold">{p2Name}</p>
           <div className="flex items-center gap-2 mt-0.5">
-            {p2Wins && <span className="text-[10px] text-primary font-bold uppercase">Winner</span>}
+            {p2Wins && <span className="text-[10px] text-primary font-bold uppercase">{t("referee.matchResultsReview.winner", "Winner")}</span>}
           </div>
         </div>
       </div>
 
       <div className="bg-background border border-border rounded-xl p-6 mb-6 shrink-0">
         <h3 className="font-bold flex items-center gap-2 mb-6">
-          Set Breakdown
+          {t("referee.matchResultsReview.setBreakdown", "Set Breakdown")}
         </h3>
         {/* INCOMPLETE MAPPING: We need to map selectedMatch.matchSets when available. Currently stubbed visual. */}
-        <p className="text-sm text-muted-foreground">Detailed set points are not yet mapped from API.</p>
+        <p className="text-sm text-muted-foreground">{t("referee.matchResultsReview.setPointsUnmapped", "Detailed set points are not yet mapped from API.")}</p>
       </div>
 
       <h3 className="font-bold text-sm mb-3 flex items-center gap-2 shrink-0">
-        ELO Impact Preview
+        {t("referee.matchResultsReview.eloImpactPreview", "ELO Impact Preview")}
       </h3>
       {/* INCOMPLETE MAPPING: We need usePendingMatchWithElo here to get real Elo Impact */}
       <div className="flex gap-4 mb-8 shrink-0">
-        <p className="text-sm text-muted-foreground">Elo preview not mapped yet.</p>
+        <p className="text-sm text-muted-foreground">{t("referee.matchResultsReview.eloPreviewUnmapped", "Elo preview not mapped yet.")}</p>
       </div>
 
       <div className="flex justify-end gap-3 mt-auto pt-4 border-t border-border shrink-0">
         <button onClick={handleReject} disabled={rejectMatchMutation.isPending} className="px-6 py-2 rounded-md font-semibold text-destructive border border-destructive/50 hover:bg-destructive/10 transition-colors disabled:opacity-50">
-          Reject
+          {t("referee.matchResultsReview.reject", "Reject")}
         </button>
         <button onClick={handleApprove} disabled={approveMatchMutation.isPending} className="px-8 py-2 rounded-md font-semibold bg-primary text-primary-foreground hover:opacity-90 flex items-center gap-2 shadow-[var(--auth-primary-glow)] disabled:opacity-50">
-          <CheckCircle className="w-4 h-4" /> Approve
+          <CheckCircle className="w-4 h-4" /> {t("referee.matchResultsReview.approve", "Approve")}
         </button>
       </div>
     </>
@@ -126,7 +128,7 @@ export default function MatchResultsReviewTab() {
       <div className="w-full lg:w-1/3 flex flex-col gap-4 h-full">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-bold text-foreground">
-            Pending Verification
+            {t("referee.matchResultsReview.pendingVerification", "Pending Verification")}
           </h2>
           <div className="flex gap-2">
             <button className="bg-secondary p-1.5 rounded">
@@ -140,8 +142,8 @@ export default function MatchResultsReviewTab() {
              const mP1 = match.entryA?.team?.name || "Player A";
              const mP2 = match.entryB?.team?.name || "Player B";
              const mScore = `${match.setsWonA || 0} - ${match.setsWonB || 0}`;
-             const mTime = match.schedule?.scheduledAt ? new Date(match.schedule.scheduledAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "N/A";
-             const mCourt = match.schedule?.tableNumber ? `Court ${match.schedule.tableNumber}` : "TBD";
+             const mTime = match.schedule?.scheduledAt ? new Date(match.schedule.scheduledAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : t("referee.matchResultsReview.na", "N/A");
+             const mCourt = match.schedule?.tableNumber ? `Court ${match.schedule.tableNumber}` : t("referee.matchResultsReview.tbd", "TBD");
              return (
             <div
               key={match.id}
@@ -153,7 +155,7 @@ export default function MatchResultsReviewTab() {
             >
               <div className="flex gap-4">
                 <div className="flex flex-col justify-center">
-                  <span className="text-[10px] text-muted-foreground font-bold">ID</span>
+                  <span className="text-[10px] text-muted-foreground font-bold">{t("referee.matchResultsReview.id", "ID")}</span>
                   <span className="text-sm font-bold text-primary">#{match.id}</span>
                 </div>
                 <div>
@@ -174,7 +176,7 @@ export default function MatchResultsReviewTab() {
               </div>
               <div className="text-right">
                 <p className="text-lg font-black">{mScore}</p>
-                <p className="text-[10px] text-muted-foreground">Final Score</p>
+                <p className="text-[10px] text-muted-foreground">{t("referee.matchResultsReview.finalScore", "Final Score")}</p>
               </div>
             </div>
           )})}
@@ -198,7 +200,7 @@ export default function MatchResultsReviewTab() {
           className={`absolute inset-x-0 bottom-0 max-h-[85vh] bg-card border-t border-border rounded-t-2xl overflow-y-auto transition-transform duration-300 ${isDetailOpen ? "translate-y-0" : "translate-y-full"}`}
         >
           <div className="flex items-center justify-between sticky top-0 bg-card p-4 z-30 border-b border-border mb-4">
-            <p className="text-sm font-bold text-foreground">Match Detail</p>
+            <p className="text-sm font-bold text-foreground">{t("referee.matchResultsReview.matchDetail", "Match Detail")}</p>
             <button
               type="button"
               onClick={() => setIsDetailOpen(false)}

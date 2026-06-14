@@ -252,13 +252,13 @@ const ChangePassword = () => {
                 className="font-semibold text-sm"
                 style={{ color: "var(--foreground)" }}
               >
-                Pro Circuit Admin
+                {t("authFlow.changePassword.sidebar.proCircuitAdmin")}
               </p>
               <p
                 className="text-xs"
                 style={{ color: "var(--muted-foreground)" }}
               >
-                Elite Tier
+                {t("authFlow.changePassword.sidebar.eliteTier")}
               </p>
             </div>
           </div>
@@ -278,7 +278,7 @@ const ChangePassword = () => {
                 "0 0 15px rgba(0,242,255,0.3)";
             }}
           >
-            Create Tournament
+            {t("authFlow.changePassword.sidebar.createTournament")}
           </button>
         </div>
 
@@ -402,7 +402,7 @@ const ChangePassword = () => {
             }}
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Settings
+            {t("authFlow.changePassword.sidebar.backToSettings")}
           </button>
 
           {/* Page title */}
@@ -410,13 +410,13 @@ const ChangePassword = () => {
             className="text-5xl font-bold tracking-tight mb-2"
             style={{ color: "var(--foreground)" }}
           >
-            Security
+            {t("authFlow.changePassword.sidebar.securityTitle")}
           </h1>
           <p
             className="text-base mb-8"
             style={{ color: "var(--foreground-muted)" }}
           >
-            Manage your account credentials and security preferences.
+            {t("authFlow.changePassword.sidebar.securityDesc")}
           </p>
 
           {/* Form Card */}
@@ -438,7 +438,7 @@ const ChangePassword = () => {
               style={{ color: "var(--primary)" }}
             >
               <Lock className="w-6 h-6" />
-              Change Password
+              {t("authFlow.changePassword.title")}
             </h2>
             <div
               className="mb-6 mt-4"
@@ -638,10 +638,10 @@ const ChangePassword = () => {
                   {loading ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      {t("authFlow.changePassword.submitting") || "Updating..."}
+                      {t("authFlow.changePassword.submitting")}
                     </>
                   ) : (
-                    t("auth.changePassword") || "Update Password"
+                    t("authFlow.changePassword.updateButton")
                   )}
                 </button>
               </div>
@@ -666,14 +666,13 @@ const ChangePassword = () => {
                 className="font-semibold mb-1"
                 style={{ color: "var(--foreground)" }}
               >
-                Session Management
+                {t("authFlow.changePassword.sidebar.sessionManagementTitle")}
               </h3>
               <p
                 className="text-sm"
                 style={{ color: "var(--foreground-muted)" }}
               >
-                Changing your password will immediately sign you out of all
-                other active sessions across devices.
+                {t("authFlow.changePassword.sidebar.sessionManagementDesc")}
               </p>
             </div>
           </div>

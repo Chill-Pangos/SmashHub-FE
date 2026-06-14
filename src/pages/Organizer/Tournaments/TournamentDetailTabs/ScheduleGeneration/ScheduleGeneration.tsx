@@ -11,6 +11,7 @@ import {
   usePreviewFromEntries,
   useGenerateKnockoutSchedule 
 } from "@/hooks/queries";
+import { useTranslation } from "react-i18next";
 
 interface ScheduleGenerationProps {
   tournamentId: number;
@@ -33,6 +34,7 @@ export default function ScheduleGeneration({
   categoryId,
   isGroupStage,
 }: ScheduleGenerationProps) {
+  const { t } = useTranslation();
   const [step, setStep] = useState<WizardStep>("INIT");
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -64,7 +66,7 @@ export default function ScheduleGeneration({
       setGroupPreview(res.data || []);
       setStep("PREVIEW_GROUP");
     } catch (err: any) {
-      setErrorMsg(err?.response?.data?.error?.message || err?.response?.data?.message || "Failed to preview group placeholders.");
+      setErrorMsg(err?.response?.data?.error?.message || err?.response?.data?.message || t('tournamentManager.scheduleGeneration.errPreviewGroup', 'Failed to preview group placeholders.'));
     } finally {
       setIsProcessing(false);
     }
@@ -86,7 +88,7 @@ export default function ScheduleGeneration({
       setKnockoutPreview(koRes.data);
       setStep("PREVIEW_KNOCKOUT_PLACEHOLDER");
     } catch (err: any) {
-      setErrorMsg(err?.response?.data?.error?.message || err?.response?.data?.message || "Failed to save group assignments.");
+      setErrorMsg(err?.response?.data?.error?.message || err?.response?.data?.message || t('tournamentManager.scheduleGeneration.errSaveGroup', 'Failed to save group assignments.'));
     } finally {
       setIsProcessing(false);
     }
@@ -103,7 +105,7 @@ export default function ScheduleGeneration({
       await genTournamentSchedule.mutateAsync({ categoryId });
       setStep("DONE");
     } catch (err: any) {
-      setErrorMsg(err?.response?.data?.error?.message || err?.response?.data?.message || "Failed to save knockout placeholders or generate schedule.");
+      setErrorMsg(err?.response?.data?.error?.message || err?.response?.data?.message || t('tournamentManager.scheduleGeneration.errSaveKnockoutGroupFlow', 'Failed to save knockout placeholders or generate schedule.'));
     } finally {
       setIsProcessing(false);
     }
@@ -121,7 +123,7 @@ export default function ScheduleGeneration({
       setKnockoutPreview(koRes.data);
       setStep("PREVIEW_KNOCKOUT_ENTRIES");
     } catch (err: any) {
-      setErrorMsg(err?.response?.data?.error?.message || err?.response?.data?.message || "Failed to preview knockout from entries.");
+      setErrorMsg(err?.response?.data?.error?.message || err?.response?.data?.message || t('tournamentManager.scheduleGeneration.errPreviewKnockout', 'Failed to preview knockout from entries.'));
     } finally {
       setIsProcessing(false);
     }
@@ -141,7 +143,7 @@ export default function ScheduleGeneration({
       await genKnockoutSchedule.mutateAsync({ categoryId });
       setStep("DONE");
     } catch (err: any) {
-      setErrorMsg(err?.response?.data?.error?.message || err?.response?.data?.message || "Failed to save knockout assignments or generate schedule.");
+      setErrorMsg(err?.response?.data?.error?.message || err?.response?.data?.message || t('tournamentManager.scheduleGeneration.errSaveKnockoutFlow', 'Failed to save knockout assignments or generate schedule.'));
     } finally {
       setIsProcessing(false);
     }
@@ -151,16 +153,16 @@ export default function ScheduleGeneration({
   // RENDER HELPERS
   // =====================
   const renderGroupPreview = () => {
-    if (!groupPreview || groupPreview.length === 0) return <p className="text-sm text-muted-foreground">No group data returned.</p>;
+    if (!groupPreview || groupPreview.length === 0) return <p className="text-sm text-muted-foreground">{t('tournamentManager.scheduleGeneration.noGroupData', 'No group data returned.')}</p>;
     
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-4 max-h-60 overflow-auto">
         {groupPreview.map((g: any, index: number) => (
           <div key={index} className="border border-border rounded-md p-3 bg-card">
-            <h4 className="font-bold text-primary mb-2">Group {g.groupName}</h4>
+            <h4 className="font-bold text-primary mb-2">{t('tournamentManager.scheduleGeneration.groupName', 'Group {{name}}').replace('{{name}}', g.groupName)}</h4>
             <ul className="text-sm space-y-1">
               {g.entryIds?.map((id: number, idx: number) => (
-                <li key={idx}>Entry #{id}</li>
+                <li key={idx}>{t('tournamentManager.scheduleGeneration.entryId', 'Entry #{{id}}').replace('{{id}}', id.toString())}</li>
               ))}
             </ul>
           </div>
@@ -170,22 +172,22 @@ export default function ScheduleGeneration({
   };
 
   const renderKnockoutPreview = () => {
-    if (!knockoutPreview) return <p className="text-sm text-muted-foreground">No knockout data returned.</p>;
+    if (!knockoutPreview) return <p className="text-sm text-muted-foreground">{t('tournamentManager.scheduleGeneration.noKnockoutData', 'No knockout data returned.')}</p>;
 
     return (
       <div className="border border-border rounded-md p-4 bg-card my-4">
-        <h4 className="font-bold text-primary mb-2">Bracket Overview</h4>
+        <h4 className="font-bold text-primary mb-2">{t('tournamentManager.scheduleGeneration.bracketOverview', 'Bracket Overview')}</h4>
         <div className="flex gap-4">
-          <div><span className="text-muted-foreground text-sm">Total Rounds:</span> <strong>{knockoutPreview.totalRounds || "-"}</strong></div>
-          <div><span className="text-muted-foreground text-sm">Total Brackets:</span> <strong>{knockoutPreview.totalBrackets || "-"}</strong></div>
+          <div><span className="text-muted-foreground text-sm">{t('tournamentManager.scheduleGeneration.totalRounds', 'Total Rounds:')}</span> <strong>{knockoutPreview.totalRounds || "-"}</strong></div>
+          <div><span className="text-muted-foreground text-sm">{t('tournamentManager.scheduleGeneration.totalBrackets', 'Total Brackets:')}</span> <strong>{knockoutPreview.totalBrackets || "-"}</strong></div>
         </div>
         
         {knockoutPreview.entryIds && (
           <div className="mt-3">
-            <h5 className="text-xs font-semibold text-muted-foreground mb-1">Assigned Entries</h5>
+            <h5 className="text-xs font-semibold text-muted-foreground mb-1">{t('tournamentManager.scheduleGeneration.assignedEntries', 'Assigned Entries')}</h5>
             <div className="flex flex-wrap gap-2 max-h-32 overflow-auto">
               {knockoutPreview.entryIds.map((id: number, idx: number) => (
-                <Badge key={idx} variant="outline">Entry #{id}</Badge>
+                <Badge key={idx} variant="outline">{t('tournamentManager.scheduleGeneration.entryId', 'Entry #{{id}}').replace('{{id}}', id.toString())}</Badge>
               ))}
             </div>
           </div>
@@ -215,16 +217,16 @@ export default function ScheduleGeneration({
         {/* INIT STEP */}
         {step === "INIT" && (
           <div className="flex flex-col items-start gap-4">
-            <p className="text-sm font-medium">Step 1: Preview Initial Structures</p>
+            <p className="text-sm font-medium">{t('tournamentManager.scheduleGeneration.step1Title', 'Step 1: Preview Initial Structures')}</p>
             {isGroupStage ? (
               <Button onClick={handlePreviewGroupStage} disabled={isProcessing || !categoryId}>
                 <Eye className="w-4 h-4 mr-2" />
-                {isProcessing ? "Loading Preview..." : "Preview Group Stage Layout"}
+                {isProcessing ? t('tournamentManager.scheduleGeneration.loadingPreview', 'Loading Preview...') : t('tournamentManager.scheduleGeneration.previewGroupStageLayout', 'Preview Group Stage Layout')}
               </Button>
             ) : (
               <Button onClick={handlePreviewKnockoutEntries} disabled={isProcessing || !categoryId}>
                 <Eye className="w-4 h-4 mr-2" />
-                {isProcessing ? "Loading Preview..." : "Preview Knockout Bracket"}
+                {isProcessing ? t('tournamentManager.scheduleGeneration.loadingPreview', 'Loading Preview...') : t('tournamentManager.scheduleGeneration.previewKnockoutBracket', 'Preview Knockout Bracket')}
               </Button>
             )}
           </div>
@@ -234,8 +236,8 @@ export default function ScheduleGeneration({
         {step === "PREVIEW_GROUP" && (
           <div className="flex flex-col items-start gap-4 animate-in fade-in slide-in-from-bottom-2">
             <div>
-              <p className="text-sm font-medium text-cyan-500 mb-1">Step 2: Review Group Draw</p>
-              <p className="text-xs text-muted-foreground">Review the generated group seeding below. If correct, save and proceed to view the knockout bracket structure.</p>
+              <p className="text-sm font-medium text-cyan-500 mb-1">{t('tournamentManager.scheduleGeneration.step2GroupTitle', 'Step 2: Review Group Draw')}</p>
+              <p className="text-xs text-muted-foreground">{t('tournamentManager.scheduleGeneration.step2GroupDesc', 'Review the generated group seeding below. If correct, save and proceed to view the knockout bracket structure.')}</p>
             </div>
             
             <div className="w-full">
@@ -244,11 +246,11 @@ export default function ScheduleGeneration({
 
             <div className="flex gap-3">
               <Button onClick={() => setStep("INIT")} variant="outline" disabled={isProcessing}>
-                Back
+                {t('tournamentManager.scheduleGeneration.back', 'Back')}
               </Button>
               <Button onClick={handleSaveGroupStage} disabled={isProcessing}>
                 <Save className="w-4 h-4 mr-2" />
-                {isProcessing ? "Saving..." : "Save Groups & Preview Knockout"}
+                {isProcessing ? t('tournamentManager.scheduleGeneration.saving', 'Saving...') : t('tournamentManager.scheduleGeneration.saveGroupsPreviewKnockout', 'Save Groups & Preview Knockout')}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
@@ -259,8 +261,8 @@ export default function ScheduleGeneration({
         {step === "PREVIEW_KNOCKOUT_PLACEHOLDER" && (
           <div className="flex flex-col items-start gap-4 animate-in fade-in slide-in-from-bottom-2">
             <div>
-              <p className="text-sm font-medium text-cyan-500 mb-1">Step 3: Review Knockout Placeholders</p>
-              <p className="text-xs text-muted-foreground">The group assignments have been saved. Review the structure of the knockout bracket that will follow the group stage.</p>
+              <p className="text-sm font-medium text-cyan-500 mb-1">{t('tournamentManager.scheduleGeneration.step3KnockoutTitle', 'Step 3: Review Knockout Placeholders')}</p>
+              <p className="text-xs text-muted-foreground">{t('tournamentManager.scheduleGeneration.step3KnockoutDesc', 'The group assignments have been saved. Review the structure of the knockout bracket that will follow the group stage.')}</p>
             </div>
             
             <div className="w-full">
@@ -270,7 +272,7 @@ export default function ScheduleGeneration({
             <div className="flex gap-3">
               <Button onClick={handleSaveKnockoutPlaceholders} disabled={isProcessing} className="bg-primary text-primary-foreground">
                 <Play className="w-4 h-4 mr-2" />
-                {isProcessing ? "Finalizing..." : "Save Bracket & Generate Final Schedules"}
+                {isProcessing ? t('tournamentManager.scheduleGeneration.finalizing', 'Finalizing...') : t('tournamentManager.scheduleGeneration.saveBracketGenerateSchedules', 'Save Bracket & Generate Final Schedules')}
               </Button>
             </div>
           </div>
@@ -280,8 +282,8 @@ export default function ScheduleGeneration({
         {step === "PREVIEW_KNOCKOUT_ENTRIES" && (
           <div className="flex flex-col items-start gap-4 animate-in fade-in slide-in-from-bottom-2">
             <div>
-              <p className="text-sm font-medium text-cyan-500 mb-1">Step 2: Review Knockout Bracket</p>
-              <p className="text-xs text-muted-foreground">Review the direct knockout bracket structure filled from current entries.</p>
+              <p className="text-sm font-medium text-cyan-500 mb-1">{t('tournamentManager.scheduleGeneration.step2KnockoutTitle', 'Step 2: Review Knockout Bracket')}</p>
+              <p className="text-xs text-muted-foreground">{t('tournamentManager.scheduleGeneration.step2KnockoutDesc', 'Review the direct knockout bracket structure filled from current entries.')}</p>
             </div>
             
             <div className="w-full">
@@ -290,11 +292,11 @@ export default function ScheduleGeneration({
 
             <div className="flex gap-3">
               <Button onClick={() => setStep("INIT")} variant="outline" disabled={isProcessing}>
-                Back
+                {t('tournamentManager.scheduleGeneration.back', 'Back')}
               </Button>
               <Button onClick={handleSaveKnockoutEntries} disabled={isProcessing} className="bg-primary text-primary-foreground">
                 <Play className="w-4 h-4 mr-2" />
-                {isProcessing ? "Finalizing..." : "Save Bracket & Generate Schedules"}
+                {isProcessing ? t('tournamentManager.scheduleGeneration.finalizing', 'Finalizing...') : t('tournamentManager.scheduleGeneration.saveBracketGenerateSchedulesDirect', 'Save Bracket & Generate Schedules')}
               </Button>
             </div>
           </div>
@@ -306,14 +308,14 @@ export default function ScheduleGeneration({
             <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center mb-2">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
             </div>
-            <p className="font-bold text-lg">Schedules Successfully Generated!</p>
-            <p className="text-sm text-muted-foreground">The schedule view should refresh automatically.</p>
+            <p className="font-bold text-lg">{t('tournamentManager.scheduleGeneration.successTitle', 'Schedules Successfully Generated!')}</p>
+            <p className="text-sm text-muted-foreground">{t('tournamentManager.scheduleGeneration.successDesc', 'The schedule view should refresh automatically.')}</p>
           </div>
         )}
 
         {errorMsg && (
           <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 text-destructive rounded-md text-sm">
-            <strong>Error:</strong> {errorMsg}
+            <strong>{t('tournamentManager.scheduleGeneration.errorPrefix', 'Error:')}</strong> {errorMsg}
           </div>
         )}
       </div>

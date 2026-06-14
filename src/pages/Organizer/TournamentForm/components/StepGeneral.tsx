@@ -4,7 +4,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider"; 
+import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -12,6 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { DatePicker } from "@/components/ui/date-picker";
+import type { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 import { Info, Users, Trash2, Plus, AlertCircle } from "lucide-react";
 
 const DEFAULT_CATEGORY: CategoryFormState = {
@@ -66,7 +70,7 @@ export const StepGeneral: React.FC<StepProps> = ({
     }
 
     if (!Number.isInteger(data.tier) || data.tier < 1 || data.tier > 5) {
-      setValidationError("Tier phải nằm trong khoảng từ 1 đến 5.");
+      setValidationError(t("tournamentManager.createTournamentForm.general.validation.tierRangeInvalid", "Tier phải nằm trong khoảng từ 1 đến 5."));
       return;
     }
 
@@ -86,66 +90,66 @@ export const StepGeneral: React.FC<StepProps> = ({
     }
 
     if (!regStartDate || Number.isNaN(regStartDate.getTime())) {
-      setValidationError("Vui lòng nhập thời gian mở đăng ký.");
+      setValidationError(t("tournamentManager.createTournamentForm.general.validation.regStartDateRequired", "Vui lòng nhập thời gian mở đăng ký."));
       return;
     }
 
     if (!regEndDate || Number.isNaN(regEndDate.getTime())) {
-      setValidationError("Vui lòng nhập thời gian đóng đăng ký.");
+      setValidationError(t("tournamentManager.createTournamentForm.general.validation.regEndDateRequired", "Vui lòng nhập thời gian đóng đăng ký."));
       return;
     }
 
     if (!bracketDate || Number.isNaN(bracketDate.getTime())) {
-      setValidationError("Vui lòng nhập ngày chốt Bracket.");
+      setValidationError(t("tournamentManager.createTournamentForm.general.validation.bracketDateRequired", "Vui lòng nhập ngày chốt Bracket."));
       return;
     }
 
     if (regStartDate.getTime() >= regEndDate.getTime()) {
-      setValidationError("Thời gian đóng đăng ký phải sau thời gian mở.");
+      setValidationError(t("tournamentManager.createTournamentForm.general.validation.regDateOrderInvalid", "Thời gian đóng đăng ký phải sau thời gian mở."));
       return;
     }
 
     if (regEndDate.getTime() >= bracketDate.getTime()) {
-      setValidationError("Ngày chốt Bracket phải sau khi đóng đăng ký.");
+      setValidationError(t("tournamentManager.createTournamentForm.general.validation.bracketAfterReg", "Ngày chốt Bracket phải sau khi đóng đăng ký."));
       return;
     }
 
     if (bracketDate.getTime() >= startDate.getTime()) {
-      setValidationError("Ngày chốt Bracket phải trước ngày bắt đầu giải đấu.");
+      setValidationError(t("tournamentManager.createTournamentForm.general.validation.bracketBeforeStart", "Ngày chốt Bracket phải trước ngày bắt đầu giải đấu."));
       return;
     }
 
     const categories = data.categories || [];
     if (categories.length === 0) {
-      setValidationError("Vui lòng thêm ít nhất một hạng mục thi đấu (Category).");
+      setValidationError(t("tournamentManager.createTournamentForm.general.validation.categoryRequired", "Vui lòng thêm ít nhất một hạng mục thi đấu (Category)."));
       return;
     }
 
     for (let i = 0; i < categories.length; i++) {
       const cat = categories[i];
       if (!cat.name?.trim()) {
-        setValidationError(`Hạng mục #${i + 1} đang để trống tên.`);
+        setValidationError(t("tournamentManager.createTournamentForm.general.validation.categoryNameEmpty", "Hạng mục #{{index}} đang để trống tên.").replace("{{index}}", (i + 1).toString()));
         return;
       }
       if (cat.maxEntries < 2) {
-        setValidationError(`Số lượng tham gia tối đa ở hạng mục "${cat.name}" phải từ 2 trở lên.`);
+        setValidationError(t("tournamentManager.createTournamentForm.general.validation.categoryMinEntries", "Số lượng tham gia tối đa ở hạng mục \"{{name}}\" phải từ 2 trở lên.").replace("{{name}}", cat.name));
         return;
       }
       if (cat.type === "team" && (!cat.teamFormat?.trim())) {
-        setValidationError(`Vui lòng nhập định dạng đồng đội (Team Format) cho hạng mục "${cat.name}".`);
+        setValidationError(t("tournamentManager.createTournamentForm.general.validation.teamFormatRequired", "Vui lòng nhập định dạng đồng đội (Team Format) cho hạng mục \"{{name}}\".").replace("{{name}}", cat.name));
         return;
       }
       if (cat.type === "team" && (cat.maxMembersPerEntry === null || cat.maxMembersPerEntry < 1)) {
-        setValidationError(`Vui lòng nhập số thành viên tối đa cho hạng mục "${cat.name}".`);
+        setValidationError(t("tournamentManager.createTournamentForm.general.validation.maxMembersRequired", "Vui lòng nhập số thành viên tối đa cho hạng mục \"{{name}}\".").replace("{{name}}", cat.name));
         return;
       }
       // Kiểm tra min/max không bị ngược
       if (cat.minAge && cat.maxAge && cat.minAge > cat.maxAge) {
-        setValidationError(`Độ tuổi Min không được lớn hơn Max ở hạng mục "${cat.name}".`);
+        setValidationError(t("tournamentManager.createTournamentForm.general.validation.ageMinMaxInvalid", "Độ tuổi Min không được lớn hơn Max ở hạng mục \"{{name}}\".").replace("{{name}}", cat.name));
         return;
       }
       if (cat.minElo && cat.maxElo && cat.minElo > cat.maxElo) {
-        setValidationError(`Mức Elo Min không được lớn hơn Max ở hạng mục "${cat.name}".`);
+        setValidationError(t("tournamentManager.createTournamentForm.general.validation.eloMinMaxInvalid", "Mức Elo Min không được lớn hơn Max ở hạng mục \"{{name}}\".").replace("{{name}}", cat.name));
         return;
       }
     }
@@ -203,6 +207,49 @@ export const StepGeneral: React.FC<StepProps> = ({
     updateData({ categories: currentCategories });
   };
 
+  const handleTournamentDateRangeChange = (range: DateRange | undefined) => {
+    if (!range) {
+      updateData({ startDate: "", endDate: "" });
+      return;
+    }
+    updateData({
+      startDate: range.from ? format(range.from, "yyyy-MM-dd") : "",
+      endDate: range.to ? format(range.to, "yyyy-MM-dd") : "",
+    });
+  };
+
+  const tournamentDateRange: DateRange | undefined =
+    data.startDate || data.endDate
+      ? {
+        from: data.startDate ? new Date(data.startDate) : undefined,
+        to: data.endDate ? new Date(data.endDate) : undefined,
+      }
+      : undefined;
+
+  const handleRegistrationDateRangeChange = (range: DateRange | undefined) => {
+    if (!range) {
+      updateData({ registrationStartDate: "", registrationEndDate: "" });
+      return;
+    }
+    updateData({
+      registrationStartDate: range.from ? format(range.from, "yyyy-MM-dd'T'00:00") : "",
+      registrationEndDate: range.to ? format(range.to, "yyyy-MM-dd'T'23:59") : "",
+    });
+  };
+
+  const registrationDateRange: DateRange | undefined =
+    data.registrationStartDate || data.registrationEndDate
+      ? {
+        from: data.registrationStartDate ? new Date(data.registrationStartDate) : undefined,
+        to: data.registrationEndDate ? new Date(data.registrationEndDate) : undefined,
+      }
+      : undefined;
+
+  const bracketDate = data.bracketGenerationDate ? new Date(data.bracketGenerationDate) : undefined;
+  const handleBracketDateChange = (date: Date | undefined) => {
+    updateData({ bracketGenerationDate: date ? format(date, "yyyy-MM-dd") : "" });
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Tournament Details */}
@@ -248,8 +295,8 @@ export const StepGeneral: React.FC<StepProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2 md:col-span-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
             <Label className="text-xs font-semibold text-muted-foreground uppercase">
               {t("tournamentManager.createTournamentForm.general.location")}
             </Label>
@@ -262,60 +309,35 @@ export const StepGeneral: React.FC<StepProps> = ({
           </div>
           <div className="space-y-2">
             <Label className="text-xs font-semibold text-muted-foreground uppercase">
-              {t("tournamentManager.createTournamentForm.general.startDate")}
+              {t("tournamentManager.createTournamentForm.general.tournamentPeriod", "Thời gian diễn ra")}
             </Label>
-            <Input
-              type="date"
-              value={data.startDate || ""}
-              onChange={(e) => updateData({ startDate: e.target.value })}
-              className="bg-input/50"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase">
-              {t("tournamentManager.createTournamentForm.general.endDate")}
-            </Label>
-            <Input
-              type="date"
-              value={data.endDate || ""}
-              onChange={(e) => updateData({ endDate: e.target.value })}
-              className="bg-input/50"
+            <DateRangePicker
+              date={tournamentDateRange}
+              setDate={handleTournamentDateRangeChange}
+              placeholder={t("tournamentManager.createTournamentForm.general.selectTournamentPeriod", "Chọn ngày bắt đầu và kết thúc")}
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-xs font-semibold text-muted-foreground uppercase">
-              Mở đăng ký
+              {t("tournamentManager.createTournamentForm.general.registrationPeriod", "Thời gian đăng ký")}
             </Label>
-            <Input
-              type="datetime-local"
-              value={data.registrationStartDate || ""}
-              onChange={(e) => updateData({ registrationStartDate: e.target.value })}
-              className="bg-input/50"
+            <DateRangePicker
+              date={registrationDateRange}
+              setDate={handleRegistrationDateRangeChange}
+              placeholder={t("tournamentManager.createTournamentForm.general.selectRegistrationPeriod", "Chọn ngày mở và đóng đăng ký")}
             />
           </div>
           <div className="space-y-2">
             <Label className="text-xs font-semibold text-muted-foreground uppercase">
-              Đóng đăng ký
+              {t("tournamentManager.createTournamentForm.general.bracketDate", "Ngày tạo Bracket")}
             </Label>
-            <Input
-              type="datetime-local"
-              value={data.registrationEndDate || ""}
-              onChange={(e) => updateData({ registrationEndDate: e.target.value })}
-              className="bg-input/50"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase">
-              Ngày tạo Bracket
-            </Label>
-            <Input
-              type="date"
-              value={data.bracketGenerationDate || ""}
-              onChange={(e) => updateData({ bracketGenerationDate: e.target.value })}
-              className="bg-input/50"
+            <DatePicker
+              date={bracketDate}
+              setDate={handleBracketDateChange}
+              placeholder={t("tournamentManager.createTournamentForm.general.selectBracketDate", "Chọn ngày chốt Bracket")}
             />
           </div>
         </div>
@@ -344,11 +366,11 @@ export const StepGeneral: React.FC<StepProps> = ({
         <div className="space-y-4">
           {(data.categories || []).map((cat, index) => (
             <div key={index} className="p-5 rounded-lg border border-border bg-card space-y-5 relative group shadow-sm">
-              
+
               {/* Row 1: Thông tin cơ bản */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                 <div className="space-y-2 md:col-span-4">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Tên hạng mục</Label>
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">{t("tournamentManager.createTournamentForm.general.categoryName", "Tên hạng mục")}</Label>
                   <Input
                     placeholder="VD: Men's Singles..."
                     value={cat.name}
@@ -356,9 +378,9 @@ export const StepGeneral: React.FC<StepProps> = ({
                     className="bg-background"
                   />
                 </div>
-                
+
                 <div className="space-y-2 md:col-span-3">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Loại hình</Label>
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">{t("tournamentManager.createTournamentForm.general.categoryType", "Loại hình")}</Label>
                   <Select
                     value={cat.type}
                     onValueChange={(val) =>
@@ -366,18 +388,18 @@ export const StepGeneral: React.FC<StepProps> = ({
                     }
                   >
                     <SelectTrigger className="bg-background">
-                      <SelectValue placeholder="Chọn loại hình" />
+                      <SelectValue placeholder={t("tournamentManager.createTournamentForm.general.selectType", "Chọn loại hình")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="single">Đơn (Single)</SelectItem>
-                      <SelectItem value="double">Đôi (Double)</SelectItem>
-                      <SelectItem value="team">Đồng đội (Team)</SelectItem>
+                      <SelectItem value="single">{t("tournamentManager.createTournamentForm.general.single", "Đơn (Single)")}</SelectItem>
+                      <SelectItem value="double">{t("tournamentManager.createTournamentForm.general.double", "Đôi (Double)")}</SelectItem>
+                      <SelectItem value="team">{t("tournamentManager.createTournamentForm.general.team", "Đồng đội (Team)")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2 md:col-span-3">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Giới tính</Label>
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">{t("tournamentManager.createTournamentForm.general.gender", "Giới tính")}</Label>
                   <Select
                     value={cat.gender}
                     onValueChange={(val) =>
@@ -385,12 +407,12 @@ export const StepGeneral: React.FC<StepProps> = ({
                     }
                   >
                     <SelectTrigger className="bg-background">
-                      <SelectValue placeholder="Chọn giới tính" />
+                      <SelectValue placeholder={t("tournamentManager.createTournamentForm.general.selectGender", "Chọn giới tính")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="male">Nam</SelectItem>
-                      <SelectItem value="female">Nữ</SelectItem>
-                      <SelectItem value="mixed">Nam Nữ</SelectItem>
+                      <SelectItem value="male">{t("tournamentManager.createTournamentForm.general.male", "Nam")}</SelectItem>
+                      <SelectItem value="female">{t("tournamentManager.createTournamentForm.general.female", "Nữ")}</SelectItem>
+                      <SelectItem value="mixed">{t("tournamentManager.createTournamentForm.general.mixed", "Nam Nữ")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -404,7 +426,7 @@ export const StepGeneral: React.FC<StepProps> = ({
                     className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 w-full md:w-auto"
                   >
                     <Trash2 className="w-4 h-4 mr-2 md:mr-0" />
-                    <span className="md:hidden">Xóa</span>
+                    <span className="md:hidden">{t("tournamentManager.createTournamentForm.general.delete", "Xóa")}</span>
                   </Button>
                 </div>
               </div>
@@ -414,10 +436,10 @@ export const StepGeneral: React.FC<StepProps> = ({
                 <div className="p-4 rounded-md bg-muted/50 border border-muted-foreground/20 grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="flex items-start gap-2 col-span-full text-sm text-muted-foreground mb-1">
                     <AlertCircle className="w-4 h-4 mt-0.5 text-primary" />
-                    <p>Cấu hình chi tiết cho thể thức Đồng đội (Team).</p>
+                    <p>{t("tournamentManager.createTournamentForm.general.teamFormatDetails", "Cấu hình chi tiết cho thể thức Đồng đội (Team).")}</p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-xs font-semibold text-muted-foreground uppercase">Team Format</Label>
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase">{t("tournamentManager.createTournamentForm.general.teamFormatLabel", "Team Format")}</Label>
                     <Input
                       placeholder="VD: 2 Đơn 1 Đôi..."
                       value={cat.teamFormat || ""}
@@ -427,7 +449,7 @@ export const StepGeneral: React.FC<StepProps> = ({
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs font-semibold text-muted-foreground uppercase">
-                      Số thành viên tối đa / team
+                      {t("tournamentManager.createTournamentForm.general.maxMembersPerTeam", "Số thành viên tối đa / team")}
                     </Label>
                     <Input
                       type="number"
@@ -445,7 +467,7 @@ export const StepGeneral: React.FC<StepProps> = ({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-xs font-semibold text-muted-foreground uppercase">Số trận Đơn / Kèo</Label>
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase">{t("tournamentManager.createTournamentForm.general.singlesPerMatch", "Số trận Đơn / Kèo")}</Label>
                     <Input
                       type="number"
                       min={0}
@@ -455,7 +477,7 @@ export const StepGeneral: React.FC<StepProps> = ({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-xs font-semibold text-muted-foreground uppercase">Số trận Đôi / Kèo</Label>
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase">{t("tournamentManager.createTournamentForm.general.doublesPerMatch", "Số trận Đôi / Kèo")}</Label>
                     <Input
                       type="number"
                       min={0}
@@ -467,10 +489,9 @@ export const StepGeneral: React.FC<StepProps> = ({
                 </div>
               )}
 
-              {/* Row 2: Sets, Lộ trình, Số lượng, Lệ phí */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-2 border-t border-border/50">
                 <div className="space-y-3">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Số lượng tối đa</Label>
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">{t("tournamentManager.createTournamentForm.general.maxQuantity", "Số lượng tối đa")}</Label>
                   <Input
                     type="number"
                     min={2}
@@ -489,13 +510,18 @@ export const StepGeneral: React.FC<StepProps> = ({
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Lệ phí (VND)</Label>
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">{t("tournamentManager.createTournamentForm.general.entryFeeVnd", "Lệ phí (VND)")}</Label>
                   <Input
                     type="number"
                     min={0}
                     placeholder="0"
+                    // Dùng ?? thay cho || để tránh lỗi với số 0
                     value={cat.entryFee ?? ""}
-                    onChange={(e) => handleUpdateCategory(index, "entryFee", Math.max(0, Number(e.target.value)))}
+                    onChange={(e) => {
+                      // Nếu người dùng xóa sạch ô input, lưu là 0 thay vì chuỗi rỗng
+                      const val = e.target.value;
+                      handleUpdateCategory(index, "entryFee", val === "" ? 0 : Math.max(0, Number(val)));
+                    }}
                     className="bg-background"
                   />
                   <Slider
@@ -503,40 +529,43 @@ export const StepGeneral: React.FC<StepProps> = ({
                     max={2000000} // Cấu hình Max cho lệ phí (2tr VNĐ)
                     step={50000} // Snap mỗi 50k VNĐ
                     value={[Number(cat.entryFee) || 0]}
+                    // Giữ onValueChange để UI của Input và Slider đồng bộ mượt mà ngay trong lúc kéo
                     onValueChange={([val]) => handleUpdateCategory(index, "entryFee", val)}
+                    // THÊM onValueCommit để đảm bảo giá trị cuối cùng chắc chắn được lưu khi thả tay
+                    onValueCommit={([val]) => handleUpdateCategory(index, "entryFee", val)}
                     className="py-1 cursor-grab"
                   />
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Thể thức Set</Label>
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">{t("tournamentManager.createTournamentForm.general.setFormat", "Thể thức Set")}</Label>
                   <Select
                     value={cat.maxSets.toString()}
                     onValueChange={(val) => handleUpdateCategory(index, "maxSets", Number(val))}
                   >
                     <SelectTrigger className="bg-background">
-                      <SelectValue placeholder="Chọn số Set" />
+                      <SelectValue placeholder={t("tournamentManager.createTournamentForm.general.selectSets", "Chọn số Set")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">1 Set</SelectItem>
-                      <SelectItem value="3">BO3 (Thắng 2/3)</SelectItem>
-                      <SelectItem value="5">BO5 (Thắng 3/5)</SelectItem>
+                      <SelectItem value="1">{t("tournamentManager.createTournamentForm.general.set1", "1 Set")}</SelectItem>
+                      <SelectItem value="3">{t("tournamentManager.createTournamentForm.general.bo3", "BO3 (Thắng 2/3)")}</SelectItem>
+                      <SelectItem value="5">{t("tournamentManager.createTournamentForm.general.bo5", "BO5 (Thắng 3/5)")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Lộ trình</Label>
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">{t("tournamentManager.createTournamentForm.general.progression", "Lộ trình")}</Label>
                   <Select
                     value={cat.isGroupStage ? "true" : "false"}
                     onValueChange={(val) => handleUpdateCategory(index, "isGroupStage", val === "true")}
                   >
                     <SelectTrigger className="bg-background">
-                      <SelectValue placeholder="Lộ trình" />
+                      <SelectValue placeholder={t("tournamentManager.createTournamentForm.general.progression", "Lộ trình")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="true">Có vòng bảng</SelectItem>
-                      <SelectItem value="false">Knockout</SelectItem>
+                      <SelectItem value="true">{t("tournamentManager.createTournamentForm.general.groupStage", "Có vòng bảng")}</SelectItem>
+                      <SelectItem value="false">{t("tournamentManager.createTournamentForm.general.knockout", "Knockout")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -545,7 +574,7 @@ export const StepGeneral: React.FC<StepProps> = ({
               {/* Row 3: Điều kiện tham gia (Age & Elo) */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-border/50">
                 <div className="space-y-3">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Yêu cầu Độ tuổi (Min - Max)</Label>
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">{t("tournamentManager.createTournamentForm.general.ageRequirement", "Yêu cầu Độ tuổi (Min - Max)")}</Label>
                   <div className="flex items-center gap-2">
                     <Input
                       type="number"
@@ -579,11 +608,11 @@ export const StepGeneral: React.FC<StepProps> = ({
                     }
                     className="py-2 cursor-grab"
                   />
-                  <p className="text-[11px] text-muted-foreground">Kéo để chọn nhanh hoặc nhập số chính xác ở ô trên</p>
+                  <p className="text-[11px] text-muted-foreground">{t("tournamentManager.createTournamentForm.general.dragToSelectOrInput", "Kéo để chọn nhanh hoặc nhập số chính xác ở ô trên")}</p>
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase">Vùng Elo (Min - Max)</Label>
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase">{t("tournamentManager.createTournamentForm.general.eloRange", "Vùng Elo (Min - Max)")}</Label>
                   <div className="flex items-center gap-2">
                     <Input
                       type="number"
@@ -617,7 +646,7 @@ export const StepGeneral: React.FC<StepProps> = ({
                     }
                     className="py-2 cursor-grab"
                   />
-                  <p className="text-[11px] text-muted-foreground">Kéo để chọn nhanh mức Elo mong muốn</p>
+                  <p className="text-[11px] text-muted-foreground">{t("tournamentManager.createTournamentForm.general.dragToSelectElo", "Kéo để chọn nhanh mức Elo mong muốn")}</p>
                 </div>
               </div>
             </div>
@@ -625,7 +654,7 @@ export const StepGeneral: React.FC<StepProps> = ({
 
           {(!data.categories || data.categories.length === 0) && (
             <div className="text-center py-10 border-2 border-dashed border-border rounded-lg text-muted-foreground">
-              Chưa có hạng mục nào được tạo. Vui lòng thêm hạng mục.
+              {t("tournamentManager.createTournamentForm.general.noCategoriesAdded", "Chưa có hạng mục nào được tạo. Vui lòng thêm hạng mục.")}
             </div>
           )}
         </div>

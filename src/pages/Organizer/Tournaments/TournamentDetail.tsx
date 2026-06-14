@@ -1,14 +1,28 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useTournament } from "@/hooks/queries"; // Đảm bảo đường dẫn này đúng với project của bạn
+import { useQuery } from "@tanstack/react-query";
+import { useTournament, useCancelTournament } from "@/hooks/queries"; // Đảm bảo đường dẫn này đúng với project của bạn
+import scheduleConfigService from "@/services/scheduleConfig.service";
 
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin, Ban } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   EntriesManagement,
   OverviewTab,
   RefereeManagement,
   ScheduleConfig,
   ScheduleTab,
+  PaymentManagement,
 } from "@/pages/Organizer/Tournaments/TournamentDetailTabs";
 
 
@@ -28,12 +42,22 @@ export default function TournamentDetail() {
   const isLoading = apiLoading;
   const error = apiError;
 
+  const { data: scheduleConfig } = useQuery({
+    queryKey: ['schedule-config', id],
+    queryFn: () => scheduleConfigService.getScheduleConfigByTournament(id),
+    enabled: !!id,
+  });
+
   // State cho Tabs
   const [activeTab, setActiveTab] = useState("Overview");
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+
+  const cancelMutation = useCancelTournament();
   const tabs = [
     "Overview",
     "Referees",
     "Entries",
+    "Payments",
     "Schedule",
     "Schedule Config",
   ];
@@ -61,7 +85,8 @@ export default function TournamentDetail() {
   // --- Hàm hỗ trợ xử lý dữ liệu ---
 
   // Format ngày tháng (VD: Oct 15 - Oct 18, 2026)
-  const formatEventDate = (start: string, end: string) => {
+  const formatEventDate = (start?: string, end?: string) => {
+    if (!start || !end) return "TBD";
     const startDate = new Date(start);
     const endDate = new Date(end);
     const options: Intl.DateTimeFormatOptions = {
@@ -75,11 +100,13 @@ export default function TournamentDetail() {
   const renderTabContent = () => {
     switch (activeTab) {
       case "Overview":
-        return <OverviewTab tournament={tournament} />;
+        return <OverviewTab tournament={tournament} scheduleConfig={scheduleConfig} />;
       case "Referees":
         return <RefereeManagement tournamentId={id} />;
       case "Entries":
         return <EntriesManagement tournamentId={id} />;
+      case "Payments":
+        return <PaymentManagement tournamentId={id} />;
       case "Schedule":
         return <ScheduleTab tournamentId={id} tournament={tournament} />;
       case "Schedule Config":
@@ -102,7 +129,18 @@ export default function TournamentDetail() {
             ID: TRN-{new Date(tournament.createdAt).getFullYear()}-
             {tournament.id.toString().padStart(3, "0")}
           </span>
-
+          {tournament.status !== "cancelled" && tournament.status !== "completed" && (
+            <Button
+              variant="destructive"
+              size="sm"
+              className="ml-auto"
+              onClick={() => setIsCancelDialogOpen(true)}
+              disabled={cancelMutation.isPending}
+            >
+              <Ban className="h-4 w-4 mr-2" />
+              Cancel Tournament
+            </Button>
+          )}
         </div>
 
         {/* Title */}
@@ -115,7 +153,7 @@ export default function TournamentDetail() {
           <div className="flex items-center gap-1.5">
             <Calendar className="h-4 w-4" />
             <span>
-              {formatEventDate(tournament.startDate, tournament.endDate)}
+              {formatEventDate(scheduleConfig?.startDate, scheduleConfig?.endDate)}
             </span>
           </div>
           <div className="h-4 w-px bg-border hidden sm:block"></div>
@@ -145,6 +183,35 @@ export default function TournamentDetail() {
       </div>
 
       {renderTabContent()}
+
+      {/* Cancel Confirmation Dialog */}
+      <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Tournament?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel the tournament <strong>{tournament.name}</strong>? 
+              This action cannot be undone. Players' entries will remain, but the tournament status will be changed to cancelled. 
+              You can still manually refund payments if needed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={cancelMutation.isPending}>Close</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                cancelMutation.mutate(id, {
+                  onSuccess: () => setIsCancelDialogOpen(false)
+                });
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={cancelMutation.isPending}
+            >
+              {cancelMutation.isPending ? "Cancelling..." : "Yes, Cancel It"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -2,22 +2,24 @@ import { useMatches } from '@/hooks/queries';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useTranslation } from "react-i18next";
 
 export default function ScheduleTab() {
+  const { t } = useTranslation();
   const { data, isLoading } = useMatches(1, 100);
   const matches = data?.rows || [];
   const navigate = useNavigate();
 
   if (isLoading) {
-    return <div className="p-6 text-muted-foreground">Loading schedule...</div>;
+    return <div className="p-6 text-muted-foreground">{t("referee.scheduleTab.loading", "Loading schedule...")}</div>;
   }
 
   return (
     <div className="rounded-2xl border border-border/30 bg-card p-6">
-      <h2 className="text-xl font-semibold mb-6">Match Schedule</h2>
+      <h2 className="text-xl font-semibold mb-6">{t("referee.scheduleTab.title", "Match Schedule")}</h2>
       
       {matches.length === 0 ? (
-        <p className="text-muted-foreground text-center py-10">No matches scheduled.</p>
+        <p className="text-muted-foreground text-center py-10">{t("referee.scheduleTab.noMatches", "No matches scheduled.")}</p>
       ) : (
         <div className="space-y-4">
           {matches.map((match) => {
@@ -32,19 +34,19 @@ export default function ScheduleTab() {
               >
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="text-sm font-bold text-primary">Match #{match.id}</span>
+                    <span className="text-sm font-bold text-primary">{t("referee.scheduleTab.matchNumber", "Match #")}{match.id}</span>
                     <Badge variant="outline">{category}</Badge>
                     <Badge>{match.status}</Badge>
                   </div>
                   <p className="font-semibold">
-                    {player1} <span className="text-muted-foreground mx-2">vs</span> {player2}
+                    {player1} <span className="text-muted-foreground mx-2">{t("referee.scheduleTab.vs", "vs")}</span> {player2}
                   </p>
                 </div>
                 <div>
                   <Button 
                     onClick={() => navigate(`/referee/matches/${match.id}`)}
                   >
-                    Match Execution
+                    {t("referee.scheduleTab.matchExecution", "Match Execution")}
                   </Button>
                 </div>
               </div>

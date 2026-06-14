@@ -400,6 +400,13 @@ export const queryKeys = {
     pendingLineups: () => [...queryKeys.subMatchPlayers.all, "lineups", "pending"] as const,
     rejectedLineups: () => [...queryKeys.subMatchPlayers.all, "lineups", "rejected"] as const,
   },
+
+  // ==================== Chatbot Keys ====================
+  chatbot: {
+    all: ["chatbot"] as const,
+    health: () => [...queryKeys.chatbot.all, "health"] as const,
+    files: () => [...queryKeys.chatbot.all, "files"] as const,
+  },
 } as const;
 
 // Type helpers for query keys

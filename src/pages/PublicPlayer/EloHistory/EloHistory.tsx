@@ -37,8 +37,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { EloHistory } from "@/types/elo.types";
+import { useTranslation } from "react-i18next";
 
 export default function EloHistoryPage() {
+  const { t } = useTranslation();
   const { data: userResp } = useCurrentUser();
   const userId = userResp?.id || 0;
 
@@ -56,16 +58,16 @@ export default function EloHistoryPage() {
 
   return (
     <div className="px-6 py-10 space-y-6">
-      <h1 className="text-2xl font-semibold">ELO History</h1>
+      <h1 className="text-2xl font-semibold">{t("publicPlayer.elo.historyTitle")}</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>Rating Progression</CardTitle>
-          <CardDescription>Your ELO score over time</CardDescription>
+          <CardTitle>{t("publicPlayer.elo.ratingProgression")}</CardTitle>
+          <CardDescription>{t("publicPlayer.elo.historyDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p>Loading chart...</p>
+            <p>{t("publicPlayer.elo.loadingChart")}</p>
           ) : chartData.length > 0 ? (
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -86,24 +88,24 @@ export default function EloHistoryPage() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <p className="text-muted-foreground">No history available.</p>
+            <p className="text-muted-foreground">{t("publicPlayer.elo.noHistory")}</p>
           )}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Match History</CardTitle>
+          <CardTitle>{t("publicPlayer.elo.matchHistory")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Match ID</TableHead>
-                <TableHead>Before</TableHead>
-                <TableHead>Delta</TableHead>
-                <TableHead>After</TableHead>
+                <TableHead>{t("publicPlayer.elo.date")}</TableHead>
+                <TableHead>{t("publicPlayer.elo.matchId")}</TableHead>
+                <TableHead>{t("publicPlayer.elo.before")}</TableHead>
+                <TableHead>{t("publicPlayer.elo.delta")}</TableHead>
+                <TableHead>{t("publicPlayer.elo.after")}</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
@@ -131,7 +133,7 @@ export default function EloHistoryPage() {
                         size="sm"
                         onClick={() => setSelectedMatchId(h.matchId!)}
                       >
-                        Details
+                        {t("publicPlayer.elo.details")}
                       </Button>
                     )}
                   </TableCell>
@@ -140,7 +142,7 @@ export default function EloHistoryPage() {
               {histories.length === 0 && !isLoading && (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center">
-                    No records found
+                    {t("publicPlayer.elo.noRecords")}
                   </TableCell>
                 </TableRow>
               )}
@@ -165,6 +167,7 @@ function MatchEloDetailsDialog({
   matchId: number | null;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const { data, isLoading } = useEloHistoriesByMatch(matchId || 0, 1, 50, {
     enabled: !!matchId,
   });
@@ -185,9 +188,9 @@ function MatchEloDetailsDialog({
               <TableHeader>
                 <TableRow>
                   <TableHead>User ID</TableHead>
-                  <TableHead>Before</TableHead>
-                  <TableHead>Delta</TableHead>
-                  <TableHead>After</TableHead>
+                  <TableHead>{t("publicPlayer.elo.before")}</TableHead>
+                  <TableHead>{t("publicPlayer.elo.delta")}</TableHead>
+                  <TableHead>{t("publicPlayer.elo.after")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -211,7 +214,7 @@ function MatchEloDetailsDialog({
                 {histories.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={4} className="text-center">
-                      No records found
+                      {t("publicPlayer.elo.noRecords")}
                     </TableCell>
                   </TableRow>
                 )}

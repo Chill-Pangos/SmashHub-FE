@@ -16,6 +16,7 @@ export { default as notificationService } from "./notification.service";
 export { default as eloScoreService } from "./eloScore.service";
 export { default as eloHistoryService } from "./eloHistory.service";
 export { default as paymentService } from "./payment.service";
+export { default as chatbotService } from "./chatbot.service";
 export { default as subMatchService } from "./subMatch.service";
 export { default as subMatchPlayerService } from "./subMatchPlayer.service";
 export { default as permissionService } from "./permission.service";

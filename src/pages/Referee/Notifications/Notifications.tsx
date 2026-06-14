@@ -32,16 +32,18 @@
  * State management: Use React Query with infinite query for pagination
  */
 
+import { useTranslation } from "react-i18next";
+
 export default function Notifications() {
+  const { t } = useTranslation();
   return (
     <div className="px-6 py-10">
-      <h1 className="text-2xl font-semibold">Notifications</h1>
+      <h1 className="text-2xl font-semibold">{t("notifications.title", "Notifications")}</h1>
       <p className="text-muted-foreground">
-        Placeholder for the Notifications screen.
+        {t("notifications.placeholder", "Placeholder for the Notifications screen.")}
       </p>
       <p className="text-sm text-muted-foreground mt-4">
-        TODO: Display referee notifications (invitations, assignments, result
-        approvals, etc.)
+        {t("notifications.todo", "TODO: Display referee notifications (invitations, assignments, result approvals, etc.)")}
       </p>
     </div>
   );

@@ -11,8 +11,10 @@ import { useRejectedLineups } from "@/hooks/queries/useSubMatchPlayerQueries";
 import MatchCenterLineupModal from "./MatchCenterLineupModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 
 export default function MatchCenter() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: userResp } = useCurrentUser();
   const userId = userResp?.id || 0;
@@ -34,17 +36,17 @@ export default function MatchCenter() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <p className="text-xs font-semibold uppercase tracking-wider text-cyan-400">
-            PLAYER PORTAL
+            {t("publicPlayer.matchCenter.playerPortal", "PLAYER PORTAL")}
           </p>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Competitive History
+            {t("publicPlayer.matchCenter.competitiveHistory", "Competitive History")}
           </h1>
         </div>
 
         <div className="flex items-center gap-4">
           <div className="flex flex-col items-center px-4">
             <span className="text-xs font-semibold text-muted-foreground uppercase">
-              Total Matches
+              {t("publicPlayer.matchCenter.totalMatches", "Total Matches")}
             </span>
             <span className="text-2xl font-bold">{matchHistory.length}</span>
           </div>
@@ -54,10 +56,10 @@ export default function MatchCenter() {
       <div className="space-y-8">
         {/* Upcoming Matches */}
         <div>
-          <h2 className="text-xl font-bold mb-4">Upcoming & Live Matches</h2>
+          <h2 className="text-xl font-bold mb-4">{t("publicPlayer.matchCenter.upcomingMatchesTitle", "Upcoming & Live Matches")}</h2>
           <div className="space-y-3">
             {upcomingLoading ? (
-              <p>Loading...</p>
+              <p>{t("publicPlayer.tournaments.loading", "Loading...")}</p>
             ) : upcomingMatches.length > 0 ? (
               upcomingMatches.map((match: any) => {
                 // Determine if this match has a rejected lineup
@@ -71,18 +73,18 @@ export default function MatchCenter() {
                     className="flex flex-col md:flex-row items-center justify-between gap-6 p-5 rounded-xl border border-border bg-card shadow-sm"
                   >
                     <div>
-                      <span className="font-semibold">Match #{match.id}</span>
+                      <span className="font-semibold">{t("publicPlayer.matchCenter.matchId", "Match #{{id}}").replace("{{id}}", match.id)}</span>
                       <div className="text-sm text-muted-foreground">
                         {match.scheduledStartTime
                           ? format(new Date(match.scheduledStartTime), "PPp")
-                          : "TBD"}
+                          : t("publicPlayer.matchCenter.tbd", "TBD")}
                       </div>
                     </div>
                     <div>
                       <Badge>{match.status}</Badge>
                       {isRejected && (
                         <Badge variant="destructive" className="ml-2">
-                          Lineup Rejected
+                          {t("publicPlayer.matchCenter.lineupRejected", "Lineup Rejected")}
                         </Badge>
                       )}
                     </div>
@@ -91,24 +93,24 @@ export default function MatchCenter() {
                         variant="outline"
                         onClick={() => setSelectedMatchId(match.id)}
                       >
-                        {isRejected ? "Resubmit Lineup" : "Submit Lineup"}
+                        {isRejected ? t("publicPlayer.matchCenter.resubmitLineup", "Resubmit Lineup") : t("publicPlayer.matchCenter.submitLineup", "Submit Lineup")}
                       </Button>
                     </div>
                   </div>
                 );
               })
             ) : (
-              <p className="text-muted-foreground">No upcoming matches.</p>
+              <p className="text-muted-foreground">{t("publicPlayer.matchCenter.noUpcomingMatches", "No upcoming matches.")}</p>
             )}
           </div>
         </div>
 
         {/* Match History */}
         <div>
-          <h2 className="text-xl font-bold mb-4">Match History</h2>
+          <h2 className="text-xl font-bold mb-4">{t("publicPlayer.matchCenter.matchHistoryTitle", "Match History")}</h2>
           <div className="space-y-3">
             {historyLoading ? (
-              <p>Loading...</p>
+              <p>{t("publicPlayer.tournaments.loading", "Loading...")}</p>
             ) : matchHistory.length > 0 ? (
               matchHistory.map((match: any) => (
                 <div
@@ -119,10 +121,10 @@ export default function MatchCenter() {
                     <span className="text-sm font-medium text-muted-foreground">
                       {match.actualStartTime
                         ? format(new Date(match.actualStartTime), "MMM d, yyyy")
-                        : "Unknown Date"}
+                        : t("publicPlayer.matchCenter.unknownDate", "Unknown Date")}
                     </span>
                     <span className="font-semibold text-foreground">
-                      Match #{match.id}
+                      {t("publicPlayer.matchCenter.matchId", "Match #{{id}}").replace("{{id}}", match.id)}
                     </span>
                   </div>
 
@@ -136,7 +138,7 @@ export default function MatchCenter() {
                     <div
                       onClick={() => navigate(`/elo/history`)}
                       className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center group-hover:bg-cyan-500/20 group-hover:text-cyan-400 transition-colors cursor-pointer"
-                      title="View Elo Details"
+                      title={t("publicPlayer.matchCenter.viewEloDetails", "View Elo Details")}
                     >
                       <ChevronRight className="h-5 w-5" />
                     </div>
@@ -144,7 +146,7 @@ export default function MatchCenter() {
                 </div>
               ))
             ) : (
-              <p className="text-muted-foreground">No match history.</p>
+              <p className="text-muted-foreground">{t("publicPlayer.matchCenter.noMatchHistory", "No match history.")}</p>
             )}
           </div>
         </div>

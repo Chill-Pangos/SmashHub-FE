@@ -47,7 +47,7 @@ class ScheduleConfigService {
     tournamentId: number,
   ): Promise<ScheduleConfigResponse> {
     const response = await axiosInstance.get<ScheduleConfigResponse>(
-      `${this.baseURL}/tournament/${tournamentId}`,
+      `${this.baseURL}/${tournamentId}/schedule-config`,
     );
     return response.data;
   }
@@ -61,7 +61,7 @@ class ScheduleConfigService {
     data: UpdateScheduleConfigRequest,
   ): Promise<ScheduleConfigResponse> {
     const response = await axiosInstance.patch<ScheduleConfigResponse>(
-      `${this.baseURL}/tournament/${tournamentId}`,
+      `${this.baseURL}/${tournamentId}/schedule-config`,
       data,
     );
     return response.data;
@@ -69,17 +69,17 @@ class ScheduleConfigService {
 
   /**
    * Delete schedule config by tournament
-   * DELETE /api/tournaments/{tournamentId}/schedule-config
+   * DELETE /api/schedule-configs/{tournamentId}/schedule-config
    */
   async deleteScheduleConfig(
     tournamentId: number,
   ): Promise<DeleteScheduleConfigResponse> {
-    await axiosInstance.delete(`${this.baseURL}/tournament/${tournamentId}`);
+    await axiosInstance.delete(`${this.baseURL}/${tournamentId}/schedule-config`);
   }
 
   /**
    * Validate schedule config against total matches
-   * POST /api/schedule-configs/{tournamentId}/schedule-config/validate
+   * POST /api/schedule-configs/validate
    */
   async validateScheduleConfig(
     data: ValidateScheduleConfigRequest,
@@ -93,14 +93,14 @@ class ScheduleConfigService {
 
   /**
    * Preview schedule config before creation
-   * POST /api/schedule-configs/tournament/{tournamentId}/preview-create
+   * POST /api/schedule-configs/{tournamentId}/schedule-config/preview-create
    */
   async previewCreateScheduleConfig(
     tournamentId: number,
     data: PreviewScheduleConfigRequest,
   ): Promise<PreviewScheduleConfigResponse> {
     const response = await axiosInstance.post<PreviewScheduleConfigResponse>(
-      `${this.baseURL}/tournament/${tournamentId}/preview-create`,
+      `${this.baseURL}/${tournamentId}/schedule-config/preview-create`,
       data,
     );
     return response.data;
@@ -108,14 +108,14 @@ class ScheduleConfigService {
 
   /**
    * Preview schedule config update
-   * POST /api/schedule-configs/tournament/{tournamentId}/preview-update
+   * POST /api/schedule-configs/{tournamentId}/schedule-config/preview-update
    */
   async previewUpdateScheduleConfig(
     tournamentId: number,
     data: PreviewUpdateScheduleConfigRequest,
   ): Promise<PreviewScheduleConfigResponse> {
     const response = await axiosInstance.post<PreviewScheduleConfigResponse>(
-      `${this.baseURL}/tournament/${tournamentId}/preview-update`,
+      `${this.baseURL}/${tournamentId}/schedule-config/preview-update`,
       data,
     );
     return response.data;

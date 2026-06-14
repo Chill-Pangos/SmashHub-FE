@@ -8,8 +8,10 @@ export type TournamentStatus =
   | "upcoming"
   | "registration_open"
   | "registration_closed"
+  | "brackets_generated"
   | "ongoing"
-  | "completed";
+  | "completed"
+  | "cancelled";
 
 /**
  * Tournament content type enum
@@ -78,6 +80,7 @@ export interface CreateTournamentContentRequest {
 export interface Tournament {
   id: number;
   name: string;
+  introduction?: string | null;
   tier?: number;
   status: TournamentStatus;
   startDate: string;

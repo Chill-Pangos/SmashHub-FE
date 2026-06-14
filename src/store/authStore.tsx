@@ -1,4 +1,5 @@
 import React, { useState, useEffect, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import type { User, AuthData, UserRoleInput, UserRole } from "@/types";
 import authService from "@/services/auth.service";
 import { userService } from "@/services";
@@ -13,6 +14,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const queryClient = useQueryClient();
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     accessToken: null,
@@ -163,6 +165,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     authService.clearAuthData();
+    queryClient.clear();
     setAuthState({
       user: null,
       accessToken: null,

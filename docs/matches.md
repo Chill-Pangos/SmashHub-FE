@@ -2,7 +2,38 @@
 
 Match management endpoints
 
-Total endpoints: 11
+Total endpoints: 12
+
+## GET /api/matches/search/by-entries
+Tag: Matches
+Summary: Search matches by two entry names
+
+Request parameters:
+- entryAName (query) | type: string | required | First entry name
+- entryBName (query) | type: string | required | Second entry name
+- tournamentId (query) | type: integer | Filter matches within a tournament
+- categoryId (query) | type: integer | Filter matches within a tournament category
+- page (query) | type: integer | default: 1
+- limit (query) | type: integer | default: 10
+
+Request body:
+None
+
+Responses:
+### 200
+Matching matches. Entry order can be A-B or B-A.
+
+### 400
+Description: Invalid request data
+Type: object
+Example response:
+```json
+{
+  "message": "Invalid request data"
+}
+```
+
+---
 
 ## GET /api/matches/pending
 Tag: Matches
@@ -454,6 +485,42 @@ Example response:
 
 ---
 
+## GET /api/matches/{id}
+Tag: Matches
+Summary: Get match by ID
+
+Request parameters:
+- id (path) | type: integer | required | Match ID
+
+Request body:
+None
+
+Responses:
+### 200
+Match details with schedule, entries, referees, winner, and sub-matches
+
+### 400
+Description: Invalid request data
+Type: object
+Example response:
+```json
+{
+  "message": "Invalid request data"
+}
+```
+
+### 404
+Description: Resource not found
+Type: object
+Example response:
+```json
+{
+  "message": "Resource not found"
+}
+```
+
+---
+
 ## POST /api/matches/{id}/start
 Tag: Matches
 Summary: Start a match and assign referees dynamically
@@ -886,121 +953,6 @@ Example response:
 ```json
 {
   "message": "Only the chief referee can perform this action"
-}
-```
-
-### 404
-Description: Resource not found
-Type: object
-Example response:
-```json
-{
-  "message": "Resource not found"
-}
-```
-
-### 500
-Description: Internal server error
-Type: object
-Example response:
-```json
-{
-  "message": "Internal server error"
-}
-```
-
----
-
-## GET /api/matches/{id}/elo-preview
-Tag: Matches
-Summary: Preview Elo score changes for a match
-
-Calculate and preview how Elo scores will change for all players after match completion.
-Displays expected vs actual scores and per-player Elo deltas.
-
-Business Logic:
-- Works on any match status (can preview before match is completed)
-- Calculates based on current match state and set scores
-- Shows average Elo for each entry
-- Calculates expected win probability for each entry
-- Shows actual match outcome (1 for winner, 0 for loser)
-- Margin multiplier adjusts Elo change based on match difficulty
-- Returns per-player Elo changes including:
-  - userId: player ID
-  - currentElo: current Elo rating
-  - expectedElo: Elo if match had expected outcome
-  - change: actual Elo change based on result
-
-Auth: bearerAuth
-
-Request parameters:
-- id (path) | type: integer | required | Match ID to preview Elo changes
-
-Request body:
-None
-
-Responses:
-### 200
-Description: Elo changes preview for match
-Type: object
-Body:
-  - entryA: object
-    - averageElo: number
-    - expectedScore: number | Probability of winning (0-1)
-    - actualScore: number | 1 if won, 0 if lost
-  - entryB: object
-    - averageElo: number
-    - expectedScore: number | Probability of winning (0-1)
-    - actualScore: number | 1 if won, 0 if lost
-  - marginMultiplier: number | Adjustment factor based on match margin/difficulty
-  - changes: array | Elo changes for each player in both entries
-    - items: object
-      - userId: integer
-      - currentElo: integer
-      - expectedElo: integer
-      - change: integer | Actual Elo change (positive for winner, negative for loser)
-Example response:
-```json
-{
-  "entryA": {
-    "averageElo": 1200.5,
-    "expectedScore": 0.65,
-    "actualScore": 1
-  },
-  "entryB": {
-    "averageElo": 1150.3,
-    "expectedScore": 0.35,
-    "actualScore": 0
-  },
-  "marginMultiplier": 1.2,
-  "changes": [
-    {
-      "userId": 10,
-      "currentElo": 1200,
-      "expectedElo": 1215,
-      "change": 18
-    }
-  ]
-}
-```
-
-### 401
-Description: Authentication required or token invalid
-Type: object
-Example response:
-```json
-{
-  "message": "Unauthorized access"
-}
-```
-
-### 403
-Description: Insufficient permissions
-Type: object
-Example response:
-```json
-{
-  "message": "Forbidden - insufficient permissions"
 }
 ```
 

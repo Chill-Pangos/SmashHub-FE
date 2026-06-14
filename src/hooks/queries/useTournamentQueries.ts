@@ -19,7 +19,6 @@ export const useTournaments = (page = 1, limit = 10) => {
   return useQuery({
     queryKey: queryKeys.tournaments.list({ page, limit }),
     queryFn: () => tournamentService.getAllTournaments(page, limit),
-    select: (data) => data.tournaments,
   });
 };
 
@@ -214,6 +213,63 @@ export const useUpdateTournamentStatuses = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.tournaments.all,
+      });
+    },
+  });
+};
+
+/**
+ * Hook to cancel a tournament
+ */
+export const useCancelTournament = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => tournamentService.cancelTournament(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tournaments.detail(id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tournaments.lists(),
+      });
+    },
+  });
+};
+
+/**
+ * Hook to complete a tournament
+ */
+export const useCompleteTournament = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => tournamentService.completeTournament(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tournaments.detail(id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tournaments.lists(),
+      });
+    },
+  });
+};
+
+/**
+ * Hook to calculate Elo for a tournament
+ */
+export const useCalculateTournamentElo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => tournamentService.calculateElo(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tournaments.detail(id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tournaments.lists(),
       });
     },
   });

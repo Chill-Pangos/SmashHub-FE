@@ -133,7 +133,7 @@ export const useMyEntryRole = (
 ) => {
   return useQuery({
     queryKey: queryKeys.entries.myRole(entryId),
-    queryFn: () => entryService.getEntryById(entryId), // Fallback if no specific role method
+    queryFn: () => entryService.getMyRole(entryId),
     enabled: (options?.enabled ?? true) && entryId > 0,
   });
 };

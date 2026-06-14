@@ -10,6 +10,8 @@ import CategoryManagement from "@/pages/Organizer/CategoryManagement/CategoryMan
 import BulkImport from "@/pages/Organizer/BulkImport/BulkImport";
 import FinanceVerification from "@/pages/Organizer/FinanceVerification/FinanceVerification";
 import GroupStageDraw from "@/pages/Organizer/GroupStageDraw/GroupStageDraw";
+import UserProfile from "@/pages/PublicPlayer/UserProfile/UserProfile";
+import ChatbotScreen from "@/pages/Shared/Chatbot/ChatbotScreen";
 
 /**
  * Organizer Routes
@@ -47,6 +49,8 @@ export default function OrganizerRoutes() {
         <Route path="/organizer/bulk-import" element={<BulkImport />} />
         <Route path="/organizer/finance" element={<FinanceVerification />} />
         <Route path="/organizer/draw" element={<GroupStageDraw />} />
+        <Route path="/organizer/profile" element={<UserProfile />} />
+        <Route path="/organizer/chatbot" element={<ChatbotScreen />} />
       </Route>
     </>
   );

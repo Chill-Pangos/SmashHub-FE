@@ -9,22 +9,32 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSwitcher from "./LanguageSwitcher";
 import useScrollHide from "@/hooks/useScrollHide";
 import { useAuth } from "@/store/useAuth";
+import { getImageUrl } from "@/utils/api.utils";
 import { useRole } from "@/store/useRole";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { User as AuthUser } from "@/types";
 
-const getNavItems = (t: (key: string) => string) => [
-  { name: t("nav.home"), to: "/" },
-  { name: t("nav.tournaments"), to: "/tournaments" },
-  { name: t("nav.brackets"), to: "/brackets" },
-  { name: t("nav.elo"), to: "/elo" },
-];
+const getNavItems = (t: (key: string) => string, isAuthenticated: boolean) => {
+  const items = [
+    { name: t("nav.home"), to: "/" },
+    { name: t("nav.tournaments"), to: "/tournaments" },
+  ];
+  
+  if (isAuthenticated) {
+    items.push(
+      { name: t("nav.brackets"), to: "/brackets" },
+      { name: t("nav.elo"), to: "/elo" }
+    );
+  }
+  
+  return items;
+};
 
 const NavigationBar = () => {
   const { t } = useTranslation();
@@ -34,7 +44,7 @@ const NavigationBar = () => {
     useRole();
   const { logout } = useAuthOperations();
   const navigate = useNavigate();
-  const navItems = getNavItems(t);
+  const navItems = getNavItems(t, isAuthenticated);
 
   const handleLogout = async () => {
     await logout();
@@ -115,6 +125,9 @@ const NavigationBar = () => {
                     className="relative h-10 w-10 rounded-full"
                   >
                     <Avatar className="h-10 w-10">
+                      {user.avatarUrl && (
+                        <AvatarImage src={getImageUrl(user.avatarUrl)} alt={displayName} />
+                      )}
                       <AvatarFallback className="bg-primary text-primary-foreground">
                         {getUserInitials(displayName)}
                       </AvatarFallback>

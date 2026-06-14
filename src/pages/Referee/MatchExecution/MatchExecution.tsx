@@ -13,7 +13,10 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
+
 export default function MatchExecution() {
+  const { t } = useTranslation();
   const { matchId } = useParams();
 
   const { data: matchResp, isLoading: matchLoading } = useMatch(
@@ -30,41 +33,41 @@ export default function MatchExecution() {
   // Assuming Chief Referee if user has "chief_referee" role or is assigned as such
   const isChief = true; // In a real app, check user role. Let's assume true to show UI.
 
-  if (matchLoading) return <div className="p-6">Loading match...</div>;
-  if (!match) return <div className="p-6">Match not found.</div>;
+  if (matchLoading) return <div className="p-6">{t("matchExecution.loading", "Loading match...")}</div>;
+  if (!match) return <div className="p-6">{t("matchExecution.notFound", "Match not found.")}</div>;
 
   return (
     <div className="px-6 py-10 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Match Execution #{match.id}</h1>
+        <h1 className="text-2xl font-semibold">{t("matchExecution.title", "Match Execution #")}{match.id}</h1>
         <Badge>{match.status}</Badge>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Match Overview</CardTitle>
+            <CardTitle>{t("matchExecution.overview", "Match Overview")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <p>
-              <strong>Category:</strong> {match.schedule?.tournamentContent?.name || "Category"}
+              <strong>{t("matchExecution.category", "Category:")}</strong> {match.schedule?.tournamentContent?.name || "Category"}
             </p>
             <p>
-              <strong>Status:</strong> {match.status}
+              <strong>{t("matchExecution.status", "Status:")}</strong> {match.status}
             </p>
             {isChief && (
               <Button
                 onClick={() => finalizeMatch(match.id)}
                 disabled={finalizingMatch}
               >
-                Chief: Finalize Match
+                {t("matchExecution.chiefFinalize", "Chief: Finalize Match")}
               </Button>
             )}
           </CardContent>
         </Card>
 
         <div className="space-y-4">
-          <h2 className="text-xl font-bold">Sub-Matches</h2>
+          <h2 className="text-xl font-bold">{t("matchExecution.subMatches", "Sub-Matches")}</h2>
           {subMatches.map((sm: any) => (
             <SubMatchCard key={sm.id} subMatch={sm} />
           ))}
@@ -75,6 +78,7 @@ export default function MatchExecution() {
 }
 
 function SubMatchCard({ subMatch }: { subMatch: any }) {
+  const { t } = useTranslation();
   const { mutate: startSubMatch, isPending: starting } = useStartSubMatch();
   const { mutate: finalizeSubMatch, isPending: finalizing } =
     useFinalizeSubMatch();
@@ -119,7 +123,7 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex justify-between">
-          <span>Sub-Match #{subMatch.subMatchNumber}</span>
+          <span>{t("matchExecution.subMatchTitle", "Sub-Match #")}{subMatch.subMatchNumber}</span>
           <Badge>{subMatch.status}</Badge>
         </CardTitle>
       </CardHeader>
@@ -129,18 +133,18 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
             onClick={() => startSubMatch(subMatch.id)}
             disabled={starting}
           >
-            Start Sub-Match
+            {t("matchExecution.startSubMatch", "Start Sub-Match")}
           </Button>
         )}
 
         {(subMatch.status === "in_progress" || subMatch.status === "live") && (
           <div className="space-y-4">
             <h3 className="font-semibold text-center">
-              Set {activeSetNumber} Score
+              {t("matchExecution.setScore", { setNumber: activeSetNumber, defaultValue: `Set ${activeSetNumber} Score` })}
             </h3>
             <div className="flex justify-between items-center bg-secondary/20 p-4 rounded-lg">
               <div className="flex flex-col items-center gap-2">
-                <span className="font-bold">Team A</span>
+                <span className="font-bold">{t("matchExecution.teamA", "Team A")}</span>
                 <span className="text-4xl font-bold">
                   {liveScore?.entryAScore || 0}
                 </span>
@@ -161,7 +165,7 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
               <span className="text-2xl font-bold text-muted-foreground">-</span>
 
               <div className="flex flex-col items-center gap-2">
-                <span className="font-bold">Team B</span>
+                <span className="font-bold">{t("matchExecution.teamB", "Team B")}</span>
                 <span className="text-4xl font-bold">
                   {liveScore?.entryBScore || 0}
                 </span>
@@ -186,13 +190,13 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
               onClick={() => finalizeSubMatch(subMatch.id)}
               disabled={finalizing}
             >
-              Finalize Sub-Match
+              {t("matchExecution.finalizeSubMatch", "Finalize Sub-Match")}
             </Button>
           </div>
         )}
 
         {subMatch.status === "completed" && (
-          <p className="text-green-600 font-semibold">Sub-Match Completed</p>
+          <p className="text-green-600 font-semibold">{t("matchExecution.subMatchCompleted", "Sub-Match Completed")}</p>
         )}
       </CardContent>
     </Card>

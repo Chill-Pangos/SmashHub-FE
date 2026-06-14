@@ -10,11 +10,13 @@ interface TournamentScheduleViewerProps {
 }
 
 import { useGroupStandingsByCategory, useMatchesByCategory } from "@/hooks/queries";
+import { useTranslation } from "react-i18next";
 
 export default function TournamentScheduleViewer({
   contentId,
   // schedulesOverride, // Map real data sau này
 }: TournamentScheduleViewerProps) {
+  const { t } = useTranslation();
   
   // Fetch real group standings
   const { data: standingsData } = useGroupStandingsByCategory(contentId);
@@ -76,19 +78,19 @@ export default function TournamentScheduleViewer({
       {hasGroupStage && isGroupStageCompleted && !hasKnockoutStage && (
         <div className="flex flex-col items-center justify-center p-8 bg-card border-2 border-dashed border-border rounded-xl mt-8">
           <Wand2 className="w-10 h-10 text-primary mb-4" />
-          <h3 className="text-xl font-bold text-foreground">Group Stage Completed</h3>
+          <h3 className="text-xl font-bold text-foreground">{t('tournamentManager.scheduleTab.groupStageCompleted', 'Group Stage Completed')}</h3>
           <p className="text-sm text-muted-foreground mb-6 text-center max-w-md mt-2">
-            All group stage matches are finished. You can now generate the Championship Bracket based on the final standings.
+            {t('tournamentManager.scheduleTab.groupStageCompletedDesc', 'All group stage matches are finished. You can now generate the Championship Bracket based on the final standings.')}
           </p>
           <Button onClick={handleGenerateKnockout} className="bg-primary text-primary-foreground font-bold hover:bg-primary/90 shadow-[var(--auth-primary-glow)]">
-            Generate Knockout Bracket
+            {t('tournamentManager.scheduleTab.generateKnockoutBracket', 'Generate Knockout Bracket')}
           </Button>
         </div>
       )}
 
       {hasKnockoutStage && (
         <div className="mt-8">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Championship Bracket</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-6">{t('tournamentManager.scheduleTab.championshipBracket', 'Championship Bracket')}</h2>
           <ChampionshipBracket matches={knockoutMatches} /> {/* Sửa MOCK_KNOCKOUT_MATCHES thành knockoutMatches */}
         </div>
       )}

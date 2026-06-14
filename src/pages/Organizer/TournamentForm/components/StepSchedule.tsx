@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import {
   Settings,
   Clock,
@@ -25,6 +26,7 @@ export const StepSchedule: React.FC<StepProps> = ({
   const [isValidated, setIsValidated] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [validationSuccessMessage, setValidationSuccessMessage] = useState<string | null>(null);
 
   const parseTimeToMinutes = (timeStr: string) => {
     const [hours, minutes] = timeStr.split(":").map(Number);
@@ -152,11 +154,17 @@ export const StepSchedule: React.FC<StepProps> = ({
 
       if (res.isValid) {
         setIsValidated(true);
+        setValidationSuccessMessage(res.message || null);
       } else {
         setValidationError(res.message || "Invalid schedule configuration.");
       }
     } catch (err: any) {
-      setValidationError(err.response?.data?.message || "Failed to validate schedule configuration.");
+      const errorMessage =
+        err.response?.data?.error?.message ||
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to validate schedule configuration.";
+      setValidationError(errorMessage);
     } finally {
       setIsChecking(false);
     }
@@ -167,6 +175,7 @@ export const StepSchedule: React.FC<StepProps> = ({
     updateData({ schedule: { ...schedule, ...fields } });
     setIsValidated(false); // Re-validate if data changes
     setValidationError(null);
+    setValidationSuccessMessage(null);
   };
 
   return (
@@ -205,15 +214,17 @@ export const StepSchedule: React.FC<StepProps> = ({
                     "tournamentManager.createTournamentForm.schedule.matchDuration",
                   )}
                 </Label>
-                <Input
-                  type="number"
-                  value={schedule.matchDurationMinutes}
-                  onChange={(e) =>
-                    updateSchedule({
-                      matchDurationMinutes: Number(e.target.value),
-                    })
-                  }
-                />
+                <div className="flex items-center gap-4 mt-2">
+                  <Slider
+                    min={30}
+                    max={90}
+                    step={1}
+                    value={[schedule.matchDurationMinutes]}
+                    onValueChange={([val]) => updateSchedule({ matchDurationMinutes: val })}
+                    className="flex-1"
+                  />
+                  <span className="w-10 text-sm font-medium">{schedule.matchDurationMinutes}p</span>
+                </div>
               </div>
             </div>
           </section>
@@ -278,40 +289,42 @@ export const StepSchedule: React.FC<StepProps> = ({
                 }
               />
             </div>
-            {schedule.hasBreak && (
-              <div className="grid grid-cols-2 gap-4 animate-in fade-in">
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground uppercase">
-                    {t(
-                      "tournamentManager.createTournamentForm.schedule.breakStartTime",
-                    )}
-                  </Label>
-                  <Input
-                    type="time"
-                    value={schedule.breakStartTime}
-                    onChange={(e) =>
-                      updateSchedule({ breakStartTime: e.target.value })
-                    }
+            <div className="grid grid-cols-2 gap-4 animate-in fade-in">
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground uppercase">
+                  {t(
+                    "tournamentManager.createTournamentForm.schedule.breakStartTime",
+                  )}
+                </Label>
+                <Input
+                  type="time"
+                  disabled={!schedule.hasBreak}
+                  value={schedule.breakStartTime}
+                  onChange={(e) =>
+                    updateSchedule({ breakStartTime: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground uppercase">
+                  {t(
+                    "tournamentManager.createTournamentForm.schedule.breakDuration",
+                  )}
+                </Label>
+                <div className="flex items-center gap-4 mt-2">
+                  <Slider
+                    min={0}
+                    max={90}
+                    step={1}
+                    disabled={!schedule.hasBreak}
+                    value={[schedule.breakDurationMinutes]}
+                    onValueChange={([val]) => updateSchedule({ breakDurationMinutes: val })}
+                    className="flex-1"
                   />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground uppercase">
-                    {t(
-                      "tournamentManager.createTournamentForm.schedule.breakDuration",
-                    )}
-                  </Label>
-                  <Input
-                    type="number"
-                    value={schedule.breakDurationMinutes}
-                    onChange={(e) =>
-                      updateSchedule({
-                        breakDurationMinutes: Number(e.target.value),
-                      })
-                    }
-                  />
+                  <span className="w-10 text-sm font-medium text-muted-foreground">{schedule.breakDurationMinutes}p</span>
                 </div>
               </div>
-            )}
+            </div>
 
             <div className="pt-2">
               <Button
@@ -329,17 +342,6 @@ export const StepSchedule: React.FC<StepProps> = ({
                     )}
               </Button>
             </div>
-
-            {validationError && (
-              <div className="mt-3 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                <p className="font-medium">
-                  {t(
-                    "tournamentManager.createTournamentForm.schedule.validation.title",
-                  )}
-                </p>
-                <p className="mt-1">{validationError}</p>
-              </div>
-            )}
           </section>
         </div>
 
@@ -375,7 +377,7 @@ export const StepSchedule: React.FC<StepProps> = ({
                     )}
                   </h4>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {t(
+                    {validationSuccessMessage || t(
                       "tournamentManager.createTournamentForm.schedule.configurationValidDescription",
                     )}
                   </p>
@@ -435,12 +437,26 @@ export const StepSchedule: React.FC<StepProps> = ({
                 </ul>
               </div>
             ) : (
-              <div className="flex-1 flex items-center justify-center text-center p-4">
-                <p className="text-sm text-muted-foreground">
-                  {t(
-                    "tournamentManager.createTournamentForm.schedule.validationHint",
-                  )}
-                </p>
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
+                {validationError ? (
+                  <div className="w-full rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive text-left">
+                    <div className="flex items-center gap-2 mb-2 font-medium">
+                      <AlertTriangle className="w-5 h-5 shrink-0" />
+                      <p>
+                        {t(
+                          "tournamentManager.createTournamentForm.schedule.validation.title",
+                        )}
+                      </p>
+                    </div>
+                    <p className="text-muted-foreground">{validationError}</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    {t(
+                      "tournamentManager.createTournamentForm.schedule.validationHint",
+                    )}
+                  </p>
+                )}
               </div>
             )}
           </div>

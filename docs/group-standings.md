@@ -11,6 +11,10 @@ Summary: Generate group preview with random assignments
 Generate a random group stage preview for organizer review.
 This endpoint does not save data. Review the returned groups, then call /group-standings/save-assignments with approved assignments.
 
+Requirements:
+- Tournament status must be brackets_generated
+- scheduleConfig.bracketGenerationDate must be reached
+
 Auth: bearerAuth
 
 Request parameters:
@@ -122,6 +126,8 @@ Each entry in each group gets a GroupStanding record initialized with:
 - setsWon, setsLost, setsDiff: 0
 
 **Validation**:
+- Tournament status must be brackets_generated
+- scheduleConfig.bracketGenerationDate must be reached
 - All entries must belong to the category
 - No duplicate entries across groups
 - All entries must be eligible (closed registration, proper member count)
@@ -245,7 +251,7 @@ Example response:
 Description: Invalid request data or validation failed
 Type: object
 Body:
-  - message: string | choices: categoryId must be a positive integer, groupAssignments must be an array of { groupName, entryIds[] }, Assignments must contain at least one entry, Duplicate entries found across groups, Some entries do not belong to this category, Registration must be closed before managing groups
+  - message: string | choices: categoryId must be a positive integer, groupAssignments must be an array of { groupName, entryIds[] }, Assignments must contain at least one entry, Duplicate entries found across groups, Some entries do not belong to this category, Tournament must be in brackets_generated status before managing groups, Bracket generation date must be reached before managing groups
 Example response:
 ```json
 {

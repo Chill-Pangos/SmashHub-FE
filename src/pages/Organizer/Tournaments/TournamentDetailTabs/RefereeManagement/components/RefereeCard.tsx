@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoreVertical } from "lucide-react";
 import type { RefereeUser } from "@/types/tournamentReferee.types";
+import { useTranslation } from "react-i18next";
 
 export interface RefereeDisplay {
   id: number;
@@ -17,9 +18,10 @@ interface RefereeCardProps {
 }
 
 export function RefereeCard({ referee, isChief }: RefereeCardProps) {
+  const { t } = useTranslation();
   const name = referee.user
     ? `${referee.user.firstName} ${referee.user.lastName}`
-    : "Unknown User";
+    : t('tournamentManager.refereeManagement.unknownUser', 'Unknown User');
 
   return (
     <div className="flex items-center justify-between p-4 bg-card border border-border rounded-xl">
@@ -35,7 +37,7 @@ export function RefereeCard({ referee, isChief }: RefereeCardProps) {
             {name}
           </p>
           <p className="text-xs text-muted-foreground flex items-center gap-1">
-            {isChief && <span className="text-primary mr-1">CHIEF</span>}
+            {isChief && <span className="text-primary mr-1">{t('tournamentManager.refereeManagement.chief', 'CHIEF')}</span>}
             {referee.user?.email}
           </p>
         </div>
@@ -49,7 +51,7 @@ export function RefereeCard({ referee, isChief }: RefereeCardProps) {
               : "text-chart-4 border-chart-4 bg-chart-4/10"
           }`}
         >
-          {referee.status}
+          {referee.status === "CONFIRMED" ? t('tournamentManager.refereeManagement.confirmed', 'CONFIRMED') : t('tournamentManager.refereeManagement.pending', 'PENDING')}
         </Badge>
         <Button
           variant="ghost"
