@@ -8,14 +8,14 @@ Base path: /api
 ## Tags
 
 - [Auth](auth.md) - Authentication and authorization endpoints (11 endpoints)
-- [ELO Histories](elo-histories.md) - ELO history tracking endpoints (2 endpoints)
+- [ELO Histories](elo-histories.md) - ELO history tracking endpoints (1 endpoints)
 - [ELO Scores](elo-scores.md) - ELO scoring system endpoints (1 endpoints)
-- [Entries](entries.md) - Entry management endpoints (14 endpoints)
+- [Entries](entries.md) - Entry management endpoints (15 endpoints)
 - [Entry Members](entry-members.md) -  (6 endpoints)
 - [Group Standings](group-standings.md) - Group stage standing management endpoints (6 endpoints)
 - [Knockout Brackets](knockout-brackets.md) - Knockout bracket management endpoints (9 endpoints)
 - [Match Sets](match-sets.md) - Match set endpoints (8 endpoints)
-- [Matches](matches.md) - Match management endpoints (11 endpoints)
+- [Matches](matches.md) - Match management endpoints (12 endpoints)
 - [Notifications](notifications.md) - Real-time notifications endpoints (6 endpoints)
 - [Payments](payments.md) - Payment and entry fee management endpoints (10 endpoints)
 - [Permissions](permissions.md) - Permission management endpoints (5 endpoints)
@@ -27,7 +27,7 @@ Base path: /api
 - [Sub Matches](sub-matches.md) - Sub-match management endpoints (6 endpoints)
 - [Tournament Categories](tournament-categories.md) - Tournament category endpoints (6 endpoints)
 - [Tournament Referees](tournament-referees.md) - Tournament referee management endpoints (10 endpoints)
-- [Tournaments](tournaments.md) - Tournament management endpoints (10 endpoints)
+- [Tournaments](tournaments.md) - Tournament management endpoints (13 endpoints)
 - [User Roles](user-roles.md) - User role assignment endpoints (6 endpoints)
 - [Users](users.md) - User management endpoints (9 endpoints)
 

@@ -4,7 +4,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider"; 
+import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -221,9 +221,9 @@ export const StepGeneral: React.FC<StepProps> = ({
   const tournamentDateRange: DateRange | undefined =
     data.startDate || data.endDate
       ? {
-          from: data.startDate ? new Date(data.startDate) : undefined,
-          to: data.endDate ? new Date(data.endDate) : undefined,
-        }
+        from: data.startDate ? new Date(data.startDate) : undefined,
+        to: data.endDate ? new Date(data.endDate) : undefined,
+      }
       : undefined;
 
   const handleRegistrationDateRangeChange = (range: DateRange | undefined) => {
@@ -240,9 +240,9 @@ export const StepGeneral: React.FC<StepProps> = ({
   const registrationDateRange: DateRange | undefined =
     data.registrationStartDate || data.registrationEndDate
       ? {
-          from: data.registrationStartDate ? new Date(data.registrationStartDate) : undefined,
-          to: data.registrationEndDate ? new Date(data.registrationEndDate) : undefined,
-        }
+        from: data.registrationStartDate ? new Date(data.registrationStartDate) : undefined,
+        to: data.registrationEndDate ? new Date(data.registrationEndDate) : undefined,
+      }
       : undefined;
 
   const bracketDate = data.bracketGenerationDate ? new Date(data.bracketGenerationDate) : undefined;
@@ -366,7 +366,7 @@ export const StepGeneral: React.FC<StepProps> = ({
         <div className="space-y-4">
           {(data.categories || []).map((cat, index) => (
             <div key={index} className="p-5 rounded-lg border border-border bg-card space-y-5 relative group shadow-sm">
-              
+
               {/* Row 1: Thông tin cơ bản */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                 <div className="space-y-2 md:col-span-4">
@@ -378,7 +378,7 @@ export const StepGeneral: React.FC<StepProps> = ({
                     className="bg-background"
                   />
                 </div>
-                
+
                 <div className="space-y-2 md:col-span-3">
                   <Label className="text-xs font-semibold text-muted-foreground uppercase">{t("tournamentManager.createTournamentForm.general.categoryType", "Loại hình")}</Label>
                   <Select
@@ -515,8 +515,13 @@ export const StepGeneral: React.FC<StepProps> = ({
                     type="number"
                     min={0}
                     placeholder="0"
+                    // Dùng ?? thay cho || để tránh lỗi với số 0
                     value={cat.entryFee ?? ""}
-                    onChange={(e) => handleUpdateCategory(index, "entryFee", Math.max(0, Number(e.target.value)))}
+                    onChange={(e) => {
+                      // Nếu người dùng xóa sạch ô input, lưu là 0 thay vì chuỗi rỗng
+                      const val = e.target.value;
+                      handleUpdateCategory(index, "entryFee", val === "" ? 0 : Math.max(0, Number(val)));
+                    }}
                     className="bg-background"
                   />
                   <Slider
@@ -524,7 +529,10 @@ export const StepGeneral: React.FC<StepProps> = ({
                     max={2000000} // Cấu hình Max cho lệ phí (2tr VNĐ)
                     step={50000} // Snap mỗi 50k VNĐ
                     value={[Number(cat.entryFee) || 0]}
+                    // Giữ onValueChange để UI của Input và Slider đồng bộ mượt mà ngay trong lúc kéo
                     onValueChange={([val]) => handleUpdateCategory(index, "entryFee", val)}
+                    // THÊM onValueCommit để đảm bảo giá trị cuối cùng chắc chắn được lưu khi thả tay
+                    onValueCommit={([val]) => handleUpdateCategory(index, "entryFee", val)}
                     className="py-1 cursor-grab"
                   />
                 </div>

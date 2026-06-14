@@ -2,17 +2,19 @@ import { useState } from "react";
 import { Search, Shield, ChevronRight, UserPlus, Settings, LogOut, CreditCard, CheckCircle2, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Tournament, TournamentCategory } from "@/types/tournament.types";
-import { useMyEntries, useEntriesByCategory, useConfirmLineup } from "@/hooks/queries/useEntryQueries";
+import { useMyEntries, useEntriesByCategory, useConfirmLineup, useMyEntryRole } from "@/hooks/queries/useEntryQueries";
 import { usePaymentsByEntry } from "@/hooks/queries/usePaymentQueries";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/store/useAuth";
 
 
 interface RegistrationTabProps {
   tournamentId: number;
   tournament: Tournament;
+  onNavigateToPayment?: () => void;
 }
 
-export default function RegistrationTab({ tournamentId, tournament }: RegistrationTabProps) {
+export default function RegistrationTab({ tournamentId, tournament, onNavigateToPayment }: RegistrationTabProps) {
   const { t } = useTranslation();
   const categories = tournament?.categories || [];
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
@@ -74,7 +76,7 @@ export default function RegistrationTab({ tournamentId, tournament }: Registrati
           {t("publicPlayer.tournamentDetail.registrationTab.noCategorySelected")}
         </div>
       ) : myEntryWithRole ? (
-        <ManageEntryView entryWithRole={myEntryWithRole} category={selectedCategory} />
+        <ManageEntryView entryWithRole={myEntryWithRole} category={selectedCategory} onNavigateToPayment={onNavigateToPayment} />
       ) : (
         <SearchAndJoinTeamView category={selectedCategory} tournamentId={tournamentId} />
       )}
@@ -82,10 +84,15 @@ export default function RegistrationTab({ tournamentId, tournament }: Registrati
   );
 }
 
-function ManageEntryView({ entryWithRole, category }: { entryWithRole: any, category: TournamentCategory }) {
+function ManageEntryView({ entryWithRole, category, onNavigateToPayment }: { entryWithRole: any, category: TournamentCategory, onNavigateToPayment?: () => void }) {
   const { t } = useTranslation();
-  const { entry, role } = entryWithRole;
-  const isCaptain = role === "captain";
+  const { user } = useAuth();
+  const { entry, role: initialRole } = entryWithRole;
+  
+  const { data: roleData } = useMyEntryRole(entry.id);
+  const role = roleData?.role || initialRole || "member";
+  
+  const isCaptain = role === "captain" || category.type === "single" || entry.captainId === user?.id;
 
   const confirmLineupMutation = useConfirmLineup();
 
@@ -95,7 +102,11 @@ function ManageEntryView({ entryWithRole, category }: { entryWithRole: any, cate
   const paymentStatus = latestPayment?.status;
 
   const handleConfirmLineup = () => {
-    confirmLineupMutation.mutate(entry.id);
+    confirmLineupMutation.mutate(entry.id, {
+      onSuccess: () => {
+        onNavigateToPayment?.();
+      }
+    });
   };
 
   const paymentStatusBadge = () => {
@@ -166,12 +177,16 @@ function ManageEntryView({ entryWithRole, category }: { entryWithRole: any, cate
         <div className="pt-4 border-t border-border mt-6">
           <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4">{t("publicPlayer.tournamentDetail.registrationTab.captainActions")}</h4>
           <div className="flex flex-wrap gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg text-sm font-medium hover:bg-secondary/80 transition-colors">
-              <UserPlus className="w-4 h-4" /> {t("publicPlayer.tournamentDetail.registrationTab.inviteMember")}
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg text-sm font-medium hover:bg-secondary/80 transition-colors">
-              <Settings className="w-4 h-4" /> {t("publicPlayer.tournamentDetail.registrationTab.editTeam")}
-            </button>
+            {category.type !== "single" && (
+              <>
+                <button className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg text-sm font-medium hover:bg-secondary/80 transition-colors">
+                  <UserPlus className="w-4 h-4" /> {t("publicPlayer.tournamentDetail.registrationTab.inviteMember")}
+                </button>
+                <button className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg text-sm font-medium hover:bg-secondary/80 transition-colors">
+                  <Settings className="w-4 h-4" /> {t("publicPlayer.tournamentDetail.registrationTab.editTeam")}
+                </button>
+              </>
+            )}
             {!entry.isConfirmed ? (
               <button
                 className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"

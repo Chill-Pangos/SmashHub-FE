@@ -44,7 +44,9 @@ export default function EntryRegistration() {
       },
       {
         onSuccess: () => {
-          navigate("/profile");
+          navigate(`/tournaments/${tournamentId}`, {
+            state: { activeTab: t("publicPlayer.tournamentDetail.registrationTab.title", "Registration") }
+          });
         },
       }
     );

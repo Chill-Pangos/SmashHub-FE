@@ -1,10 +1,21 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { useTournament } from "@/hooks/queries"; // Đảm bảo đường dẫn này đúng với project của bạn
+import { useTournament, useCancelTournament } from "@/hooks/queries"; // Đảm bảo đường dẫn này đúng với project của bạn
 import scheduleConfigService from "@/services/scheduleConfig.service";
 
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin, Ban } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   EntriesManagement,
   OverviewTab,
@@ -39,6 +50,9 @@ export default function TournamentDetail() {
 
   // State cho Tabs
   const [activeTab, setActiveTab] = useState("Overview");
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+
+  const cancelMutation = useCancelTournament();
   const tabs = [
     "Overview",
     "Referees",
@@ -115,7 +129,18 @@ export default function TournamentDetail() {
             ID: TRN-{new Date(tournament.createdAt).getFullYear()}-
             {tournament.id.toString().padStart(3, "0")}
           </span>
-
+          {tournament.status !== "cancelled" && tournament.status !== "completed" && (
+            <Button
+              variant="destructive"
+              size="sm"
+              className="ml-auto"
+              onClick={() => setIsCancelDialogOpen(true)}
+              disabled={cancelMutation.isPending}
+            >
+              <Ban className="h-4 w-4 mr-2" />
+              Cancel Tournament
+            </Button>
+          )}
         </div>
 
         {/* Title */}
@@ -158,6 +183,35 @@ export default function TournamentDetail() {
       </div>
 
       {renderTabContent()}
+
+      {/* Cancel Confirmation Dialog */}
+      <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Tournament?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel the tournament <strong>{tournament.name}</strong>? 
+              This action cannot be undone. Players' entries will remain, but the tournament status will be changed to cancelled. 
+              You can still manually refund payments if needed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={cancelMutation.isPending}>Close</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                cancelMutation.mutate(id, {
+                  onSuccess: () => setIsCancelDialogOpen(false)
+                });
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={cancelMutation.isPending}
+            >
+              {cancelMutation.isPending ? "Cancelling..." : "Yes, Cancel It"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

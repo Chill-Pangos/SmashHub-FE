@@ -16,6 +16,8 @@ Slot time được tính liên tục theo scheduleConfig của tournament.
 tableNumber KHÔNG được gán ở đây — sẽ gán động khi trận bắt đầu.
 
 Yêu cầu:
+- Tournament status must be brackets_generated
+- scheduleConfig.bracketGenerationDate must be reached
 - scheduleConfig đã được tạo cho tournament
 - groupStandings đã có (nếu category có vòng bảng)
 - knockoutBrackets đã được generate (generatePlaceholders hoặc generateFromEntries)
@@ -122,6 +124,8 @@ Slot time tính từ scheduleConfig của tournament.
 tableNumber KHÔNG được gán — sẽ gán động khi trận bắt đầu.
 
 Yêu cầu:
+- Tournament status must be brackets_generated
+- scheduleConfig.bracketGenerationDate must be reached
 - scheduleConfig đã được tạo
 - groupStandings đã có (saveGroupAssignments đã chạy)
 

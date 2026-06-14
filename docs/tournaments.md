@@ -2,7 +2,7 @@
 
 Tournament management endpoints
 
-Total endpoints: 10
+Total endpoints: 13
 
 ## POST /api/tournaments
 Tag: Tournaments
@@ -257,6 +257,7 @@ Request parameters:
 - offset (query) | type: integer | Number of records to offset for pagination | default: 0
 - limit (query) | type: integer | Maximum number of records to return. Use 0 to get all tournaments without limit | default: 10
 - userId (query) | type: integer | Filter tournaments where this user has entries
+- name (query) | type: string | Filter tournaments by similar name
 - createdBy (query) | type: integer | Filter tournaments created by this user
 - minAge (query) | type: integer | Filter by minimum age requirement (category.minAge <= this value)
 - maxAge (query) | type: integer | Filter by maximum age requirement (category.maxAge >= this value)
@@ -798,6 +799,236 @@ Example response:
 
 ### 500
 Internal server error
+
+---
+
+## POST /api/tournaments/{id}/elo/calculate
+Tag: Tournaments
+Summary: Calculate Elo for all players in a completed tournament
+
+Calculates and persists Elo changes for all players who participated in approved matches of a completed tournament.
+This endpoint is intended to be called once after the tournament ends.
+
+Business Logic:
+- Tournament status must be completed
+- Uses only matches with status = completed and resultStatus = approved
+- Creates missing Elo scores with default 1000
+- Aggregates all match deltas per user and writes one Elo history record per user
+- Rejects duplicate calculation if Elo history already exists for the tournament
+
+Auth: bearerAuth
+
+Request parameters:
+- id (path) | type: integer | required | Resource ID
+
+Request body:
+None
+
+Responses:
+### 200
+Tournament Elo calculated successfully
+
+### 400
+Description: Invalid request data
+Type: object
+Example response:
+```json
+{
+  "message": "Invalid request data"
+}
+```
+
+### 401
+Description: Authentication required or token invalid
+Type: object
+Example response:
+```json
+{
+  "message": "Unauthorized access"
+}
+```
+
+### 403
+Description: Insufficient permissions
+Type: object
+Example response:
+```json
+{
+  "message": "Forbidden - insufficient permissions"
+}
+```
+
+### 404
+Description: Resource not found
+Type: object
+Example response:
+```json
+{
+  "message": "Resource not found"
+}
+```
+
+### 500
+Description: Internal server error
+Type: object
+Example response:
+```json
+{
+  "message": "Internal server error"
+}
+```
+
+---
+
+## POST /api/tournaments/{id}/complete
+Tag: Tournaments
+Summary: Complete tournament, return awards, and update Elo
+
+Marks a tournament as completed, returns prize winners, then calculates and persists Elo changes.
+
+Award logic:
+- Knockout: champion, runner-up, and third-place entries from final standings
+- Group-only: top 3 entries per group from group standings
+
+Elo logic:
+- Uses approved completed matches
+- Rejects duplicate Elo calculation if histories already exist for the tournament
+
+Auth: bearerAuth
+
+Request parameters:
+- id (path) | type: integer | required | Resource ID
+
+Request body:
+None
+
+Responses:
+### 200
+Tournament completed successfully
+
+### 400
+Description: Invalid request data
+Type: object
+Example response:
+```json
+{
+  "message": "Invalid request data"
+}
+```
+
+### 401
+Description: Authentication required or token invalid
+Type: object
+Example response:
+```json
+{
+  "message": "Unauthorized access"
+}
+```
+
+### 403
+Description: Insufficient permissions
+Type: object
+Example response:
+```json
+{
+  "message": "Forbidden - insufficient permissions"
+}
+```
+
+### 404
+Description: Resource not found
+Type: object
+Example response:
+```json
+{
+  "message": "Resource not found"
+}
+```
+
+### 500
+Description: Internal server error
+Type: object
+Example response:
+```json
+{
+  "message": "Internal server error"
+}
+```
+
+---
+
+## POST /api/tournaments/{id}/cancel
+Tag: Tournaments
+Summary: Cancel tournament
+
+Marks a tournament as cancelled. Only the tournament organizer can cancel it.
+Completed or already cancelled tournaments cannot be cancelled.
+
+Paid entries are not refunded automatically. Use payment refund APIs to
+upload refund proof and mark completed payments as refunded.
+
+Auth: bearerAuth
+
+Request parameters:
+- id (path) | type: integer | required | Resource ID
+
+Request body:
+None
+
+Responses:
+### 200
+Tournament cancelled successfully
+
+### 400
+Description: Invalid request data
+Type: object
+Example response:
+```json
+{
+  "message": "Invalid request data"
+}
+```
+
+### 401
+Description: Authentication required or token invalid
+Type: object
+Example response:
+```json
+{
+  "message": "Unauthorized access"
+}
+```
+
+### 403
+Description: Insufficient permissions
+Type: object
+Example response:
+```json
+{
+  "message": "Forbidden - insufficient permissions"
+}
+```
+
+### 404
+Description: Resource not found
+Type: object
+Example response:
+```json
+{
+  "message": "Resource not found"
+}
+```
+
+### 500
+Description: Internal server error
+Type: object
+Example response:
+```json
+{
+  "message": "Internal server error"
+}
+```
 
 ---
 

@@ -19,6 +19,8 @@ export interface Payment {
   proofImageUrl?: string | null;
   paidAt?: string | Date | null;
   confirmedAt?: string | Date | null;
+  refundedAt?: string | Date | null;
+  refundProofImageUrl?: string | null;
   createdAt?: string | Date;
   updatedAt?: string | Date;
   [key: string]: unknown;

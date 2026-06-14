@@ -234,6 +234,30 @@ class TournamentService {
   async deleteTournament(id: number): Promise<void> {
     await axiosInstance.delete(`${this.baseURL}/${id}`);
   }
+
+  /**
+   * Calculate Elo for all players in a completed tournament
+   * POST /api/tournaments/:id/elo/calculate
+   */
+  async calculateElo(id: number): Promise<void> {
+    await axiosInstance.post(`${this.baseURL}/${id}/elo/calculate`);
+  }
+
+  /**
+   * Complete tournament, return awards, and update Elo
+   * POST /api/tournaments/:id/complete
+   */
+  async completeTournament(id: number): Promise<void> {
+    await axiosInstance.post(`${this.baseURL}/${id}/complete`);
+  }
+
+  /**
+   * Cancel tournament
+   * POST /api/tournaments/:id/cancel
+   */
+  async cancelTournament(id: number): Promise<void> {
+    await axiosInstance.post(`${this.baseURL}/${id}/cancel`);
+  }
 }
 
 // Export singleton instance

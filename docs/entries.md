@@ -2,7 +2,7 @@
 
 Entry management endpoints
 
-Total endpoints: 14
+Total endpoints: 15
 
 ## POST /api/entries/register
 Tag: Entries
@@ -663,6 +663,24 @@ Example response:
   "message": "Internal server error"
 }
 ```
+
+---
+
+## GET /api/entries/search
+Tag: Entries
+Summary: Search entries by name
+
+Request parameters:
+- name (query) | type: string | Entry name to search for
+- page (query) | type: integer | Page number for pagination | default: 1
+- limit (query) | type: integer | Maximum number of records to return | default: 10
+
+Request body:
+None
+
+Responses:
+### 200
+List of matching entries with pagination
 
 ---
 

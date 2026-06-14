@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { getImageUrl } from "@/utils/api.utils";
 import {
   Dialog,
   DialogContent,
@@ -146,6 +147,14 @@ export default function PaymentDetailDialog({
                 <p className="text-sm">{formatDate(payment.confirmedAt)}</p>
               </div>
             )}
+            {payment.refundedAt && (
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  {t("tournamentManager.paymentManagement.detail.refundedAt", "Refunded At")}
+                </p>
+                <p className="text-sm">{formatDate(payment.refundedAt)}</p>
+              </div>
+            )}
           </div>
 
           {/* Proof Image */}
@@ -157,8 +166,25 @@ export default function PaymentDetailDialog({
               </p>
               <div className="rounded-lg border border-border overflow-hidden bg-secondary/30">
                 <img
-                  src={payment.proofImageUrl}
+                  src={getImageUrl(payment.proofImageUrl)}
                   alt="Payment proof"
+                  className="w-full max-h-[300px] object-contain"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Refund Proof Image */}
+          {payment.refundProofImageUrl && (
+            <div className="space-y-2">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <ImageIcon className="h-3.5 w-3.5" />
+                {t("tournamentManager.paymentManagement.detail.refundProofImage", "Refund Proof")}
+              </p>
+              <div className="rounded-lg border border-border overflow-hidden bg-secondary/30">
+                <img
+                  src={getImageUrl(payment.refundProofImageUrl)}
+                  alt="Refund proof"
                   className="w-full max-h-[300px] object-contain"
                 />
               </div>

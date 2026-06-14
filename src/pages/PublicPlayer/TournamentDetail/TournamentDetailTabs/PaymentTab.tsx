@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { getImageUrl } from "@/utils/api.utils";
 import type { Tournament } from "@/types/tournament.types";
 import {
   useMyEntries,
@@ -302,30 +303,46 @@ function PaymentFlowView({
             {t("publicPlayer.paymentTab.proofUploadDesc", "Upload a screenshot or photo of your bank transfer receipt.")}
           </p>
 
-          {/* Current proof */}
-          {latestPayment.proofImageUrl && (
-            <div className="rounded-lg border border-border overflow-hidden">
-              <img
-                src={latestPayment.proofImageUrl}
-                alt="Payment proof"
-                className="w-full max-h-[300px] object-contain bg-secondary/30"
-              />
-            </div>
-          )}
-
-          {/* Preview of new upload */}
-          {proofPreview && uploadProofMutation.isPending && (
-            <div className="rounded-lg border border-primary/30 overflow-hidden relative">
+          {/* Proof Image Upload Area */}
+          <div 
+            className="relative group cursor-pointer rounded-lg border-2 border-dashed border-border overflow-hidden bg-secondary/30 hover:border-primary/50 transition-colors"
+            onClick={() => !uploadProofMutation.isPending && fileInputRef.current?.click()}
+          >
+            {proofPreview && uploadProofMutation.isPending ? (
               <img
                 src={proofPreview}
                 alt="Uploading..."
                 className="w-full max-h-[300px] object-contain opacity-50"
               />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            ) : latestPayment.proofImageUrl ? (
+              <img
+                src={getImageUrl(latestPayment.proofImageUrl)}
+                alt="Payment proof"
+                className="w-full max-h-[300px] object-contain"
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-[200px] text-muted-foreground">
+                <ImageIcon className="h-10 w-10 mb-2 opacity-50" />
+                <span className="text-sm">{t("publicPlayer.paymentTab.clickToUpload", "Click to upload proof")}</span>
               </div>
+            )}
+
+            {/* Hover/Loading Overlay */}
+            <div className={`absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity ${uploadProofMutation.isPending ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+              {uploadProofMutation.isPending ? (
+                <Loader2 className="h-10 w-10 animate-spin text-white" />
+              ) : (
+                <div className="flex flex-col items-center text-white">
+                  <Upload className="h-8 w-8 mb-2" />
+                  <span className="text-sm font-semibold">
+                    {latestPayment.proofImageUrl 
+                      ? t("publicPlayer.paymentTab.changeImage", "Change Image")
+                      : t("publicPlayer.paymentTab.uploadImage", "Upload Image")}
+                  </span>
+                </div>
+              )}
             </div>
-          )}
+          </div>
 
           <input
             ref={fileInputRef}
@@ -334,17 +351,6 @@ function PaymentFlowView({
             className="hidden"
             onChange={handleFileChange}
           />
-          <Button
-            variant="outline"
-            className="w-full gap-2"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploadProofMutation.isPending}
-          >
-            <Upload className="h-4 w-4" />
-            {latestPayment.proofImageUrl
-              ? t("publicPlayer.paymentTab.reuploadProof", "Re-upload Proof")
-              : t("publicPlayer.paymentTab.uploadProof", "Upload Proof Image")}
-          </Button>
         </div>
       )}
 
@@ -358,6 +364,33 @@ function PaymentFlowView({
           <p className="text-sm text-muted-foreground">
             {t("publicPlayer.paymentTab.paymentSuccessDesc", "Your entry is now eligible for the tournament.")}
           </p>
+        </div>
+      )}
+
+      {/* Refunded — message and proof */}
+      {status === "refunded" && (
+        <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-6 space-y-4">
+          <div className="text-center space-y-2">
+            <RotateCcw className="h-10 w-10 text-blue-500 mx-auto" />
+            <p className="font-semibold text-blue-500">
+              {t("publicPlayer.paymentTab.paymentRefunded", "Your payment has been refunded.")}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {t("publicPlayer.paymentTab.paymentRefundedDesc", "Please check your bank account or contact the organizer if you have not received it.")}
+            </p>
+          </div>
+          {latestPayment.refundProofImageUrl && (
+            <div className="mt-4">
+              <p className="text-sm font-medium mb-2">{t("publicPlayer.paymentTab.refundProof", "Refund Proof")}</p>
+              <div className="rounded-lg border border-border overflow-hidden bg-secondary/30">
+                <img
+                  src={getImageUrl(latestPayment.refundProofImageUrl)}
+                  alt="Refund proof"
+                  className="w-full max-h-[300px] object-contain"
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
