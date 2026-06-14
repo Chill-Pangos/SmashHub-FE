@@ -20,3 +20,4 @@ export * from "./userRole.types";
 export * from "./rolePermission.types";
 export * from "./user.types";
 export * from "./pagination.types";
+export * from "./chatbot.types";

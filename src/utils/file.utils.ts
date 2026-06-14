@@ -232,3 +232,17 @@ export function downloadTemplateByType(
 
   downloadExcelTemplate(templatePath, filename);
 }
+
+/**
+ * Format relative file URL to absolute Chatbot API URL
+ * @param url The relative path from the API
+ * @returns The full absolute URL
+ */
+export const getChatbotFileUrl = (url?: string | null): string => {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) return url;
+  
+  const chatbotUrl = import.meta.env.VITE_CHATBOT_API_URL || "http://localhost:8000";
+  
+  return `${chatbotUrl}${url.startsWith("/") ? url : `/${url}`}`;
+};

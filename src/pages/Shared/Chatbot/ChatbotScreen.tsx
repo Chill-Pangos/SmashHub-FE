@@ -1,20 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
 import { Send, Bot, User, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/store/useAuth";
 import { getImageUrl } from "@/utils/api.utils";
-
-interface Message {
-  id: string;
-  role: "user" | "bot";
-  content: string;
-}
+import { useChatStream } from "@/hooks/queries";
 
 export default function ChatbotScreen() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { tournamentId, categoryId, entryId, matchId, scheduleId } = useParams();
+  
+  const { messages, isLoading, sendMessage, setMessages } = useChatStream();
   const [input, setInput] = useState("");
 
   const getUserInitials = () => {
@@ -31,7 +29,6 @@ export default function ChatbotScreen() {
   };
 
   const initials = getUserInitials();
-  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -42,30 +39,27 @@ export default function ChatbotScreen() {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  const handleSend = (e: React.FormEvent) => {
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: input.trim(),
+    const question = input.trim();
+    setInput("");
+
+    const scope = {
+      tournament_id: tournamentId ? parseInt(tournamentId, 10) : null,
+      category_id: categoryId ? parseInt(categoryId, 10) : null,
+      entry_id: entryId ? parseInt(entryId, 10) : null,
+      user_id: user ? user.id : null,
+      schedule_id: scheduleId ? parseInt(scheduleId, 10) : null,
+      match_id: matchId ? parseInt(matchId, 10) : null,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setIsLoading(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "bot",
-        content: t("chatbot.mockResponse", "This is a mock response from the AI assistant. I am not connected to an API yet."),
-      };
-      setMessages((prev) => [...prev, botMessage]);
-      setIsLoading(false);
-    }, 2000);
+    await sendMessage({
+      question,
+      chat_history: messages.map(m => ({ role: m.role, content: m.content })),
+      scope,
+    });
   };
 
   const handleClear = () => {
@@ -101,9 +95,9 @@ export default function ChatbotScreen() {
             <p>{t("chatbot.emptyState", "How can I help you today?")}</p>
           </div>
         ) : (
-          messages.map((msg) => (
+          messages.map((msg, index) => (
             <div
-              key={msg.id}
+              key={index}
               className={`flex gap-3 max-w-[80%] ${
                 msg.role === "user" ? "ml-auto flex-row-reverse" : "mr-auto"
               }`}
@@ -136,7 +130,7 @@ export default function ChatbotScreen() {
         )}
         
         {/* Loading State for Bot */}
-        {isLoading && (
+        {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
           <div className="flex gap-3 max-w-[80%] mr-auto">
              <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
                 <Bot className="w-4 h-4" />
@@ -160,7 +154,7 @@ export default function ChatbotScreen() {
             onChange={(e) => setInput(e.target.value)}
             placeholder={t("chatbot.placeholder", "Ask me anything...")}
             className="flex-1 bg-muted/50 border-0 rounded-full pl-6 pr-12 py-3 focus:ring-2 focus:ring-primary focus:outline-none transition-shadow"
-            disabled={isLoading}
+            disabled={isLoading && !messages[messages.length - 1]?.content}
           />
           <button
             type="submit"
@@ -174,3 +168,4 @@ export default function ChatbotScreen() {
     </div>
   );
 }
+

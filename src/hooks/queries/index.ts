@@ -19,6 +19,7 @@ export * from "./useNotificationQueries";
 export * from "./usePaymentQueries";
 export * from "./useSubMatchQueries";
 export * from "./useSubMatchPlayerQueries";
+export * from "./useChatbotQueries";
 export * from "./useUserRoleQueries";
 export * from "./useRolePermissionQueries";
 export * from "./useTournamentFlowQueries";
