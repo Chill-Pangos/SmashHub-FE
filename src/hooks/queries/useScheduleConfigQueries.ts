@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueries, useQueryClient } from "@tanstack/react-query";
 import { scheduleConfigService } from "@/services";
 import { queryKeys } from "./queryKeys";
 import type {
@@ -28,6 +28,16 @@ export const useScheduleConfigByTournament = (
     queryFn: () =>
       scheduleConfigService.getScheduleConfigByTournament(tournamentId),
     enabled: (options?.enabled ?? true) && tournamentId > 0,
+  });
+};
+
+export const useScheduleConfigsByTournaments = (tournamentIds: number[]) => {
+  return useQueries({
+    queries: tournamentIds.map((id) => ({
+      queryKey: queryKeys.scheduleConfigs.byTournament(id),
+      queryFn: () => scheduleConfigService.getScheduleConfigByTournament(id),
+      enabled: id > 0,
+    })),
   });
 };
 
