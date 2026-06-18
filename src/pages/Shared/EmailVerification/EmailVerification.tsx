@@ -16,9 +16,6 @@ import {
 } from "@/hooks/queries/useAuthQueries";
 import { validateOTP } from "@/utils/validation.utils";
 import { showToast } from "@/utils";
-import tableTennisBgLight from "@/assets/table_tennis_bg_light.png";
-import tableTennisBgDark from "@/assets/table_tennis_bg_dark.png";
-
 const getErrorMessage = (error: unknown, fallback: string): string => {
   if (error instanceof Error && error.message) {
     return error.message;
@@ -282,7 +279,7 @@ const EmailVerification = () => {
               <span style={{ fontSize: "14px" }}>⚡</span>
               {t("authFlow.emailVerification.statusBadge")}
             </div>
-            
+
             <h3
               className="text-2xl font-semibold mb-2 flex items-center gap-2"
               style={{ color: "var(--foreground)" }}

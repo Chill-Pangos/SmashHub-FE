@@ -19,8 +19,6 @@ import {
   PasswordStrength,
   type ValidationErrors,
 } from "@/utils/validation.utils";
-import tableTennisBgLight from "@/assets/table_tennis_bg_light.png";
-import tableTennisBgDark from "@/assets/table_tennis_bg_dark.png";
 
 interface ChangePasswordFormData {
   oldPassword: string;
@@ -144,8 +142,8 @@ const ChangePassword = () => {
           typeof resp.error === "string"
             ? resp.error
             : resp.error?.message ||
-              resp.message ||
-              t("authFlow.changePassword.failed");
+            resp.message ||
+            t("authFlow.changePassword.failed");
         setErrors({ oldPassword: errMsg });
         showToast.error(t("authFlow.changePassword.failed"), errMsg);
       }

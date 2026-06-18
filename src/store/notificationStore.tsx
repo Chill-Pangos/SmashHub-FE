@@ -41,9 +41,11 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     }
 
     // Create socket connection with auth
+    const token = localStorage.getItem("accessToken");
     const socket = io(SOCKET_URL, {
       auth: {
         userId,
+        token, // Added token for backend authentication
       },
       transports: ["websocket", "polling"],
       autoConnect: true,
