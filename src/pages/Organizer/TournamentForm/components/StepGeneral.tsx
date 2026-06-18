@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { DatePicker } from "@/components/ui/date-picker";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import type { DateRange } from "react-day-picker";
 import { format } from "date-fns";
 import { Info, Users, Trash2, Plus, AlertCircle } from "lucide-react";
@@ -226,29 +226,7 @@ export const StepGeneral: React.FC<StepProps> = ({
       }
       : undefined;
 
-  const handleRegistrationDateRangeChange = (range: DateRange | undefined) => {
-    if (!range) {
-      updateData({ registrationStartDate: "", registrationEndDate: "" });
-      return;
-    }
-    updateData({
-      registrationStartDate: range.from ? format(range.from, "yyyy-MM-dd'T'00:00") : "",
-      registrationEndDate: range.to ? format(range.to, "yyyy-MM-dd'T'23:59") : "",
-    });
-  };
-
-  const registrationDateRange: DateRange | undefined =
-    data.registrationStartDate || data.registrationEndDate
-      ? {
-        from: data.registrationStartDate ? new Date(data.registrationStartDate) : undefined,
-        to: data.registrationEndDate ? new Date(data.registrationEndDate) : undefined,
-      }
-      : undefined;
-
   const bracketDate = data.bracketGenerationDate ? new Date(data.bracketGenerationDate) : undefined;
-  const handleBracketDateChange = (date: Date | undefined) => {
-    updateData({ bracketGenerationDate: date ? format(date, "yyyy-MM-dd") : "" });
-  };
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -319,25 +297,35 @@ export const StepGeneral: React.FC<StepProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label className="text-xs font-semibold text-muted-foreground uppercase">
-              {t("tournamentManager.createTournamentForm.general.registrationPeriod", "Thời gian đăng ký")}
+              {t("tournamentManager.createTournamentForm.general.regStartDate", "Mở đăng ký")}
             </Label>
-            <DateRangePicker
-              date={registrationDateRange}
-              setDate={handleRegistrationDateRangeChange}
-              placeholder={t("tournamentManager.createTournamentForm.general.selectRegistrationPeriod", "Chọn ngày mở và đóng đăng ký")}
+            <DateTimePicker
+              date={data.registrationStartDate ? new Date(data.registrationStartDate) : undefined}
+              setDate={(date) => updateData({ registrationStartDate: date ? date.toISOString() : "" })}
+              placeholder={t("tournamentManager.createTournamentForm.general.regStartPlaceholder", "Chọn ngày giờ")}
             />
           </div>
           <div className="space-y-2">
             <Label className="text-xs font-semibold text-muted-foreground uppercase">
-              {t("tournamentManager.createTournamentForm.general.bracketDate", "Ngày tạo Bracket")}
+              {t("tournamentManager.createTournamentForm.general.regEndDate", "Đóng đăng ký")}
             </Label>
-            <DatePicker
+            <DateTimePicker
+              date={data.registrationEndDate ? new Date(data.registrationEndDate) : undefined}
+              setDate={(date) => updateData({ registrationEndDate: date ? date.toISOString() : "" })}
+              placeholder={t("tournamentManager.createTournamentForm.general.regEndPlaceholder", "Chọn ngày giờ")}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold text-muted-foreground uppercase">
+              {t("tournamentManager.createTournamentForm.general.bracketDate", "Chốt Bracket")}
+            </Label>
+            <DateTimePicker
               date={bracketDate}
-              setDate={handleBracketDateChange}
-              placeholder={t("tournamentManager.createTournamentForm.general.selectBracketDate", "Chọn ngày chốt Bracket")}
+              setDate={(date) => updateData({ bracketGenerationDate: date ? date.toISOString() : "" })}
+              placeholder={t("tournamentManager.createTournamentForm.general.selectBracketDate", "Chọn ngày giờ")}
             />
           </div>
         </div>

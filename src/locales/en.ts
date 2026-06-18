@@ -2129,6 +2129,11 @@ export default {
 
   // Shared Components
   components: {
+    // DateTimePicker
+    dateTimePicker: {
+      selectDateTime: "Select date & time",
+      selectTime: "Select time",
+    },
     // Footer
     footer: {
       copyright: "@ 2025 SmashHub. All rights reserved",

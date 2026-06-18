@@ -2299,6 +2299,11 @@ export default {
 
   // Shared Components
   components: {
+    // DateTimePicker
+    dateTimePicker: {
+      selectDateTime: "Chọn ngày giờ",
+      selectTime: "Chọn giờ",
+    },
     // Footer
     footer: {
       copyright: "@ 2025 SmashHub. All rights reserved",
