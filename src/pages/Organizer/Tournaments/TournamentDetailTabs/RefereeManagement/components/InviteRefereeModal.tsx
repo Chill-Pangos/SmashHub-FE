@@ -8,6 +8,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Search } from "lucide-react";
 import { useAvailableReferees, useInviteReferee } from "@/hooks/queries";
 import { useTranslation } from "react-i18next";
@@ -159,11 +166,26 @@ export function InviteRefereeModal({
           </div>
 
           {pagination && pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between pt-2">
-              <div className="text-xs text-muted-foreground">
-                {t('tournamentManager.refereeManagement.showing', 'Showing')} {Math.min((pagination.page - 1) * pagination.limit + 1, pagination.total)} {t('tournamentManager.refereeManagement.to', 'to')} {Math.min(pagination.page * pagination.limit, pagination.total)} {t('tournamentManager.refereeManagement.of', 'of')} {pagination.total}
+            <div className="flex flex-col gap-3 pt-2">
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-muted-foreground">
+                  {t('tournamentManager.refereeManagement.showing', 'Showing')} {Math.min((pagination.page - 1) * pagination.limit + 1, pagination.total)} {t('tournamentManager.refereeManagement.to', 'to')} {Math.min(pagination.page * pagination.limit, pagination.total)} {t('tournamentManager.refereeManagement.of', 'of')} {pagination.total}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">{t('tournamentManager.refereeManagement.perPage', 'Rows per page')}</span>
+                  <Select value={limit.toString()} onValueChange={(val) => { setLimit(parseInt(val)); setPage(1); }}>
+                    <SelectTrigger className="w-[65px] h-7 text-xs bg-input border-border text-foreground">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border-border text-popover-foreground">
+                      <SelectItem value="10" className="text-xs">10</SelectItem>
+                      <SelectItem value="20" className="text-xs">20</SelectItem>
+                      <SelectItem value="50" className="text-xs">50</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex justify-end gap-2">
                 <Button
                   variant="outline"
                   size="sm"
