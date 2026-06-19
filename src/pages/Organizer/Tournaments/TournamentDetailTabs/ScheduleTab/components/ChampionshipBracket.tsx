@@ -113,7 +113,7 @@ function BracketMatchCard({ bracket, onEntryClick }: { bracket: any, onEntryClic
       
       <div className="pl-2">
         <div className="flex justify-between items-center text-xs text-muted-foreground mb-3">
-          <span className="font-mono">{bracket.scheduledAt ? new Date(bracket.scheduledAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "TBD"}</span>
+          <span className="font-mono">{bracket.scheduledAt ? new Date(bracket.scheduledAt).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' }) : "TBD"}</span>
           <span className={`font-bold uppercase tracking-wider text-[10px] 
             ${isLive ? 'text-destructive bg-destructive/10 px-2 py-0.5 rounded' : 
               bracket.status === 'completed' ? 'text-primary bg-primary/10 px-2 py-0.5 rounded' : ''}`}

@@ -79,7 +79,7 @@ export function GroupStageBoard({ group, onEntryClick }: GroupStageBoardProps) {
         {group.matches.map((match, idx) => (
           <div key={idx} className="flex items-center justify-between text-sm py-2">
             <div className="flex items-center gap-4 w-[60%]">
-              <span className="text-muted-foreground font-mono text-xs w-10">{match.time}</span>
+              <span className="text-muted-foreground font-mono text-xs min-w-[120px]">{match.time}</span>
               <span className="font-medium text-foreground truncate">
                 {match.playerA} <span className="text-muted-foreground mx-1">vs</span> {match.playerB}
               </span>
