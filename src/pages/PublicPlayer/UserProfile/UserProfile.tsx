@@ -10,12 +10,14 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Camera, Loader2, Save } from "lucide-react";
+import { Camera, Loader2, Save, Key, MailCheck } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 export default function UserProfile() {
   const { user, updateUser } = useAuth();
   const { t } = useTranslation();
+  const navigate = useNavigate();
   
   const [phoneNumber, setPhoneNumber] = useState("");
   const [dob, setDob] = useState<Date | undefined>(undefined);
@@ -179,6 +181,24 @@ export default function UserProfile() {
               {updateProfileMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               <Save className="mr-2 h-4 w-4" />
               {t("common.save") || "Save Changes"}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Security Settings Section */}
+        <Card className="md:col-span-2 md:col-start-2 border-border/50">
+          <CardHeader>
+            <CardTitle>{t("profile.securityTitle") || "Security Settings"}</CardTitle>
+            <CardDescription>{t("profile.securityDesc") || "Manage account security and verification."}</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col sm:flex-row gap-4">
+            <Button variant="outline" onClick={() => navigate("/change-password")}>
+              <Key className="mr-2 h-4 w-4" />
+              {t("auth.changePassword") || "Change Password"}
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/verify-email")}>
+              <MailCheck className="mr-2 h-4 w-4" />
+              {t("auth.verifyEmail") || "Verify Email"}
             </Button>
           </CardContent>
         </Card>

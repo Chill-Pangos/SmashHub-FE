@@ -1,4 +1,4 @@
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Key, MailCheck } from "lucide-react";
 import { Fragment } from "react";
 import { Link, matchPath, useLocation, useNavigate } from "react-router-dom";
 
@@ -201,6 +201,14 @@ export default function PortalHeader() {
               <DropdownMenuItem onClick={handleProfileClick}>
                 <User className="mr-2 h-4 w-4" />
                 <span>{t("nav.profile")}</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/change-password')}>
+                <Key className="mr-2 h-4 w-4" />
+                <span>{t("auth.changePassword")}</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/verify-email')}>
+                <MailCheck className="mr-2 h-4 w-4" />
+                <span>{t("auth.verifyEmail")}</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => logout()}>

@@ -3,6 +3,7 @@ import { TournamentList, TournamentFilters } from "./components";
 import {
   useTournaments,
   useUpcomingTournamentStatusChanges,
+  useScheduleConfigsByTournaments,
 } from "@/hooks/queries";
 import ServerPagination from "@/components/custom/ServerPagination";
 import { useTranslation } from "react-i18next";
@@ -22,11 +23,23 @@ export default function OrganizerTournaments() {
   // Get upcoming status changes
   const { data: upcomingChanges } = useUpcomingTournamentStatusChanges(24);
 
-  // Apply local search and sort on top of API data
-  const sample = apiTournaments;
+  // Fetch schedule configs for these tournaments
+  const scheduleConfigQueries = useScheduleConfigsByTournaments(
+    apiTournaments.map((t) => t.id)
+  );
+
+  const scheduleConfigsDep = JSON.stringify(
+    scheduleConfigQueries.map((q) => q.data)
+  );
 
   const filtered = useMemo(() => {
-    let items = sample.slice();
+    const configs = JSON.parse(scheduleConfigsDep);
+    let items = apiTournaments.map((t, index) => ({
+      ...t,
+      startDate: configs[index]?.startDate || t.startDate,
+      endDate: configs[index]?.endDate || t.endDate,
+    }));
+
     if (query) {
       const q = query.toLowerCase();
       items = items.filter(
@@ -55,16 +68,19 @@ export default function OrganizerTournaments() {
     }
 
     return items;
-  }, [sample, query, sort]);
+  }, [apiTournaments, scheduleConfigsDep, query, sort]);
 
   const now = new Date();
   const startOfWeek = new Date(now);
   startOfWeek.setDate(now.getDate() - now.getDay());
-  const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 7);
+  startOfWeek.setHours(0, 0, 0, 0);
 
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
+  endOfWeek.setHours(23, 59, 59, 999);
+
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
   const thisWeek = filtered.filter((t) => {
     if (!t.startDate) return false;
@@ -78,8 +94,14 @@ export default function OrganizerTournaments() {
     return d >= startOfMonth && d <= endOfMonth && !thisWeek.includes(t);
   });
 
+  const upcoming = filtered.filter((t) => {
+    if (!t.startDate) return false;
+    const d = new Date(t.startDate);
+    return d > endOfMonth;
+  });
+
   const others = filtered.filter(
-    (t) => !thisWeek.includes(t) && !thisMonth.includes(t),
+    (t) => !thisWeek.includes(t) && !thisMonth.includes(t) && !upcoming.includes(t),
   );
 
   return (
@@ -172,26 +194,41 @@ export default function OrganizerTournaments() {
             </section>
           )}
 
-          <section>
-            <h2 className="mb-3 text-lg font-medium">{t('tournamentManager.tournamentsList.thisWeek', 'This Week')}</h2>
-            <div className="grid grid-cols-1 gap-3">
-              <TournamentList items={thisWeek} />
-            </div>
-          </section>
+          {thisWeek.length > 0 && (
+            <section>
+              <h2 className="mb-3 text-lg font-medium">{t('tournamentManager.tournamentsList.thisWeek', 'This Week')}</h2>
+              <div className="grid grid-cols-1 gap-3">
+                <TournamentList items={thisWeek} />
+              </div>
+            </section>
+          )}
 
-          <section>
-            <h2 className="mb-3 text-lg font-medium">{t('tournamentManager.tournamentsList.thisMonth', 'This Month')}</h2>
-            <div className="grid grid-cols-1 gap-3">
-              <TournamentList items={thisMonth} />
-            </div>
-          </section>
+          {thisMonth.length > 0 && (
+            <section>
+              <h2 className="mb-3 text-lg font-medium">{t('tournamentManager.tournamentsList.thisMonth', 'This Month')}</h2>
+              <div className="grid grid-cols-1 gap-3">
+                <TournamentList items={thisMonth} />
+              </div>
+            </section>
+          )}
 
-          <section>
-            <h2 className="mb-3 text-lg font-medium">{t('tournamentManager.tournamentsList.allTournaments', 'All Tournaments')}</h2>
-            <div className="grid grid-cols-1 gap-3">
-              <TournamentList items={others} />
-            </div>
-          </section>
+          {upcoming.length > 0 && (
+            <section>
+              <h2 className="mb-3 text-lg font-medium">{t('tournamentManager.tournamentsList.upcoming', 'Upcoming')}</h2>
+              <div className="grid grid-cols-1 gap-3">
+                <TournamentList items={upcoming} />
+              </div>
+            </section>
+          )}
+
+          {others.length > 0 && (
+            <section>
+              <h2 className="mb-3 text-lg font-medium">{t('tournamentManager.tournamentsList.allTournaments', 'Other Tournaments')}</h2>
+              <div className="grid grid-cols-1 gap-3">
+                <TournamentList items={others} />
+              </div>
+            </section>
+          )}
 
           {pagination && (
             <div className="mt-6">

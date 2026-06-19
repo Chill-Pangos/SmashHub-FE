@@ -6,6 +6,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 import { MapPin, User, Clock, Trophy, Shield, Calendar } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -23,12 +26,26 @@ export default function PendingInvitations() {
   const { mutate: rejectInvite, isPending: rejecting } =
     useRejectRefereeInvitation();
 
+  const [rejectModal, setRejectModal] = useState<{ isOpen: boolean; invitationId: number | null }>({
+    isOpen: false,
+    invitationId: null,
+  });
+  const [rejectionReason, setRejectionReason] = useState("");
+
   const handleAccept = (invitationId: number) => {
     acceptInvite({ invitationId });
   };
 
   const handleReject = (invitationId: number) => {
     rejectInvite({ invitationId });
+  };
+
+  const handleRejectWithReason = () => {
+    if (rejectModal.invitationId) {
+      rejectInvite({ invitationId: rejectModal.invitationId, rejectionReason });
+      setRejectModal({ isOpen: false, invitationId: null });
+      setRejectionReason("");
+    }
   };
 
   const formatDate = (dateStr: string) => {
@@ -108,22 +125,32 @@ export default function PendingInvitations() {
                     </div>
                   </div>
                 </CardContent>
-                <CardFooter className="pt-2 pb-5 gap-3 border-t border-border/50">
+                <CardFooter className="pt-2 pb-5 flex-col gap-2 border-t border-border/50">
                   <Button
-                    variant="outline"
-                    className="flex-1 border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                    onClick={() => handleReject(inv.id)}
-                    disabled={accepting || rejecting}
-                  >
-                    {t("pendingInvitations.decline", "Decline")}
-                  </Button>
-                  <Button
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
                     onClick={() => handleAccept(inv.id)}
                     disabled={accepting || rejecting}
                   >
                     {t("pendingInvitations.accept", "Accept")}
                   </Button>
+                  <div className="flex w-full gap-2">
+                    <Button
+                      variant="outline"
+                      className="flex-1 border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground text-[11px]"
+                      onClick={() => handleReject(inv.id)}
+                      disabled={accepting || rejecting}
+                    >
+                      {t("pendingInvitations.decline", "Decline")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="flex-1 border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground text-[11px]"
+                      onClick={() => setRejectModal({ isOpen: true, invitationId: inv.id })}
+                      disabled={accepting || rejecting}
+                    >
+                      {t("pendingInvitations.declineWithReason", "Decline w/ Reason")}
+                    </Button>
+                  </div>
                 </CardFooter>
               </Card>
             );
@@ -138,6 +165,32 @@ export default function PendingInvitations() {
           </p>
         </div>
       )}
+      <Dialog open={rejectModal.isOpen} onOpenChange={(open) => !open && setRejectModal({ isOpen: false, invitationId: null })}>
+        <DialogContent className="sm:max-w-[425px] bg-card border-border">
+          <DialogHeader>
+            <DialogTitle>{t("pendingInvitations.declineReasonTitle", "Decline Invitation")}</DialogTitle>
+            <DialogDescription>
+              {t("pendingInvitations.declineReasonDesc", "Please provide a reason for declining this invitation. This will be visible to the tournament organizers.")}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder={t("pendingInvitations.reasonPlaceholder", "Enter reason (e.g., Schedule conflict)")}
+              className="bg-input border-border"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setRejectModal({ isOpen: false, invitationId: null })}>
+              {t("pendingInvitations.cancel", "Cancel")}
+            </Button>
+            <Button variant="destructive" onClick={handleRejectWithReason} disabled={!rejectionReason.trim() || rejecting}>
+              {rejecting ? t("pendingInvitations.declining", "Declining...") : t("pendingInvitations.confirmDecline", "Confirm Decline")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

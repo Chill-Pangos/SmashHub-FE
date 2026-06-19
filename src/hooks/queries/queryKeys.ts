@@ -65,8 +65,8 @@ export const queryKeys = {
       entryId: number,
       filters?: { status?: string; page?: number; limit?: number },
     ) => [...queryKeys.entries.all, "joinRequests", entryId, filters] as const,
-    eligible: (categoryId: number) =>
-      [...queryKeys.entries.all, "eligible", categoryId] as const,
+    eligible: (categoryId: number, filters?: { page?: number; limit?: number }) =>
+      [...queryKeys.entries.all, "eligible", categoryId, filters] as const,
     myEntries: () => [...queryKeys.entries.all, "me"] as const,
     myRole: (entryId: number) =>
       [...queryKeys.entries.all, "myRole", entryId] as const,

@@ -2,6 +2,13 @@ import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Medal, Search, UserPlus, Users } from "lucide-react";
 import { InviteRefereeModal, RefereeCard } from "./components";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useRefereesByTournament, useTournamentRefereeInvitations } from "@/hooks/queries";
 import type { RefereeDisplay } from "./components/RefereeCard";
 import { useTranslation } from "react-i18next";
@@ -17,9 +24,11 @@ export default function RefereeManagement({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inviteMode, setInviteMode] = useState<"chief" | "referee">("referee");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(10);
 
-  const { data: refsData } = useRefereesByTournament(tournamentId);
-  const { data: invData } = useTournamentRefereeInvitations(tournamentId);
+  const { data: refsData } = useRefereesByTournament(tournamentId, page, limit);
+  const { data: invData } = useTournamentRefereeInvitations(tournamentId, page, limit);
 
   const allDisplays = useMemo(() => {
     const list: RefereeDisplay[] = [];
@@ -109,7 +118,7 @@ export default function RefereeManagement({
               {t('tournamentManager.refereeManagement.assistantReferees', 'Assistant Referees')}
             </h3>
             <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded font-bold">
-              {t('tournamentManager.refereeManagement.assignedInvited', '{{count}} ASSIGNED/INVITED').replace('{{count}}', assistantReferees.length.toString())}
+              {t('tournamentManager.refereeManagement.assignedInvited', '{{count}} ASSIGNED/INVITED').replace('{{count}}', ((refsData?.pagination?.total || 0) + (invData?.pagination?.total || 0)).toString())}
             </span>
           </div>
           <div className="relative">
@@ -132,6 +141,42 @@ export default function RefereeManagement({
             <p className="text-sm text-muted-foreground col-span-2">{t('tournamentManager.refereeManagement.noRefereesFound', 'No referees found.')}</p>
           )}
         </div>
+
+        {((refsData?.pagination && refsData.pagination.totalPages > 1) || (invData?.pagination && invData.pagination.totalPages > 1)) && (
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">{t('tournamentManager.refereeManagement.perPage', 'Rows per page')}</span>
+              <Select value={limit.toString()} onValueChange={(val) => { setLimit(parseInt(val)); setPage(1); }}>
+                <SelectTrigger className="w-[70px] h-8 bg-input border-border text-foreground">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border text-popover-foreground">
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                {t('tournamentManager.refereeManagement.previous', 'Previous')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={!(refsData?.pagination?.hasNextPage || invData?.pagination?.hasNextPage)}
+              >
+                {t('tournamentManager.refereeManagement.next', 'Next')}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       <InviteRefereeModal

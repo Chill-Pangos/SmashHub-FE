@@ -1,16 +1,29 @@
 import { Filter, User } from 'lucide-react';
-import { useMatches, useStartMatch } from '@/hooks/queries';
+import { useMatches, useStartMatch, useBulkStartMatches } from '@/hooks/queries';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 export default function MatchControlCenterTab() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { data, isLoading } = useMatches(1, 100);
   const matches = data?.rows || [];
   
   const startMatchMutation = useStartMatch();
+  const bulkStartMutation = useBulkStartMatches();
+
+  const scheduledMatches = matches.filter(m => m.status === 'scheduled');
 
   const handleStartMatch = (id: number) => {
     startMatchMutation.mutate(id);
+  };
+
+  const handleBulkStart = () => {
+    if (scheduledMatches.length === 0) return;
+    const matchIds = scheduledMatches.map(m => m.id);
+    if (confirm(t("referee.matchControlCenter.confirmBulkStart", "Are you sure you want to start all scheduled matches?"))) {
+      bulkStartMutation.mutate({ matchIds });
+    }
   };
 
   return (
@@ -37,9 +50,18 @@ export default function MatchControlCenterTab() {
             </select>
           </div>
         </div>
-        <button className="flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2 rounded-md hover:bg-muted transition-colors border border-border text-sm font-medium">
-          <Filter className="w-4 h-4" /> {t("referee.matchControlCenter.moreFilters", "More Filters")}
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={handleBulkStart}
+            disabled={bulkStartMutation.isPending || scheduledMatches.length === 0}
+            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors border border-transparent text-sm font-medium shadow-[var(--auth-primary-glow)] disabled:opacity-50"
+          >
+            {t("referee.matchControlCenter.bulkStart", "Bulk Start")}
+          </button>
+          <button className="flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2 rounded-md hover:bg-muted transition-colors border border-border text-sm font-medium">
+            <Filter className="w-4 h-4" /> {t("referee.matchControlCenter.moreFilters", "More Filters")}
+          </button>
+        </div>
       </div>
 
       {isLoading && <div className="p-4 text-muted-foreground">{t("referee.matchControlCenter.loading", "Loading matches...")}</div>}
@@ -83,13 +105,21 @@ export default function MatchControlCenterTab() {
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
                   <User className="w-3 h-3" /> {t("referee.matchControlCenter.ref", "Ref:")} {match.umpire ? `${match.umpire}` : t("referee.matchControlCenter.tbd", "TBD")}
                 </p>
-                <button 
-                  onClick={() => handleStartMatch(match.id)}
-                  disabled={startMatchMutation.isPending || !isReady}
-                  className={`px-4 py-2 rounded-md font-semibold text-sm transition-colors ${isReady ? 'bg-primary text-primary-foreground shadow-[var(--auth-primary-glow)] hover:opacity-90' : 'bg-secondary text-secondary-foreground border border-border opacity-50'}`}
-                >
-                  {isReady ? t("referee.matchControlCenter.startMatch", "Start Match") : t("referee.matchControlCenter.prepMatch", "Prep Match")}
-                </button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => navigate(`/referee/matches/${match.id}`)}
+                    className="px-4 py-2 rounded-md font-semibold text-sm transition-colors bg-secondary text-secondary-foreground hover:bg-muted border border-border"
+                  >
+                    {t("referee.matchControlCenter.openExecution", "Execution")}
+                  </button>
+                  <button 
+                    onClick={() => handleStartMatch(match.id)}
+                    disabled={startMatchMutation.isPending || !isReady}
+                    className={`px-4 py-2 rounded-md font-semibold text-sm transition-colors ${isReady ? 'bg-primary text-primary-foreground shadow-[var(--auth-primary-glow)] hover:opacity-90' : 'bg-secondary text-secondary-foreground border border-border opacity-50'}`}
+                  >
+                    {isReady ? t("referee.matchControlCenter.startMatch", "Start Match") : t("referee.matchControlCenter.prepMatch", "Prep Match")}
+                  </button>
+                </div>
               </div>
             </div>
           );

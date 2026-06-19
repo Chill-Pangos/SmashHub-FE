@@ -10,9 +10,22 @@ import {
   useUpdateLiveScore,
   useLiveScore,
 } from "@/hooks/queries/useMatchSetQueries";
+import {
+  usePendingLineups,
+  useApproveLineups,
+  useRejectLineups,
+} from "@/hooks/queries/useSubMatchPlayerQueries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useTranslation } from "react-i18next";
 
 export default function MatchExecution() {
@@ -89,6 +102,27 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
 
   const { mutate: updateScore } = useUpdateLiveScore();
 
+  // Lineup Approval Logic
+  const { data: pendingLineupsResp } = usePendingLineups();
+  const pendingLineups = pendingLineupsResp?.lineups || [];
+  const hasPendingLineup = pendingLineups.some((l: any) => l.matchId === subMatch.matchId);
+  const { mutate: approveLineups, isPending: approvingLineup } = useApproveLineups();
+  const { mutate: rejectLineups, isPending: rejectingLineup } = useRejectLineups();
+  const [isLineupDialogOpen, setIsLineupDialogOpen] = useState(false);
+
+  const handleApproveLineup = () => {
+    approveLineups(subMatch.matchId, {
+      onSuccess: () => setIsLineupDialogOpen(false),
+    });
+  };
+
+  const handleRejectLineup = () => {
+    rejectLineups(
+      { matchId: subMatch.matchId, data: { reviewNotes: "Rejected by Umpire" } },
+      { onSuccess: () => setIsLineupDialogOpen(false) }
+    );
+  };
+
   const handleScore = (team: "A" | "B", action: "add" | "subtract") => {
     let entryAScore = liveScore?.entryAScore || 0;
     let entryBScore = liveScore?.entryBScore || 0;
@@ -129,12 +163,39 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
       </CardHeader>
       <CardContent className="space-y-4">
         {subMatch.status === "scheduled" && (
-          <Button
-            onClick={() => startSubMatch(subMatch.id)}
-            disabled={starting}
-          >
-            {t("matchExecution.startSubMatch", "Start Sub-Match")}
-          </Button>
+          <div className="flex flex-col gap-3">
+            {hasPendingLineup && (
+              <Dialog open={isLineupDialogOpen} onOpenChange={setIsLineupDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="border-amber-500 text-amber-600">
+                    {t("matchExecution.reviewLineup", "Review Pending Lineup")}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>{t("matchExecution.lineupApproval", "Lineup Approval")}</DialogTitle>
+                  </DialogHeader>
+                  <div className="py-4">
+                    <p>{t("matchExecution.lineupPendingMessage", "There are pending lineup requests for this match. Please review and approve them before starting.")}</p>
+                  </div>
+                  <DialogFooter className="flex gap-2 justify-end">
+                    <Button variant="destructive" onClick={handleRejectLineup} disabled={rejectingLineup || approvingLineup}>
+                      {t("matchExecution.reject", "Reject")}
+                    </Button>
+                    <Button onClick={handleApproveLineup} disabled={rejectingLineup || approvingLineup}>
+                      {t("matchExecution.approve", "Approve")}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
+            <Button
+              onClick={() => startSubMatch(subMatch.id)}
+              disabled={starting || hasPendingLineup}
+            >
+              {t("matchExecution.startSubMatch", "Start Sub-Match")}
+            </Button>
+          </div>
         )}
 
         {(subMatch.status === "in_progress" || subMatch.status === "live") && (

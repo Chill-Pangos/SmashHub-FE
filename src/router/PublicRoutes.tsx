@@ -6,8 +6,8 @@ import SignIn from "@/pages/Auth/SignIn/SignIn";
 import SignUp from "@/pages/Auth/SignUp/SignUp";
 import ForgotPassword from "@/pages/Auth/ForgotPassword/ForgotPassword";
 import ResetPassword from "@/pages/Auth/ResetPassword/ResetPassword";
-import EmailVerification from "@/pages/Auth/EmailVerification/EmailVerification";
-import ChangePassword from "@/pages/Auth/ChangePassword/ChangePassword";
+import EmailVerification from "@/pages/Shared/EmailVerification/EmailVerification";
+import ChangePassword from "@/pages/Shared/ChangePassword/ChangePassword";
 import Landing from "@/pages/PublicPlayer/Landing";
 import TournamentListing from "@/pages/PublicPlayer/TournamentListing";
 import TournamentDetail from "@/pages/PublicPlayer/TournamentDetail/TournamentDetail";
@@ -65,7 +65,6 @@ export default function PublicRoutes() {
         <Route path="signup" element={<SignUp />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
         <Route path="reset-password" element={<ResetPassword />} />
-        <Route path="verify-email" element={<EmailVerification />} />
       </Route>
 
       {/* Conditionally rendered layouts for tournaments based on auth status */}
@@ -95,6 +94,7 @@ export default function PublicRoutes() {
           <Route path="analytics" element={<Analytics />} />
           <Route path="elo/history" element={<EloHistory />} />
           <Route path="change-password" element={<ChangePassword />} />
+          <Route path="verify-email" element={<EmailVerification />} />
           <Route path="chatbot" element={<ChatbotScreen />} />
         </Route>
       </Route>

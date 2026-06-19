@@ -174,6 +174,8 @@ export default {
     selectGender: "Chọn giới tính",
     male: "Nam",
     female: "Nữ",
+    securityTitle: "Bảo mật",
+    securityDesc: "Quản lý bảo mật tài khoản và xác thực.",
   },
 
   portal: {
@@ -2185,20 +2187,33 @@ export default {
       skipForNow: "Bỏ qua, xác thực sau",
       emailSentTitle: "Email đã được gửi!",
       emailSentDescription: "Mã OTP đã được gửi đến email của bạn.",
+      verifyDesc: "Xác thực email để bảo mật tài khoản và mở khóa các tính năng chuyên nghiệp.",
+      otpSent: "Mã OTP đã được gửi",
+      checkEmail: "Vui lòng kiểm tra hộp thư của bạn",
     },
     changePassword: {
       title: "Đổi mật khẩu",
       updateButton: "Cập nhật mật khẩu",
+      successTitle: "Đổi mật khẩu thành công",
       successDescription: "Vui lòng đăng nhập lại với mật khẩu mới",
       failed: "Đổi mật khẩu thất bại",
       subtitle: "Thay đổi mật khẩu tài khoản của bạn",
       cardDescription: "Nhập mật khẩu hiện tại và mật khẩu mới",
+      currentPassword: "Mật khẩu hiện tại",
       oldPasswordPlaceholder: "Nhập mật khẩu hiện tại",
+      newPassword: "Mật khẩu mới",
+      newPasswordPlaceholder: "Nhập mật khẩu mới",
       passwordRequirements:
-        "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt",
+        "Mật khẩu phải có ít nhất 12 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt",
+      requirements: {
+        length: "12+ KÝ TỰ",
+        symbol: "KÝ TỰ ĐẶC BIỆT",
+        number: "CHỮ SỐ",
+      },
+      submitting: "Đang cập nhật...",
       confirmNewPassword: "Xác nhận mật khẩu mới",
+      securityDesc: "Cập nhật mật khẩu để bảo vệ tài khoản của bạn an toàn.",
       confirmPasswordPlaceholder: "Nhập lại mật khẩu mới",
-      submitting: "Đang xử lý...",
       sidebar: {
         proCircuitAdmin: "Quản trị viên giải đấu chuyên nghiệp",
         eliteTier: "Hạng Elite",
@@ -2284,6 +2299,11 @@ export default {
 
   // Shared Components
   components: {
+    // DateTimePicker
+    dateTimePicker: {
+      selectDateTime: "Chọn ngày giờ",
+      selectTime: "Chọn giờ",
+    },
     // Footer
     footer: {
       copyright: "@ 2025 SmashHub. All rights reserved",

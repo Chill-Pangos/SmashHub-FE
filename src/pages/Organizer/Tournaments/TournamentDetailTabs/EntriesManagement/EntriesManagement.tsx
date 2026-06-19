@@ -22,6 +22,8 @@ export default function EntriesManagement({
   const { t } = useTranslation();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("all");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(10);
 
   const { data: categoriesData } = useTournamentCategoriesByTournament(tournamentId, 1, 50);
   const categories = (categoriesData as any[]) || [];
@@ -29,6 +31,8 @@ export default function EntriesManagement({
   const categoryIdToFetch = selectedCategoryId !== "all" ? parseInt(selectedCategoryId) : (categories[0]?.id || 0);
 
   const { data: entriesData, isLoading } = useEligibleEntriesByCategory(categoryIdToFetch, {
+    page,
+    limit,
     enabled: categoryIdToFetch > 0
   });
 
@@ -84,7 +88,7 @@ export default function EntriesManagement({
             <label className="text-[10px] font-bold text-primary uppercase tracking-wider">
               {t('tournamentManager.entriesManagement.category', 'Category')}
             </label>
-            <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
+            <Select value={selectedCategoryId} onValueChange={(val) => { setSelectedCategoryId(val); setPage(1); }}>
               <SelectTrigger className="w-[180px] bg-input border-border text-foreground">
                 <SelectValue placeholder={t('tournamentManager.entriesManagement.selectCategory', 'Select Category')} />
               </SelectTrigger>
@@ -103,7 +107,7 @@ export default function EntriesManagement({
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
               {t('tournamentManager.entriesManagement.eligibleEntries', 'Eligible Entries')}
             </p>
-            <p className="text-2xl font-bold text-foreground">{entriesData?.eligible?.length || 0}</p>
+            <p className="text-2xl font-bold text-foreground">{entriesData?.pagination?.total || entriesData?.eligible?.length || 0}</p>
           </div>
           <div className="text-right">
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
@@ -130,12 +134,54 @@ export default function EntriesManagement({
       {isLoading ? (
         <p className="text-muted-foreground">{t('tournamentManager.entriesManagement.loadingEntries', 'Loading entries...')}</p>
       ) : (
-        <EntriesTable
-          entries={mappedEntries}
-          selectedIds={selectedIds}
-          onSelectAll={handleSelectAll}
-          onSelectRow={handleSelectRow}
-        />
+        <>
+          <EntriesTable
+            entries={mappedEntries}
+            selectedIds={selectedIds}
+            onSelectAll={handleSelectAll}
+            onSelectRow={handleSelectRow}
+          />
+          {entriesData?.pagination && entriesData.pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4">
+              <div className="text-sm text-muted-foreground">
+                {t('tournamentManager.entriesManagement.showing', 'Showing')} {Math.min((entriesData.pagination.page - 1) * entriesData.pagination.limit + 1, entriesData.pagination.total)} {t('tournamentManager.entriesManagement.to', 'to')} {Math.min(entriesData.pagination.page * entriesData.pagination.limit, entriesData.pagination.total)} {t('tournamentManager.entriesManagement.of', 'of')} {entriesData.pagination.total} {t('tournamentManager.entriesManagement.entries', 'entries')}
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">{t('tournamentManager.entriesManagement.perPage', 'Rows per page')}</span>
+                  <Select value={limit.toString()} onValueChange={(val) => { setLimit(parseInt(val)); setPage(1); }}>
+                    <SelectTrigger className="w-[70px] h-8 bg-input border-border text-foreground">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border-border text-popover-foreground">
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="20">20</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={!entriesData.pagination.hasPrevPage}
+                  >
+                    {t('tournamentManager.entriesManagement.previous', 'Previous')}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => p + 1)}
+                    disabled={!entriesData.pagination.hasNextPage}
+                  >
+                    {t('tournamentManager.entriesManagement.next', 'Next')}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
