@@ -27,14 +27,29 @@ export function InviteRefereeModal({
 }: InviteRefereeModalProps) {
   const { t } = useTranslation();
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(10);
   const isChiefMode = inviteMode === "chief";
 
-  const { data, isLoading } = useAvailableReferees(tournamentId, 1, 50, inviteMode, search, {
+  const { data, isLoading } = useAvailableReferees(tournamentId, page, limit, inviteMode, searchQuery, {
     enabled: open,
   });
 
   const availableReferees = data?.referees || [];
+  const pagination = data?.pagination;
+
+  const handleSearch = () => {
+    setSearchQuery(searchInput);
+    setPage(1);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   const inviteMutation = useInviteReferee();
 
@@ -79,14 +94,24 @@ export function InviteRefereeModal({
         </DialogHeader>
 
         <div className="mt-4 space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder={t('tournamentManager.refereeManagement.searchNameEmail', 'Search by name or email...')}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 bg-input border-border focus-visible:ring-primary"
-            />
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder={t('tournamentManager.refereeManagement.searchNameEmail', 'Search by name or email...')}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="pl-9 bg-input border-border focus-visible:ring-primary"
+              />
+            </div>
+            <Button onClick={handleSearch} variant="secondary">
+              {t('tournamentManager.refereeManagement.search', 'Search')}
+            </Button>
+          </div>
+
+          <div className="text-sm font-medium text-foreground">
+            {t('tournamentManager.refereeManagement.availableRefereesCount', 'Available: {{count}}').replace('{{count}}', pagination?.total?.toString() || availableReferees.length.toString())}
           </div>
 
           <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
@@ -132,6 +157,34 @@ export function InviteRefereeModal({
               );
             })}
           </div>
+
+          {pagination && pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between pt-2">
+              <div className="text-xs text-muted-foreground">
+                {t('tournamentManager.refereeManagement.showing', 'Showing')} {Math.min((pagination.page - 1) * pagination.limit + 1, pagination.total)} {t('tournamentManager.refereeManagement.to', 'to')} {Math.min(pagination.page * pagination.limit, pagination.total)} {t('tournamentManager.refereeManagement.of', 'of')} {pagination.total}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={!pagination.hasPrevPage}
+                  className="h-8 text-xs"
+                >
+                  {t('tournamentManager.refereeManagement.previous', 'Previous')}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={!pagination.hasNextPage}
+                  className="h-8 text-xs"
+                >
+                  {t('tournamentManager.refereeManagement.next', 'Next')}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">

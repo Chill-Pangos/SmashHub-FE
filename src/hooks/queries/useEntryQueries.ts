@@ -104,11 +104,11 @@ export const useEntryJoinRequests = (
  */
 export const useEligibleEntriesByCategory = (
   categoryId: number,
-  options?: { enabled?: boolean },
+  options?: { page?: number; limit?: number; enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: queryKeys.entries.eligible(categoryId),
-    queryFn: () => entryService.getEligibleEntriesByCategory(categoryId),
+    queryKey: queryKeys.entries.eligible(categoryId, { page: options?.page, limit: options?.limit }),
+    queryFn: () => entryService.getEligibleEntriesByCategory(categoryId, options?.page, options?.limit),
     enabled: (options?.enabled ?? true) && categoryId > 0,
   });
 };
