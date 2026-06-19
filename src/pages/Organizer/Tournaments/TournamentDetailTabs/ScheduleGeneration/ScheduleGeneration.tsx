@@ -17,6 +17,7 @@ interface ScheduleGenerationProps {
   tournamentId: number;
   categoryId?: number;
   isGroupStage?: boolean;
+  hasBracket?: boolean;
 }
 
 type WizardStep = 
@@ -33,6 +34,7 @@ export default function ScheduleGeneration({
   tournamentId,
   categoryId,
   isGroupStage,
+  hasBracket,
 }: ScheduleGenerationProps) {
   const { t } = useTranslation();
   const [step, setStep] = useState<WizardStep>("INIT");
@@ -149,6 +151,24 @@ export default function ScheduleGeneration({
     }
   };
 
+  const handleDirectGenerateSchedule = async () => {
+    if (!categoryId) return;
+    setIsProcessing(true);
+    setErrorMsg("");
+    try {
+      if (isGroupStage) {
+        await genTournamentSchedule.mutateAsync({ categoryId });
+      } else {
+        await genKnockoutSchedule.mutateAsync({ categoryId });
+      }
+      setStep("DONE");
+    } catch (err: any) {
+      setErrorMsg(err?.response?.data?.error?.message || err?.response?.data?.message || t('tournamentManager.scheduleGeneration.errGenerateScheduleDirect', 'Failed to generate schedule directly.'));
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   // =====================
   // RENDER HELPERS
   // =====================
@@ -218,16 +238,29 @@ export default function ScheduleGeneration({
         {step === "INIT" && (
           <div className="flex flex-col items-start gap-4">
             <p className="text-sm font-medium">{t('tournamentManager.scheduleGeneration.step1Title', 'Step 1: Preview Initial Structures')}</p>
-            {isGroupStage ? (
-              <Button onClick={handlePreviewGroupStage} disabled={isProcessing || !categoryId}>
-                <Eye className="w-4 h-4 mr-2" />
-                {isProcessing ? t('tournamentManager.scheduleGeneration.loadingPreview', 'Loading Preview...') : t('tournamentManager.scheduleGeneration.previewGroupStageLayout', 'Preview Group Stage Layout')}
-              </Button>
-            ) : (
-              <Button onClick={handlePreviewKnockoutEntries} disabled={isProcessing || !categoryId}>
-                <Eye className="w-4 h-4 mr-2" />
-                {isProcessing ? t('tournamentManager.scheduleGeneration.loadingPreview', 'Loading Preview...') : t('tournamentManager.scheduleGeneration.previewKnockoutBracket', 'Preview Knockout Bracket')}
-              </Button>
+            <div className="flex flex-wrap gap-3">
+              {isGroupStage ? (
+                <Button onClick={handlePreviewGroupStage} disabled={isProcessing || !categoryId}>
+                  <Eye className="w-4 h-4 mr-2" />
+                  {isProcessing ? t('tournamentManager.scheduleGeneration.loadingPreview', 'Loading Preview...') : t('tournamentManager.scheduleGeneration.previewGroupStageLayout', 'Preview Group Stage Layout')}
+                </Button>
+              ) : (
+                <Button onClick={handlePreviewKnockoutEntries} disabled={isProcessing || !categoryId}>
+                  <Eye className="w-4 h-4 mr-2" />
+                  {isProcessing ? t('tournamentManager.scheduleGeneration.loadingPreview', 'Loading Preview...') : t('tournamentManager.scheduleGeneration.previewKnockoutBracket', 'Preview Knockout Bracket')}
+                </Button>
+              )}
+              {hasBracket && (
+                <Button variant="secondary" onClick={handleDirectGenerateSchedule} disabled={isProcessing || !categoryId}>
+                  <Play className="w-4 h-4 mr-2" />
+                  {isProcessing ? t('tournamentManager.scheduleGeneration.generating', 'Generating...') : t('tournamentManager.scheduleGeneration.generateScheduleDirect', 'Generate Schedule')}
+                </Button>
+              )}
+            </div>
+            {hasBracket && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {t('tournamentManager.scheduleGeneration.bracketExists', 'Bracket already exists. You can directly generate the schedule.')}
+              </p>
             )}
           </div>
         )}

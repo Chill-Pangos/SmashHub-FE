@@ -1,23 +1,32 @@
 import { Button } from "@/components/ui/button";
 import { Wand2 } from "lucide-react";
 import { GroupStageBoard, type Group } from "./GroupStageBoard";
-import { ChampionshipBracket, type KnockoutMatch } from "./ChampionshipBracket";
+import { ChampionshipBracket } from "./ChampionshipBracket";
+import { EntryInfoModal } from "./EntryInfoModal";
+import { useState } from "react";
 
 interface TournamentScheduleViewerProps {
   contentId: number;
   tournamentId?: number; // Nhận tournamentId từ Tab
   schedulesOverride?: unknown;
+  bracketOverride?: any;
 }
 
-import { useGroupStandingsByCategory, useMatchesByCategory } from "@/hooks/queries";
+import { useGroupStandingsByCategory } from "@/hooks/queries";
 import { useTranslation } from "react-i18next";
 
 export default function TournamentScheduleViewer({
   contentId,
+  bracketOverride,
   // schedulesOverride, // Map real data sau này
 }: TournamentScheduleViewerProps) {
   const { t } = useTranslation();
+  const [selectedEntryId, setSelectedEntryId] = useState<number | null>(null);
   
+  const handleEntryClick = (entryId: number) => {
+    setSelectedEntryId(entryId);
+  };
+
   // Fetch real group standings
   const { data: standingsData } = useGroupStandingsByCategory(contentId);
   const rawStandings = (standingsData as any)?.data || [];
@@ -32,6 +41,7 @@ export default function TournamentScheduleViewer({
         .map((s: any) => ({
           rank: s.position || 0,
           player: s.entryId?.toString() || "Unknown", // Assuming entryId for now, ideally needs join with user data
+          entryId: s.entryId,
           p: s.matchesPlayed || 0,
           w: s.matchesWon || 0,
           l: s.matchesLost || 0,
@@ -41,24 +51,8 @@ export default function TournamentScheduleViewer({
     };
   });
 
-  // Fetch real knockout matches
-  const { data: knockoutData } = useMatchesByCategory(contentId, { stage: "knockout" });
-  const rawKnockout = (knockoutData as any)?.schedules || [];
-  
-  // TODO: MAPPING INCOMPLETE: Backend returns Match[], need to map to KnockoutMatch format
-  const knockoutMatches: KnockoutMatch[] = rawKnockout.map((m: any) => ({
-    round: m.roundName || `Round ${m.roundNumber}`,
-    time: m.scheduledAt ? new Date(m.scheduledAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "TBD",
-    status: m.matches?.[0]?.status || "PENDING",
-    playerA: m.matches?.[0]?.entryAId?.toString() || "TBD",
-    scoreA: m.matches?.[0]?.setsWonA?.toString() || "-",
-    playerB: m.matches?.[0]?.entryBId?.toString() || "TBD",
-    scoreB: m.matches?.[0]?.setsWonB?.toString() || "-",
-    isLive: m.matches?.[0]?.status === "in_progress"
-  }));
-
   const hasGroupStage = groups.length > 0;
-  const hasKnockoutStage = knockoutMatches.length > 0;
+  const hasKnockoutStage = bracketOverride && bracketOverride.rounds && bracketOverride.rounds.length > 0;
   const isGroupStageCompleted = true; // Chờ ghép API để tính logic thực tế
 
   const handleGenerateKnockout = () => {
@@ -70,7 +64,7 @@ export default function TournamentScheduleViewer({
       {hasGroupStage && (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {groups.map((group) => ( // Sửa MOCK_GROUPS thành groups
-            <GroupStageBoard key={group.name} group={group} />
+            <GroupStageBoard key={group.name} group={group} onEntryClick={handleEntryClick} />
           ))}
         </div>
       )}
@@ -91,9 +85,11 @@ export default function TournamentScheduleViewer({
       {hasKnockoutStage && (
         <div className="mt-8">
           <h2 className="text-2xl font-bold text-foreground mb-6">{t('tournamentManager.scheduleTab.championshipBracket', 'Championship Bracket')}</h2>
-          <ChampionshipBracket matches={knockoutMatches} /> {/* Sửa MOCK_KNOCKOUT_MATCHES thành knockoutMatches */}
+          <ChampionshipBracket rounds={bracketOverride?.rounds} onEntryClick={handleEntryClick} />
         </div>
       )}
+      
+      <EntryInfoModal entryId={selectedEntryId} onClose={() => setSelectedEntryId(null)} />
     </div>
   );
 }
