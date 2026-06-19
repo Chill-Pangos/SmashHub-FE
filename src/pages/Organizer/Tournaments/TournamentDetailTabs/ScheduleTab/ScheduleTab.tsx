@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useSchedulesByCategory } from "@/hooks/queries";
+import { useSchedulesByCategory, useKnockoutBracketTreeByCategory } from "@/hooks/queries";
 import type {
   Tournament,
   TournamentCategory,
@@ -73,11 +73,18 @@ export default function ScheduleTab({
     enabled: selectedCategoryId > 0,
   });
 
+  const bracketQuery = useKnockoutBracketTreeByCategory(selectedCategoryId, {
+    enabled: selectedCategoryId > 0,
+  });
+
   const schedulesData = schedulesQuery.data?.data;
   const scheduleCount = schedulesData?.schedules?.length ?? 0;
   
+  const bracketData = bracketQuery.data?.data;
+  const hasBracket = !!bracketData && bracketData.rounds && bracketData.rounds.length > 0;
+
   const hasSchedule = scheduleCount > 0;
-  const isLoading = schedulesQuery.isLoading;
+  const isLoading = schedulesQuery.isLoading || bracketQuery.isLoading;
   const error = schedulesQuery.error;
 
   return (
@@ -144,11 +151,22 @@ export default function ScheduleTab({
         selectedCategoryId > 0 &&
         !isLoading &&
         (!hasSchedule || error) && (
-          <ScheduleGeneration
-            tournamentId={tournamentId}
-            categoryId={selectedCategoryId}
-            isGroupStage={options.find(o => o.id === selectedCategoryId)?.isGroupStage}
-          />
+          <div className="space-y-8">
+            <ScheduleGeneration
+              tournamentId={tournamentId}
+              categoryId={selectedCategoryId}
+              isGroupStage={options.find(o => o.id === selectedCategoryId)?.isGroupStage}
+              hasBracket={hasBracket}
+            />
+            {hasBracket && (
+              <TournamentScheduleViewer
+                contentId={selectedCategoryId}
+                tournamentId={tournamentId}
+                schedulesOverride={schedulesData}
+                bracketOverride={bracketData}
+              />
+            )}
+          </div>
         )}
 
       {options.length > 0 &&
@@ -160,6 +178,7 @@ export default function ScheduleTab({
             contentId={selectedCategoryId}
             tournamentId={tournamentId} // TRUYỀN tournamentId XUỐNG ĐÂY
             schedulesOverride={schedulesData}
+            bracketOverride={bracketData}
           />
         )}
     </div>

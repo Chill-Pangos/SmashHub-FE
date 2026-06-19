@@ -1,6 +1,7 @@
 export interface Standing {
   rank: number;
   player: string;
+  entryId?: number;
   p: number;
   w: number;
   l: number;
@@ -24,10 +25,11 @@ export interface Group {
 
 interface GroupStageBoardProps {
   group: Group;
+  onEntryClick?: (entryId: number) => void;
 }
 import { useTranslation } from "react-i18next";
 
-export function GroupStageBoard({ group }: GroupStageBoardProps) {
+export function GroupStageBoard({ group, onEntryClick }: GroupStageBoardProps) {
   const { t } = useTranslation();
   return (
     <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
@@ -52,7 +54,12 @@ export function GroupStageBoard({ group }: GroupStageBoardProps) {
                 {row.rank}
               </td>
               <td className="py-3 font-medium text-foreground flex items-center gap-2">
-                {row.player}
+                <span 
+                  className={`transition-colors ${row.entryId ? 'cursor-pointer hover:underline hover:text-primary' : ''}`}
+                  onClick={() => row.entryId && onEntryClick?.(row.entryId)}
+                >
+                  {row.player}
+                </span>
                 {row.rank <= 2 && <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-auth-primary-glow" />}
               </td>
               <td className="py-3 text-center text-muted-foreground">{row.p}</td>
@@ -72,7 +79,7 @@ export function GroupStageBoard({ group }: GroupStageBoardProps) {
         {group.matches.map((match, idx) => (
           <div key={idx} className="flex items-center justify-between text-sm py-2">
             <div className="flex items-center gap-4 w-[60%]">
-              <span className="text-muted-foreground font-mono text-xs w-10">{match.time}</span>
+              <span className="text-muted-foreground font-mono text-xs min-w-[120px]">{match.time}</span>
               <span className="font-medium text-foreground truncate">
                 {match.playerA} <span className="text-muted-foreground mx-1">vs</span> {match.playerB}
               </span>

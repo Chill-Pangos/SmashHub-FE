@@ -1,6 +1,6 @@
 import type { ApiResponse } from "@/types";
 import i18n from "@/locales/i18n";
-import { showApiError, getUserFriendlyMessage } from "./toast.utils";
+import { showApiError, getUserFriendlyMessage, showToast } from "./toast.utils";
 
 const tApi = (key: string): string => i18n.t(key) as string;
 
@@ -69,7 +69,6 @@ export const handleApiCall = async <T>(
 
     // Show success toast if enabled
     if (showSuccessToast) {
-      const { showToast } = await import("./toast.utils");
       showToast.success(successMessage || response.message);
     }
 

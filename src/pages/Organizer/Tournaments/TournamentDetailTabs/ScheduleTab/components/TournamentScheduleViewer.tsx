@@ -1,65 +1,121 @@
 import { Button } from "@/components/ui/button";
 import { Wand2 } from "lucide-react";
 import { GroupStageBoard, type Group } from "./GroupStageBoard";
-import { ChampionshipBracket, type KnockoutMatch } from "./ChampionshipBracket";
+import { ChampionshipBracket } from "./ChampionshipBracket";
+import { EntryInfoModal } from "./EntryInfoModal";
+import { useState } from "react";
+import { useGroupStandingsByCategory } from "@/hooks/queries";
+import { useTranslation } from "react-i18next";
 
 interface TournamentScheduleViewerProps {
   contentId: number;
-  tournamentId?: number; // Nhận tournamentId từ Tab
-  schedulesOverride?: unknown;
+  tournamentId?: number;
+  schedulesOverride?: any;
+  bracketOverride?: any;
 }
-
-import { useGroupStandingsByCategory, useMatchesByCategory } from "@/hooks/queries";
-import { useTranslation } from "react-i18next";
 
 export default function TournamentScheduleViewer({
   contentId,
-  // schedulesOverride, // Map real data sau này
+  bracketOverride,
+  schedulesOverride,
 }: TournamentScheduleViewerProps) {
   const { t } = useTranslation();
+  const [selectedEntryId, setSelectedEntryId] = useState<number | null>(null);
   
-  // Fetch real group standings
+  const handleEntryClick = (entryId: number) => {
+    setSelectedEntryId(entryId);
+  };
+
   const { data: standingsData } = useGroupStandingsByCategory(contentId);
   const rawStandings = (standingsData as any)?.data || [];
 
-  // TODO: Map rawStandings to groups and fetch matches for each group
-  // MAPPING INCOMPLETE: Backend API returns flat standings. Need an API or logic to group them and fetch matches per group.
+  const rawSchedules = schedulesOverride?.schedules || [];
+  
+  const groupSchedules = rawSchedules.filter((s: any) => s.stage === "group" || s.stage === "group_stage");
+  
   const groups: Group[] = Array.from(new Set(rawStandings.map((s: any) => s.groupName))).map((groupName: any) => {
+    const groupMatches = groupSchedules
+      .filter((s: any) => s.groupName === groupName)
+      .flatMap((s: any) => {
+        return (s.scheduledMatches || []).map((m: any) => ({
+          time: s.scheduledAt ? new Date(s.scheduledAt).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' }) : "TBD",
+          playerA: m.entryA?.name || "TBD",
+          playerB: m.entryB?.name || "TBD",
+          status: m.status,
+          scoreA: null, // Update when score structure is clear
+          scoreB: null,
+        }));
+      });
+
     return {
       name: groupName,
       standings: rawStandings
         .filter((s: any) => s.groupName === groupName)
         .map((s: any) => ({
           rank: s.position || 0,
-          player: s.entryId?.toString() || "Unknown", // Assuming entryId for now, ideally needs join with user data
+          player: s.entryName || `Entry ${s.entryId}`, // Adjust based on your API
+          entryId: s.entryId,
           p: s.matchesPlayed || 0,
           w: s.matchesWon || 0,
           l: s.matchesLost || 0,
           pts: s.points || 0,
         })),
-      matches: [], // Missing group matches API mapping
+      matches: groupMatches,
     };
   });
 
-  // Fetch real knockout matches
-  const { data: knockoutData } = useMatchesByCategory(contentId, { stage: "knockout" });
-  const rawKnockout = (knockoutData as any)?.schedules || [];
-  
-  // TODO: MAPPING INCOMPLETE: Backend returns Match[], need to map to KnockoutMatch format
-  const knockoutMatches: KnockoutMatch[] = rawKnockout.map((m: any) => ({
-    round: m.roundName || `Round ${m.roundNumber}`,
-    time: m.scheduledAt ? new Date(m.scheduledAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "TBD",
-    status: m.matches?.[0]?.status || "PENDING",
-    playerA: m.matches?.[0]?.entryAId?.toString() || "TBD",
-    scoreA: m.matches?.[0]?.setsWonA?.toString() || "-",
-    playerB: m.matches?.[0]?.entryBId?.toString() || "TBD",
-    scoreB: m.matches?.[0]?.setsWonB?.toString() || "-",
-    isLive: m.matches?.[0]?.status === "in_progress"
-  }));
-
   const hasGroupStage = groups.length > 0;
-  const hasKnockoutStage = knockoutMatches.length > 0;
-  const isGroupStageCompleted = true; // Chờ ghép API để tính logic thực tế
+  
+  const knockoutSchedules = rawSchedules.filter((s: any) => s.stage === "knockout");
+  
+  const KNOCKOUT_ROUND_ORDER: Record<string, number> = {
+    "Round of 128": 1,
+    "Round of 64": 2,
+    "Round of 32": 3,
+    "Round of 16": 4,
+    "Quarter-final": 5,
+    "Semi-final": 6,
+    "Final": 7,
+  };
+
+  const roundMap = new Map<string, any[]>();
+  knockoutSchedules.forEach((s: any) => {
+    const r = s.knockoutRound || "Unknown";
+    if (!roundMap.has(r)) roundMap.set(r, []);
+    
+    (s.scheduledMatches || []).forEach((m: any) => {
+      roundMap.get(r)!.push({
+        ...m,
+        scheduledAt: s.scheduledAt,
+      });
+    });
+  });
+
+  let knockoutRounds = Array.from(roundMap.keys())
+    .sort((a, b) => (KNOCKOUT_ROUND_ORDER[a] || 99) - (KNOCKOUT_ROUND_ORDER[b] || 99))
+    .map((roundName, index) => {
+      return {
+        roundNumber: index + 1,
+        roundName: roundName,
+        brackets: roundMap.get(roundName)!.map((m: any) => ({
+          id: m.id,
+          status: m.status,
+          entryA: m.entryA ? { entryId: m.entryA.id, entryName: m.entryA.name } : null,
+          entryB: m.entryB ? { entryId: m.entryB.id, entryName: m.entryB.name } : null,
+          winnerEntryId: m.winnerEntryId,
+          scheduledAt: m.scheduledAt,
+          setsWonA: null, // Update when score structure is clear
+          setsWonB: null,
+        }))
+      };
+    });
+
+  if (knockoutRounds.length === 0 && bracketOverride && bracketOverride.rounds && bracketOverride.rounds.length > 0) {
+    knockoutRounds = bracketOverride.rounds;
+  }
+
+  const hasKnockoutStage = knockoutRounds.length > 0;
+  const isGroupStageCompleted = true; // Placeholder logic
 
   const handleGenerateKnockout = () => {
     console.log("Call API Generate Knockout for Category:", contentId);
@@ -69,8 +125,8 @@ export default function TournamentScheduleViewer({
     <div className="space-y-8 animate-in fade-in duration-500">
       {hasGroupStage && (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          {groups.map((group) => ( // Sửa MOCK_GROUPS thành groups
-            <GroupStageBoard key={group.name} group={group} />
+          {groups.map((group) => (
+            <GroupStageBoard key={group.name} group={group} onEntryClick={handleEntryClick} />
           ))}
         </div>
       )}
@@ -91,9 +147,11 @@ export default function TournamentScheduleViewer({
       {hasKnockoutStage && (
         <div className="mt-8">
           <h2 className="text-2xl font-bold text-foreground mb-6">{t('tournamentManager.scheduleTab.championshipBracket', 'Championship Bracket')}</h2>
-          <ChampionshipBracket matches={knockoutMatches} /> {/* Sửa MOCK_KNOCKOUT_MATCHES thành knockoutMatches */}
+          <ChampionshipBracket rounds={knockoutRounds} onEntryClick={handleEntryClick} />
         </div>
       )}
+      
+      <EntryInfoModal entryId={selectedEntryId} onClose={() => setSelectedEntryId(null)} />
     </div>
   );
 }
