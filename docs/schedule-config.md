@@ -325,6 +325,8 @@ Fields:
   - lunchBreakEndHour: integer | Lunch break end hour
   - lunchBreakEndMinute: integer | Lunch break end minute
   - notes: string | Additional notes
+  - regenerateSchedule: boolean | Required if update affects schedules | default: false
+  - regenerationKey: string | Token from preview-update required when regenerateSchedule is true
 Example payload:
 ```json
 {
@@ -344,7 +346,9 @@ Example payload:
   "lunchBreakStartMinute": 1,
   "lunchBreakEndHour": 1,
   "lunchBreakEndMinute": 1,
-  "notes": "string"
+  "notes": "string",
+  "regenerateSchedule": true,
+  "regenerationKey": "abc123def456"
 }
 ```
 
@@ -824,7 +828,7 @@ Request body:
 Required: yes
 Type: object
 Fields:
-  - totalMatches: integer | required | Total number of matches (required for preview calculation)
+  - totalMatches: integer | Optional. Total number of matches. If not sent, BE calculates from categories.
   - startDate: string | Updated start date (optional)
   - endDate: string | Updated end date (optional)
   - registrationStartDate: string
@@ -873,6 +877,9 @@ Example response:
 {
   "isValid": true,
   "message": "string",
+  "requiresRegeneration": true,
+  "affectedScheduleCount": 24,
+  "regenerationKey": "abc123def456",
   "preview": {
     "totalMatches": 1,
     "totalSlots": 1,

@@ -7,6 +7,17 @@ import { Switch } from "@/components/ui/switch";
 import { Settings2, Clock, Coffee, Monitor, Hourglass } from "lucide-react";
 import { ValidationStats } from "./components/ValidationStats";
 import { useTranslation } from "react-i18next";
+import { usePreviewUpdateScheduleConfig, useUpdateScheduleConfig } from "@/hooks/queries";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ScheduleConfigProps {
   tournamentId: number;
@@ -34,6 +45,8 @@ export interface ScheduleConfigData {
   lunchBreakEndMinute?: number | null;
   lunchBreakDurationMinutes?: number | null;
   notes?: string | null;
+  regenerateSchedule?: boolean;
+  regenerationKey?: string;
 }
 
 export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
@@ -42,6 +55,13 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
     queryKey: ['schedule-config', tournamentId],
     queryFn: () => scheduleConfigService.getScheduleConfigByTournament(tournamentId),
   });
+
+  const previewMutation = usePreviewUpdateScheduleConfig();
+  const updateMutation = useUpdateScheduleConfig();
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [affectedCount, setAffectedCount] = useState<number>(0);
+  const [regenerationKey, setRegenerationKey] = useState<string>("");
+  const [pendingPayload, setPendingPayload] = useState<ScheduleConfigData | null>(null);
 
   // State quản lý Form (Khởi tạo giá trị mặc định khớp với ảnh UI)
   const [tables, setTables] = useState(12);
@@ -110,8 +130,46 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
       lunchBreakDurationMinutes: hasBreaks ? breakDuration : null,
     };
     
-    console.log("Saving Configuration:", payload);
-    // saveMutation.mutate(payload);
+    previewMutation.mutate(
+      { tournamentId, data: payload },
+      {
+        onSuccess: (res) => {
+          if (res.requiresRegeneration) {
+            setAffectedCount(res.affectedScheduleCount || 0);
+            setRegenerationKey(res.regenerationKey || "");
+            setPendingPayload(payload);
+            setIsConfirmOpen(true);
+          } else {
+            updateMutation.mutate({ tournamentId, data: payload });
+          }
+        },
+        onError: (err) => {
+          console.error("Preview failed:", err);
+        },
+      }
+    );
+  };
+
+  const handleConfirmRegenerate = () => {
+    if (pendingPayload && regenerationKey) {
+      updateMutation.mutate(
+        {
+          tournamentId,
+          data: {
+            ...pendingPayload,
+            regenerateSchedule: true,
+            regenerationKey,
+          },
+        },
+        {
+          onSuccess: () => {
+            setIsConfirmOpen(false);
+            setPendingPayload(null);
+            setRegenerationKey("");
+          },
+        }
+      );
+    }
   };
 
   return (
@@ -132,8 +190,9 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
           <Button 
             className="bg-primary text-primary-foreground font-bold hover:bg-primary/90 shadow-auth-primary-glow"
             onClick={handleSave}
+            disabled={previewMutation.isPending || updateMutation.isPending}
           >
-            {t('tournamentManager.scheduleConfig.saveConfiguration', 'Save Configuration')}
+            {previewMutation.isPending || updateMutation.isPending ? t('common.saving', 'Saving...') : t('tournamentManager.scheduleConfig.saveConfiguration', 'Save Configuration')}
           </Button>
         </div>
       </div>
@@ -267,6 +326,35 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
         </div>
 
       </div>
+
+      <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('tournamentManager.scheduleConfig.regenerateTitle', 'Regenerate Schedule?')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('tournamentManager.scheduleConfig.regenerateWarning', {
+                defaultValue: `Thay đổi này sẽ tạo lại {{count}} lịch thi đấu. Bạn có chắc chắn muốn tiếp tục?`,
+                count: affectedCount
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={updateMutation.isPending}>
+              {t('common.cancel', 'Cancel')}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleConfirmRegenerate();
+              }}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              disabled={updateMutation.isPending}
+            >
+              {updateMutation.isPending ? t('common.saving', 'Saving...') : t('common.confirm', 'Confirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
