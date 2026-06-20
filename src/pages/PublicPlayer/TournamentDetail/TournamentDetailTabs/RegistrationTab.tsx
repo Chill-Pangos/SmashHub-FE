@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import type { Tournament, TournamentCategory } from "@/types/tournament.types";
 import { useMyEntries, useEntriesByCategory, useConfirmLineup, useMyEntryRole } from "@/hooks/queries/useEntryQueries";
 import { usePaymentsByEntry } from "@/hooks/queries/usePaymentQueries";
+import { showToast, showApiError } from "@/utils/toast.utils";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/store/useAuth";
 
@@ -104,7 +105,11 @@ function ManageEntryView({ entryWithRole, category, onNavigateToPayment }: { ent
   const handleConfirmLineup = () => {
     confirmLineupMutation.mutate(entry.id, {
       onSuccess: () => {
+        showToast.success(t("publicPlayer.tournamentDetail.registrationTab.lineupConfirmSuccess", "Lineup confirmed successfully"));
         onNavigateToPayment?.();
+      },
+      onError: (err: any) => {
+        showApiError(err, t("publicPlayer.tournamentDetail.registrationTab.lineupConfirmError", "Failed to confirm lineup"));
       }
     });
   };

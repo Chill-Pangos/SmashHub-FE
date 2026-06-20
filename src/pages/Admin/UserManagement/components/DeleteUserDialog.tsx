@@ -9,7 +9,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useDeleteUser } from "@/hooks/queries/useUserQueries";
-import { toast } from "sonner";
+import { showToast, showApiError } from "@/utils/toast.utils";
 import type { AdminUser } from "@/types/user.types";
 import { useTranslation } from "react-i18next";
 
@@ -31,11 +31,11 @@ export default function DeleteUserDialog({
     if (!user) return;
     deleteUser.mutate(user.id, {
       onSuccess: () => {
-        toast.success(t("adminPage.deleteUserDialog.success", "User deleted successfully"));
+        showToast.success(t("adminPage.deleteUserDialog.success", "User deleted successfully"));
         onOpenChange(false);
       },
       onError: (error: any) => {
-        toast.error(error.message || t("adminPage.deleteUserDialog.error", "Failed to delete user"));
+        showApiError(error, t("adminPage.deleteUserDialog.error", "Failed to delete user"));
       },
     });
   };

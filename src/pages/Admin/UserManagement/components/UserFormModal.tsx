@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCreateUser, useUpdateUser } from "@/hooks/queries/useUserQueries";
-import { toast } from "sonner";
+import { showToast, showApiError } from "@/utils/toast.utils";
 import type { AdminUser, CreateUserRequest, UpdateUserRequest } from "@/types/user.types";
 import { useTranslation } from "react-i18next";
 
@@ -83,22 +83,22 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
         { id: user.id, data: formData as UpdateUserRequest },
         {
           onSuccess: () => {
-            toast.success(t("adminPage.userFormModal.updateSuccess", "User updated successfully"));
+            showToast.success(t("adminPage.userFormModal.updateSuccess", "User updated successfully"));
             onOpenChange(false);
           },
           onError: (error: any) => {
-            toast.error(error.message || t("adminPage.userFormModal.updateError", "Failed to update user"));
+            showApiError(error, t("adminPage.userFormModal.updateError", "Failed to update user"));
           },
         }
       );
     } else {
       createUser.mutate(formData as CreateUserRequest, {
         onSuccess: () => {
-          toast.success(t("adminPage.userFormModal.createSuccess", "User created successfully"));
+          showToast.success(t("adminPage.userFormModal.createSuccess", "User created successfully"));
           onOpenChange(false);
         },
         onError: (error: any) => {
-          toast.error(error.message || t("adminPage.userFormModal.createError", "Failed to create user"));
+          showApiError(error, t("adminPage.userFormModal.createError", "Failed to create user"));
         },
       });
     }

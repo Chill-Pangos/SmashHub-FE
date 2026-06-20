@@ -11,6 +11,7 @@ import { Trash2 } from "lucide-react";
 import { EntriesTable } from "./components/EntriesTable";
 import { useTournamentCategoriesByTournament, useEligibleEntriesByCategory, useDisqualifyEntries } from "@/hooks/queries";
 import { useTranslation } from "react-i18next";
+import { showToast, showApiError } from "@/utils/toast.utils";
 
 interface EntriesManagementProps {
   tournamentId: number;
@@ -51,7 +52,10 @@ export default function EntriesManagement({
 
   const handleMassDisqualify = () => {
     if (categoryIdToFetch > 0) {
-      disqualifyMutation.mutate({ categoryId: categoryIdToFetch });
+      disqualifyMutation.mutate({ categoryId: categoryIdToFetch }, {
+        onSuccess: () => showToast.success(t("tournamentManager.entriesManagement.disqualifySuccess", "Entries disqualified successfully")),
+        onError: (err: any) => showApiError(err, t("tournamentManager.entriesManagement.disqualifyError", "Failed to disqualify entries")),
+      });
     }
   };
 

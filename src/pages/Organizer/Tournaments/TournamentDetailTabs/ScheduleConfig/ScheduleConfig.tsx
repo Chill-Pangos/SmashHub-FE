@@ -8,6 +8,7 @@ import { Settings2, Clock, Coffee, Monitor, Hourglass } from "lucide-react";
 import { ValidationStats } from "./components/ValidationStats";
 import { useTranslation } from "react-i18next";
 import { usePreviewUpdateScheduleConfig, useUpdateScheduleConfig } from "@/hooks/queries";
+import { showToast, showApiError } from "@/utils/toast.utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -140,11 +141,15 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
             setPendingPayload(payload);
             setIsConfirmOpen(true);
           } else {
-            updateMutation.mutate({ tournamentId, data: payload });
+            updateMutation.mutate({ tournamentId, data: payload }, {
+              onSuccess: () => showToast.success(t("tournamentManager.scheduleConfig.saveSuccess", "Schedule config saved successfully")),
+              onError: (err: any) => showApiError(err, t("tournamentManager.scheduleConfig.saveError", "Failed to save config")),
+            });
           }
         },
-        onError: (err) => {
+        onError: (err: any) => {
           console.error("Preview failed:", err);
+          showApiError(err, t("tournamentManager.scheduleConfig.previewError", "Failed to preview changes"));
         },
       }
     );
@@ -166,7 +171,9 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
             setIsConfirmOpen(false);
             setPendingPayload(null);
             setRegenerationKey("");
+            showToast.success(t("tournamentManager.scheduleConfig.saveSuccess", "Schedule config saved successfully"));
           },
+          onError: (err: any) => showApiError(err, t("tournamentManager.scheduleConfig.saveError", "Failed to save config")),
         }
       );
     }

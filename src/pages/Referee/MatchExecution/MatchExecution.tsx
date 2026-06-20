@@ -26,6 +26,17 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { showToast, showApiError } from "@/utils/toast.utils";
 import { useTranslation } from "react-i18next";
 
 export default function MatchExecution() {
@@ -70,7 +81,10 @@ export default function MatchExecution() {
             </p>
             {isChief && (
               <Button
-                onClick={() => finalizeMatch(match.id)}
+                onClick={() => finalizeMatch(match.id, {
+                  onSuccess: () => showToast.success(t("matchExecution.finalizeSuccess", "Match finalized successfully")),
+                  onError: (err: any) => showApiError(err, t("matchExecution.finalizeError", "Failed to finalize match")),
+                })}
                 disabled={finalizingMatch}
               >
                 {t("matchExecution.chiefFinalize", "Chief: Finalize Match")}
@@ -109,17 +123,28 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
   const { mutate: approveLineups, isPending: approvingLineup } = useApproveLineups();
   const { mutate: rejectLineups, isPending: rejectingLineup } = useRejectLineups();
   const [isLineupDialogOpen, setIsLineupDialogOpen] = useState(false);
+  const [isRejectConfirmOpen, setIsRejectConfirmOpen] = useState(false);
 
   const handleApproveLineup = () => {
     approveLineups(subMatch.matchId, {
-      onSuccess: () => setIsLineupDialogOpen(false),
+      onSuccess: () => {
+        setIsLineupDialogOpen(false);
+        showToast.success(t("matchExecution.approveSuccess", "Lineup approved successfully"));
+      },
+      onError: (err: any) => showApiError(err, t("matchExecution.approveError", "Failed to approve lineup")),
     });
   };
 
   const handleRejectLineup = () => {
     rejectLineups(
       { matchId: subMatch.matchId, data: { reviewNotes: "Rejected by Umpire" } },
-      { onSuccess: () => setIsLineupDialogOpen(false) }
+      {
+        onSuccess: () => {
+          setIsLineupDialogOpen(false);
+          showToast.success(t("matchExecution.rejectSuccess", "Lineup rejected successfully"));
+        },
+        onError: (err: any) => showApiError(err, t("matchExecution.rejectError", "Failed to reject lineup")),
+      }
     );
   };
 
@@ -149,6 +174,7 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
             setActiveSetNumber(data.nextSetNumber);
           }
         },
+        onError: (err: any) => showApiError(err, t("matchExecution.updateScoreError", "Failed to update score")),
       }
     );
   };
@@ -179,7 +205,7 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
                     <p>{t("matchExecution.lineupPendingMessage", "There are pending lineup requests for this match. Please review and approve them before starting.")}</p>
                   </div>
                   <DialogFooter className="flex gap-2 justify-end">
-                    <Button variant="destructive" onClick={handleRejectLineup} disabled={rejectingLineup || approvingLineup}>
+                    <Button variant="destructive" onClick={() => setIsRejectConfirmOpen(true)} disabled={rejectingLineup || approvingLineup}>
                       {t("matchExecution.reject", "Reject")}
                     </Button>
                     <Button onClick={handleApproveLineup} disabled={rejectingLineup || approvingLineup}>
@@ -189,8 +215,36 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
                 </DialogContent>
               </Dialog>
             )}
+            {hasPendingLineup && (
+              <AlertDialog open={isRejectConfirmOpen} onOpenChange={setIsRejectConfirmOpen}>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t("matchExecution.rejectConfirmTitle", "Reject Lineup?")}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t("matchExecution.rejectConfirmDesc", "Are you sure you want to reject this lineup? Players will have to submit a new one.")}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={rejectingLineup}>{t("common.cancel", "Cancel")}</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        handleRejectLineup();
+                        setIsRejectConfirmOpen(false);
+                      }}
+                      disabled={rejectingLineup}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {rejectingLineup ? t("common.rejecting", "Rejecting...") : t("common.reject", "Reject")}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
             <Button
-              onClick={() => startSubMatch(subMatch.id)}
+              onClick={() => startSubMatch(subMatch.id, {
+                onSuccess: () => showToast.success(t("matchExecution.startSubMatchSuccess", "Sub-match started successfully")),
+                onError: (err: any) => showApiError(err, t("matchExecution.startSubMatchError", "Failed to start sub-match")),
+              })}
               disabled={starting || hasPendingLineup}
             >
               {t("matchExecution.startSubMatch", "Start Sub-Match")}
@@ -248,7 +302,10 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
             <Button
               className="w-full"
               variant="secondary"
-              onClick={() => finalizeSubMatch(subMatch.id)}
+              onClick={() => finalizeSubMatch(subMatch.id, {
+                onSuccess: () => showToast.success(t("matchExecution.finalizeSubMatchSuccess", "Sub-match finalized successfully")),
+                onError: (err: any) => showApiError(err, t("matchExecution.finalizeSubMatchError", "Failed to finalize sub-match")),
+              })}
               disabled={finalizing}
             >
               {t("matchExecution.finalizeSubMatch", "Finalize Sub-Match")}

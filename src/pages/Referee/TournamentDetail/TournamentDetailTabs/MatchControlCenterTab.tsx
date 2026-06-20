@@ -2,6 +2,7 @@ import { Filter, User } from 'lucide-react';
 import { useMatches, useStartMatch, useBulkStartMatches } from '@/hooks/queries';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { showToast, showApiError } from "@/utils/toast.utils";
 
 export default function MatchControlCenterTab() {
   const { t } = useTranslation();
@@ -15,14 +16,20 @@ export default function MatchControlCenterTab() {
   const scheduledMatches = matches.filter(m => m.status === 'scheduled');
 
   const handleStartMatch = (id: number) => {
-    startMatchMutation.mutate(id);
+    startMatchMutation.mutate(id, {
+      onSuccess: () => showToast.success(t("referee.matchControlCenter.startSuccess", "Match started successfully")),
+      onError: (err: any) => showApiError(err, t("referee.matchControlCenter.startError", "Failed to start match")),
+    });
   };
 
   const handleBulkStart = () => {
     if (scheduledMatches.length === 0) return;
     const matchIds = scheduledMatches.map(m => m.id);
     if (confirm(t("referee.matchControlCenter.confirmBulkStart", "Are you sure you want to start all scheduled matches?"))) {
-      bulkStartMutation.mutate({ matchIds });
+      bulkStartMutation.mutate({ matchIds }, {
+        onSuccess: () => showToast.success(t("referee.matchControlCenter.bulkStartSuccess", "Bulk start successful")),
+        onError: (err: any) => showApiError(err, t("referee.matchControlCenter.bulkStartError", "Failed to bulk start matches")),
+      });
     }
   };
 

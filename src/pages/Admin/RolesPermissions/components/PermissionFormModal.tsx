@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCreatePermission, useUpdatePermission } from "@/hooks/queries/usePermissionQueries";
-import { toast } from "sonner";
+import { showToast, showApiError } from "@/utils/toast.utils";
 import type { Permission, CreatePermissionRequest, UpdatePermissionRequest } from "@/types/permission.types";
 import { useTranslation } from "react-i18next";
 
@@ -55,22 +55,22 @@ export default function PermissionFormModal({ open, onOpenChange, permission }: 
         { id: permission.id, data: formData as UpdatePermissionRequest },
         {
           onSuccess: () => {
-            toast.success(t("adminRoles.permissionUpdated", "Permission updated successfully"));
+            showToast.success(t("adminRoles.permissionUpdated", "Permission updated successfully"));
             onOpenChange(false);
           },
           onError: (error: any) => {
-            toast.error(error.message || t("adminRoles.updatePermissionError", "Failed to update permission"));
+            showApiError(error, t("adminRoles.updatePermissionError", "Failed to update permission"));
           },
         }
       );
     } else {
       createPermission.mutate(formData as CreatePermissionRequest, {
         onSuccess: () => {
-          toast.success(t("adminRoles.permissionCreated", "Permission created successfully"));
+          showToast.success(t("adminRoles.permissionCreated", "Permission created successfully"));
           onOpenChange(false);
         },
         onError: (error: any) => {
-          toast.error(error.message || t("adminRoles.createPermissionError", "Failed to create permission"));
+          showApiError(error, t("adminRoles.createPermissionError", "Failed to create permission"));
         },
       });
     }

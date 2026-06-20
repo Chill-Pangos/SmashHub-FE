@@ -7,6 +7,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import {
   useTournamentCategoriesByTournament,
@@ -22,6 +32,7 @@ import PaymentStatsCards from "./components/PaymentStatsCards";
 import PendingPaymentsList from "./components/PendingPaymentsList";
 import PaymentDetailDialog from "./components/PaymentDetailDialog";
 import type { Payment } from "@/types/payment.types";
+import { showToast, showApiError } from "@/utils/toast.utils";
 
 interface PaymentManagementProps {
   tournamentId: number;
@@ -37,6 +48,7 @@ export default function PaymentManagement({
   const [viewMode, setViewMode] = useState<ViewMode>("pending");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedPaymentId, setSelectedPaymentId] = useState<number | null>(null);
+  const [paymentToRejectId, setPaymentToRejectId] = useState<number | null>(null);
   const [page] = useState(1);
 
   // Categories
@@ -88,20 +100,41 @@ export default function PaymentManagement({
 
   const handleConfirm = (paymentId: number) => {
     confirmMutation.mutate(paymentId, {
-      onSuccess: () => setSelectedPaymentId(null),
+      onSuccess: () => {
+        setSelectedPaymentId(null);
+        showToast.success(t("tournamentManager.paymentManagement.confirmSuccess", "Payment confirmed successfully"));
+      },
+      onError: (err: any) => showApiError(err, t("tournamentManager.paymentManagement.confirmError", "Failed to confirm payment")),
     });
   };
 
   const handleReject = (paymentId: number) => {
-    rejectMutation.mutate(paymentId, {
-      onSuccess: () => setSelectedPaymentId(null),
-    });
+    setPaymentToRejectId(paymentId);
+  };
+
+  const confirmReject = () => {
+    if (paymentToRejectId !== null) {
+      rejectMutation.mutate(paymentToRejectId, {
+        onSuccess: () => {
+          setSelectedPaymentId(null);
+          setPaymentToRejectId(null);
+          showToast.success(t("tournamentManager.paymentManagement.rejectSuccess", "Payment rejected successfully"));
+        },
+        onError: (err: any) => showApiError(err, t("tournamentManager.paymentManagement.rejectError", "Failed to reject payment")),
+      });
+    }
   };
 
   const handleRefund = (paymentId: number, file: File) => {
     refundMutation.mutate(
       { paymentId, file },
-      { onSuccess: () => setSelectedPaymentId(null) },
+      { 
+        onSuccess: () => {
+          setSelectedPaymentId(null);
+          showToast.success(t("tournamentManager.paymentManagement.refundSuccess", "Payment refunded successfully"));
+        },
+        onError: (err: any) => showApiError(err, t("tournamentManager.paymentManagement.refundError", "Failed to refund payment")),
+      },
     );
   };
 
@@ -228,7 +261,6 @@ export default function PaymentManagement({
         />
       )}
 
-      {/* Payment Detail Dialog */}
       <PaymentDetailDialog
         payment={paymentDetail as Payment | null}
         open={!!selectedPaymentId}
@@ -240,6 +272,26 @@ export default function PaymentManagement({
         isRejecting={rejectMutation.isPending}
         isRefunding={refundMutation.isPending}
       />
+      <AlertDialog open={paymentToRejectId !== null} onOpenChange={(open) => !open && setPaymentToRejectId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("tournamentManager.paymentManagement.rejectTitle", "Reject Payment?")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("tournamentManager.paymentManagement.rejectDesc", "Are you sure you want to reject this payment? This will mark the payment as failed.")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={rejectMutation.isPending}>{t("common.cancel", "Cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmReject}
+              disabled={rejectMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {rejectMutation.isPending ? t("common.rejecting", "Rejecting...") : t("common.reject", "Reject")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

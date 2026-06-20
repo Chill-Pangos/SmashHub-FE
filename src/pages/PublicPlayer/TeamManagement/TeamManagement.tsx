@@ -13,7 +13,19 @@ import { useCurrentUser } from "@/hooks/queries/useAuthQueries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { showToast, showApiError } from "@/utils/toast.utils";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 
 export default function TeamManagement() {
   const { t } = useTranslation();
@@ -51,6 +63,8 @@ export default function TeamManagement() {
 function TeamCard({ entry, role, userId }: any) {
   const { t } = useTranslation();
   const { id: entryId } = entry;
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [rejectRequestId, setRejectRequestId] = useState<number | null>(null);
 
   const { data: requestsResp } = useEntryJoinRequests(entryId, {
     enabled: role === "captain",
@@ -68,7 +82,13 @@ function TeamCard({ entry, role, userId }: any) {
   const { mutate: confirmLineup } = useConfirmLineup();
 
   const handleRespond = (joinRequestId: number, action: "approve" | "reject") => {
-    respondJoin({ joinRequestId, entryId, data: { action } });
+    respondJoin(
+      { joinRequestId, entryId, data: { action } },
+      {
+        onSuccess: () => showToast.success(t("publicPlayer.teamManagement.respondSuccess", "Request processed successfully")),
+        onError: (err: any) => showApiError(err, t("publicPlayer.teamManagement.respondError", "Failed to process request"))
+      }
+    );
   };
 
   return (
@@ -119,7 +139,7 @@ function TeamCard({ entry, role, userId }: any) {
                       <Button
                         size="sm"
                         variant="destructive"
-                        onClick={() => handleRespond(req.id, "reject")}
+                        onClick={() => setRejectRequestId(req.id)}
                       >
                         {t("publicPlayer.teamManagement.reject")}
                       </Button>
@@ -143,10 +163,16 @@ function TeamCard({ entry, role, userId }: any) {
                       size="sm"
                       variant="outline"
                       onClick={() =>
-                        transferCaptaincy({
-                          entryId,
-                          newCaptainId: member.userId,
-                        })
+                        transferCaptaincy(
+                          {
+                            entryId,
+                            newCaptainId: member.userId,
+                          },
+                          {
+                            onSuccess: () => showToast.success(t("publicPlayer.teamManagement.transferSuccess", "Captaincy transferred successfully")),
+                            onError: (err: any) => showApiError(err, t("publicPlayer.teamManagement.transferError", "Failed to transfer captaincy")),
+                          }
+                        )
                       }
                     >
                       {t("publicPlayer.teamManagement.makeCaptain")}
@@ -160,10 +186,16 @@ function TeamCard({ entry, role, userId }: any) {
               <Button
                 variant="outline"
                 onClick={() =>
-                  setRequired({
-                    entryId,
-                    requiredMemberCount: entry.requiredMemberCount + 1,
-                  })
+                  setRequired(
+                    {
+                      entryId,
+                      requiredMemberCount: entry.requiredMemberCount + 1,
+                    },
+                    {
+                      onSuccess: () => showToast.success(t("publicPlayer.teamManagement.setRequiredSuccess", "Required members updated")),
+                      onError: (err: any) => showApiError(err, t("publicPlayer.teamManagement.setRequiredError", "Failed to update required members")),
+                    }
+                  )
                 }
               >
                 {t("publicPlayer.teamManagement.requiredMember")}
@@ -171,25 +203,34 @@ function TeamCard({ entry, role, userId }: any) {
               <Button
                 variant="outline"
                 onClick={() =>
-                  updateEntry({
-                    id: entryId,
-                    data: {
-                      isAcceptingMembers: !entry.isAcceptingMembers,
+                  updateEntry(
+                    {
+                      id: entryId,
+                      data: {
+                        isAcceptingMembers: !entry.isAcceptingMembers,
+                      },
                     },
-                  })
+                    {
+                      onSuccess: () => showToast.success(t("publicPlayer.teamManagement.updateEntrySuccess", "Entry updated successfully")),
+                      onError: (err: any) => showApiError(err, t("publicPlayer.teamManagement.updateEntryError", "Failed to update entry")),
+                    }
+                  )
                 }
               >
                 {t("publicPlayer.teamManagement.toggleAccepting")}
               </Button>
               <Button
                 disabled={entry.isConfirmed}
-                onClick={() => confirmLineup(entryId)}
+                onClick={() => confirmLineup(entryId, {
+                  onSuccess: () => showToast.success(t("publicPlayer.teamManagement.confirmSuccess", "Lineup confirmed successfully")),
+                  onError: (err: any) => showApiError(err, t("publicPlayer.teamManagement.confirmError", "Failed to confirm lineup")),
+                })}
               >
                 {t("publicPlayer.teamManagement.confirmLineup")}
               </Button>
               <Button
                 variant="destructive"
-                onClick={() => deleteEntry(entryId)}
+                onClick={() => setIsDeleteOpen(true)}
               >
                 {t("publicPlayer.teamManagement.deleteEntry")}
               </Button>
@@ -197,6 +238,56 @@ function TeamCard({ entry, role, userId }: any) {
           </div>
         )}
       </CardContent>
+      <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("publicPlayer.teamManagement.deleteTitle", "Delete Team?")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("publicPlayer.teamManagement.deleteDesc", "Are you sure you want to delete this team? This action cannot be undone.")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel", "Cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                deleteEntry(entryId, {
+                  onSuccess: () => showToast.success(t("publicPlayer.teamManagement.deleteSuccess", "Team deleted successfully")),
+                  onError: (err: any) => showApiError(err, t("publicPlayer.teamManagement.deleteError", "Failed to delete team")),
+                });
+                setIsDeleteOpen(false);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t("common.delete", "Delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={rejectRequestId !== null} onOpenChange={(open) => !open && setRejectRequestId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("publicPlayer.teamManagement.rejectJoinTitle", "Reject Join Request?")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("publicPlayer.teamManagement.rejectJoinDesc", "Are you sure you want to reject this user's join request?")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel", "Cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (rejectRequestId !== null) {
+                  handleRespond(rejectRequestId, "reject");
+                  setRejectRequestId(null);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t("common.reject", "Reject")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

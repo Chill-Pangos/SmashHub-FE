@@ -3,6 +3,7 @@ import { useAuth } from "@/store/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useUpdateUserProfile, useUploadAvatar } from "@/hooks/queries/useUserQueries";
 import { getImageUrl } from "@/utils/api.utils";
+import { showToast, showApiError } from "@/utils/toast.utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,7 +49,9 @@ export default function UserProfile() {
       onSuccess: (data) => {
         // Optimistic local update / Auth sync
         updateUser({ ...user, avatarUrl: data.avatarUrl });
-      }
+        showToast.success(t("profile.uploadAvatarSuccess", "Avatar uploaded successfully"));
+      },
+      onError: (err: any) => showApiError(err, t("profile.uploadAvatarError", "Failed to upload avatar")),
     });
     
     // Clear input
@@ -70,7 +73,9 @@ export default function UserProfile() {
     }, {
       onSuccess: (updatedUser) => {
         updateUser(updatedUser);
-      }
+        showToast.success(t("profile.updateSuccess", "Profile updated successfully"));
+      },
+      onError: (err: any) => showApiError(err, t("profile.updateError", "Failed to update profile")),
     });
   };
 

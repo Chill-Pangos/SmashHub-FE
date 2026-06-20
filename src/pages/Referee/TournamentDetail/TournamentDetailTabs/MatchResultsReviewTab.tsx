@@ -2,8 +2,18 @@ import { useState, useEffect } from "react";
 import { Filter, CheckCircle, X } from "lucide-react";
 import { usePendingMatches, useApproveMatch, useRejectMatch } from "@/hooks/queries";
 import type { Match } from "@/types";
+import { showToast, showApiError } from "@/utils/toast.utils";
 import { useTranslation } from "react-i18next";
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 export default function MatchResultsReviewTab() {
   const { t } = useTranslation();
   const { data: pendingData, isLoading } = usePendingMatches(1, 100);
@@ -11,6 +21,7 @@ export default function MatchResultsReviewTab() {
 
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isRejectOpen, setIsRejectOpen] = useState(false);
 
   useEffect(() => {
     if (pendingMatches.length > 0 && !selectedMatch) {
@@ -25,13 +36,22 @@ export default function MatchResultsReviewTab() {
 
   const handleApprove = () => {
     if (selectedMatch) {
-      approveMatchMutation.mutate({ id: selectedMatch.id });
+      approveMatchMutation.mutate({ id: selectedMatch.id }, {
+        onSuccess: () => showToast.success(t("referee.matchResultsReview.approveSuccess", "Match approved successfully")),
+        onError: (err: any) => showApiError(err, t("referee.matchResultsReview.approveError", "Failed to approve match")),
+      });
     }
   };
 
   const handleReject = () => {
     if (selectedMatch) {
-      rejectMatchMutation.mutate({ id: selectedMatch.id, data: { reviewNotes: "Rejected by Chief Referee" } });
+      rejectMatchMutation.mutate({ id: selectedMatch.id, data: { reviewNotes: "Rejected by Chief Referee" } }, {
+        onSuccess: () => {
+          setIsRejectOpen(false);
+          showToast.success(t("referee.matchResultsReview.rejectSuccess", "Match rejected successfully"));
+        },
+        onError: (err: any) => showApiError(err, t("referee.matchResultsReview.rejectError", "Failed to reject match")),
+      });
     }
   };
 
@@ -112,13 +132,34 @@ export default function MatchResultsReviewTab() {
       </div>
 
       <div className="flex justify-end gap-3 mt-auto pt-4 border-t border-border shrink-0">
-        <button onClick={handleReject} disabled={rejectMatchMutation.isPending} className="px-6 py-2 rounded-md font-semibold text-destructive border border-destructive/50 hover:bg-destructive/10 transition-colors disabled:opacity-50">
+        <button onClick={() => setIsRejectOpen(true)} disabled={rejectMatchMutation.isPending} className="px-6 py-2 rounded-md font-semibold text-destructive border border-destructive/50 hover:bg-destructive/10 transition-colors disabled:opacity-50">
           {t("referee.matchResultsReview.reject", "Reject")}
         </button>
         <button onClick={handleApprove} disabled={approveMatchMutation.isPending} className="px-8 py-2 rounded-md font-semibold bg-primary text-primary-foreground hover:opacity-90 flex items-center gap-2 shadow-[var(--auth-primary-glow)] disabled:opacity-50">
           <CheckCircle className="w-4 h-4" /> {t("referee.matchResultsReview.approve", "Approve")}
         </button>
       </div>
+
+      <AlertDialog open={isRejectOpen} onOpenChange={setIsRejectOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("referee.matchResultsReview.rejectTitle", "Reject Match Result?")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("referee.matchResultsReview.rejectDesc", "Are you sure you want to reject this match result? This action cannot be undone.")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={rejectMatchMutation.isPending}>{t("common.cancel", "Cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleReject}
+              disabled={rejectMatchMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {rejectMatchMutation.isPending ? t("common.rejecting", "Rejecting...") : t("common.reject", "Reject")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 
