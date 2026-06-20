@@ -9,7 +9,8 @@ import {
   useSaveKnockoutAssignments, 
   useGenerateTournamentSchedule,
   usePreviewFromEntries,
-  useGenerateKnockoutSchedule 
+  useGenerateKnockoutSchedule,
+  usePreviewFillQualifiers 
 } from "@/hooks/queries";
 import { useTranslation } from "react-i18next";
 
@@ -25,6 +26,7 @@ type WizardStep =
   // Group Flow Steps
   | "PREVIEW_GROUP"
   | "PREVIEW_KNOCKOUT_PLACEHOLDER"
+  | "PREVIEW_FILL_QUALIFIERS"
   // Knockout Only Flow Steps
   | "PREVIEW_KNOCKOUT_ENTRIES"
   // Both Flows
@@ -51,6 +53,7 @@ export default function ScheduleGeneration({
   const previewKnockoutPlaceholders = usePreviewKnockoutPlaceholders();
   const saveKnockoutAssignments = useSaveKnockoutAssignments();
   const genTournamentSchedule = useGenerateTournamentSchedule();
+  const previewFillQualifiers = usePreviewFillQualifiers();
 
   // Mutations Non-Group
   const previewFromEntries = usePreviewFromEntries();
@@ -108,6 +111,39 @@ export default function ScheduleGeneration({
       setStep("DONE");
     } catch (err: any) {
       setErrorMsg(err?.response?.data?.error?.message || err?.response?.data?.message || t('tournamentManager.scheduleGeneration.errSaveKnockoutGroupFlow', 'Failed to save knockout placeholders or generate schedule.'));
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handlePreviewFillQualifiers = async () => {
+    if (!categoryId) return;
+    setIsProcessing(true);
+    setErrorMsg("");
+    try {
+      const koRes = await previewFillQualifiers.mutateAsync({ categoryId });
+      setKnockoutPreview(koRes.data);
+      setStep("PREVIEW_FILL_QUALIFIERS");
+    } catch (err: any) {
+      setErrorMsg(err?.response?.data?.error?.message || err?.response?.data?.message || t('tournamentManager.scheduleGeneration.errPreviewFill', 'Failed to preview fill qualifiers.'));
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSaveFillQualifiers = async () => {
+    if (!categoryId) return;
+    setIsProcessing(true);
+    setErrorMsg("");
+    try {
+      await saveKnockoutAssignments.mutateAsync({ 
+        categoryId,
+        entryIds: knockoutPreview?.entryIds || []
+      });
+      await genKnockoutSchedule.mutateAsync({ categoryId });
+      setStep("DONE");
+    } catch (err: any) {
+      setErrorMsg(err?.response?.data?.error?.message || err?.response?.data?.message || t('tournamentManager.scheduleGeneration.errSaveKnockoutFlow', 'Failed to save knockout assignments.'));
     } finally {
       setIsProcessing(false);
     }
@@ -250,6 +286,12 @@ export default function ScheduleGeneration({
                   {isProcessing ? t('tournamentManager.scheduleGeneration.loadingPreview', 'Loading Preview...') : t('tournamentManager.scheduleGeneration.previewKnockoutBracket', 'Preview Knockout Bracket')}
                 </Button>
               )}
+              {hasBracket && isGroupStage && (
+                <Button variant="secondary" onClick={handlePreviewFillQualifiers} disabled={isProcessing || !categoryId}>
+                  <Eye className="w-4 h-4 mr-2" />
+                  {isProcessing ? t('tournamentManager.scheduleGeneration.loadingPreview', 'Loading Preview...') : t('tournamentManager.scheduleGeneration.previewFillQualifiers', 'Fill Qualifiers (Post-Group Stage)')}
+                </Button>
+              )}
               {hasBracket && (
                 <Button variant="secondary" onClick={handleDirectGenerateSchedule} disabled={isProcessing || !categoryId}>
                   <Play className="w-4 h-4 mr-2" />
@@ -259,7 +301,7 @@ export default function ScheduleGeneration({
             </div>
             {hasBracket && (
               <p className="text-xs text-muted-foreground mt-1">
-                {t('tournamentManager.scheduleGeneration.bracketExists', 'Bracket already exists. You can directly generate the schedule.')}
+                {t('tournamentManager.scheduleGeneration.bracketExists', 'Bracket already exists. You can directly generate the schedule or fill qualifiers if group stage is done.')}
               </p>
             )}
           </div>
@@ -306,6 +348,30 @@ export default function ScheduleGeneration({
               <Button onClick={handleSaveKnockoutPlaceholders} disabled={isProcessing} className="bg-primary text-primary-foreground">
                 <Play className="w-4 h-4 mr-2" />
                 {isProcessing ? t('tournamentManager.scheduleGeneration.finalizing', 'Finalizing...') : t('tournamentManager.scheduleGeneration.saveBracketGenerateSchedules', 'Save Bracket & Generate Final Schedules')}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* KNOCKOUT FILL QUALIFIERS PREVIEW STEP (Group Flow Post-Group Stage) */}
+        {step === "PREVIEW_FILL_QUALIFIERS" && (
+          <div className="flex flex-col items-start gap-4 animate-in fade-in slide-in-from-bottom-2">
+            <div>
+              <p className="text-sm font-medium text-cyan-500 mb-1">{t('tournamentManager.scheduleGeneration.stepFillQualifiersTitle', 'Review Filled Qualifiers')}</p>
+              <p className="text-xs text-muted-foreground">{t('tournamentManager.scheduleGeneration.stepFillQualifiersDesc', 'Review the knockout bracket structure filled with qualifiers from the group stage.')}</p>
+            </div>
+            
+            <div className="w-full">
+              {renderKnockoutPreview()}
+            </div>
+
+            <div className="flex gap-3">
+              <Button onClick={() => setStep("INIT")} variant="outline" disabled={isProcessing}>
+                {t('tournamentManager.scheduleGeneration.back', 'Back')}
+              </Button>
+              <Button onClick={handleSaveFillQualifiers} disabled={isProcessing} className="bg-primary text-primary-foreground">
+                <Play className="w-4 h-4 mr-2" />
+                {isProcessing ? t('tournamentManager.scheduleGeneration.finalizing', 'Finalizing...') : t('tournamentManager.scheduleGeneration.saveBracketGenerateSchedulesDirect', 'Save Bracket & Generate Schedules')}
               </Button>
             </div>
           </div>

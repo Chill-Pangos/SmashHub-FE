@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { useSchedulesByCategory, useKnockoutBracketTreeByCategory } from "@/hooks/queries";
 import type {
   Tournament,
@@ -53,6 +54,7 @@ export default function ScheduleTab({
   const { t } = useTranslation();
   const options = useMemo(() => buildOptions(tournament), [tournament]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number>(0);
+  const [showRegenerateWizard, setShowRegenerateWizard] = useState(false);
 
   useEffect(() => {
     if (options.length === 0) {
@@ -65,6 +67,7 @@ export default function ScheduleTab({
     if (!options.some((option) => option.id === selectedCategoryId)) {
       setSelectedCategoryId(options[0].id);
     }
+    setShowRegenerateWizard(false);
   }, [options, selectedCategoryId]);
 
   const schedulesQuery = useSchedulesByCategory(selectedCategoryId, {
@@ -174,12 +177,32 @@ export default function ScheduleTab({
         !isLoading &&
         !error &&
         hasSchedule && (
-          <TournamentScheduleViewer
-            contentId={selectedCategoryId}
-            tournamentId={tournamentId} // TRUYỀN tournamentId XUỐNG ĐÂY
-            schedulesOverride={schedulesData}
-            bracketOverride={bracketData}
-          />
+          <div className="space-y-8">
+            <div className="flex justify-end">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowRegenerateWizard(!showRegenerateWizard)}
+              >
+                {showRegenerateWizard ? t('tournamentManager.scheduleTab.hideRegenerate', 'Hide Regenerate Options') : t('tournamentManager.scheduleTab.regenerateSchedule', 'Regenerate Schedule')}
+              </Button>
+            </div>
+            
+            {showRegenerateWizard && (
+              <ScheduleGeneration
+                tournamentId={tournamentId}
+                categoryId={selectedCategoryId}
+                isGroupStage={options.find(o => o.id === selectedCategoryId)?.isGroupStage}
+                hasBracket={hasBracket}
+              />
+            )}
+            
+            <TournamentScheduleViewer
+              contentId={selectedCategoryId}
+              tournamentId={tournamentId}
+              schedulesOverride={schedulesData}
+              bracketOverride={bracketData}
+            />
+          </div>
         )}
     </div>
   );
