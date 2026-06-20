@@ -15,6 +15,7 @@ import {
   useApproveLineups,
   useRejectLineups,
 } from "@/hooks/queries/useSubMatchPlayerQueries";
+import { useCurrentUser } from "@/hooks/queries/useAuthQueries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -48,14 +49,18 @@ export default function MatchExecution() {
   );
   const match = matchResp;
 
+  const { data: userResp } = useCurrentUser();
+  const isChief = userResp?.roles?.some(
+    (r: any) => r.name === "chief_referee" || r === "chief_referee"
+  );
+
   const { data: subMatchesResp } = useSubMatchesByMatch(Number(matchId), 1, 50);
   const subMatches = subMatchesResp?.subMatches || [];
 
   const { mutate: finalizeMatch, isPending: finalizingMatch } =
     useFinalizeMatch();
 
-  // Assuming Chief Referee if user has "chief_referee" role or is assigned as such
-  const isChief = true; // In a real app, check user role. Let's assume true to show UI.
+  const [matchReadyToFinalize, setMatchReadyToFinalize] = useState(false);
 
   if (matchLoading) return <div className="p-6">{t("matchExecution.loading", "Loading match...")}</div>;
   if (!match) return <div className="p-6">{t("matchExecution.notFound", "Match not found.")}</div>;
@@ -68,7 +73,7 @@ export default function MatchExecution() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+        <Card className={matchReadyToFinalize ? "border-green-500 shadow-lg" : ""}>
           <CardHeader>
             <CardTitle>{t("matchExecution.overview", "Match Overview")}</CardTitle>
           </CardHeader>
@@ -81,8 +86,12 @@ export default function MatchExecution() {
             </p>
             {isChief && (
               <Button
+                variant={matchReadyToFinalize ? "default" : "outline"}
                 onClick={() => finalizeMatch(match.id, {
-                  onSuccess: () => showToast.success(t("matchExecution.finalizeSuccess", "Match finalized successfully")),
+                  onSuccess: () => {
+                    showToast.success(t("matchExecution.finalizeSuccess", "Match finalized successfully"));
+                    setMatchReadyToFinalize(false);
+                  },
                   onError: (err: any) => showApiError(err, t("matchExecution.finalizeError", "Failed to finalize match")),
                 })}
                 disabled={finalizingMatch}
@@ -90,13 +99,22 @@ export default function MatchExecution() {
                 {t("matchExecution.chiefFinalize", "Chief: Finalize Match")}
               </Button>
             )}
+            {matchReadyToFinalize && !isChief && (
+              <p className="text-green-600 font-semibold text-sm">
+                {t("matchExecution.matchReadyForChief", "Match is completed. Waiting for Chief Referee to finalize.")}
+              </p>
+            )}
           </CardContent>
         </Card>
 
         <div className="space-y-4">
           <h2 className="text-xl font-bold">{t("matchExecution.subMatches", "Sub-Matches")}</h2>
           {subMatches.map((sm: any) => (
-            <SubMatchCard key={sm.id} subMatch={sm} />
+            <SubMatchCard 
+              key={sm.id} 
+              subMatch={sm} 
+              onMatchReady={() => setMatchReadyToFinalize(true)} 
+            />
           ))}
         </div>
       </div>
@@ -104,7 +122,7 @@ export default function MatchExecution() {
   );
 }
 
-function SubMatchCard({ subMatch }: { subMatch: any }) {
+function SubMatchCard({ subMatch, onMatchReady }: { subMatch: any; onMatchReady: () => void }) {
   const { t } = useTranslation();
   const { mutate: startSubMatch, isPending: starting } = useStartSubMatch();
   const { mutate: finalizeSubMatch, isPending: finalizing } =
@@ -115,6 +133,7 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
   const liveScore = liveScoreResp;
 
   const { mutate: updateScore } = useUpdateLiveScore();
+  const [scoreStatus, setScoreStatus] = useState<any>(null);
 
   // Lineup Approval Logic
   const { data: pendingLineupsResp } = usePendingLineups();
@@ -170,6 +189,10 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
       },
       {
         onSuccess: (data: any) => {
+          setScoreStatus(data);
+          if (data?.message) {
+            showToast.success(data.message);
+          }
           if (data?.nextSetNumber) {
             setActiveSetNumber(data.nextSetNumber);
           }
@@ -179,8 +202,10 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
     );
   };
 
+  const isSubMatchReady = scoreStatus?.subMatchReadyToFinalize;
+
   return (
-    <Card>
+    <Card className={isSubMatchReady ? "border-amber-500 shadow-md" : ""}>
       <CardHeader>
         <CardTitle className="flex justify-between">
           <span>{t("matchExecution.subMatchTitle", "Sub-Match #")}{subMatch.subMatchNumber}</span>
@@ -257,6 +282,13 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
             <h3 className="font-semibold text-center">
               {t("matchExecution.setScore", { setNumber: activeSetNumber, defaultValue: `Set ${activeSetNumber} Score` })}
             </h3>
+            
+            {scoreStatus?.isCompleted && (
+              <div className="text-center text-sm text-green-600 font-medium">
+                {t("matchExecution.setCompleted", "Set {{num}} Completed!").replace("{{num}}", (activeSetNumber - (scoreStatus?.nextSetNumber ? 1 : 0)).toString())}
+              </div>
+            )}
+
             <div className="flex justify-between items-center bg-secondary/20 p-4 rounded-lg">
               <div className="flex flex-col items-center gap-2">
                 <span className="font-bold">{t("matchExecution.teamA", "Team A")}</span>
@@ -301,9 +333,14 @@ function SubMatchCard({ subMatch }: { subMatch: any }) {
 
             <Button
               className="w-full"
-              variant="secondary"
+              variant={isSubMatchReady ? "default" : "secondary"}
               onClick={() => finalizeSubMatch(subMatch.id, {
-                onSuccess: () => showToast.success(t("matchExecution.finalizeSubMatchSuccess", "Sub-match finalized successfully")),
+                onSuccess: (data: any) => {
+                  showToast.success(t("matchExecution.finalizeSubMatchSuccess", "Sub-match finalized successfully"));
+                  if (data?.matchReadyToFinalize) {
+                    onMatchReady();
+                  }
+                },
                 onError: (err: any) => showApiError(err, t("matchExecution.finalizeSubMatchError", "Failed to finalize sub-match")),
               })}
               disabled={finalizing}
