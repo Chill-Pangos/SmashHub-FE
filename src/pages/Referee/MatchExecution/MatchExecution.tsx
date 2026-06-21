@@ -114,6 +114,7 @@ export default function MatchExecution() {
               key={sm.id} 
               subMatch={sm} 
               onMatchReady={() => setMatchReadyToFinalize(true)} 
+              isUmpire={sm.umpireId === userResp?.id}
             />
           ))}
         </div>
@@ -122,7 +123,7 @@ export default function MatchExecution() {
   );
 }
 
-function SubMatchCard({ subMatch, onMatchReady }: { subMatch: any; onMatchReady: () => void }) {
+function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onMatchReady: () => void; isUmpire: boolean }) {
   const { t } = useTranslation();
   const { mutate: startSubMatch, isPending: starting } = useStartSubMatch();
   const { mutate: finalizeSubMatch, isPending: finalizing } =
@@ -215,7 +216,7 @@ function SubMatchCard({ subMatch, onMatchReady }: { subMatch: any; onMatchReady:
       <CardContent className="space-y-4">
         {subMatch.status === "scheduled" && (
           <div className="flex flex-col gap-3">
-            {hasPendingLineup && (
+            {hasPendingLineup && isUmpire && (
               <Dialog open={isLineupDialogOpen} onOpenChange={setIsLineupDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline" className="border-amber-500 text-amber-600">
@@ -240,7 +241,7 @@ function SubMatchCard({ subMatch, onMatchReady }: { subMatch: any; onMatchReady:
                 </DialogContent>
               </Dialog>
             )}
-            {hasPendingLineup && (
+            {hasPendingLineup && isUmpire && (
               <AlertDialog open={isRejectConfirmOpen} onOpenChange={setIsRejectConfirmOpen}>
                 <AlertDialogContent>
                   <AlertDialogHeader>
@@ -265,15 +266,21 @@ function SubMatchCard({ subMatch, onMatchReady }: { subMatch: any; onMatchReady:
                 </AlertDialogContent>
               </AlertDialog>
             )}
-            <Button
-              onClick={() => startSubMatch(subMatch.id, {
-                onSuccess: () => showToast.success(t("matchExecution.startSubMatchSuccess", "Sub-match started successfully")),
-                onError: (err: any) => showApiError(err, t("matchExecution.startSubMatchError", "Failed to start sub-match")),
-              })}
-              disabled={starting || hasPendingLineup}
-            >
-              {t("matchExecution.startSubMatch", "Start Sub-Match")}
-            </Button>
+            {isUmpire ? (
+              <Button
+                onClick={() => startSubMatch(subMatch.id, {
+                  onSuccess: () => showToast.success(t("matchExecution.startSubMatchSuccess", "Sub-match started successfully")),
+                  onError: (err: any) => showApiError(err, t("matchExecution.startSubMatchError", "Failed to start sub-match")),
+                })}
+                disabled={starting || hasPendingLineup}
+              >
+                {t("matchExecution.startSubMatch", "Start Sub-Match")}
+              </Button>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center italic py-2">
+                {t("matchExecution.waitingForUmpireToStart", "Waiting for Umpire to start the match...")}
+              </p>
+            )}
           </div>
         )}
 
@@ -295,18 +302,20 @@ function SubMatchCard({ subMatch, onMatchReady }: { subMatch: any; onMatchReady:
                 <span className="text-4xl font-bold">
                   {liveScore?.entryAScore || 0}
                 </span>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleScore("A", "subtract")}
-                  >
-                    -
-                  </Button>
-                  <Button size="sm" onClick={() => handleScore("A", "add")}>
-                    +
-                  </Button>
-                </div>
+                {isUmpire && (
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleScore("A", "subtract")}
+                    >
+                      -
+                    </Button>
+                    <Button size="sm" onClick={() => handleScore("A", "add")}>
+                      +
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <span className="text-2xl font-bold text-muted-foreground">-</span>
@@ -316,37 +325,41 @@ function SubMatchCard({ subMatch, onMatchReady }: { subMatch: any; onMatchReady:
                 <span className="text-4xl font-bold">
                   {liveScore?.entryBScore || 0}
                 </span>
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={() => handleScore("B", "add")}>
-                    +
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleScore("B", "subtract")}
-                  >
-                    -
-                  </Button>
-                </div>
+                {isUmpire && (
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={() => handleScore("B", "add")}>
+                      +
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleScore("B", "subtract")}
+                    >
+                      -
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
 
-            <Button
-              className="w-full"
-              variant={isSubMatchReady ? "default" : "secondary"}
-              onClick={() => finalizeSubMatch(subMatch.id, {
-                onSuccess: (data: any) => {
-                  showToast.success(t("matchExecution.finalizeSubMatchSuccess", "Sub-match finalized successfully"));
-                  if (data?.matchReadyToFinalize) {
-                    onMatchReady();
-                  }
-                },
-                onError: (err: any) => showApiError(err, t("matchExecution.finalizeSubMatchError", "Failed to finalize sub-match")),
-              })}
-              disabled={finalizing}
-            >
-              {t("matchExecution.finalizeSubMatch", "Finalize Sub-Match")}
-            </Button>
+            {isUmpire && (
+              <Button
+                className="w-full"
+                variant={isSubMatchReady ? "default" : "secondary"}
+                onClick={() => finalizeSubMatch(subMatch.id, {
+                  onSuccess: (data: any) => {
+                    showToast.success(t("matchExecution.finalizeSubMatchSuccess", "Sub-match finalized successfully"));
+                    if (data?.matchReadyToFinalize) {
+                      onMatchReady();
+                    }
+                  },
+                  onError: (err: any) => showApiError(err, t("matchExecution.finalizeSubMatchError", "Failed to finalize sub-match")),
+                })}
+                disabled={finalizing}
+              >
+                {t("matchExecution.finalizeSubMatch", "Finalize Sub-Match")}
+              </Button>
+            )}
           </div>
         )}
 

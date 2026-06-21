@@ -4,6 +4,9 @@ import { usePendingMatches, useApproveMatch, useRejectMatch } from "@/hooks/quer
 import type { Match } from "@/types";
 import { showToast, showApiError } from "@/utils/toast.utils";
 import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +19,12 @@ import {
 } from "@/components/ui/alert-dialog";
 export default function MatchResultsReviewTab() {
   const { t } = useTranslation();
-  const { data: pendingData, isLoading } = usePendingMatches(1, 100);
+  const { tournamentId } = useParams();
+  
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<string>("10");
+
+  const { data: pendingData, isLoading } = usePendingMatches(Number(tournamentId), page, Number(limit));
   const pendingMatches = pendingData?.matches || [];
 
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
@@ -132,12 +140,12 @@ export default function MatchResultsReviewTab() {
       </div>
 
       <div className="flex justify-end gap-3 mt-auto pt-4 border-t border-border shrink-0">
-        <button onClick={() => setIsRejectOpen(true)} disabled={rejectMatchMutation.isPending} className="px-6 py-2 rounded-md font-semibold text-destructive border border-destructive/50 hover:bg-destructive/10 transition-colors disabled:opacity-50">
+        <Button onClick={() => setIsRejectOpen(true)} disabled={rejectMatchMutation.isPending} variant="outline" className="border-destructive text-destructive hover:bg-destructive hover:text-white px-6">
           {t("referee.matchResultsReview.reject", "Reject")}
-        </button>
-        <button onClick={handleApprove} disabled={approveMatchMutation.isPending} className="px-8 py-2 rounded-md font-semibold bg-primary text-primary-foreground hover:opacity-90 flex items-center gap-2 shadow-[var(--auth-primary-glow)] disabled:opacity-50">
-          <CheckCircle className="w-4 h-4" /> {t("referee.matchResultsReview.approve", "Approve")}
-        </button>
+        </Button>
+        <Button onClick={handleApprove} disabled={approveMatchMutation.isPending} className="shadow-[var(--auth-primary-glow)] px-8">
+          <CheckCircle className="w-4 h-4 mr-2" /> {t("referee.matchResultsReview.approve", "Approve")}
+        </Button>
       </div>
 
       <AlertDialog open={isRejectOpen} onOpenChange={setIsRejectOpen}>
@@ -221,6 +229,31 @@ export default function MatchResultsReviewTab() {
               </div>
             </div>
           )})}
+        </div>
+        
+        {/* Pagination */}
+        <div className="flex items-center justify-between mt-auto pt-2 px-2 border-t border-border shrink-0">
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" size="sm" disabled={page === 1} onClick={() => setPage(p => Math.max(1, p - 1))}>
+              {t("common.prev", "Prev")}
+            </Button>
+            <span className="text-sm font-semibold">{page}</span>
+            <Button variant="secondary" size="sm" disabled={pendingMatches.length === 0} onClick={() => setPage(p => p + 1)}>
+              {t("common.next", "Next")}
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Select value={limit} onValueChange={(val) => { setLimit(val); setPage(1); }}>
+              <SelectTrigger className="w-[70px] h-8 text-xs">
+                <SelectValue placeholder="10" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 

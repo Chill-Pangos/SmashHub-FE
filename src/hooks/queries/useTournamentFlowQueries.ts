@@ -101,7 +101,7 @@ export const useTournamentFlowSnapshot = ({
     limit: 100,
     enabled: enabled && resolvedCategoryId > 0,
   });
-  const pendingMatchesQuery = usePendingMatches(0, 100, { enabled });
+  const pendingMatchesQuery = usePendingMatches(resolvedTournamentId, 1, 100, { enabled });
   const groupStandingsQuery = useGroupStandingsByCategory(resolvedCategoryId, {
     enabled: enabled && resolvedCategoryId > 0,
   });

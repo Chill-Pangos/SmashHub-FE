@@ -201,12 +201,13 @@ class MatchService {
    * const pendingMatches = await matchService.getPendingMatches(0, 20);
    */
   async getPendingMatches(
+    tournamentId: number,
     page: number = 1,
     limit: number = 10,
   ): Promise<GetPendingMatchesResponse> {
     const response = await axiosInstance.get<GetPendingMatchesResponse>(
       `${this.baseURL}/pending`,
-      { params: { page, limit } },
+      { params: { tournamentId, page, limit } },
     );
     return response.data;
   }
@@ -423,7 +424,7 @@ class MatchService {
 
   async getRefereeMatches(
     params: {
-      categoryId: number;
+      categoryId?: number;
       status?: string;
       page?: number;
       limit?: number;
