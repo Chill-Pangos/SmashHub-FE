@@ -2,6 +2,7 @@
  * Sub Match Types
  * Type definitions for sub-match management endpoints
  */
+import type { MatchSet } from "./matchSet.types";
 
 export type SubMatchTeam = "A" | "B";
 
@@ -22,9 +23,11 @@ export interface AssignSubMatchPlayersRequest {
 export interface SubMatch {
   id: number;
   matchId?: number;
+  subMatchNumber?: number;
   status?: string;
   teamFormat?: string;
   sets?: unknown[];
+  matchSets?: MatchSet[];
   players?: SubMatchPlayerAssignment[];
   createdAt?: string | Date;
   updatedAt?: string | Date;

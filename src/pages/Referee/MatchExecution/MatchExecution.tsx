@@ -50,8 +50,9 @@ export default function MatchExecution() {
   const match = matchResp;
 
   const { data: userResp } = useCurrentUser();
-  const isChief = userResp?.roles?.some(
-    (r: any) => r.name === "chief_referee" || r === "chief_referee"
+
+  const isAssignedReferee = match?.matchReferees?.some(
+    (mr: { refereeId: number }) => mr.refereeId === userResp?.id
   );
 
   const { data: subMatchesResp } = useSubMatchesByMatch(Number(matchId), 1, 50);
@@ -84,7 +85,7 @@ export default function MatchExecution() {
             <p>
               <strong>{t("matchExecution.status", "Status:")}</strong> {match.status}
             </p>
-            {isChief && (
+            {isAssignedReferee && match.status === "in_progress" && (
               <Button
                 variant={matchReadyToFinalize ? "default" : "outline"}
                 onClick={() => finalizeMatch(match.id, {
@@ -96,12 +97,17 @@ export default function MatchExecution() {
                 })}
                 disabled={finalizingMatch}
               >
-                {t("matchExecution.chiefFinalize", "Chief: Finalize Match")}
+                {t("matchExecution.refereeFinalize", "Referee: Finalize Match")}
               </Button>
             )}
-            {matchReadyToFinalize && !isChief && (
-              <p className="text-green-600 font-semibold text-sm">
-                {t("matchExecution.matchReadyForChief", "Match is completed. Waiting for Chief Referee to finalize.")}
+            {matchReadyToFinalize && !isAssignedReferee && (
+              <p className="text-amber-600 font-semibold text-sm">
+                {t("matchExecution.matchReadyForReferee", "Match is completed. Waiting for assigned referee to finalize.")}
+              </p>
+            )}
+            {match.resultStatus === "pending" && (
+              <p className="text-amber-600 font-semibold text-sm">
+                {t("matchExecution.matchPendingApproval", "Match finalized. Waiting for Chief Referee approval.")}
               </p>
             )}
           </CardContent>
@@ -131,7 +137,7 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
 
   const [activeSetNumber, setActiveSetNumber] = useState(1);
   const { data: liveScoreResp } = useLiveScore(subMatch.id, activeSetNumber);
-  const liveScore = liveScoreResp;
+  const liveScore = liveScoreResp?.liveScore;
 
   const { mutate: updateScore } = useUpdateLiveScore();
   const [scoreStatus, setScoreStatus] = useState<any>(null);

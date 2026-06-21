@@ -1,5 +1,6 @@
 import type { TournamentContent } from "./tournament.types";
 import type { MatchSet } from "./matchSet.types";
+import type { SubMatch } from "./subMatch.types";
 
 // ==================== Enums ====================
 
@@ -46,6 +47,7 @@ export interface Match {
   schedule?: MatchSchedule;
   matchSets?: MatchSet[];
   matchReferees?: MatchReferee[];
+  subMatches?: SubMatch[];
 }
 
 /**
@@ -250,7 +252,14 @@ export interface FinalizeMatchResponse {
  */
 export interface GetPendingMatchesResponse {
   matches: Match[];
-  count: number;
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
 }
 
 // Normalize athlete responses to use page/limit
