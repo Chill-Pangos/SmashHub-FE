@@ -14,10 +14,10 @@ import {
   useAssignPermissionToRole,
   useRemovePermissionFromRole,
 } from "@/hooks/queries/useRolePermissionQueries";
-import { toast } from "sonner";
 import type { Role } from "@/types/role.types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2 } from "lucide-react";
+import { showApiError } from "@/utils/toast.utils";
 import { useTranslation } from "react-i18next";
 
 interface AssignPermissionsModalProps {
@@ -56,16 +56,16 @@ export default function AssignPermissionsModal({
 
     if (isAssigned) {
       removePermission.mutate(
-        { roleId: role.id, permissionId },
+        { roleId: role.id, permissionId: permissionId },
         {
-          onError: (err: any) => toast.error(err.message || t("adminRoles.removePermissionError", "Failed to remove permission")),
+          onError: (err: any) => showApiError(err, t("adminRoles.removePermissionError", "Failed to remove permission")),
         }
       );
     } else {
       assignPermission.mutate(
-        { roleId: role.id, permissionId },
+        { roleId: role.id, permissionId: permissionId },
         {
-          onError: (err: any) => toast.error(err.message || t("adminRoles.assignPermissionError", "Failed to assign permission")),
+          onError: (err: any) => showApiError(err, t("adminRoles.assignPermissionError", "Failed to assign permission")),
         }
       );
     }

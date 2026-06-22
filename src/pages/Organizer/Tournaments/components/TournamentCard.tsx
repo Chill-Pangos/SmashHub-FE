@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { Tournament } from "@/types";
 import { useDeleteTournament } from "@/hooks/queries/useTournamentQueries";
+import { showToast, showApiError } from "@/utils/toast.utils";
 
 import { useTranslation } from "react-i18next";
 
@@ -74,8 +75,13 @@ export default function TournamentCard({
   };
 
   const handleDeleteConfirm = () => {
-    deleteTournament.mutate(tournament.id);
-    setIsDeleteDialogOpen(false);
+    deleteTournament.mutate(tournament.id, {
+      onSuccess: () => {
+        setIsDeleteDialogOpen(false);
+        showToast.success(t("tournamentManager.tournamentsList.deleteSuccess", "Tournament deleted successfully"));
+      },
+      onError: (err: any) => showApiError(err, t("tournamentManager.tournamentsList.deleteError", "Failed to delete tournament")),
+    });
   };
 
   const handleEdit = (e: React.MouseEvent) => {

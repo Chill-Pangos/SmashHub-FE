@@ -17,9 +17,9 @@ export default function RefereeDashboard() {
   const { user } = useAuth();
   
   // Using usePendingMatches for Chief Referee, standard referee might need a different hook or filter
-  const { data: pendingMatches, isLoading } = usePendingMatches(1, 10, { enabled: !!user?.id });
+  const { data: pendingMatches, isLoading } = usePendingMatches(0, 1, 10, { enabled: !!user?.id });
 
-  const pendingMatchesCount = pendingMatches?.count || 0;
+  const pendingMatchesCount = pendingMatches?.pagination?.total || 0;
 
   return (
     <div className="space-y-6">

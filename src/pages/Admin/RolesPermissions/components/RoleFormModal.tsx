@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateRole, useUpdateRole } from "@/hooks/queries/useRoleQueries";
-import { toast } from "sonner";
+import { showToast, showApiError } from "@/utils/toast.utils";
 import type { Role, CreateRoleRequest, UpdateRoleRequest } from "@/types/role.types";
 import { useTranslation } from "react-i18next";
 
@@ -61,22 +61,22 @@ export default function RoleFormModal({ open, onOpenChange, role }: RoleFormModa
         { id: role.id, data: formData as UpdateRoleRequest },
         {
           onSuccess: () => {
-            toast.success(t("adminRoles.roleUpdated", "Role updated successfully"));
+            showToast.success(t("adminRoles.roleUpdated", "Role updated successfully"));
             onOpenChange(false);
           },
           onError: (error: any) => {
-            toast.error(error.message || t("adminRoles.updateRoleError", "Failed to update role"));
+            showApiError(error, t("adminRoles.updateRoleError", "Failed to update role"));
           },
         }
       );
     } else {
       createRole.mutate(formData as CreateRoleRequest, {
         onSuccess: () => {
-          toast.success(t("adminRoles.roleCreated", "Role created successfully"));
+          showToast.success(t("adminRoles.roleCreated", "Role created successfully"));
           onOpenChange(false);
         },
         onError: (error: any) => {
-          toast.error(error.message || t("adminRoles.createRoleError", "Failed to create role"));
+          showApiError(error, t("adminRoles.createRoleError", "Failed to create role"));
         },
       });
     }

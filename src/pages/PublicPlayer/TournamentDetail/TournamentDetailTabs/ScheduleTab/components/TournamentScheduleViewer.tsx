@@ -39,18 +39,18 @@ export default function TournamentScheduleViewer({
 
   // Fetch real knockout matches
   const { data: knockoutData } = useMatchesByCategory(contentId, { stage: "knockout" });
-  const rawKnockout = (knockoutData as any)?.schedules || [];
+  const rawKnockout = knockoutData?.matches || [];
   
   // TODO: MAPPING INCOMPLETE: Backend returns Match[], need to map to KnockoutMatch format
   const knockoutMatches: KnockoutMatch[] = rawKnockout.map((m: any) => ({
-    round: m.roundName || `Round ${m.roundNumber}`,
-    time: m.scheduledAt ? new Date(m.scheduledAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "TBD",
-    status: m.matches?.[0]?.status || "PENDING",
-    playerA: m.matches?.[0]?.entryAId?.toString() || "TBD",
-    scoreA: m.matches?.[0]?.setsWonA?.toString() || "-",
-    playerB: m.matches?.[0]?.entryBId?.toString() || "TBD",
-    scoreB: m.matches?.[0]?.setsWonB?.toString() || "-",
-    isLive: m.matches?.[0]?.status === "in_progress"
+    round: m.schedule?.knockoutRound || "TBD",
+    time: m.schedule?.scheduledAt ? new Date(m.schedule.scheduledAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "TBD",
+    status: m.status || "PENDING",
+    playerA: m.entryA?.team?.name || m.entryAId?.toString() || "TBD",
+    scoreA: m.setsWonA?.toString() || "-",
+    playerB: m.entryB?.team?.name || m.entryBId?.toString() || "TBD",
+    scoreB: m.setsWonB?.toString() || "-",
+    isLive: m.status === "in_progress"
   }));
 
   const hasGroupStage = groups.length > 0;

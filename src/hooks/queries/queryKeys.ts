@@ -84,7 +84,10 @@ export const queryKeys = {
       [...queryKeys.matches.all, "schedule", scheduleId] as const,
     byStatus: (status: string) =>
       [...queryKeys.matches.all, "status", status] as const,
-    pending: () => [...queryKeys.matches.all, "pending"] as const,
+    pending: (tournamentId?: number) => 
+      tournamentId 
+        ? ([...queryKeys.matches.all, "pending", tournamentId] as const)
+        : ([...queryKeys.matches.all, "pending"] as const),
     pendingWithElo: (matchId: number) =>
       [...queryKeys.matches.all, "pendingWithElo", matchId] as const,
     eloPreview: (matchId: number) =>

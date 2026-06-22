@@ -7,7 +7,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useSchedulesByCategory, useKnockoutBracketTreeByCategory } from "@/hooks/queries";
+import { Button } from "@/components/ui/button";
+import { useSchedulesByCategory, useKnockoutBracketTreeByCategory, useBulkStartMatches } from "@/hooks/queries";
 import type {
   Tournament,
   TournamentCategory,
@@ -15,6 +16,7 @@ import type {
 } from "@/types/tournament.types";
 import ScheduleGeneration from "../ScheduleGeneration";
 import { useTranslation } from "react-i18next";
+import { showToast, showApiError } from "@/utils/toast.utils";
 
 interface ScheduleTabProps {
   tournamentId: number;
@@ -53,6 +55,7 @@ export default function ScheduleTab({
   const { t } = useTranslation();
   const options = useMemo(() => buildOptions(tournament), [tournament]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number>(0);
+  const [showRegenerateWizard, setShowRegenerateWizard] = useState(false);
 
   useEffect(() => {
     if (options.length === 0) {
@@ -65,6 +68,7 @@ export default function ScheduleTab({
     if (!options.some((option) => option.id === selectedCategoryId)) {
       setSelectedCategoryId(options[0].id);
     }
+    setShowRegenerateWizard(false);
   }, [options, selectedCategoryId]);
 
   const schedulesQuery = useSchedulesByCategory(selectedCategoryId, {
@@ -77,6 +81,8 @@ export default function ScheduleTab({
     enabled: selectedCategoryId > 0,
   });
 
+  const { mutate: bulkStartMatches, isPending: isBulkStarting } = useBulkStartMatches();
+
   const schedulesData = schedulesQuery.data?.data;
   const scheduleCount = schedulesData?.schedules?.length ?? 0;
   
@@ -86,6 +92,25 @@ export default function ScheduleTab({
   const hasSchedule = scheduleCount > 0;
   const isLoading = schedulesQuery.isLoading || bracketQuery.isLoading;
   const error = schedulesQuery.error;
+
+  const handleBulkStart = () => {
+    if (!schedulesData?.schedules) return;
+    const matchIds = schedulesData.schedules
+      .filter((s: any) => s.match && s.match.status === "scheduled")
+      .map((s: any) => s.match.id);
+      
+    if (matchIds.length === 0) {
+      showToast.info(t('tournamentManager.scheduleTab.noScheduledMatches', 'No scheduled matches to start.'));
+      return;
+    }
+    
+    bulkStartMatches({ matchIds }, {
+      onSuccess: () => {
+        showToast.success(t('tournamentManager.scheduleTab.bulkStartSuccess', 'Matches started successfully.'));
+      },
+      onError: (err: any) => showApiError(err, t('tournamentManager.scheduleTab.bulkStartError', 'Failed to start matches.'))
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -174,13 +199,39 @@ export default function ScheduleTab({
         !isLoading &&
         !error &&
         hasSchedule && (
-          <TournamentScheduleViewer
-            contentId={selectedCategoryId}
-            tournamentId={tournamentId} // TRUYỀN tournamentId XUỐNG ĐÂY
-            schedulesOverride={schedulesData}
-            bracketOverride={bracketData}
-          />
+          <div className="space-y-8">
+            <div className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowRegenerateWizard(!showRegenerateWizard)}
+              >
+                {showRegenerateWizard ? t('tournamentManager.scheduleTab.hideRegenerate', 'Hide Regenerate Options') : t('tournamentManager.scheduleTab.regenerateSchedule', 'Regenerate Schedule')}
+              </Button>
+              <Button 
+                onClick={handleBulkStart}
+                disabled={isBulkStarting}
+              >
+                {isBulkStarting ? t('common.starting', 'Starting...') : t('tournamentManager.scheduleTab.bulkStartMatches', 'Bulk Start Matches')}
+              </Button>
+            </div>
+            
+            {showRegenerateWizard && (
+              <ScheduleGeneration
+                tournamentId={tournamentId}
+                categoryId={selectedCategoryId}
+                isGroupStage={options.find(o => o.id === selectedCategoryId)?.isGroupStage}
+                hasBracket={hasBracket}
+              />
+            )}
+            
+            <TournamentScheduleViewer
+              contentId={selectedCategoryId}
+              tournamentId={tournamentId}
+              schedulesOverride={schedulesData}
+              bracketOverride={bracketData}
+            />
+          </div>
         )}
     </div>
   );
-}
+}

@@ -11,7 +11,7 @@ import type {
   GetMatchSetResponse,
   GetMatchSetsByMatchResponse,
   DeleteMatchSetResponse,
-  MatchSet,
+  GetLiveScoreResponse,
 } from "@/types/matchSet.types";
 
 class MatchSetService {
@@ -50,8 +50,8 @@ class MatchSetService {
   async getLiveScore(
     subMatchId: number,
     setNumber?: number
-  ): Promise<MatchSet | null> {
-    const response = await axiosInstance.get<MatchSet | null>(
+  ): Promise<GetLiveScoreResponse | null> {
+    const response = await axiosInstance.get<GetLiveScoreResponse | null>(
       `${this.baseURL}/sub-match/${subMatchId}/live-score`,
       { params: { setNumber } }
     );

@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getImageUrl } from "@/utils/api.utils";
 import type { Tournament } from "@/types/tournament.types";
+import { showToast, showApiError } from "@/utils/toast.utils";
 import {
   useMyEntries,
   usePaymentsByEntry,
@@ -160,7 +161,14 @@ function PaymentFlowView({
 
   const handleCreatePayment = () => {
     if (!entryFee) return;
-    createMutation.mutate({ entryId, amount: entryFee });
+    createMutation.mutate({ entryId, amount: entryFee }, {
+      onSuccess: () => {
+        showToast.success(t("publicPlayer.paymentTab.createSuccess", "Payment request created successfully"));
+      },
+      onError: (err: any) => {
+        showApiError(err, t("publicPlayer.paymentTab.createError", "Failed to create payment request"));
+      }
+    });
   };
 
   const handleUploadProof = (file: File) => {
@@ -168,7 +176,14 @@ function PaymentFlowView({
     uploadProofMutation.mutate(
       { paymentId: latestPayment.id, file },
       {
-        onSuccess: () => setProofPreview(null),
+        onSuccess: () => {
+          setProofPreview(null);
+          showToast.success(t("publicPlayer.paymentTab.uploadSuccess", "Proof uploaded successfully"));
+        },
+        onError: (err: any) => {
+          setProofPreview(null);
+          showApiError(err, t("publicPlayer.paymentTab.uploadError", "Failed to upload proof"));
+        }
       },
     );
   };

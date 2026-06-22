@@ -79,6 +79,8 @@ export interface UpdateScheduleConfigRequest {
   lunchBreakEndMinute?: number | null;
   lunchBreakDurationMinutes?: number | null;
   notes?: string | null;
+  regenerateSchedule?: boolean;
+  regenerationKey?: string;
 }
 
 export interface ValidateScheduleConfigRequest {
@@ -113,7 +115,7 @@ export interface PreviewScheduleConfigRequest extends CreateScheduleConfigReques
 }
 
 export interface PreviewUpdateScheduleConfigRequest extends UpdateScheduleConfigRequest {
-  totalMatches: number;
+  totalMatches?: number;
 }
 
 // ==================== Response Types ====================
@@ -137,6 +139,9 @@ export interface ValidateScheduleConfigResponse {
 export interface PreviewScheduleConfigResponse {
   isValid: boolean;
   message?: string;
+  requiresRegeneration?: boolean;
+  affectedScheduleCount?: number;
+  regenerationKey?: string;
   preview?: {
     totalMatches: number;
     totalSlots: number;

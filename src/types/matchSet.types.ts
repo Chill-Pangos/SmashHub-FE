@@ -14,6 +14,15 @@ export interface MatchSet {
   updatedAt: string;
 }
 
+export interface LiveScore {
+  subMatchId: number;
+  setNumber: number;
+  entryAScore: number;
+  entryBScore: number;
+  updatedBy?: number;
+  updatedAt?: string;
+}
+
 // ==================== Request Types ====================
 
 export interface CreateMatchSetRequest {
@@ -51,6 +60,10 @@ export interface GetMatchSetsByMatchResponse {
   subMatchId: number;
   count: number;
   sets: MatchSet[];
+}
+
+export interface GetLiveScoreResponse {
+  liveScore: LiveScore | null;
 }
 export type UpdateMatchSetResponse = MatchSet;
 export type DeleteMatchSetResponse = void;

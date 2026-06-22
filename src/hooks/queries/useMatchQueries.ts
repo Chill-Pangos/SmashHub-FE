@@ -68,14 +68,15 @@ export const useMatchesByStatus = (
  * Hook để lấy pending matches (cho Chief Referee)
  */
 export const usePendingMatches = (
+  tournamentId: number,
   page = 1,
   limit = 10,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: queryKeys.matches.pending(),
-    queryFn: () => matchService.getPendingMatches(page, limit),
-    enabled: options?.enabled ?? true,
+    queryKey: [...queryKeys.matches.pending(tournamentId), { page, limit }],
+    queryFn: () => matchService.getPendingMatches(tournamentId, page, limit),
+    enabled: (options?.enabled ?? true) && tournamentId > 0,
   });
 };
 
@@ -130,7 +131,7 @@ export const useMatchesByCategory = (
  */
 export const useRefereeMatches = (
   filters: {
-    categoryId: number;
+    categoryId?: number;
     status?: string;
     page?: number;
     limit?: number;
@@ -140,7 +141,7 @@ export const useRefereeMatches = (
   return useQuery({
     queryKey: queryKeys.matches.refereeMy(filters),
     queryFn: () => matchService.getRefereeMatches(filters),
-    enabled: (options?.enabled ?? true) && filters.categoryId > 0,
+    enabled: options?.enabled ?? true,
   });
 };
 

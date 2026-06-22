@@ -1,88 +1,168 @@
-import { useMatchesByStatus } from '@/hooks/queries';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useRefereeMatches, useTournamentCategoriesByTournament } from '@/hooks/queries';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Button } from '@/components/ui/button';
+import { useCurrentUser } from '@/hooks/queries/useAuthQueries';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function LiveScoreControllerTab() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { data: activeMatchesData, isLoading } = useMatchesByStatus('in_progress', 1, 1);
-  const activeMatch = activeMatchesData?.rows?.[0];
+  const { tournamentId } = useParams();
+  const { data: userData } = useCurrentUser();
+  const currentUserId = userData?.id;
 
-  // INCOMPLETE MAPPING: We need specific API endpoints or WebSockets for detailed live scoring (points per game/set).
-  // Currently we only have match-level status and setsWonA/setsWonB.
+  const { data: categoriesData, isLoading: categoriesLoading } = useTournamentCategoriesByTournament(Number(tournamentId), 1, 50);
+  const categories = categoriesData || [];
+  
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | "">("");
+  const [page, setPage] = useState<number>(1);
+  const [limit] = useState<number>(12);
+
+  useEffect(() => {
+    if (categories.length > 0 && selectedCategoryId === "") {
+      if (categories[0]?.id) setSelectedCategoryId(categories[0].id);
+    }
+  }, [categories, selectedCategoryId]);
+
+  const { data: activeMatchesData, isLoading: matchesLoading } = useRefereeMatches(
+    { categoryId: Number(selectedCategoryId) || undefined, status: 'in_progress', page, limit },
+    { enabled: true }
+  );
+  
+  const matches = activeMatchesData?.matches || [];
+  const pagination: any = activeMatchesData;
+
+  const isLoading = categoriesLoading || matchesLoading;
 
   if (isLoading) {
-    return <div className="text-muted-foreground p-10 text-center border border-dashed border-border rounded-xl">{t("referee.liveScoreController.loading", "Loading active match...")}</div>
+    return <div className="text-muted-foreground p-10 text-center border border-dashed border-border rounded-xl">{t("referee.liveScoreController.loading", "Loading assigned matches...")}</div>
   }
 
-  if (!activeMatch) {
-    return <div className="text-muted-foreground p-10 text-center border border-dashed border-border rounded-xl">{t("referee.liveScoreController.noActiveMatches", "No active matches to track. Select a match from schedule to start.")}</div>
+  if (matches.length === 0) {
+    return <div className="text-muted-foreground p-10 text-center border border-dashed border-border rounded-xl">{t("referee.liveScoreController.noActiveMatches", "No active matches assigned to you at the moment.")}</div>
   }
-
-  const p1Name = activeMatch.entryA?.team?.name || "Player 1";
-  const p2Name = activeMatch.entryB?.team?.name || "Player 2";
-  const setsWonA = activeMatch.setsWonA || 0;
-  const setsWonB = activeMatch.setsWonB || 0;
 
   return (
-    <div className="flex flex-col gap-6 max-w-4xl mx-auto">
-      {/* Score Boards */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4">
-        {/* Player 1 */}
-        <div className="bg-card border border-primary/30 rounded-2xl p-6 relative overflow-hidden shadow-[var(--auth-primary-glow)]">
-           <div className="flex flex-col items-center mt-6">
-             <div className="w-20 h-20 rounded-full bg-secondary border-2 border-primary mb-3 flex items-center justify-center text-2xl font-bold">{p1Name.charAt(0)}</div>
-             <h3 className="text-xl font-bold mb-4">{p1Name}</h3>
-             <div className="flex items-center gap-6">
-               <button className="w-10 h-10 rounded-full bg-secondary text-xl font-bold hover:bg-muted">-</button>
-               <span className="text-5xl font-black text-primary font-mono">{setsWonA}</span>
-               <button className="w-10 h-10 rounded-full bg-primary/20 text-primary text-xl font-bold hover:bg-primary/40">+</button>
-             </div>
-             <p className="text-xs text-muted-foreground mt-4 font-semibold">{t("referee.liveScoreController.matchSetsWon", "Match Sets Won")}</p>
-           </div>
-        </div>
-
-        {/* Center Panel */}
-        <div className="bg-secondary/20 border border-border rounded-2xl p-6 flex flex-col items-center justify-center">
-           <div className="w-full flex justify-between items-center text-xs font-bold text-muted-foreground mb-4">
-             <span>{t("referee.liveScoreController.liveMatch", "LIVE MATCH")}</span>
-             <span className="font-mono text-foreground">#{activeMatch.id}</span>
-           </div>
-           
-           <div className="flex items-center gap-6 my-6">
-             <div className="text-center">
-                <span className="text-3xl font-bold">{setsWonA}</span>
-             </div>
-             <span className="text-2xl font-black text-muted-foreground">-</span>
-             <div className="text-center">
-                <span className="text-3xl font-bold">{setsWonB}</span>
-             </div>
-           </div>
-           <p className="text-xs text-muted-foreground mt-4 text-center">
-             {t("referee.liveScoreController.detailTracking", "Detailed sub-match point tracking is available in Match Execution.")}
-           </p>
-           <button 
-             onClick={() => navigate(`/referee/matches/${activeMatch.id}`)}
-             className="mt-6 px-4 py-2 bg-primary text-primary-foreground font-bold rounded-lg hover:opacity-90 w-full"
-           >
-             {t("referee.liveScoreController.openMatchExecution", "Open Match Execution")}
-           </button>
-        </div>
-
-        {/* Player 2 */}
-        <div className="bg-card border border-border rounded-2xl p-6 relative">
-           <div className="flex flex-col items-center mt-6">
-             <div className="w-20 h-20 rounded-full bg-secondary border border-border mb-3 opacity-80 flex items-center justify-center text-2xl font-bold">{p2Name.charAt(0)}</div>
-             <h3 className="text-xl font-bold mb-4 opacity-80">{p2Name}</h3>
-             <div className="flex items-center gap-6 opacity-80">
-               <button className="w-10 h-10 rounded-full bg-secondary text-xl font-bold hover:bg-muted">-</button>
-               <span className="text-5xl font-black font-mono">{setsWonB}</span>
-               <button className="w-10 h-10 rounded-full bg-secondary text-foreground text-xl font-bold hover:bg-muted">+</button>
-             </div>
-             <p className="text-xs text-muted-foreground mt-4 font-semibold opacity-80">{t("referee.liveScoreController.matchSetsWon", "Match Sets Won")}</p>
-           </div>
+    <div className="flex flex-col gap-6">
+      {/* Filters */}
+      <div className="flex justify-end mb-2">
+        <div className="flex flex-col gap-1.5 w-64">
+          <label className="text-xs font-semibold text-muted-foreground">{t("referee.liveScoreController.category", "Category")}</label>
+          <select 
+            className="bg-input text-sm border border-border rounded-md px-3 py-2 outline-none focus:border-primary"
+            value={selectedCategoryId}
+            onChange={(e) => { setSelectedCategoryId(Number(e.target.value)); setPage(1); }}
+          >
+            <option value="">{t("referee.liveScoreController.allCategories", "All Categories")}</option>
+            {categories.map((cat: any) => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
         </div>
       </div>
+
+      {/* Match Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {matches.map((match: any) => {
+          const p1Name = match.entryA?.team?.name || match.entryA?.name || "Player 1";
+          const p2Name = match.entryB?.team?.name || match.entryB?.name || "Player 2";
+          const categoryName = match.schedule?.tournamentCategory?.name || "Unknown";
+          const court = match.schedule?.tableNumber ? `${t("referee.matchControlCenter.court", "Court")} ${match.schedule.tableNumber}` : t("referee.matchControlCenter.tbd", "TBD");
+          const scheduleTime = match.schedule?.scheduledAt ? new Date(match.schedule.scheduledAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : t("referee.matchControlCenter.tbdTime", "Time TBD");
+
+          const umpireId = match.subMatches?.[0]?.umpireId;
+          const assistantId = match.subMatches?.[0]?.assistantUmpireId;
+          const isUmpire = umpireId === currentUserId;
+          const isAssistant = assistantId === currentUserId;
+          
+          let roleText = isUmpire ? "Umpire" : isAssistant ? "Assistant" : "Referee";
+          
+          return (
+            <div key={match.id} className="bg-card border border-border rounded-xl p-5 flex flex-col gap-4 relative overflow-hidden transition-all duration-200 hover:shadow-md">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">
+                    {match.status.replace('_', ' ')}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] bg-secondary text-foreground px-2 py-1 rounded font-semibold whitespace-nowrap">
+                    {categoryName}
+                  </span>
+                  <span className={`text-[10px] px-2 py-1 rounded font-semibold uppercase ${isUmpire ? 'bg-primary/10 text-primary' : 'bg-blue-500/10 text-blue-500'}`}>
+                    {roleText}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center px-2">
+                <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+                  <div className="w-12 h-12 rounded-full bg-secondary flex justify-center items-center font-bold text-lg border border-border flex-shrink-0">
+                    {p1Name.charAt(0)}
+                  </div>
+                  <p className="font-bold text-sm text-center truncate w-full">{p1Name}</p>
+                </div>
+                <div className="px-4 text-muted-foreground font-black italic text-lg flex-shrink-0">VS</div>
+                <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+                  <div className="w-12 h-12 rounded-full bg-secondary flex justify-center items-center font-bold text-lg border border-border flex-shrink-0">
+                    {p2Name.charAt(0)}
+                  </div>
+                  <p className="font-bold text-sm text-center truncate w-full">{p2Name}</p>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center mt-4 pt-4 border-t border-border">
+                <div className="flex flex-col gap-1">
+                  <p className="text-[10px] font-semibold text-muted-foreground">
+                    {scheduleTime} • {court}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    size="sm"
+                    onClick={() => navigate(`/referee/matches/${match.id}`)}
+                    className={isUmpire ? "shadow-[var(--auth-primary-glow)]" : ""}
+                    variant={isUmpire ? "default" : "secondary"}
+                  >
+                    {isUmpire ? t("referee.liveScoreController.execute", "Execute") : t("referee.liveScoreController.viewMatch", "View Info")}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex justify-between items-center mt-6 p-4 bg-card border border-border rounded-xl">
+          <span className="text-sm text-muted-foreground">
+            {t("common.page", "Page")} {pagination.page} {t("common.of", "of")} {pagination.totalPages}
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!pagination.hasPrevPage}
+              onClick={() => setPage(p => p - 1)}
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              {t("common.previous", "Previous")}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!pagination.hasNextPage}
+              onClick={() => setPage(p => p + 1)}
+            >
+              {t("common.next", "Next")}
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

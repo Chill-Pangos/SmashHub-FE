@@ -22,10 +22,11 @@ export const showToast = {
   /**
    * Show error message
    */
-  error: (message: string, description?: string) => {
+  error: (message: string, description?: string, options?: any) => {
     toast.error(message, {
       description,
       duration: 4000,
+      ...options,
     });
   },
 
@@ -84,6 +85,7 @@ export const showToast = {
 export const showApiError = (error: unknown, fallbackMessage?: string) => {
   let errorMessage = fallbackMessage || tToast("toast.errors.INTERNAL_ERROR");
   let description: string | undefined;
+  let rawMessage: string | undefined;
 
   if (error && typeof error === "object") {
     // Handle axios error response with new error format
@@ -102,6 +104,7 @@ export const showApiError = (error: unknown, fallbackMessage?: string) => {
 
       // New error format: { success: false, error: { code, message } }
       if (response.data?.error?.message) {
+        rawMessage = response.data.error.message;
         errorMessage = getUserFriendlyMessage(
           response.data.error.code || "",
           response.data.error.message,
@@ -109,6 +112,7 @@ export const showApiError = (error: unknown, fallbackMessage?: string) => {
       }
       // Fallback to old format
       else if (response.data?.message) {
+        rawMessage = response.data.message;
         errorMessage = getUserFriendlyMessage(
           response.data.message,
           response.data.message,
@@ -117,6 +121,7 @@ export const showApiError = (error: unknown, fallbackMessage?: string) => {
     }
     // Handle Error object
     else if ("message" in error && typeof error.message === "string") {
+      rawMessage = error.message;
       errorMessage = error.message;
     }
     // Handle ApiResponse error format
@@ -125,11 +130,20 @@ export const showApiError = (error: unknown, fallbackMessage?: string) => {
       error.success === false &&
       "message" in error
     ) {
-      errorMessage = (error as { message: string }).message;
+      rawMessage = (error as { message: string }).message;
+      errorMessage = rawMessage;
     }
   }
 
-  showToast.error(errorMessage, description);
+  let action;
+  if (rawMessage && rawMessage !== errorMessage) {
+    action = {
+      label: "Chi tiết",
+      onClick: () => toast.error("Chi tiết lỗi API", { description: rawMessage, duration: 10000 }),
+    };
+  }
+
+  showToast.error(errorMessage, description, action ? { action } : undefined);
 };
 
 /**

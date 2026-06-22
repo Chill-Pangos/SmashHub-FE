@@ -1,5 +1,6 @@
 import type { TournamentContent } from "./tournament.types";
 import type { MatchSet } from "./matchSet.types";
+import type { SubMatch } from "./subMatch.types";
 
 // ==================== Enums ====================
 
@@ -45,6 +46,8 @@ export interface Match {
   entryB?: MatchEntry;
   schedule?: MatchSchedule;
   matchSets?: MatchSet[];
+  matchReferees?: MatchReferee[];
+  subMatches?: SubMatch[];
 }
 
 /**
@@ -72,6 +75,23 @@ export interface MatchSchedule {
   createdAt: string;
   updatedAt: string;
   tournamentContent?: TournamentContent;
+}
+
+/**
+ * Match referee info (nested)
+ */
+export interface MatchReferee {
+  id: number;
+  matchId: number;
+  refereeId: number;
+  createdAt: string;
+  updatedAt: string;
+  referee: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
 }
 
 // ==================== Request Types ====================
@@ -175,7 +195,15 @@ export type GetMatchesByStatusResponse = { rows: Match[]; count: number };
  * Get matches by category response
  */
 export interface GetMatchesByCategoryResponse {
-  schedules: any[];
+  matches: Match[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
 }
 
 /**
@@ -224,7 +252,14 @@ export interface FinalizeMatchResponse {
  */
 export interface GetPendingMatchesResponse {
   matches: Match[];
-  count: number;
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
 }
 
 // Normalize athlete responses to use page/limit

@@ -7,9 +7,20 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { MapPin, User, Clock, Trophy, Shield, Calendar } from "lucide-react";
+import { showToast, showApiError } from "@/utils/toast.utils";
 import { useTranslation } from "react-i18next";
 
 export default function PendingInvitations() {
@@ -30,21 +41,33 @@ export default function PendingInvitations() {
     isOpen: false,
     invitationId: null,
   });
+  const [declineOpenId, setDeclineOpenId] = useState<number | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
 
   const handleAccept = (invitationId: number) => {
-    acceptInvite({ invitationId });
+    acceptInvite({ invitationId }, {
+      onSuccess: () => showToast.success(t("pendingInvitations.acceptSuccess", "Invitation accepted successfully")),
+      onError: (err: any) => showApiError(err, t("pendingInvitations.acceptError", "Failed to accept invitation")),
+    });
   };
 
   const handleReject = (invitationId: number) => {
-    rejectInvite({ invitationId });
+    rejectInvite({ invitationId }, {
+      onSuccess: () => showToast.success(t("pendingInvitations.rejectSuccess", "Invitation declined successfully")),
+      onError: (err: any) => showApiError(err, t("pendingInvitations.rejectError", "Failed to decline invitation")),
+    });
   };
 
   const handleRejectWithReason = () => {
     if (rejectModal.invitationId) {
-      rejectInvite({ invitationId: rejectModal.invitationId, rejectionReason });
-      setRejectModal({ isOpen: false, invitationId: null });
-      setRejectionReason("");
+      rejectInvite({ invitationId: rejectModal.invitationId, rejectionReason }, {
+        onSuccess: () => {
+          showToast.success(t("pendingInvitations.rejectSuccess", "Invitation declined successfully"));
+          setRejectModal({ isOpen: false, invitationId: null });
+          setRejectionReason("");
+        },
+        onError: (err: any) => showApiError(err, t("pendingInvitations.rejectError", "Failed to decline invitation")),
+      });
     }
   };
 
@@ -137,7 +160,7 @@ export default function PendingInvitations() {
                     <Button
                       variant="outline"
                       className="flex-1 border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground text-[11px]"
-                      onClick={() => handleReject(inv.id)}
+                      onClick={() => setDeclineOpenId(inv.id)}
                       disabled={accepting || rejecting}
                     >
                       {t("pendingInvitations.decline", "Decline")}
@@ -191,6 +214,31 @@ export default function PendingInvitations() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AlertDialog open={declineOpenId !== null} onOpenChange={(open) => !open && setDeclineOpenId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("pendingInvitations.declineConfirmTitle", "Decline Invitation?")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("pendingInvitations.declineConfirmDesc", "Are you sure you want to decline this referee invitation?")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={rejecting}>{t("common.cancel", "Cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (declineOpenId !== null) {
+                  handleReject(declineOpenId);
+                  setDeclineOpenId(null);
+                }
+              }}
+              disabled={rejecting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {rejecting ? t("common.declining", "Declining...") : t("common.decline", "Decline")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

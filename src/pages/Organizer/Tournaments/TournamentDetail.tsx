@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTournament, useCancelTournament } from "@/hooks/queries"; // Đảm bảo đường dẫn này đúng với project của bạn
 import scheduleConfigService from "@/services/scheduleConfig.service";
+import { showToast, showApiError } from "@/utils/toast.utils";
 
 import { Calendar, MapPin, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -201,7 +202,11 @@ export default function TournamentDetail() {
               onClick={(e) => {
                 e.preventDefault();
                 cancelMutation.mutate(id, {
-                  onSuccess: () => setIsCancelDialogOpen(false)
+                  onSuccess: () => {
+                    setIsCancelDialogOpen(false);
+                    showToast.success("Tournament cancelled successfully");
+                  },
+                  onError: (err: any) => showApiError(err, "Failed to cancel tournament"),
                 });
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

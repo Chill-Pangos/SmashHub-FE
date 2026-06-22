@@ -18,7 +18,7 @@ import DeleteConfirmDialog from "./components/DeleteConfirmDialog";
 import AssignPermissionsModal from "./components/AssignPermissionsModal";
 import type { Role } from "@/types/role.types";
 import type { Permission } from "@/types/permission.types";
-import { toast } from "sonner";
+import { showToast, showApiError } from "@/utils/toast.utils";
 import { useTranslation } from "react-i18next";
 
 export default function RolesPermissions() {
@@ -60,10 +60,11 @@ export default function RolesPermissions() {
     if (!selectedRole) return;
     deleteRole.mutate(selectedRole.id, {
       onSuccess: () => {
-        toast.success(t("adminRoles.roleDeleted", "Role deleted"));
+        showToast.success(t("adminRoles.roleDeleted", "Role deleted"));
+        setSelectedRole(null);
         setRoleDeleteOpen(false);
       },
-      onError: (err: any) => toast.error(err.message || t("adminRoles.deleteRoleError", "Failed to delete role")),
+      onError: (err: any) => showApiError(err, t("adminRoles.deleteRoleError", "Failed to delete role")),
     });
   };
 
@@ -71,10 +72,11 @@ export default function RolesPermissions() {
     if (!selectedPerm) return;
     deletePermission.mutate(selectedPerm.id, {
       onSuccess: () => {
-        toast.success(t("adminRoles.permissionDeleted", "Permission deleted"));
+        showToast.success(t("adminRoles.permissionDeleted", "Permission deleted"));
+        setSelectedPerm(null);
         setPermDeleteOpen(false);
       },
-      onError: (err: any) => toast.error(err.message || t("adminRoles.deletePermissionError", "Failed to delete permission")),
+      onError: (err: any) => showApiError(err, t("adminRoles.deletePermissionError", "Failed to delete permission")),
     });
   };
 

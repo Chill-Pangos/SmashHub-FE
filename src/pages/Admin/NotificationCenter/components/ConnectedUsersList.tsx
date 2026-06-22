@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useConnectedUsers, useDisconnectUser } from "@/hooks/queries/useNotificationQueries";
+import { showToast, showApiError } from "@/utils/toast.utils";
 import { Users, PowerOff, Loader2 } from "lucide-react";
-import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 
@@ -23,11 +23,11 @@ export default function ConnectedUsersList() {
       { userId },
       {
         onSuccess: () => {
-          toast.success(t("adminNotifications.userDisconnected", { userId, defaultValue: `User ${userId} disconnected` }));
+          showToast.success(t("adminNotifications.userDisconnected", { userId, defaultValue: `User ${userId} disconnected` }));
           refetch();
         },
         onError: (err: any) => {
-          toast.error(err.message || t("adminNotifications.disconnectFailed", "Failed to disconnect user"));
+          showApiError(err, t("adminNotifications.disconnectFailed", "Failed to disconnect user"));
         },
       }
     );

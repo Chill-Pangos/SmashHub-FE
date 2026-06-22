@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSendNotification } from "@/hooks/queries/useNotificationQueries";
-import { toast } from "sonner";
+import { showToast, showApiError } from "@/utils/toast.utils";
 import { Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -38,13 +38,13 @@ export default function SendNotificationForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.message) {
-      toast.error(t("adminNotifications.validationError", "Title and Message are required"));
+      showToast.error(t("adminNotifications.validationError", "Title and Message are required"));
       return;
     }
 
     sendNotification.mutate(formData, {
       onSuccess: () => {
-        toast.success(t("adminNotifications.sendSuccess", "Notification sent successfully"));
+        showToast.success(t("adminNotifications.sendSuccess", "Notification sent successfully"));
         setFormData({
           title: "",
           message: "",
@@ -55,7 +55,7 @@ export default function SendNotificationForm() {
         });
       },
       onError: (err: any) => {
-        toast.error(err.message || t("adminNotifications.sendError", "Failed to send notification"));
+        showApiError(err, t("adminNotifications.sendError", "Failed to send notification"));
       },
     });
   };
