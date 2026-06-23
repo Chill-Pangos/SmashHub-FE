@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { MatchDetailModal } from "@/components/custom/MatchDetailModal";
+import { useMatch } from "@/hooks/queries/useMatchQueries";
 
 export interface KnockoutMatch {
   round: string;
@@ -18,6 +21,7 @@ interface ChampionshipBracketProps {
 
 export function ChampionshipBracket({ matches, rounds }: ChampionshipBracketProps) {
   const { t } = useTranslation();
+  const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
 
   if (rounds && rounds.length > 0) {
     return (
@@ -36,7 +40,11 @@ export function ChampionshipBracket({ matches, rounds }: ChampionshipBracketProp
                   </h4>
                   <div className="space-y-8">
                     {round.brackets?.map((bracket: any) => (
-                      <BracketMatchCard key={bracket.id} bracket={bracket} />
+                      <BracketMatchCard 
+                        key={bracket.id} 
+                        bracket={bracket} 
+                        onClick={() => setSelectedMatchId(bracket.id)}
+                      />
                     ))}
                   </div>
                 </div>
@@ -44,6 +52,8 @@ export function ChampionshipBracket({ matches, rounds }: ChampionshipBracketProp
             );
           })}
         </div>
+        
+        <MatchDetailModal matchId={selectedMatchId} onClose={() => setSelectedMatchId(null)} />
       </div>
     );
   }
@@ -96,19 +106,48 @@ export function ChampionshipBracket({ matches, rounds }: ChampionshipBracketProp
   );
 }
 
-function BracketMatchCard({ bracket }: { bracket: any }) {
+function BracketMatchCard({ bracket, onClick }: { bracket: any, onClick?: () => void }) {
   const { t } = useTranslation();
   const isLive = bracket.status === "in_progress";
+  
+  const { data: matchDetail } = useMatch(bracket.id, { 
+    enabled: bracket.status === 'completed' || bracket.status === 'in_progress'
+  });
+
   const playerA = bracket.entryA?.entryName || "TBD";
   const playerB = bracket.entryB?.entryName || "TBD";
-  const scoreA = bracket.entryA?.entryId ? (bracket.setsWonA ?? "-") : null;
-  const scoreB = bracket.entryB?.entryId ? (bracket.setsWonB ?? "-") : null;
+  
+  let finalScoreA: number | string = bracket.setsWonA ?? "-";
+  let finalScoreB: number | string = bracket.setsWonB ?? "-";
+
+  if (matchDetail && matchDetail.subMatches) {
+    const isTeam = (matchDetail.schedule as any)?.tournamentCategory?.type === 'team';
+    if (isTeam) {
+      finalScoreA = matchDetail.subMatches.filter((sm: any) => sm.winnerTeam === 'A').length || 0;
+      finalScoreB = matchDetail.subMatches.filter((sm: any) => sm.winnerTeam === 'B').length || 0;
+    } else {
+      const mainSubMatch = matchDetail.subMatches[0];
+      if (mainSubMatch && mainSubMatch.matchSets) {
+        let a = 0;
+        let b = 0;
+        mainSubMatch.matchSets.forEach((set: any) => {
+          if (set.entryAScore > set.entryBScore) a++;
+          else if (set.entryBScore > set.entryAScore) b++;
+        });
+        finalScoreA = a;
+        finalScoreB = b;
+      }
+    }
+  }
+
   const winnerA = bracket.winnerEntryId && bracket.winnerEntryId === bracket.entryA?.entryId;
   const winnerB = bracket.winnerEntryId && bracket.winnerEntryId === bracket.entryB?.entryId;
 
   return (
-    <div className={`bg-background border border-border rounded-lg p-3 relative overflow-hidden transition-all
+    <div 
+      className={`bg-background border border-border rounded-lg p-3 relative overflow-hidden transition-all cursor-pointer hover:border-primary/50
       ${isLive ? 'border-primary shadow-[0_0_15px_rgba(0,242,255,0.1)]' : ''}`}
+      onClick={onClick}
     >
       <div className={`absolute left-0 top-0 bottom-0 w-1 ${isLive || bracket.status === "completed" ? 'bg-primary' : 'bg-muted'}`} />
       
@@ -129,7 +168,7 @@ function BracketMatchCard({ bracket }: { bracket: any }) {
               {playerA}
             </span>
             <span className={`font-bold ${winnerA ? 'text-primary' : 'text-foreground'}`}>
-              {scoreA ?? '-'}
+              {finalScoreA}
             </span>
           </div>
 
@@ -138,7 +177,7 @@ function BracketMatchCard({ bracket }: { bracket: any }) {
               {playerB}
             </span>
             <span className={`font-bold ${winnerB ? 'text-primary' : 'text-foreground'}`}>
-              {scoreB ?? '-'}
+              {finalScoreB}
             </span>
           </div>
         </div>

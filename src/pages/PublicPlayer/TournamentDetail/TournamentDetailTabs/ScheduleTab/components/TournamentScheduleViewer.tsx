@@ -33,8 +33,8 @@ export default function TournamentScheduleViewer({
           playerA: m.entryA?.name || "TBD",
           playerB: m.entryB?.name || "TBD",
           status: m.status,
-          scoreA: null, // Update when score structure is clear
-          scoreB: null,
+          scoreA: m.setsWonA ?? null,
+          scoreB: m.setsWonB ?? null,
         }));
       });
 
@@ -95,8 +95,8 @@ export default function TournamentScheduleViewer({
           entryB: m.entryB ? { entryId: m.entryB.id, entryName: m.entryB.name } : null,
           winnerEntryId: m.winnerEntryId,
           scheduledAt: m.scheduledAt,
-          setsWonA: null, // Update when score structure is clear
-          setsWonB: null,
+          setsWonA: m.setsWonA ?? null,
+          setsWonB: m.setsWonB ?? null,
         }))
       };
     });
