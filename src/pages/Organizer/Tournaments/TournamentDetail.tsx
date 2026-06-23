@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTournament, useCancelTournament } from "@/hooks/queries"; // Đảm bảo đường dẫn này đúng với project của bạn
 import scheduleConfigService from "@/services/scheduleConfig.service";
 import { showToast, showApiError } from "@/utils/toast.utils";
+import { useTranslation } from "react-i18next";
 
 import { Calendar, MapPin, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ import {
 export default function TournamentDetail() {
   const { tournamentId } = useParams();
   const id = tournamentId ? parseInt(tournamentId, 10) : 0;
+  const { t } = useTranslation();
 
   // Lấy data từ hook API
   const {
@@ -123,9 +125,7 @@ export default function TournamentDetail() {
       <div className="space-y-4">
         {/* Status & ID Badge */}
         <div className="flex items-center gap-3">
-          <span className="rounded bg-primary px-2 py-1 text-xs font-bold uppercase tracking-wider text-primary-foreground">
-            {tournament.status}
-          </span>
+          <span className="rounded bg-primary px-2 py-1 text-xs font-bold uppercase tracking-wider text-primary-foreground">{t(`constants.status.tournament.${tournament.status}`, tournament.status) as string}</span>
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             ID: TRN-{new Date(tournament.createdAt).getFullYear()}-
             {tournament.id.toString().padStart(3, "0")}

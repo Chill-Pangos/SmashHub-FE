@@ -97,6 +97,7 @@ export function ChampionshipBracket({ matches, rounds, onEntryClick }: Champions
 }
 
 function BracketMatchCard({ bracket, onEntryClick }: { bracket: any, onEntryClick?: (entryId: number) => void }) {
+  const { t } = useTranslation();
   const isLive = bracket.status === "in_progress";
   const playerA = bracket.entryA?.entryName || "TBD";
   const playerB = bracket.entryB?.entryName || "TBD";
@@ -118,7 +119,7 @@ function BracketMatchCard({ bracket, onEntryClick }: { bracket: any, onEntryClic
             ${isLive ? 'text-destructive bg-destructive/10 px-2 py-0.5 rounded' : 
               bracket.status === 'completed' ? 'text-primary bg-primary/10 px-2 py-0.5 rounded' : ''}`}
           >
-            {bracket.status}
+            {t(`constants.status.match.${bracket.status}`, bracket.status) as string}
           </span>
         </div>
 
@@ -153,6 +154,7 @@ function BracketMatchCard({ bracket, onEntryClick }: { bracket: any, onEntryClic
 }
 
 function MatchCard({ match }: { match: KnockoutMatch }) {
+  const { t } = useTranslation();
   const isLive = match.status === "LIVE";
   
   return (
@@ -168,7 +170,7 @@ function MatchCard({ match }: { match: KnockoutMatch }) {
             ${isLive ? 'text-destructive bg-destructive/10 px-2 py-0.5 rounded' : 
               match.status === 'COMPLETED' ? 'text-primary bg-primary/10 px-2 py-0.5 rounded' : ''}`}
           >
-            {match.status}
+            {t(`constants.status.match.${match.status}`, match.status) as string}
           </span>
         </div>
 

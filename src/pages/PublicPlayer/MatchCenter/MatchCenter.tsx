@@ -81,7 +81,7 @@ export default function MatchCenter() {
                       </div>
                     </div>
                     <div>
-                      <Badge>{match.status}</Badge>
+                      <Badge>{t(`constants.status.match.${match.status}`, match.status) as string}</Badge>
                       {isRejected && (
                         <Badge variant="destructive" className="ml-2">
                           {t("publicPlayer.matchCenter.lineupRejected", "Lineup Rejected")}

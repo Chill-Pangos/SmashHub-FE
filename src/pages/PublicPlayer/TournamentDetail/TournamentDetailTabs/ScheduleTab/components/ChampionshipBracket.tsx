@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 export interface KnockoutMatch {
   round: string;
   time: string;
@@ -63,6 +65,7 @@ export function ChampionshipBracket({ matches }: ChampionshipBracketProps) {
 }
 
 function MatchCard({ match }: { match: KnockoutMatch }) {
+  const { t } = useTranslation();
   const isLive = match.status === "LIVE";
   
   return (
@@ -78,7 +81,7 @@ function MatchCard({ match }: { match: KnockoutMatch }) {
             ${isLive ? 'text-destructive bg-destructive/10 px-2 py-0.5 rounded' : 
               match.status === 'COMPLETED' ? 'text-primary bg-primary/10 px-2 py-0.5 rounded' : ''}`}
           >
-            {match.status}
+            {t(`constants.status.match.${match.status}`, match.status) as string}
           </span>
         </div>
 

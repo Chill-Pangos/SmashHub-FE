@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, MapPin, Users, Search } from "lucide-react";
-import { useTournaments } from "@/hooks/queries";
+import { useTournaments, useScheduleConfigsByTournaments } from "@/hooks/queries";
 import type { Tournament } from "@/types";
 import ServerPagination from "@/components/custom/ServerPagination";
 import { useTranslation } from "react-i18next";
@@ -24,8 +24,21 @@ export default function PublicTournamentListing() {
   const apiTournaments = data?.tournaments || [];
   const pagination = data?.pagination;
 
+  const scheduleConfigQueries = useScheduleConfigsByTournaments(
+    apiTournaments.map((t) => t.id)
+  );
+
+  const scheduleConfigsDep = JSON.stringify(
+    scheduleConfigQueries.map((q) => q.data)
+  );
+
   const filtered = useMemo(() => {
-    let items = apiTournaments.slice();
+    const configs = JSON.parse(scheduleConfigsDep);
+    let items = apiTournaments.map((t, index) => ({
+      ...t,
+      startDate: configs[index]?.startDate || t.startDate,
+      endDate: configs[index]?.endDate || t.endDate,
+    }));
     if (query) {
       const q = query.toLowerCase();
       items = items.filter(
@@ -35,9 +48,9 @@ export default function PublicTournamentListing() {
       );
     }
     // Default sort by start date descending
-    items.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+    items.sort((a, b) => new Date(b.startDate || "").getTime() - new Date(a.startDate || "").getTime());
     return items;
-  }, [apiTournaments, query]);
+  }, [apiTournaments, scheduleConfigsDep, query]);
 
   return (
     <div className="container mx-auto px-6 py-12 space-y-8 max-w-5xl">
@@ -69,38 +82,38 @@ export default function PublicTournamentListing() {
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filtered.map((t: Tournament) => {
+            {filtered.map((tournament: Tournament) => {
               const participants =
-                t.categories?.reduce((sum, cat) => sum + (cat.maxEntries || 0), 0) ?? 0;
+                tournament.categories?.reduce((sum, cat) => sum + (cat.maxEntries || 0), 0) ?? 0;
               return (
                 <Link
-                  key={t.id}
-                  to={`/tournaments/${t.id}`}
+                  key={tournament.id}
+                  to={`/tournaments/${tournament.id}`}
                   className="group flex flex-col items-start gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm hover:shadow-md hover:border-primary/50 transition-all"
                 >
                   <div className="flex-1 w-full min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="rounded bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
-                        {t.status}
+                        {t(`constants.status.tournament.${tournament.status}`, tournament.status) as string}
                       </span>
-                      {t.tier && (
+                      {tournament.tier && (
                         <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                          Tier {t.tier}
+                          Tier {tournament.tier}
                         </span>
                       )}
                     </div>
                     <h3 className="truncate text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                      {t.name}
+                      {tournament.name}
                     </h3>
                     <div className="mt-4 flex flex-col gap-2 text-sm text-muted-foreground font-medium">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-primary/70" />
-                        <span>{formatDateRange(t.startDate, t.endDate)}</span>
+                        <span>{formatDateRange(tournament.startDate, tournament.endDate)}</span>
                       </div>
-                      {t.location && (
+                      {tournament.location && (
                         <div className="flex items-center gap-2">
                           <MapPin className="h-4 w-4 text-primary/70" />
-                          <span>{t.location}</span>
+                          <span>{tournament.location}</span>
                         </div>
                       )}
                       <div className="flex items-center gap-2">

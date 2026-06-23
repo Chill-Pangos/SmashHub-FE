@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Check, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -271,11 +272,9 @@ export default function ResultsSubmissionTab() {
                     {match.p1} <span className="text-muted-foreground mx-1">{t("referee.resultsSubmission.vs", "vs")}</span> {match.p2}
                   </p>
                   <div className="flex items-center gap-2 mt-2">
-                    <span
-                      className={`text-[10px] px-2 py-0.5 rounded font-bold ${match.status === "READY" ? "bg-primary/20 text-primary" : "bg-destructive/20 text-destructive"}`}
-                    >
-                      {match.status}
-                    </span>
+                    <Badge variant="outline" className="ml-2 uppercase">
+                      {t(`constants.status.match.${match.status}`, match.status) as string}
+                    </Badge>
                     <span className="text-[10px] text-muted-foreground">
                       {match.court} • {t("referee.resultsSubmission.completed", "Completed")} {match.finishedAt}
                     </span>

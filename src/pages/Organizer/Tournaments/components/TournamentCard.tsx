@@ -166,9 +166,7 @@ export default function TournamentCard({
       <div className="ml-4 flex-shrink-0 text-right">
         {tournament.status ? (
           <div className="flex flex-col items-end gap-2">
-            <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
-              {tournament.status}
-            </span>
+            <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">{t(`constants.status.tournament.${tournament.status}`, tournament.status) as string}</span>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleEdit}

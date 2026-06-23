@@ -121,9 +121,7 @@ export default function PublicTournamentDetail() {
       {/* HEADER SECTION */}
       <div className="space-y-6">
         <div className="flex items-center gap-3">
-          <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary ring-1 ring-primary/20">
-            {tournament.status}
-          </span>
+          <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary ring-1 ring-primary/20">{t(`constants.status.tournament.${tournament.status}`, tournament.status) as string}</span>
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             ID: TRN-{new Date(tournament.createdAt).getFullYear()}-{tournament.id.toString().padStart(3, "0")}
           </span>

@@ -25,6 +25,7 @@ import { TournamentList, TournamentFilters } from "./components";
 import {
   useTournaments,
   useUpcomingTournamentStatusChanges,
+  useScheduleConfigsByTournaments,
 } from "@/hooks/queries";
 import ServerPagination from "@/components/custom/ServerPagination";
 import { useTranslation } from "react-i18next";
@@ -41,10 +42,23 @@ export default function Tournaments() {
   const pagination = data?.pagination;
   const { data: upcomingChanges } = useUpcomingTournamentStatusChanges(24);
 
+  const scheduleConfigQueries = useScheduleConfigsByTournaments(
+    apiTournaments.map((t) => t.id)
+  );
+
+  const scheduleConfigsDep = JSON.stringify(
+    scheduleConfigQueries.map((q) => q.data)
+  );
+
   const sample = apiTournaments;
 
   const filtered = useMemo(() => {
-    let items = sample.slice();
+    const configs = JSON.parse(scheduleConfigsDep);
+    let items = sample.map((t, index) => ({
+      ...t,
+      startDate: configs[index]?.startDate || t.startDate,
+      endDate: configs[index]?.endDate || t.endDate,
+    }));
     if (query) {
       const q = query.toLowerCase();
       items = items.filter(
@@ -73,7 +87,7 @@ export default function Tournaments() {
     }
 
     return items;
-  }, [sample, query, sort]);
+  }, [sample, scheduleConfigsDep, query, sort]);
 
   const now = new Date();
   const startOfWeek = new Date(now);

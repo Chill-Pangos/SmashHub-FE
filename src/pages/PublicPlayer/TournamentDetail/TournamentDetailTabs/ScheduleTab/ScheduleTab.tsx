@@ -14,11 +14,13 @@ import type {
   TournamentContent,
 } from "@/types/tournament.types";
 import { useTranslation } from "react-i18next";
-
+import type { ScheduleConfigResponse } from "@/types/scheduleConfig.types";
+import PublicScheduleView from "../../PublicScheduleView";
 
 interface ScheduleTabProps {
   tournamentId: number;
   tournament: Tournament;
+  scheduleConfig?: ScheduleConfigResponse;
 }
 
 type ScheduleOption = {
@@ -49,6 +51,7 @@ const buildOptions = (tournament: Tournament): ScheduleOption[] => {
 export default function ScheduleTab({
   tournamentId,
   tournament,
+  scheduleConfig,
 }: ScheduleTabProps) {
   const { t } = useTranslation();
   const options = useMemo(() => buildOptions(tournament), [tournament]);
@@ -81,8 +84,15 @@ export default function ScheduleTab({
   const error = schedulesQuery.error;
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <div className="space-y-8">
+      {scheduleConfig && (
+        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <PublicScheduleView config={scheduleConfig} />
+        </div>
+      )}
+
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-xl font-semibold">{t("publicPlayer.tournamentDetail.scheduleTab.title")}</h2>
           <p className="text-sm text-muted-foreground">
@@ -161,6 +171,7 @@ export default function ScheduleTab({
             schedulesOverride={schedulesData}
           />
         )}
+      </div>
     </div>
   );
 }

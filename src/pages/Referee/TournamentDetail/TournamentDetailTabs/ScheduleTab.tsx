@@ -69,7 +69,7 @@ export default function ScheduleTab() {
                   <div className="flex items-center gap-3 mb-2">
                     <span className="text-sm font-bold text-primary">{t("referee.scheduleTab.matchNumber", "Match #")}{match.id}</span>
                     <Badge variant="outline">{category}</Badge>
-                    <Badge>{match.status}</Badge>
+                    <Badge>{t(`constants.status.match.${match.status}`, match.status) as string}</Badge>
                   </div>
                   <p className="font-semibold">
                     {player1} <span className="text-muted-foreground mx-2">{t("referee.scheduleTab.vs", "vs")}</span> {player2}

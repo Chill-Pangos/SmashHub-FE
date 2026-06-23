@@ -398,7 +398,7 @@ function MatchListItem({ match, selectedMatch, setSelectedMatch, setIsDetailOpen
             <span
               className={`text-[10px] px-2 py-0.5 rounded font-bold ${match.status === "completed" ? "bg-primary/20 text-primary" : "bg-destructive/20 text-destructive"}`}
             >
-              {match.status}
+              {t(`constants.status.match.${match.status}`, match.status) as string}
             </span>
             <span className="text-[10px] text-muted-foreground">
               {mCourt} • {mTime}

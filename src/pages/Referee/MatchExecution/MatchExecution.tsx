@@ -71,7 +71,7 @@ export default function MatchExecution() {
     <div className="px-6 py-10 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">{t("matchExecution.title", "Match Execution #")}{match.id}</h1>
-        <Badge>{match.status}</Badge>
+        <Badge>{t(`constants.status.match.${match.status}`, match.status) as string}</Badge>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -241,7 +241,7 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
       <CardHeader>
         <CardTitle className="flex justify-between">
           <span>{t("matchExecution.subMatchTitle", "Sub-Match #")}{subMatch.subMatchNumber}</span>
-          <Badge>{subMatch.status}</Badge>
+          <Badge>{t(`constants.status.match.${subMatch.status}`, subMatch.status) as string}</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">

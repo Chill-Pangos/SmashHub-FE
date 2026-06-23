@@ -42,7 +42,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
             </span>
           </div>
           <div className="mt-2 text-xs font-medium text-chart-3">
-            ~ Based on {tournament.categories?.length || 0} categories
+            ~ {t("publicPlayer.tournamentDetail.basedOn", "Based on")} {tournament.categories?.length || 0} {t("publicPlayer.tournamentDetail.categoriesCount", "categories")}
           </div>
         </div>
 
@@ -62,7 +62,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
             <div className="h-full bg-primary" style={{ width: "100%" }}></div>
           </div>
           <div className="mt-2 text-right text-xs font-medium text-muted-foreground">
-            Tier {tournament.tier ?? "-"} Event
+            {t("publicPlayer.tournamentDetail.tierEvent", "Tier {{tier}} Event", { tier: tournament.tier ?? "-" })}
           </div>
         </div>
 
@@ -83,10 +83,10 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
           </div>
           <div className="mt-3 flex gap-2">
             <span className="rounded bg-secondary px-2 py-0.5 text-xs font-semibold text-secondary-foreground">
-              Group Stage:{" "}
+              {t("publicPlayer.tournamentDetail.groupStage", "Group Stage")}:{" "}
               {tournament.categories?.some((c) => c.isGroupStage)
-                ? "Yes"
-                : "No"}
+                ? t("constants.yes", "Yes")
+                : t("constants.no", "No")}
             </span>
           </div>
         </div>
@@ -132,12 +132,12 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">{t("publicPlayer.tournamentDetail.format")}</span>
                     <span className="font-semibold">
-                      {category.isGroupStage ? "Group + KO" : "Knockout"}
+                      {category.isGroupStage ? t("publicPlayer.tournamentDetail.groupKo", "Group + KO") : t("publicPlayer.tournamentDetail.knockout", "Knockout")}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">{t("publicPlayer.tournamentDetail.bestOf")}</span>
-                    <span className="font-semibold">{category.maxSets} sets</span>
+                    <span className="font-semibold">{category.maxSets} {t("publicPlayer.tournamentDetail.sets", "sets")}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">{t("publicPlayer.tournamentDetail.maxEntries")}</span>
@@ -152,7 +152,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
                     <div className="flex justify-between items-center">
                       <span className="text-muted-foreground">{t("publicPlayer.tournamentDetail.ageLimit")}</span>
                       <span className="font-semibold">
-                        {category.minAge ?? "Any"} - {category.maxAge ?? "Any"}
+                        {category.minAge ?? t("constants.any", "Any")} - {category.maxAge ?? t("constants.any", "Any")}
                       </span>
                     </div>
                   )}
@@ -161,7 +161,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
                     <div className="flex justify-between items-center">
                       <span className="text-muted-foreground">{t("publicPlayer.tournamentDetail.eloLimit")}</span>
                       <span className="font-semibold">
-                        {category.minElo ?? "0"} - {category.maxElo ?? "Max"}
+                        {category.minElo ?? "0"} - {category.maxElo ?? t("constants.max", "Max")}
                       </span>
                     </div>
                   )}
@@ -170,7 +170,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
                 <div className="mt-4 pt-3 border-t border-border/50 flex justify-between items-center">
                   <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("publicPlayer.tournamentDetail.entryFee")}</span>
                   <span className="font-bold text-lg text-primary">
-                    {Number(category.entryFee) === 0 ? "Free" : `${category.entryFee}`}
+                    {Number(category.entryFee) === 0 ? t("constants.free", "Free") : `${category.entryFee}`}
                   </span>
                 </div>
               </div>
