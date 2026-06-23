@@ -1,3 +1,4 @@
+import constants from './constants';
 import home from './home';
 import common from './common';
 import auth from './auth';
@@ -88,4 +89,5 @@ export default {
   chatbotManagement,
   userDashboard,
   organizerDashboard,
+  constants,
 };
