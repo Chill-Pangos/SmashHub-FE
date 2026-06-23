@@ -114,8 +114,8 @@ function BracketMatchCard({ bracket, onEntryClick, onClick }: { bracket: any, on
     enabled: bracket.status === 'completed' || bracket.status === 'in_progress'
   });
 
-  const playerA = bracket.entryA?.entryName || "TBD";
-  const playerB = bracket.entryB?.entryName || "TBD";
+  const playerA = bracket.entryA?.entryName || t("match.details.tbd", "TBD");
+  const playerB = bracket.entryB?.entryName || t("match.details.tbd", "TBD");
   
   let finalScoreA: number | string = bracket.setsWonA ?? "-";
   let finalScoreB: number | string = bracket.setsWonB ?? "-";
@@ -153,7 +153,7 @@ function BracketMatchCard({ bracket, onEntryClick, onClick }: { bracket: any, on
       
       <div className="pl-2">
         <div className="flex justify-between items-center text-xs text-muted-foreground mb-3">
-          <span className="font-mono">{bracket.scheduledAt ? new Date(bracket.scheduledAt).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' }) : "TBD"}</span>
+          <span className="font-mono">{bracket.scheduledAt ? new Date(bracket.scheduledAt).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' }) : t("match.details.tbd", "TBD")}</span>
           <span className={`font-bold uppercase tracking-wider text-[10px] 
             ${isLive ? 'text-destructive bg-destructive/10 px-2 py-0.5 rounded' : 
               bracket.status === 'completed' ? 'text-primary bg-primary/10 px-2 py-0.5 rounded' : ''}`}

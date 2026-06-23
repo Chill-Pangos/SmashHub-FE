@@ -35,5 +35,19 @@ export default {
   "rejectResult": "Reject Result",
   "pendingReview": "Pending Review",
   "approved": "Approved",
-  "rejected": "Rejected"
+  "rejected": "Rejected",
+  "details": {
+    "title": "Match Details",
+    "setScores": "Set Scores",
+    "noSets": "No sets recorded yet.",
+    "noResults": "No detailed results available.",
+    "notFound": "Match not found.",
+    "subMatch": "Sub-Match",
+    "winnerTeam": "Winner: Team",
+    "set": "Set",
+    "tbd": "TBD",
+    "na": "N/A",
+    "vs": "VS",
+    "table": "Table"
+  }
 };

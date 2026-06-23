@@ -35,5 +35,19 @@ export default {
   "rejectResult": "Từ chối kết quả",
   "pendingReview": "Chờ duyệt",
   "approved": "Đã duyệt",
-  "rejected": "Đã từ chối"
+  "rejected": "Bị từ chối",
+  "details": {
+    "title": "Chi tiết trận đấu",
+    "setScores": "Tỉ số các Set",
+    "noSets": "Chưa có dữ liệu set đấu.",
+    "noResults": "Chưa có kết quả chi tiết.",
+    "notFound": "Không tìm thấy trận đấu.",
+    "subMatch": "Trận phụ",
+    "winnerTeam": "Đội thắng:",
+    "set": "Set",
+    "tbd": "Chưa rõ",
+    "na": "Trống",
+    "vs": "ĐẤU VỚI",
+    "table": "Bàn"
+  }
 };

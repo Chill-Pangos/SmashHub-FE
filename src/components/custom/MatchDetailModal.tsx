@@ -61,7 +61,7 @@ export function MatchDetailModal({ matchId, onClose }: MatchDetailModalProps) {
                 </span>
               </div>
               
-              <div className="px-6 text-sm font-black text-muted-foreground/50">VS</div>
+              <div className="px-6 text-sm font-black text-muted-foreground/50">{t("match.details.vs", "VS")}</div>
               
               <div className="flex flex-col items-center flex-1 text-center">
                 <div className={`flex items-center justify-center w-12 h-12 mb-3 rounded-full ${match.winnerEntryId === match.entryBId ? 'bg-yellow-500/20 text-yellow-500' : 'bg-chart-3/10 text-chart-3'}`}>
@@ -80,9 +80,9 @@ export function MatchDetailModal({ matchId, onClose }: MatchDetailModalProps) {
                 {match.subMatches.map((subMatch: any) => (
                   <div key={subMatch.id} className="border border-border rounded-lg overflow-hidden bg-card">
                     <div className="bg-secondary/30 px-4 py-2 border-b border-border flex justify-between items-center">
-                      <span className="text-xs font-semibold">Sub-Match {String(subMatch.subMatchNumber)}</span>
+                      <span className="text-xs font-semibold">{t("match.details.subMatch", "Sub-Match")} {String(subMatch.subMatchNumber)}</span>
                       {subMatch.winnerTeam && (
-                        <span className="text-xs font-bold text-yellow-500">Winner: Team {String(subMatch.winnerTeam)}</span>
+                        <span className="text-xs font-bold text-yellow-500">{t("match.details.winnerTeam", "Winner: Team")} {String(subMatch.winnerTeam)}</span>
                       )}
                     </div>
                     <div className="p-4 flex flex-col gap-2">
@@ -92,7 +92,7 @@ export function MatchDetailModal({ matchId, onClose }: MatchDetailModalProps) {
                             <span className={`font-bold text-sm w-12 text-center ${set.entryAScore > set.entryBScore ? 'text-primary' : 'text-muted-foreground'}`}>
                               {set.entryAScore}
                             </span>
-                            <span className="text-xs font-mono text-muted-foreground">Set {set.setNumber}</span>
+                            <span className="text-xs font-mono text-muted-foreground">{t("match.details.set", "Set")} {set.setNumber}</span>
                             <span className={`font-bold text-sm w-12 text-center ${set.entryBScore > set.entryAScore ? 'text-chart-3' : 'text-muted-foreground'}`}>
                               {set.entryBScore}
                             </span>

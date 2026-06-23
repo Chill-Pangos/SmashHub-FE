@@ -47,13 +47,13 @@ export default function MatchListView({ schedules }: MatchListViewProps) {
 
 function MatchListCard({ schedule, match, onClick }: { schedule: any, match: any, onClick: () => void }) {
   const { t } = useTranslation();
-  const entryA = match.entryA?.name || "TBD";
-  const entryB = match.entryB?.name || "TBD";
+  const entryA = match.entryA?.name || t("match.details.tbd", "TBD");
+  const entryB = match.entryB?.name || t("match.details.tbd", "TBD");
   const isCompleted = match.status === "completed";
   const isInProgress = match.status === "in_progress";
   const timeFormatted = schedule.scheduledAt 
       ? format(new Date(schedule.scheduledAt), "MMM dd, yyyy - HH:mm") 
-      : "TBD";
+      : t("match.details.tbd", "TBD");
 
   let badgeClass = "bg-secondary text-secondary-foreground";
   if (isCompleted) badgeClass = "bg-primary/20 text-primary";
@@ -97,14 +97,14 @@ function MatchListCard({ schedule, match, onClick }: { schedule: any, match: any
               </span>
               <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-secondary/50 px-2 py-1 rounded-md">
                 <Hash className="w-3.5 h-3.5" />
-                <span>Table {schedule.tableNumber || "TBD"}</span>
+                <span>{t("match.details.table", "Table")} {schedule.tableNumber || t("match.details.tbd", "TBD")}</span>
               </div>
             </div>
 
             <div className="flex items-center gap-2 mb-3 text-sm font-medium text-muted-foreground">
               <span className="capitalize">{schedule.stage}</span>
               <span className="w-1 h-1 rounded-full bg-border" />
-              <span>{schedule.groupName || schedule.knockoutRound || "N/A"}</span>
+              <span>{schedule.groupName || schedule.knockoutRound || t("match.details.na", "N/A")}</span>
             </div>
 
             <div className="flex items-center justify-between flex-1 p-4 mb-4 border rounded-lg bg-secondary/20 border-border/50">
@@ -120,7 +120,7 @@ function MatchListCard({ schedule, match, onClick }: { schedule: any, match: any
                 )}
               </div>
               
-              <div className="px-4 text-xs font-bold text-muted-foreground/50">VS</div>
+              <div className="px-4 text-xs font-bold text-muted-foreground/50">{t("match.details.vs", "VS")}</div>
               
               <div className="flex flex-col items-center flex-1 text-center">
                 <div className={`flex items-center justify-center w-10 h-10 mb-2 rounded-full ${match.winnerEntryId === match.entryBId ? 'bg-yellow-500/20 text-yellow-500' : 'bg-chart-3/10 text-chart-3'}`}>

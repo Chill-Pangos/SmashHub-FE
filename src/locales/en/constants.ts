@@ -8,8 +8,8 @@ export default {
       "cancelled": "Cancelled"
     },
     "match": {
-      "pending": "Pending",
-      "ongoing": "Ongoing",
+      "scheduled": "Scheduled",
+      "in_progress": "In Progress",
       "completed": "Completed",
       "cancelled": "Cancelled",
       "walkover": "Walkover"

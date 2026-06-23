@@ -8,8 +8,8 @@ export default {
       "cancelled": "Đã hủy"
     },
     "match": {
-      "pending": "Chờ thi đấu",
-      "ongoing": "Đang diễn ra",
+      "scheduled": "Chờ thi đấu",
+      "in_progress": "Đang diễn ra",
       "completed": "Đã hoàn thành",
       "cancelled": "Đã hủy",
       "walkover": "Xử thua (Walkover)"
