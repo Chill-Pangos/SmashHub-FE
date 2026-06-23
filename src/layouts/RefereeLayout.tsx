@@ -5,7 +5,6 @@ import PortalSidebar, {
   type PortalSidebarSection,
 } from "@/components/custom/PortalSidebar";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
-import { useNotificationConnection } from "@/hooks/useNotificationConnection";
 import { useTranslation } from "@/hooks/useTranslation";
 import { getRefereeSidebarConfig } from "@/config/sidebarConfigs";
 import PortalHeader from "@/components/custom/PortalHeader";
@@ -14,7 +13,6 @@ import { useAuth, useRole } from "@/store";
 export default function RefereeLayout() {
   const { t } = useTranslation();
   const { logout } = useAuthOperations();
-  useNotificationConnection();
   const { user } = useAuth();
   const { getRoleNames } = useRole();
 
