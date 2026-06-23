@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { TournamentScheduleViewer } from "./components";
+import { TournamentScheduleViewer, MatchListView } from "./components";
 import {
   Select,
   SelectContent,
@@ -13,7 +13,9 @@ import type {
   TournamentCategory,
   TournamentContent,
 } from "@/types/tournament.types";
+import type { ScheduleStage } from "@/types/schedule.types";
 import { useTranslation } from "react-i18next";
+import ServerPagination from "@/components/custom/ServerPagination";
 import type { ScheduleConfigResponse } from "@/types/scheduleConfig.types";
 import PublicScheduleView from "../../PublicScheduleView";
 
@@ -56,6 +58,9 @@ export default function ScheduleTab({
   const { t } = useTranslation();
   const options = useMemo(() => buildOptions(tournament), [tournament]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number>(0);
+  const [stage, setStage] = useState<ScheduleStage | undefined>(undefined);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
   useEffect(() => {
     if (options.length === 0) {
@@ -71,12 +76,14 @@ export default function ScheduleTab({
   }, [options, selectedCategoryId]);
 
   const schedulesQuery = useSchedulesByCategory(selectedCategoryId, {
-    page: 1,
-    limit: 100,
+    stage: stage,
+    page: page,
+    limit: limit,
     enabled: selectedCategoryId > 0,
   });
 
   const schedulesData = schedulesQuery.data?.data;
+  const pagination = schedulesData?.pagination;
   const scheduleCount = schedulesData?.schedules?.length ?? 0;
   
   const hasSchedule = scheduleCount > 0;
@@ -115,6 +122,27 @@ export default function ScheduleTab({
               ))}
             </SelectContent>
           </Select>
+        )}
+        
+        {options.length > 0 && selectedCategoryId > 0 && (
+          <div className="flex gap-2">
+            <Select
+              value={stage || "all"}
+              onValueChange={(val) => {
+                setStage(val === "all" ? undefined : (val as ScheduleStage));
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="All Stages" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Stages</SelectItem>
+                <SelectItem value="group">Group Stage</SelectItem>
+                <SelectItem value="knockout">Knockout</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         )}
       </div>
 
@@ -165,11 +193,44 @@ export default function ScheduleTab({
         !isLoading &&
         !error &&
         hasSchedule && (
-          <TournamentScheduleViewer
-            contentId={selectedCategoryId}
-            tournamentId={tournamentId} // TRUYỀN tournamentId XUỐNG ĐÂY
-            schedulesOverride={schedulesData}
-          />
+          <div className="space-y-8">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold">Match List</h3>
+                <span className="px-2 py-1 text-xs font-semibold rounded-md bg-secondary text-muted-foreground">
+                  {pagination?.total || 0} Matches
+                </span>
+              </div>
+              <MatchListView schedules={schedulesData?.schedules || []} />
+              
+              {pagination && (
+                <div className="mt-6">
+                  <ServerPagination
+                    skip={(page - 1) * limit}
+                    limit={limit}
+                    total={pagination.total}
+                    hasNext={pagination.hasNextPage}
+                    hasPrevious={pagination.hasPrevPage}
+                    isLoading={isLoading}
+                    onSkipChange={(nextSkip) => setPage(Math.floor(nextSkip / limit) + 1)}
+                    onLimitChange={(nextLimit) => {
+                      setLimit(nextLimit);
+                      setPage(1);
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="pt-8 border-t border-border">
+              <h3 className="text-lg font-bold mb-6">Tournament Bracket</h3>
+              <TournamentScheduleViewer
+                contentId={selectedCategoryId}
+                tournamentId={tournamentId} 
+                schedulesOverride={schedulesData}
+              />
+            </div>
+          </div>
         )}
       </div>
     </div>
