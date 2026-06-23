@@ -5,6 +5,7 @@ import PortalSidebar, {
   type PortalSidebarSection,
 } from "@/components/custom/PortalSidebar";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
+import { useNotificationConnection } from "@/hooks/useNotificationConnection";
 import { useTranslation } from "@/hooks/useTranslation";
 import { adminSidebarConfig } from "@/config/sidebarConfigs";
 import PortalHeader from "@/components/custom/PortalHeader";
@@ -12,6 +13,7 @@ import PortalHeader from "@/components/custom/PortalHeader";
 export default function AdminLayout() {
   const { t } = useTranslation();
   const { logout } = useAuthOperations();
+  useNotificationConnection();
 
   // Get sections from config with translations
   const sections: PortalSidebarSection[] = adminSidebarConfig.sections(t);
