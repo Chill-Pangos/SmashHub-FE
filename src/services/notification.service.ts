@@ -15,6 +15,11 @@ import type {
   AdminSystemSummaryResponse,
 } from "@/types/notification.types";
 
+type RawConnectedUsersResponse = GetConnectedUsersResponse & {
+  totalConnectedUsers?: number;
+  connectedUserIds?: string[];
+};
+
 /**
  * Notification Service
  * Handles all notification-related API calls (REST endpoints)
@@ -146,10 +151,22 @@ class NotificationService {
    * console.log(`${result.data.totalConnectedUsers} users online`);
    */
   async getConnectedUsers(): Promise<GetConnectedUsersResponse> {
-    const response = await axiosInstance.get<GetConnectedUsersResponse>(
+    const response = await axiosInstance.get<RawConnectedUsersResponse>(
       `${this.baseURL}/connected-users`,
     );
-    return response.data;
+    const payload = response.data;
+
+    if (payload.data) {
+      return payload;
+    }
+
+    return {
+      success: payload.success ?? true,
+      data: {
+        totalConnectedUsers: payload.totalConnectedUsers ?? 0,
+        connectedUserIds: payload.connectedUserIds ?? [],
+      },
+    };
   }
 
   /**

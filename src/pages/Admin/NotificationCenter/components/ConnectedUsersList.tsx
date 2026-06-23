@@ -15,7 +15,9 @@ import { useTranslation } from "react-i18next";
 
 export default function ConnectedUsersList() {
   const { t } = useTranslation();
-  const { data, isLoading, refetch } = useConnectedUsers();
+  const { data, isLoading, isError, refetch } = useConnectedUsers({
+    refetchInterval: 30000,
+  });
   const disconnectUser = useDisconnectUser();
 
   const handleDisconnect = (userId: string) => {
@@ -65,6 +67,12 @@ export default function ConnectedUsersList() {
                     <Loader2 className="h-6 w-6 animate-spin mb-2" />
                     {t("adminNotifications.fetching", "Fetching connections...")}
                   </div>
+                </TableCell>
+              </TableRow>
+            ) : isError ? (
+              <TableRow>
+                <TableCell colSpan={2} className="h-32 text-center text-destructive">
+                  {t("adminNotifications.fetchConnectionsFailed", "Failed to fetch active connections.")}
                 </TableCell>
               </TableRow>
             ) : users.length === 0 ? (

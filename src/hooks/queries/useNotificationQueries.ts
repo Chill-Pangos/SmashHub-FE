@@ -19,11 +19,15 @@ export const useNotificationInbox = (
   });
 };
 
-export const useConnectedUsers = (options?: { enabled?: boolean }) => {
+export const useConnectedUsers = (options?: {
+  enabled?: boolean;
+  refetchInterval?: number;
+}) => {
   return useQuery({
     queryKey: queryKeys.notifications.connectedUsers(),
     queryFn: () => notificationService.getConnectedUsers(),
     enabled: options?.enabled ?? true,
+    refetchInterval: options?.refetchInterval,
   });
 };
 
