@@ -20,6 +20,7 @@ import {
   Trophy,
   Users,
   Wifi,
+  Database,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -67,9 +68,33 @@ export default function AdminDashboard() {
   const traffic = summary?.traffic;
   const realtime = summary?.realtime;
   const alerts = summary?.alerts;
-  const serviceSummary = summary
-    ? `DB ${summary.services.db} / Redis ${summary.services.redis} / Socket ${summary.services.socket} / Cron ${summary.services.cron}`
-    : t("adminPage.dashboard.noSystemSnapshot", "No system snapshot");
+  const services = summary?.services;
+  const serviceCards = [
+    {
+      key: "db",
+      title: "Database",
+      value: services?.db,
+      icon: Database,
+    },
+    {
+      key: "redis",
+      title: "Redis",
+      value: services?.redis,
+      icon: Activity,
+    },
+    {
+      key: "socket",
+      title: "Socket.IO",
+      value: services?.socket,
+      icon: Wifi,
+    },
+    {
+      key: "cron",
+      title: "Cron",
+      value: services?.cron,
+      icon: Activity,
+    },
+  ];
 
   useEffect(() => {
     if (systemSummary?.data) {
@@ -135,7 +160,9 @@ export default function AdminDashboard() {
               {summary?.status ?? "--"}
             </div>
             <p className="truncate text-xs text-muted-foreground">
-              {serviceSummary}
+              {summary?.generatedAt
+                ? new Date(summary.generatedAt).toLocaleTimeString()
+                : t("adminPage.dashboard.noSystemSnapshot", "No system snapshot")}
             </p>
           </CardContent>
         </Card>
@@ -157,6 +184,33 @@ export default function AdminDashboard() {
             </p>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {serviceCards.map((service) => {
+          const Icon = service.icon;
+
+          return (
+            <Card key={service.key}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {service.title}
+                </CardTitle>
+                <Icon className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className={`text-2xl font-bold uppercase ${statusClassName(service.value)}`}>
+                  {service.value ?? "--"}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {service.value === "up"
+                    ? t("adminPage.dashboard.serviceAvailable", "Available")
+                    : t("adminPage.dashboard.serviceNeedsAttention", "Needs attention")}
+                </p>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">

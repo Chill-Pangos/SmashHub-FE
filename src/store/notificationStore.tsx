@@ -85,6 +85,8 @@ const mergeNotifications = (
 export function NotificationProvider({ children }: NotificationProviderProps) {
   const socketRef = useRef<Socket | null>(null);
   const registeredUserIdRef = useRef<string | null>(null);
+  const connectionRef = useRef<ConnectNotificationOptions | null>(null);
+  const adminRoomJoinedRef = useRef(false);
   const notificationsRef = useRef<NotificationPayload[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [notifications, setNotifications] = useState<NotificationPayload[]>([]);
@@ -107,6 +109,8 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     socketRef.current.disconnect();
     socketRef.current = null;
     registeredUserIdRef.current = null;
+    connectionRef.current = null;
+    adminRoomJoinedRef.current = false;
     setIsConnected(false);
   }, []);
 
@@ -122,10 +126,22 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     if (!accessToken) return;
 
     if (socketRef.current?.connected) {
-      if (registeredUserIdRef.current === userId) {
+      const existing = connectionRef.current;
+      const sameConnection =
+        existing?.userId === userId &&
+        existing.accessToken === accessToken &&
+        Boolean(existing.isAdmin) === isAdmin;
+
+      if (sameConnection) {
+        if (isAdmin && !adminRoomJoinedRef.current) {
+          socketRef.current.emit("join-room", "admin:system");
+          adminRoomJoinedRef.current = true;
+          console.log("Joined admin system room");
+        }
         console.log("Socket already connected");
         return;
       }
+
       disconnectSocket();
     }
 
@@ -135,6 +151,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     }
 
     // Create socket connection with auth
+    connectionRef.current = { userId, accessToken, isAdmin };
     const socket = io(SOCKET_URL, {
       auth: {
         token: accessToken,
@@ -158,12 +175,16 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
       setIsConnected(false);
     });
 
-    socket.on("registered", ({ userId: registeredUserId }: { userId?: string }) => {
+    socket.on("registered", (payload?: { userId?: string } | string) => {
+      const registeredUserId =
+        typeof payload === "string" ? payload : payload?.userId;
       registeredUserIdRef.current = String(registeredUserId ?? userId);
       console.log("Socket registered:", registeredUserIdRef.current);
 
       if (isAdmin) {
         socket.emit("join-room", "admin:system");
+        adminRoomJoinedRef.current = true;
+        console.log("Joined admin system room");
       }
     });
 
@@ -265,6 +286,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     });
 
     socket.on("admin_system_metrics_updated", (payload: AdminMetricsEvent) => {
+      console.log("Admin system metrics event:", payload);
       if (payload.type === "overview") {
         setSystemSummary(payload.data as AdminSystemSummary);
         return;
@@ -274,6 +296,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     });
 
     socket.on("admin_system_health_changed", (payload: AdminSystemHealthChangedEvent) => {
+      console.log("Admin system health event:", payload);
       setSystemSummary((prev) => {
         if (!prev) return null;
 
