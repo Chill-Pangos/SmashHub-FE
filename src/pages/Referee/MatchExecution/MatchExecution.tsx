@@ -36,6 +36,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { showToast, showApiError } from "@/utils/toast.utils";
 import { useTranslation } from "react-i18next";
@@ -139,8 +140,9 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
   const { data: liveScoreResp } = useLiveScore(subMatch.id, activeSetNumber);
   const liveScore = liveScoreResp?.liveScore;
 
-  const { mutate: updateScore } = useUpdateLiveScore();
+  const { mutate: updateScore, isPending: updatingScore } = useUpdateLiveScore();
   const [scoreStatus, setScoreStatus] = useState<any>(null);
+  const [scoreHistory, setScoreHistory] = useState<{a: number, b: number}[]>([]);
 
   // Lineup Approval Logic
   const { data: pendingLineupsResp } = usePendingLineups();
@@ -175,24 +177,30 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
   };
 
   const handleScore = (team: "A" | "B", action: "add" | "subtract") => {
-    let entryAScore = liveScore?.entryAScore || 0;
-    let entryBScore = liveScore?.entryBScore || 0;
+    let currentA = liveScore?.entryAScore || 0;
+    let currentB = liveScore?.entryBScore || 0;
+
+    let newA = currentA;
+    let newB = currentB;
 
     if (team === "A") {
-      entryAScore += action === "add" ? 1 : -1;
+      newA += action === "add" ? 1 : -1;
     } else {
-      entryBScore += action === "add" ? 1 : -1;
+      newB += action === "add" ? 1 : -1;
     }
 
-    if (entryAScore < 0) entryAScore = 0;
-    if (entryBScore < 0) entryBScore = 0;
+    if (newA < 0) newA = 0;
+    if (newB < 0) newB = 0;
+
+    // push to history
+    setScoreHistory(prev => [...prev, { a: currentA, b: currentB }]);
 
     updateScore(
       {
         subMatchId: subMatch.id,
         setNumber: activeSetNumber,
-        entryAScore,
-        entryBScore,
+        entryAScore: newA,
+        entryBScore: newB,
       },
       {
         onSuccess: (data: any) => {
@@ -202,11 +210,28 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
           }
           if (data?.nextSetNumber) {
             setActiveSetNumber(data.nextSetNumber);
+            setScoreHistory([]); // clear history on new set
           }
         },
-        onError: (err: any) => showApiError(err, t("matchExecution.updateScoreError", "Failed to update score")),
+        onError: (err: any) => {
+          showApiError(err, t("matchExecution.updateScoreError", "Failed to update score"));
+          // revert history
+          setScoreHistory(prev => prev.slice(0, -1));
+        },
       }
     );
+  };
+
+  const handleUndoScore = () => {
+    if (scoreHistory.length === 0) return;
+    const prev = scoreHistory[scoreHistory.length - 1];
+    setScoreHistory(curr => curr.slice(0, -1));
+    updateScore({
+      subMatchId: subMatch.id,
+      setNumber: activeSetNumber,
+      entryAScore: prev.a,
+      entryBScore: prev.b,
+    });
   };
 
   const isSubMatchReady = scoreStatus?.subMatchReadyToFinalize;
@@ -273,15 +298,33 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
               </AlertDialog>
             )}
             {isUmpire ? (
-              <Button
-                onClick={() => startSubMatch(subMatch.id, {
-                  onSuccess: () => showToast.success(t("matchExecution.startSubMatchSuccess", "Sub-match started successfully")),
-                  onError: (err: any) => showApiError(err, t("matchExecution.startSubMatchError", "Failed to start sub-match")),
-                })}
-                disabled={starting || hasPendingLineup}
-              >
-                {t("matchExecution.startSubMatch", "Start Sub-Match")}
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button disabled={starting || hasPendingLineup}>
+                    {t("matchExecution.startSubMatch", "Start Sub-Match")}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t("matchExecution.startConfirmTitle", "Start Sub-Match?")}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t("matchExecution.startConfirmDesc", "Are you sure you want to start this sub-match? Make sure players are ready.")}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t("common.cancel", "Cancel")}</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => startSubMatch(subMatch.id, {
+                        onSuccess: () => showToast.success(t("matchExecution.startSubMatchSuccess", "Sub-match started successfully")),
+                        onError: (err: any) => showApiError(err, t("matchExecution.startSubMatchError", "Failed to start sub-match")),
+                      })}
+                      disabled={starting}
+                    >
+                      {starting ? t("common.starting", "Starting...") : t("common.start", "Start")}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             ) : (
               <p className="text-sm text-muted-foreground text-center italic py-2">
                 {t("matchExecution.waitingForUmpireToStart", "Waiting for Umpire to start the match...")}
@@ -314,17 +357,25 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
                       size="sm"
                       variant="outline"
                       onClick={() => handleScore("A", "subtract")}
+                      disabled={updatingScore}
                     >
                       -
                     </Button>
-                    <Button size="sm" onClick={() => handleScore("A", "add")}>
+                    <Button size="sm" onClick={() => handleScore("A", "add")} disabled={updatingScore}>
                       +
                     </Button>
                   </div>
                 )}
               </div>
 
-              <span className="text-2xl font-bold text-muted-foreground">-</span>
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-2xl font-bold text-muted-foreground">-</span>
+                {isUmpire && scoreHistory.length > 0 && (
+                  <Button size="sm" variant="ghost" onClick={handleUndoScore} disabled={updatingScore} className="text-xs h-6 px-2 text-muted-foreground hover:text-foreground">
+                    {t("matchExecution.undo", "Undo")}
+                  </Button>
+                )}
+              </div>
 
               <div className="flex flex-col items-center gap-2">
                 <span className="font-bold">{t("matchExecution.teamB", "Team B")}</span>
@@ -333,13 +384,14 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
                 </span>
                 {isUmpire && (
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => handleScore("B", "add")}>
+                    <Button size="sm" onClick={() => handleScore("B", "add")} disabled={updatingScore}>
                       +
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleScore("B", "subtract")}
+                      disabled={updatingScore}
                     >
                       -
                     </Button>
@@ -349,22 +401,42 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
             </div>
 
             {isUmpire && (
-              <Button
-                className="w-full"
-                variant={isSubMatchReady ? "default" : "secondary"}
-                onClick={() => finalizeSubMatch(subMatch.id, {
-                  onSuccess: (data: any) => {
-                    showToast.success(t("matchExecution.finalizeSubMatchSuccess", "Sub-match finalized successfully"));
-                    if (data?.matchReadyToFinalize) {
-                      onMatchReady();
-                    }
-                  },
-                  onError: (err: any) => showApiError(err, t("matchExecution.finalizeSubMatchError", "Failed to finalize sub-match")),
-                })}
-                disabled={finalizing}
-              >
-                {t("matchExecution.finalizeSubMatch", "Finalize Sub-Match")}
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    className="w-full"
+                    variant={isSubMatchReady ? "default" : "secondary"}
+                    disabled={finalizing}
+                  >
+                    {t("matchExecution.finalizeSubMatch", "Finalize Sub-Match")}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t("matchExecution.finalizeConfirmTitle", "Finalize Sub-Match?")}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t("matchExecution.finalizeConfirmDesc", "Are you sure you want to finalize this sub-match? You won't be able to change the score afterwards.")}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t("common.cancel", "Cancel")}</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => finalizeSubMatch(subMatch.id, {
+                        onSuccess: (data: any) => {
+                          showToast.success(t("matchExecution.finalizeSubMatchSuccess", "Sub-match finalized successfully"));
+                          if (data?.matchReadyToFinalize) {
+                            onMatchReady();
+                          }
+                        },
+                        onError: (err: any) => showApiError(err, t("matchExecution.finalizeSubMatchError", "Failed to finalize sub-match")),
+                      })}
+                      disabled={finalizing}
+                    >
+                      {finalizing ? t("common.finalizing", "Finalizing...") : t("common.finalize", "Finalize")}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
           </div>
         )}
