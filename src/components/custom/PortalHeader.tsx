@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import LanguageSwitcher from "@/components/custom/LanguageSwitcher";
+import NotificationDropdown from "@/components/custom/NotificationDropdown";
 import ThemeToggle from "@/components/custom/ThemeToggle";
 import { useAuth } from "@/store/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -151,6 +152,7 @@ export default function PortalHeader() {
       <div className="ml-auto flex items-center gap-2">
         <LanguageSwitcher />
         <ThemeToggle />
+        {user ? <NotificationDropdown /> : null}
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

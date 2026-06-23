@@ -23,6 +23,10 @@ import {
   Users,
 } from "lucide-react";
 import { useNotification } from "@/store";
+import {
+  useMarkAllNotificationsRead,
+  useMarkNotificationRead,
+} from "@/hooks/queries/useNotificationQueries";
 import { formatDistanceToNow } from "date-fns";
 import { vi, enUS } from "date-fns/locale";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -53,19 +57,31 @@ export default function NotificationDropdown() {
   const {
     notifications,
     unreadCount,
-    markAsRead,
+    markNotificationRead,
+    markAllNotificationsRead,
     clearNotifications,
     isConnected,
   } = useNotification();
+  const markOneReadMutation = useMarkNotificationRead();
+  const markAllReadMutation = useMarkAllNotificationsRead();
   const [open, setOpen] = useState(false);
   const dateLocale = i18n.language === "vi" ? vi : enUS;
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
     if (newOpen && unreadCount > 0) {
-      // Mark all as read when opening
-      markAsRead();
+      markAllReadMutation.mutate(undefined, {
+        onSuccess: markAllNotificationsRead,
+      });
     }
+  };
+
+  const handleNotificationClick = (notificationId?: number) => {
+    if (!notificationId) return;
+
+    markOneReadMutation.mutate(notificationId, {
+      onSuccess: () => markNotificationRead(notificationId),
+    });
   };
 
   return (
@@ -122,8 +138,9 @@ export default function NotificationDropdown() {
             <DropdownMenuGroup>
               {notifications.map((notification, index) => (
                 <DropdownMenuItem
-                  key={index}
+                  key={notification.id ?? `${notification.type}-${notification.timestamp}-${index}`}
                   className="flex items-start gap-3 p-3 cursor-pointer"
+                  onClick={() => handleNotificationClick(notification.id)}
                 >
                   <div className="mt-0.5">
                     {getNotificationIcon(notification.type)}
@@ -151,7 +168,14 @@ export default function NotificationDropdown() {
         {notifications.length > 0 && (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="justify-center text-primary">
+            <DropdownMenuItem
+              className="justify-center text-primary"
+              onClick={() =>
+                markAllReadMutation.mutate(undefined, {
+                  onSuccess: markAllNotificationsRead,
+                })
+              }
+            >
               <Check className="h-4 w-4 mr-2" />
               {t("components.notificationDropdown.markAllAsRead")}
             </DropdownMenuItem>

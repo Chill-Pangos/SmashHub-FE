@@ -3,9 +3,21 @@ import { notificationService } from "@/services";
 import { queryKeys } from "./queryKeys";
 import type {
   DisconnectUserRequest,
+  NotificationFilters,
   SendEventRequest,
   SendNotificationRequest,
 } from "@/types/notification.types";
+
+export const useNotificationInbox = (
+  filters: NotificationFilters = { offset: 0, limit: 20 },
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: queryKeys.notifications.list(filters),
+    queryFn: () => notificationService.getNotifications(filters),
+    enabled: options?.enabled ?? true,
+  });
+};
 
 export const useConnectedUsers = (options?: { enabled?: boolean }) => {
   return useQuery({
@@ -31,6 +43,47 @@ export const useUserConnectionStatus = (
     queryKey: queryKeys.notifications.userStatus(userId),
     queryFn: () => notificationService.checkUserConnection(userId),
     enabled: (options?.enabled ?? true) && !!userId,
+  });
+};
+
+export const useAdminSystemSummary = (options?: { enabled?: boolean }) => {
+  return useQuery({
+    queryKey: queryKeys.notifications.adminSystemSummary(),
+    queryFn: () => notificationService.getAdminSystemSummary(),
+    enabled: options?.enabled ?? true,
+  });
+};
+
+export const useMarkNotificationRead = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (notificationId: number) =>
+      notificationService.markNotificationRead(notificationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.notifications.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.notifications.unread(),
+      });
+    },
+  });
+};
+
+export const useMarkAllNotificationsRead = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => notificationService.markAllNotificationsRead(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.notifications.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.notifications.unread(),
+      });
+    },
   });
 };
 

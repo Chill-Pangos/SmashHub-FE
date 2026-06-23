@@ -1,6 +1,12 @@
 import React, { useState, useEffect, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import type { User, AuthData, UserRoleInput, UserRole } from "@/types";
+import type {
+  User,
+  AuthData,
+  UserRoleInput,
+  UserRole,
+  AuthTokens,
+} from "@/types";
 import authService from "@/services/auth.service";
 import { userService } from "@/services";
 import {
@@ -74,6 +80,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Initialize auth state from localStorage on mount
   useEffect(() => {
     void checkAuth();
+  }, []);
+
+  useEffect(() => {
+    const handleTokensRefreshed = (event: Event) => {
+      const detail = (event as CustomEvent<AuthTokens>).detail;
+      if (!detail?.accessToken || !detail.refreshToken) return;
+
+      setAuthState((prev) => ({
+        ...prev,
+        accessToken: detail.accessToken,
+        refreshToken: detail.refreshToken,
+        isAuthenticated: prev.isAuthenticated || Boolean(prev.user),
+      }));
+    };
+
+    window.addEventListener("auth:tokens-refreshed", handleTokensRefreshed);
+
+    return () => {
+      window.removeEventListener(
+        "auth:tokens-refreshed",
+        handleTokensRefreshed,
+      );
+    };
   }, []);
 
   const checkAuth = async () => {

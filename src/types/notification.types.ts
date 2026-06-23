@@ -24,11 +24,148 @@ export type ServiceStatus = "healthy" | "degraded" | "down";
  * Notification payload (received by client)
  */
 export interface NotificationPayload {
+  id?: number;
   type: string;
   title: string;
   message: string;
   data?: Record<string, unknown>;
   timestamp: string;
+  isRead?: boolean;
+  readAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  source?: "inbox" | "realtime";
+}
+
+export interface RealtimeNotification {
+  type: string;
+  title: string;
+  message: string;
+  data?: {
+    notificationId?: number;
+    notificationIds?: number[];
+    referenceId?: number;
+    referenceType?: string;
+    payload?: unknown;
+    [key: string]: unknown;
+  };
+  timestamp?: string;
+}
+
+export interface NotificationInboxItem {
+  id: number;
+  userId: number;
+  type: string;
+  title: string;
+  message: string;
+  referenceId?: number | null;
+  referenceType?: string | null;
+  data?: Record<string, unknown> | null;
+  isRead: boolean;
+  readAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NotificationFilters {
+  offset?: number;
+  limit?: number;
+  isRead?: boolean;
+  type?: string;
+}
+
+export interface NotificationInboxResponse {
+  success: boolean;
+  data: {
+    rows: NotificationInboxItem[];
+    count: number;
+    unreadCount: number;
+  };
+}
+
+export interface MarkNotificationReadResponse {
+  success: boolean;
+  data?: NotificationInboxItem;
+  message?: string;
+}
+
+export interface MarkAllNotificationsReadResponse {
+  success: boolean;
+  data?: {
+    updatedCount?: number;
+  };
+  message?: string;
+}
+
+// ==================== Admin System Types ====================
+
+export type AdminSystemStatus = "ok" | "warning" | "critical";
+export type AdminServiceStatus = "up" | "down" | "degraded";
+export type AdminTrafficWindow = "1m" | "5m" | "15m";
+
+export interface AdminSystemSummary {
+  status: AdminSystemStatus;
+  uptimeSeconds: number;
+  resources: {
+    cpu: {
+      percent: number;
+      status: AdminSystemStatus;
+      label: string;
+    };
+    ram: {
+      percent: number;
+      status: AdminSystemStatus;
+      label: string;
+      usedGb: number;
+      totalGb: number;
+    };
+    disk: {
+      percent: number | null;
+      status: AdminSystemStatus;
+      label: string;
+      path: string | null;
+      usedGb: number | null;
+      totalGb: number | null;
+    };
+  };
+  services: {
+    db: AdminServiceStatus;
+    redis: AdminServiceStatus;
+    socket: AdminServiceStatus;
+    cron: AdminServiceStatus;
+  };
+  traffic: {
+    window: AdminTrafficWindow;
+    requestCount: number;
+    errorPercent: number;
+    p95LatencyMs: number;
+  };
+  realtime: {
+    connectedUsers: number;
+    roomCount: number;
+  };
+  alerts: {
+    total: number;
+    critical: number;
+    warning: number;
+  };
+  generatedAt: string;
+}
+
+export interface AdminSystemSummaryResponse {
+  success: boolean;
+  data: AdminSystemSummary;
+}
+
+export type AdminSystemHealthChangedEvent = Pick<
+  AdminSystemSummary,
+  "status" | "services" | "resources" | "alerts" | "generatedAt"
+>;
+
+export interface AdminMetricsEvent {
+  type: "overview" | "cron";
+  data: AdminSystemSummary | Record<string, unknown>;
+  generatedAt?: string;
 }
 
 // ==================== Request Types ====================
