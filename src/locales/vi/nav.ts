@@ -1,0 +1,23 @@
+export default {
+  "home": "Trang chủ",
+  "dashboard": "Bảng điều khiển",
+  "tournaments": "Giải đấu",
+  "brackets": "Nhánh đấu",
+  "elo": "ELO",
+  "schedule": "Lịch thi đấu",
+  "matches": "Trận đấu",
+  "teams": "Đội",
+  "athletes": "Vận động viên",
+  "referees": "Trọng tài",
+  "rankings": "Bảng xếp hạng",
+  "notifications": "Thông báo",
+  "profile": "Hồ sơ",
+  "settings": "Cài đặt",
+  "help": "Trợ giúp",
+  "about": "Giới thiệu",
+  "contact": "Liên hệ",
+  "analytics": "Phân tích",
+  "team": "Đội của tôi",
+  "eloHistory": "Lịch sử ELO",
+  "chatbot": "Trợ lý AI"
+};

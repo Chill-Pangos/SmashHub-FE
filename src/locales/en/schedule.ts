@@ -1,0 +1,20 @@
+export default {
+  "schedule": "Schedule",
+  "schedules": "Schedules",
+  "scheduleGenerator": "Schedule Generator",
+  "generateSchedule": "Generate Schedule",
+  "scheduleList": "Schedule List",
+  "mySchedule": "My Schedule",
+  "teamSchedule": "Team Schedule",
+  "tournamentSchedule": "Tournament Schedule",
+  "date": "Date",
+  "time": "Time",
+  "venue": "Venue",
+  "round": "Round",
+  "group": "Group",
+  "knockoutStage": "Knockout Stage",
+  "groupStage": "Group Stage",
+  "final": "Final",
+  "semiFinal": "Semi Final",
+  "quarterFinal": "Quarter Final"
+};

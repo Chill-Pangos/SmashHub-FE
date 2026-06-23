@@ -1,0 +1,23 @@
+export default {
+  "title": "User Profile",
+  "avatarTitle": "Avatar",
+  "avatarDesc": "Click to upload a new avatar.",
+  "detailsTitle": "Profile Details",
+  "detailsDesc": "Manage your personal information.",
+  "firstName": "First Name",
+  "lastName": "Last Name",
+  "email": "Email",
+  "phoneNumber": "Phone Number",
+  "dob": "Date of Birth",
+  "selectDate": "Select Date",
+  "gender": "Gender",
+  "selectGender": "Select gender",
+  "male": "Male",
+  "female": "Female",
+  "securityTitle": "Security Settings",
+  "securityDesc": "Manage account security and verification.",
+  "uploadAvatarSuccess": "Avatar uploaded successfully",
+  "uploadAvatarError": "Failed to upload avatar",
+  "updateSuccess": "Profile updated successfully",
+  "updateError": "Failed to update profile"
+};

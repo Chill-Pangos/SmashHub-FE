@@ -1,0 +1,22 @@
+export default {
+  "schedule": "Lịch thi đấu",
+  "schedules": "Các lịch thi đấu",
+  "scheduleGenerator": "Tạo lịch thi đấu",
+  "generateSchedule": "Tạo lịch tự động",
+  "scheduleList": "Danh sách lịch",
+  "mySchedule": "Lịch của tôi",
+  "teamSchedule": "Lịch đội",
+  "tournamentSchedule": "Lịch giải đấu",
+  "date": "Ngày",
+  "time": "Giờ",
+  "venue": "Sân",
+  "round": "Vòng",
+  "group": "Bảng",
+  "knockoutStage": "Vòng loại trực tiếp",
+  "groupStage": "Vòng bảng",
+  "final": "Chung kết",
+  "semiFinal": "Bán kết",
+  "quarterFinal": "Tứ kết",
+  "notDetermined": "Chưa xác định",
+  "table": "Bàn"
+};

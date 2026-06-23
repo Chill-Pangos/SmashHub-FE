@@ -1,0 +1,167 @@
+export default {
+  "required": "This field is required",
+  "invalidEmail": "Invalid email",
+  "invalidPhone": "Invalid phone number",
+  "passwordTooShort": "Password must be at least 8 characters",
+  "passwordMismatch": "Passwords do not match",
+  "invalidDate": "Invalid date",
+  "invalidNumber": "Invalid number",
+  "minLength": "Minimum length is {{min}} characters",
+  "maxLength": "Maximum length is {{max}} characters",
+  "minValue": "Minimum value is {{min}}",
+  "maxValue": "Maximum value is {{max}}",
+  "invalidFormat": "Invalid format",
+  "fieldRequired": "{{field}} is required",
+  "passwordStrength": {
+    "weak": "Weak",
+    "medium": "Medium",
+    "strong": "Strong"
+  },
+  "fields": {
+    "firstName": "First name",
+    "lastName": "Last name"
+  },
+  "auth": {
+    "emailRequired": "Email is required",
+    "emailInvalid": "Email format is invalid",
+    "passwordRequired": "Password is required",
+    "passwordMinLength": "Password must be at least 8 characters",
+    "passwordLowercaseRequired": "Password must contain at least one lowercase letter",
+    "passwordUppercaseRequired": "Password must contain at least one uppercase letter",
+    "passwordNumberRequired": "Password must contain at least one number",
+    "passwordTooWeak": "Password is too weak. Please choose a stronger password",
+    "confirmPasswordRequired": "Please confirm your password",
+    "confirmPasswordMismatch": "Password confirmation does not match",
+    "usernameRequired": "Username is required",
+    "usernameMinLength": "Username must be at least 3 characters",
+    "usernameMaxLength": "Username must not exceed 30 characters",
+    "usernameInvalid": "Username can only contain letters, numbers, underscores, and hyphens",
+    "nameRequired": "{{field}} is required",
+    "nameMinLength": "{{field}} must be at least 2 characters",
+    "nameMaxLength": "{{field}} must not exceed 50 characters",
+    "nameInvalidCharacters": "{{field}} can only contain letters, spaces, apostrophes, or hyphens",
+    "otpRequired": "OTP is required",
+    "otpInvalid": "OTP must be exactly 6 digits",
+    "oldPasswordRequired": "Current password is required",
+    "newPasswordMustDiffer": "New password must be different from current password"
+  },
+  "tournament": {
+    "nameRequired": "Tournament name is required",
+    "nameMinLength": "Tournament name must be at least 3 characters",
+    "nameMaxLength": "Tournament name must not exceed 255 characters",
+    "locationRequired": "Tournament location is required",
+    "locationMinLength": "Tournament location must be at least 3 characters",
+    "locationMaxLength": "Tournament location must not exceed 255 characters",
+    "tablesMin": "Number of tables must be at least 1",
+    "tablesMax": "Number of tables must not exceed 100",
+    "tablesInteger": "Number of tables must be an integer",
+    "startDateRequired": "Tournament start date is required",
+    "endDateRequired": "Tournament end date is required",
+    "startDateInvalid": "Tournament start date is invalid",
+    "endDateInvalid": "Tournament end date is invalid",
+    "startDatePast": "Tournament start date cannot be in the past",
+    "endDateAfterStart": "Tournament end date must be after or equal to start date"
+  },
+  "content": {
+    "nameRequired": "Content name is required",
+    "nameMinLength": "Content name must be at least 3 characters",
+    "nameMaxLength": "Content name must not exceed 255 characters",
+    "maxEntriesMin": "Maximum entries must be at least 2",
+    "maxEntriesMax": "Maximum entries must not exceed 1024",
+    "maxEntriesPowerOfTwo": "Maximum entries must be a power of 2 (2, 4, 8, 16, ...)",
+    "maxSetsMin": "Maximum sets must be at least 1",
+    "maxSetsMax": "Maximum sets must not exceed 5",
+    "maxSetsOdd": "Maximum sets must be an odd number",
+    "contentsMin": "At least one content is required",
+    "contentsMaxOne": "Only one content is allowed per tournament"
+  },
+  "teamFormat": {
+    "singlesRequired": "Number of singles matches is required",
+    "doublesRequired": "Number of doubles matches is required",
+    "singlesNonNegative": "Number of singles matches must be non-negative",
+    "doublesNonNegative": "Number of doubles matches must be non-negative",
+    "totalMin": "Total matches (single + double) must be at least 1",
+    "totalOdd": "Total matches (single + double) must be an odd number",
+    "singlesOnlyTeam": "Singles matches are only allowed for team format",
+    "doublesOnlyTeam": "Doubles matches are only allowed for team format"
+  },
+  "age": {
+    "minAgeMin": "Minimum age must be non-negative",
+    "minAgeInvalid": "Minimum age is invalid",
+    "maxAgeMin": "Maximum age must be non-negative",
+    "maxAgeInvalid": "Maximum age is invalid",
+    "maxAgeGreaterThanMin": "Maximum age must be greater than minimum age"
+  },
+  "elo": {
+    "minEloNonNegative": "Minimum ELO must be non-negative",
+    "minEloInvalid": "Minimum ELO is invalid",
+    "maxEloNonNegative": "Maximum ELO must be non-negative",
+    "maxEloInvalid": "Maximum ELO is invalid",
+    "maxEloGreaterThanMin": "Maximum ELO must be greater than minimum ELO"
+  },
+  "filters": {
+    "pageMin": "Page must be greater than or equal to 1",
+    "limitMin": "Limit must be greater than 0",
+    "limitMax": "Limit must not exceed 100",
+    "userIdInvalid": "User ID is invalid",
+    "createdByInvalid": "Creator ID is invalid",
+    "genderInvalid": "Gender must be male, female, or mixed",
+    "racketCheckBoolean": "Racket check must be a boolean value",
+    "isGroupStageBoolean": "Group stage flag must be a boolean value"
+  },
+  "role": {
+    "nameRequired": "Role name is required",
+    "nameMinLength": "Role name must be at least 2 characters",
+    "nameMaxLength": "Role name must not exceed 50 characters",
+    "nameInvalid": "Role name can only contain letters, numbers, spaces, hyphens, and underscores",
+    "descriptionMaxLength": "Role description must not exceed 500 characters"
+  },
+  "matchSet": {
+    "scoreNonNegative": "Scores must be non-negative",
+    "winScoreMin": "Winning score must be at least 11",
+    "capRule": "At cap, the game must end at 30-29",
+    "deuceRule": "After 10-10, the winner must lead by at least 2 points",
+    "setNumberMin": "Set number must be greater than 0",
+    "setNumberMax": "Set number must not exceed {{maxSets}}"
+  },
+  "schedule": {
+    "startDateRequired": "Schedule start date is required",
+    "endDateRequired": "Schedule end date is required",
+    "startDateInvalid": "Schedule start date is invalid",
+    "endDateInvalid": "Schedule end date is invalid",
+    "endDateAfterOrEqualStart": "Schedule end date must be after or equal to start date",
+    "timeRequired": "Match start time is required",
+    "timeInvalidFormat": "Time format is invalid (expected HH:MM or HH:MM:SS)",
+    "durationMin": "Match duration must be greater than 0",
+    "durationMax": "Match duration must not exceed 300 minutes",
+    "durationInteger": "Match duration must be an integer",
+    "tablesMin": "Number of schedule tables must be at least 1",
+    "tablesMax": "Number of schedule tables must not exceed 100",
+    "tablesInteger": "Number of schedule tables must be an integer"
+  },
+  "knockout": {
+    "positionMin": "Bracket position must be greater than 0",
+    "positionInvalid": "Bracket position is invalid",
+    "roundMin": "Round number must be greater than 0",
+    "roundMax": "Round number must not exceed {{maxRounds}}",
+    "sizeMin": "Bracket size must be at least 2",
+    "sizeMax": "Bracket size must not exceed 256",
+    "sizePowerOfTwo": "Bracket size must be a power of 2 (2, 4, 8, 16, 32, 64, 128, 256)"
+  },
+  "group": {
+    "nameRequired": "Group name is required",
+    "nameMaxLength": "Group name must not exceed 50 characters",
+    "numberOfGroupsMin": "Number of groups must be at least 1",
+    "numberOfGroupsMax": "Number of groups must not exceed 32",
+    "teamsPerGroupMin": "Teams per group must be at least 2",
+    "teamsPerGroupMax": "Teams per group must not exceed 16",
+    "qualifiedTeamsMin": "Qualified teams per group must be at least 1",
+    "qualifiedTeamsMax": "Qualified teams must not exceed teams per group"
+  },
+  "match": {
+    "statusCurrentInvalid": "Current match status is invalid",
+    "statusTransitionInvalid": "Cannot transition status from \"{{currentStatus}}\" to \"{{newStatus}}\"",
+    "tableNumberMin": "Table number must be greater than 0",
+    "tableNumberMax": "Table number must not exceed 100"
+  }
+};
