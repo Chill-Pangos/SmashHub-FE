@@ -16,6 +16,7 @@ import {
   useRejectLineups,
 } from "@/hooks/queries/useSubMatchPlayerQueries";
 import { useCurrentUser } from "@/hooks/queries/useAuthQueries";
+import { useMatchRealtime } from "@/hooks/queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +45,7 @@ import { useTranslation } from "react-i18next";
 export default function MatchExecution() {
   const { t } = useTranslation();
   const { matchId } = useParams();
+  useMatchRealtime({ matchId: Number(matchId) });
 
   const { data: matchResp, isLoading: matchLoading } = useMatch(
     Number(matchId)

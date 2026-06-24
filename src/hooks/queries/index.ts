@@ -4,6 +4,7 @@ export * from "./useTournamentQueries";
 export * from "./useTournamentCategoryQueries";
 export * from "./useEntryQueries";
 export * from "./useMatchQueries";
+export * from "./useMatchRealtime";
 export * from "./useMatchSetQueries";
 export * from "./useScheduleQueries";
 export * from "./useScheduleConfigQueries";

@@ -11,6 +11,7 @@ import { Loader2, Trophy, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { useDateFormat } from "@/hooks/useDateFormat";
+import { useMatchRealtime } from "@/hooks/queries";
 
 interface MatchDetailModalProps {
   matchId: number | null;
@@ -24,6 +25,8 @@ export function MatchDetailModal({ matchId, onClose }: MatchDetailModalProps) {
   const { data: match, isLoading } = useMatch(matchId || 0, { 
     enabled: !!matchId 
   });
+
+  useMatchRealtime({ matchId: matchId || undefined });
 
   if (!matchId) return null;
 

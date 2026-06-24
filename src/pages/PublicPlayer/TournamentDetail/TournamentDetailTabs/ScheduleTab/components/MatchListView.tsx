@@ -4,6 +4,7 @@ import { MatchDetailModal } from "@/components/custom/MatchDetailModal";
 import { useTranslation } from "react-i18next";
 import { useMatch } from "@/hooks/queries/useMatchQueries";
 import { useDateFormat } from "@/hooks/useDateFormat";
+import { useMatchRealtime } from "@/hooks/queries";
 
 interface MatchListViewProps {
   schedules: any[];
@@ -63,6 +64,8 @@ function MatchListCard({ schedule, match, onClick }: { schedule: any, match: any
   const { data: matchDetail } = useMatch(match.id, { 
     enabled: isCompleted || isInProgress
   });
+
+  useMatchRealtime({ matchId: match.id });
 
   let finalScoreA: number | string = match.setsWonA ?? "-";
   let finalScoreB: number | string = match.setsWonB ?? "-";

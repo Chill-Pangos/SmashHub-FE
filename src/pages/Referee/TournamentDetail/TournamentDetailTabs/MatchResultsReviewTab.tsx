@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Filter, CheckCircle, X, Swords } from "lucide-react";
 import { usePendingMatches, useApproveMatch, useRejectMatch, useMatch } from "@/hooks/queries";
 import type { Match, SubMatch, MatchSet, Entry, EntryMember } from "@/types";
+import { useMatchRealtime } from "@/hooks/queries";
 import { showToast, showApiError } from "@/utils/toast.utils";
 import { useDateFormat } from "@/hooks/useDateFormat";
 import { useTranslation } from "react-i18next";
@@ -68,6 +69,8 @@ export default function MatchResultsReviewTab() {
   const { data: fullSelectedMatch } = useMatch(selectedMatch?.id || 0, {
     enabled: !!selectedMatch?.id
   });
+
+  useMatchRealtime({ matchId: selectedMatch?.id || undefined });
 
   const approveMatchMutation = useApproveMatch();
   const rejectMatchMutation = useRejectMatch();
