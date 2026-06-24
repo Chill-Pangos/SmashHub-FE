@@ -3,7 +3,7 @@ import { Wand2 } from "lucide-react";
 import { GroupStageBoard, type Group } from "./GroupStageBoard";
 import { ChampionshipBracket } from "./ChampionshipBracket";
 import { EntryInfoModal } from "./EntryInfoModal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGroupStandingsByCategory } from "@/hooks/queries";
 import { useTranslation } from "react-i18next";
 
@@ -21,6 +21,7 @@ export default function TournamentScheduleViewer({
 }: TournamentScheduleViewerProps) {
   const { t } = useTranslation();
   const [selectedEntryId, setSelectedEntryId] = useState<number | null>(null);
+  const [stageTab, setStageTab] = useState<"group" | "knockout">("group");
   
   const handleEntryClick = (entryId: number) => {
     setSelectedEntryId(entryId);
@@ -121,9 +122,47 @@ export default function TournamentScheduleViewer({
     console.log("Call API Generate Knockout for Category:", contentId);
   };
 
+  useEffect(() => {
+    if (!hasGroupStage && hasKnockoutStage) {
+      setStageTab("knockout");
+    } else if (hasGroupStage && !hasKnockoutStage) {
+      setStageTab("group");
+    }
+  }, [hasGroupStage, hasKnockoutStage]);
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      {hasGroupStage && (
+      {(hasGroupStage || hasKnockoutStage) && (
+        <div className="flex gap-2 border-b border-border pb-4">
+          {hasGroupStage && (
+            <Button
+              variant={stageTab === "group" ? "default" : "outline"}
+              onClick={() => setStageTab("group")}
+            >
+              {t("tournamentManager.scheduleTab.groupStage", "Group Stage")}
+            </Button>
+          )}
+          {hasKnockoutStage && (
+            <Button
+              variant={stageTab === "knockout" ? "default" : "outline"}
+              onClick={() => setStageTab("knockout")}
+            >
+              {t("tournamentManager.scheduleTab.championshipBracket", "Championship Bracket")}
+            </Button>
+          )}
+          {hasGroupStage && !hasKnockoutStage && (
+            <Button
+              variant={stageTab === "knockout" ? "default" : "outline"}
+              onClick={() => setStageTab("knockout")}
+              className="border-dashed"
+            >
+              {t("tournamentManager.scheduleTab.generateKnockout", "Generate Knockout")}
+            </Button>
+          )}
+        </div>
+      )}
+
+      {stageTab === "group" && hasGroupStage && (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {groups.map((group) => (
             <GroupStageBoard key={group.name} group={group} onEntryClick={handleEntryClick} />
@@ -131,7 +170,7 @@ export default function TournamentScheduleViewer({
         </div>
       )}
 
-      {hasGroupStage && isGroupStageCompleted && !hasKnockoutStage && (
+      {stageTab === "knockout" && hasGroupStage && isGroupStageCompleted && !hasKnockoutStage && (
         <div className="flex flex-col items-center justify-center p-8 bg-card border-2 border-dashed border-border rounded-xl mt-8">
           <Wand2 className="w-10 h-10 text-primary mb-4" />
           <h3 className="text-xl font-bold text-foreground">{t('tournamentManager.scheduleTab.groupStageCompleted', 'Group Stage Completed')}</h3>
@@ -144,14 +183,19 @@ export default function TournamentScheduleViewer({
         </div>
       )}
 
-      {hasKnockoutStage && (
+      {stageTab === "knockout" && hasKnockoutStage && (
         <div className="mt-8">
           <h2 className="text-2xl font-bold text-foreground mb-6">{t('tournamentManager.scheduleTab.championshipBracket', 'Championship Bracket')}</h2>
           <ChampionshipBracket rounds={knockoutRounds} onEntryClick={handleEntryClick} />
         </div>
       )}
       
-      <EntryInfoModal entryId={selectedEntryId} onClose={() => setSelectedEntryId(null)} />
+      {selectedEntryId && (
+        <EntryInfoModal
+          entryId={selectedEntryId}
+          onClose={() => setSelectedEntryId(null)}
+        />
+      )}
     </div>
   );
 }

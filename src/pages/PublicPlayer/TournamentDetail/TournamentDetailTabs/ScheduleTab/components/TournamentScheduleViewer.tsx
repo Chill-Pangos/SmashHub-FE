@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import { GroupStageBoard, type Group } from "./GroupStageBoard";
 import { ChampionshipBracket } from "./ChampionshipBracket";
+import { Button } from "@/components/ui/button";
 
 interface TournamentScheduleViewerProps {
   contentId: number;
@@ -15,6 +17,7 @@ export default function TournamentScheduleViewer({
   schedulesOverride,
 }: TournamentScheduleViewerProps) {
   const { t } = useTranslation();
+  const [stageTab, setStageTab] = useState<"group" | "knockout">("group");
   
   // Fetch real group standings
   const { data: standingsData } = useGroupStandingsByCategory(contentId);
@@ -103,9 +106,38 @@ export default function TournamentScheduleViewer({
 
   const hasKnockoutStage = knockoutRounds.length > 0;
 
+  useEffect(() => {
+    if (!hasGroupStage && hasKnockoutStage) {
+      setStageTab("knockout");
+    } else if (hasGroupStage && !hasKnockoutStage) {
+      setStageTab("group");
+    }
+  }, [hasGroupStage, hasKnockoutStage]);
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      {hasGroupStage && (
+      {(hasGroupStage || hasKnockoutStage) && (
+        <div className="flex gap-2 border-b border-border pb-4">
+          {hasGroupStage && (
+            <Button
+              variant={stageTab === "group" ? "default" : "outline"}
+              onClick={() => setStageTab("group")}
+            >
+              {t("tournamentManager.scheduleTab.groupStage", "Group Stage")}
+            </Button>
+          )}
+          {hasKnockoutStage && (
+            <Button
+              variant={stageTab === "knockout" ? "default" : "outline"}
+              onClick={() => setStageTab("knockout")}
+            >
+              {t("tournamentManager.scheduleTab.championshipBracket", "Championship Bracket")}
+            </Button>
+          )}
+        </div>
+      )}
+
+      {stageTab === "group" && hasGroupStage && (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {groups.map((group) => ( // Sửa MOCK_GROUPS thành groups
             <GroupStageBoard key={group.name} group={group} />
@@ -113,11 +145,10 @@ export default function TournamentScheduleViewer({
         </div>
       )}
 
-      {hasKnockoutStage && (
+      {stageTab === "knockout" && hasKnockoutStage && (
         <div className="mt-8">
           <h2 className="text-2xl font-bold text-foreground mb-6">{t('tournamentManager.scheduleTab.championshipBracket', 'Championship Bracket')}</h2>
           <ChampionshipBracket rounds={knockoutRounds} />
-
         </div>
       )}
     </div>
