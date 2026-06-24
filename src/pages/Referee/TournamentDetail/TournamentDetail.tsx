@@ -9,9 +9,11 @@ import { useTournament, useScheduleConfigByTournament } from "@/hooks/queries";
 
 import { useCurrentUser } from "@/hooks/queries/useAuthQueries";
 import { useTranslation } from "react-i18next";
+import { useDateFormat } from "@/hooks/useDateFormat";
 
 export default function TournamentDetail() {
   const { t } = useTranslation();
+  const { formatDate } = useDateFormat();
   const { tournamentId } = useParams();
   const id = tournamentId ? parseInt(tournamentId, 10) : 0;
 
@@ -43,15 +45,10 @@ export default function TournamentDetail() {
 
   const formatEventDate = (start?: string, end?: string) => {
     if (!start && !end) return "TBD";
-    const startDate = start ? new Date(start) : null;
-    const endDate = end ? new Date(end) : null;
-    if (startDate && isNaN(startDate.getTime())) return "TBD";
-    if (endDate && isNaN(endDate.getTime())) return "TBD";
-    const options: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
-    if (startDate && endDate) {
-      return `${startDate.toLocaleDateString("en-US", options)} - ${endDate.toLocaleDateString("en-US", { ...options, year: "numeric" })}`;
-    } else if (startDate) {
-      return startDate.toLocaleDateString("en-US", { ...options, year: "numeric" });
+    if (start && end) {
+      return `${formatDate(start)} - ${formatDate(end)}`;
+    } else if (start) {
+      return formatDate(start);
     }
     return "TBD";
   };

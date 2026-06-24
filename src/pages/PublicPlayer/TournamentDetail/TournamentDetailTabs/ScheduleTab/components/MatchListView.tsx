@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { format } from "date-fns";
 import { Clock, Hash, Users, Trophy, Calendar } from "lucide-react";
 import { MatchDetailModal } from "@/components/custom/MatchDetailModal";
 import { useTranslation } from "react-i18next";
 import { useMatch } from "@/hooks/queries/useMatchQueries";
+import { useDateFormat } from "@/hooks/useDateFormat";
 
 interface MatchListViewProps {
   schedules: any[];
@@ -51,8 +51,9 @@ function MatchListCard({ schedule, match, onClick }: { schedule: any, match: any
   const entryB = match.entryB?.name || t("match.details.tbd", "TBD");
   const isCompleted = match.status === "completed";
   const isInProgress = match.status === "in_progress";
+  const { formatDateTime } = useDateFormat();
   const timeFormatted = schedule.scheduledAt 
-      ? format(new Date(schedule.scheduledAt), "MMM dd, yyyy - HH:mm") 
+      ? formatDateTime(schedule.scheduledAt) 
       : t("match.details.tbd", "TBD");
 
   let badgeClass = "bg-secondary text-secondary-foreground";

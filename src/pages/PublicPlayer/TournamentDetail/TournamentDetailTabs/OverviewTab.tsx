@@ -22,7 +22,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
     ) || 0;
 
   const formatTypes = Array.from(
-    new Set(tournament.categories?.map((c) => c.type) || []),
+    new Set(tournament.categories?.map((c) => t(`constants.format.${c.type}`, c.type)) || []),
   ).join(", ");
 
   return (
@@ -62,7 +62,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
             <div className="h-full bg-primary" style={{ width: "100%" }}></div>
           </div>
           <div className="mt-2 text-right text-xs font-medium text-muted-foreground">
-            {t("publicPlayer.tournamentDetail.tierEvent", "Tier {{tier}} Event", { tier: tournament.tier ?? "-" })}
+            {t("publicPlayer.tournamentDetail.tierEvent", "Tier {{tier}} Event", { tier: tournament.tier ? t(`constants.tier.${String(tournament.tier)}`, String(tournament.tier)) : "-" })}
           </div>
         </div>
 
@@ -127,7 +127,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
                 <div className="space-y-2.5 text-sm flex-1">
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">{t("publicPlayer.tournamentDetail.type")}</span>
-                    <span className="font-semibold capitalize">{category.type}</span>
+                    <span className="font-semibold capitalize">{t(`constants.format.${category.type}`, category.type)}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">{t("publicPlayer.tournamentDetail.format")}</span>
@@ -145,7 +145,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">{t("publicPlayer.tournamentDetail.gender")}</span>
-                    <span className="font-semibold capitalize">{category.gender}</span>
+                    <span className="font-semibold capitalize">{t(`constants.gender.${String(category.gender)}`, String(category.gender))}</span>
                   </div>
                   
                   {(category.minAge !== null || category.maxAge !== null) && (

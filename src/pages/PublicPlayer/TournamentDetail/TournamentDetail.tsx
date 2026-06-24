@@ -10,9 +10,11 @@ import {
   PaymentTab,
 } from "@/pages/PublicPlayer/TournamentDetail/TournamentDetailTabs";
 import { useTranslation } from "react-i18next";
+import { useDateFormat } from "@/hooks/useDateFormat";
 
 export default function TournamentDetail() {
   const { t } = useTranslation();
+  const { formatDate } = useDateFormat();
   const { tournamentId } = useParams();
   const location = useLocation();
   const id = tournamentId ? parseInt(tournamentId, 10) : 0;
@@ -60,23 +62,13 @@ export default function TournamentDetail() {
 
   // --- Hàm hỗ trợ xử lý dữ liệu ---
 
-  // Format ngày tháng (VD: Oct 15 - Oct 18, 2026)
+  // Format ngày tháng
   const formatEventDate = (start?: string, end?: string) => {
     if (!start && !end) return "TBD";
-    const startDate = start ? new Date(start) : null;
-    const endDate = end ? new Date(end) : null;
-    if (startDate && isNaN(startDate.getTime())) return "TBD";
-    if (endDate && isNaN(endDate.getTime())) return "TBD";
-    
-    const options: Intl.DateTimeFormatOptions = {
-      month: "short",
-      day: "numeric",
-    };
-
-    if (startDate && endDate) {
-      return `${startDate.toLocaleDateString("en-US", options)} - ${endDate.toLocaleDateString("en-US", { ...options, year: "numeric" })}`;
-    } else if (startDate) {
-      return startDate.toLocaleDateString("en-US", { ...options, year: "numeric" });
+    if (start && end) {
+      return `${formatDate(start)} - ${formatDate(end)}`;
+    } else if (start) {
+      return formatDate(start);
     }
     return "TBD";
   };

@@ -10,6 +10,7 @@ import { Calendar as CalendarUI } from "@/components/ui/calendar";
 import type { Tournament } from "@/types/tournament.types";
 import type { ScheduleConfigData } from "./ScheduleConfig/ScheduleConfig";
 import { useTranslation } from "react-i18next";
+import { useDateFormat } from "@/hooks/useDateFormat";
 
 interface OverviewTabProps {
   tournament: Tournament;
@@ -26,27 +27,10 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
     ) || 0;
 
   const formatTypes = Array.from(
-    new Set(tournament.categories?.map((c) => c.type) || []),
+    new Set(tournament.categories?.map((c) => t(`constants.format.${c.type}`, c.type)) || []),
   ).join(", ");
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "TBD";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
-  const formatDateTime = (dateString?: string) => {
-    if (!dateString) return "TBD";
-    return new Date(dateString).toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  };
+  const { formatDate, formatDateTime } = useDateFormat();
 
   const registrationStart = scheduleConfig?.registrationStartDate ? new Date(scheduleConfig.registrationStartDate) : undefined;
   const registrationEnd = scheduleConfig?.registrationEndDate ? new Date(scheduleConfig.registrationEndDate) : undefined;
@@ -108,7 +92,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
             <div className="h-full bg-primary" style={{ width: "100%" }}></div>
           </div>
           <div className="mt-2 text-right text-xs font-medium text-muted-foreground">
-            {t('tournamentManager.overviewTab.tierEvent', 'Tier {{tier}} Event').replace('{{tier}}', (tournament.tier ?? "-").toString())}
+            {t('tournamentManager.overviewTab.tierEvent', 'Tier {{tier}} Event').replace('{{tier}}', tournament.tier ? t(`constants.tier.${String(tournament.tier)}`, String(tournament.tier)) : "-")}
           </div>
         </div>
 

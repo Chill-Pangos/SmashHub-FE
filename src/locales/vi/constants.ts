@@ -28,6 +28,14 @@ export default {
   },
   "format": {
     "single": "Đánh đơn",
+    "doubles": "Đánh đôi",
     "team": "Đồng đội"
+  },
+  "tier": {
+    "1": "Cấp độ 1 (Quốc tế)",
+    "2": "Cấp độ 2 (Quốc gia)",
+    "3": "Cấp độ 3 (Khu vực)",
+    "4": "Cấp độ 4 (Câu lạc bộ)",
+    "5": "Cấp độ 5 (Giải trí)"
   }
 };

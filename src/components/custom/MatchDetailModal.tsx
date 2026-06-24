@@ -8,6 +8,7 @@ import { useMatch } from "@/hooks/queries/useMatchQueries";
 import { Loader2, Trophy, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
+import { useDateFormat } from "@/hooks/useDateFormat";
 
 interface MatchDetailModalProps {
   matchId: number | null;
@@ -16,6 +17,7 @@ interface MatchDetailModalProps {
 
 export function MatchDetailModal({ matchId, onClose }: MatchDetailModalProps) {
   const { t } = useTranslation();
+  const { formatDateTime } = useDateFormat();
   
   const { data: match, isLoading } = useMatch(matchId || 0, { 
     enabled: !!matchId 
@@ -42,10 +44,7 @@ export function MatchDetailModal({ matchId, onClose }: MatchDetailModalProps) {
               </Badge>
               {match.schedule?.scheduledAt && (
                 <span className="text-sm font-mono text-muted-foreground">
-                  {new Date(match.schedule.scheduledAt).toLocaleString('en-GB', { 
-                    day: '2-digit', month: '2-digit', year: 'numeric', 
-                    hour: '2-digit', minute:'2-digit' 
-                  })}
+                  {formatDateTime(match.schedule.scheduledAt)}
                 </span>
               )}
             </div>

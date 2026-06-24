@@ -28,6 +28,14 @@ export default {
   },
   "format": {
     "single": "Single",
+    "doubles": "Doubles",
     "team": "Team"
+  },
+  "tier": {
+    "1": "Tier 1 (International)",
+    "2": "Tier 2 (National)",
+    "3": "Tier 3 (Regional)",
+    "4": "Tier 4 (Club)",
+    "5": "Tier 5 (Recreational)"
   }
 };
