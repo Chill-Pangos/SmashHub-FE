@@ -44,5 +44,8 @@ export default {
   "finalizeSubMatchError": "Failed to finalize sub-match",
   "scheduledAt": "Scheduled:",
   "setNum": "Set {{num}}",
-  "subMatchNum": "Sub-Match {{num}}"
+  "subMatchNum": "Sub-Match {{num}}",
+  "scoreUpdated": "Score updated successfully",
+  "totalScore": "Total Score",
+  "scoreHistory": "Score History"
 };

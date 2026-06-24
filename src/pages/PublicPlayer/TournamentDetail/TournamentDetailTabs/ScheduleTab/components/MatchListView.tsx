@@ -67,7 +67,9 @@ function MatchListCard({ schedule, match, onClick }: { schedule: any, match: any
   let finalScoreA: number | string = match.setsWonA ?? "-";
   let finalScoreB: number | string = match.setsWonB ?? "-";
 
-  if (matchDetail && matchDetail.subMatches) {
+  const showPoints = isInProgress || (isCompleted && match.resultStatus === "approved");
+
+  if (showPoints && matchDetail && matchDetail.subMatches) {
     const isTeam = (matchDetail.schedule as any)?.tournamentCategory?.type === 'team';
     if (isTeam) {
       finalScoreA = matchDetail.subMatches.filter((sm: any) => sm.winnerTeam === 'A').length || 0;
@@ -85,6 +87,9 @@ function MatchListCard({ schedule, match, onClick }: { schedule: any, match: any
         finalScoreB = b;
       }
     }
+  } else if (!showPoints) {
+    finalScoreA = "-";
+    finalScoreB = "-";
   }
 
   return (

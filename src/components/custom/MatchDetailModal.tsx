@@ -4,6 +4,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { getImageUrl } from "@/utils/api.utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useMatch } from "@/hooks/queries/useMatchQueries";
 import { Loader2, Trophy, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -52,23 +54,49 @@ export function MatchDetailModal({ matchId, onClose }: MatchDetailModalProps) {
             {/* Players & Overall winner display */}
             <div className="flex items-center justify-between p-6 rounded-xl bg-secondary/20 border border-border/50">
               <div className="flex flex-col items-center flex-1 text-center">
-                <div className={`flex items-center justify-center w-12 h-12 mb-3 rounded-full ${match.winnerEntryId === match.entryAId ? 'bg-yellow-500/20 text-yellow-500' : 'bg-primary/10 text-primary'}`}>
+                <div className={`flex items-center justify-center w-12 h-12 mb-3 rounded-full ${match.winnerEntryId === match.entryAId ? 'bg-yellow-500/20 text-yellow-500 ring-4 ring-yellow-500/30' : 'bg-primary/10 text-primary'}`}>
                   {match.winnerEntryId === match.entryAId ? <Trophy className="w-6 h-6" /> : <Users className="w-6 h-6" />}
                 </div>
                 <span className={`font-bold text-lg line-clamp-2 ${match.winnerEntryId === match.entryAId ? 'text-yellow-500' : 'text-foreground'}`}>
                   {(match.entryA as any)?.team?.name || (match.entryA as any)?.name || `Entry ${match.entryAId}`}
                 </span>
+                
+                <div className="flex flex-col gap-1 mt-3 items-center">
+                  {(match.entryA as any)?.members?.map((member: any) => (
+                    <div key={member.id} className="flex items-center justify-center gap-2">
+                      <Avatar className="w-6 h-6 border">
+                        <AvatarImage src={getImageUrl(member.user?.avatarUrl)} />
+                        <AvatarFallback>{member.user?.firstName?.charAt(0) || "U"}</AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm font-medium text-muted-foreground">{member.user?.firstName} {member.user?.lastName}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 text-4xl font-black">{match.setsWonA || 0}</div>
               </div>
               
               <div className="px-6 text-sm font-black text-muted-foreground/50">{t("match.details.vs", "VS")}</div>
               
               <div className="flex flex-col items-center flex-1 text-center">
-                <div className={`flex items-center justify-center w-12 h-12 mb-3 rounded-full ${match.winnerEntryId === match.entryBId ? 'bg-yellow-500/20 text-yellow-500' : 'bg-chart-3/10 text-chart-3'}`}>
+                <div className={`flex items-center justify-center w-12 h-12 mb-3 rounded-full ${match.winnerEntryId === match.entryBId ? 'bg-yellow-500/20 text-yellow-500 ring-4 ring-yellow-500/30' : 'bg-chart-3/10 text-chart-3'}`}>
                   {match.winnerEntryId === match.entryBId ? <Trophy className="w-6 h-6" /> : <Users className="w-6 h-6" />}
                 </div>
                 <span className={`font-bold text-lg line-clamp-2 ${match.winnerEntryId === match.entryBId ? 'text-yellow-500' : 'text-foreground'}`}>
                   {(match.entryB as any)?.team?.name || (match.entryB as any)?.name || `Entry ${match.entryBId}`}
                 </span>
+                
+                <div className="flex flex-col gap-1 mt-3 items-center">
+                  {(match.entryB as any)?.members?.map((member: any) => (
+                    <div key={member.id} className="flex items-center justify-center gap-2">
+                      <Avatar className="w-6 h-6 border">
+                        <AvatarImage src={getImageUrl(member.user?.avatarUrl)} />
+                        <AvatarFallback>{member.user?.firstName?.charAt(0) || "U"}</AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm font-medium text-muted-foreground">{member.user?.firstName} {member.user?.lastName}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 text-4xl font-black">{match.setsWonB || 0}</div>
               </div>
             </div>
 

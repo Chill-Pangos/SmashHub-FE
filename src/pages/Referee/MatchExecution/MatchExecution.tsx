@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useMatch, useFinalizeMatch } from "@/hooks/queries/useMatchQueries";
+import { useMatch, useFinalizeMatch, useApproveMatch } from "@/hooks/queries/useMatchQueries";
 import {
   useSubMatchesByMatch,
   useStartSubMatch,
@@ -52,6 +52,10 @@ export default function MatchExecution() {
 
   const { data: userResp } = useCurrentUser();
 
+  const roleItem = userResp?.roles?.[0];
+  const roleName = typeof roleItem === 'object' ? (roleItem as any)?.name : undefined;
+  const isChiefReferee = roleName === "chief_referee" || roleName === "CHIEF_REFEREE";
+
   const isAssignedReferee = match?.matchReferees?.some(
     (mr: { refereeId: number }) => mr.refereeId === userResp?.id
   );
@@ -61,6 +65,8 @@ export default function MatchExecution() {
 
   const { mutate: finalizeMatch, isPending: finalizingMatch } =
     useFinalizeMatch();
+
+  const { mutate: approveMatch, isPending: approvingMatch } = useApproveMatch();
 
   const [matchReadyToFinalize, setMatchReadyToFinalize] = useState(false);
 
@@ -81,11 +87,23 @@ export default function MatchExecution() {
           </CardHeader>
           <CardContent className="space-y-2">
             <p>
-              <strong>{t("matchExecution.category", "Category:")}</strong> {match.schedule?.tournamentContent?.name || "Category"}
+              <strong>{t("matchExecution.category", "Category:")}</strong> {(match.schedule as any)?.tournamentCategory?.name || match.schedule?.tournamentContent?.name || "Category"}
             </p>
             <p>
-              <strong>{t("matchExecution.status", "Status:")}</strong> {match.status}
+              <strong>{t("matchExecution.status", "Status:")}</strong> {t(`constants.status.match.${match.status}`, match.status) as string}
             </p>
+            <div className="flex justify-between items-center py-4 border-y border-border my-4">
+              <div className="flex flex-col items-center gap-1 w-1/3">
+                <span className="font-bold text-center line-clamp-2">{(match.entryA as any)?.name || t("matchExecution.teamA", "Team A")}</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 w-1/3">
+                <span className="text-sm font-bold text-muted-foreground">{t("matchExecution.totalScore", "Total Score")}</span>
+                <span className="text-2xl font-black">{match.setsWonA || 0} - {match.setsWonB || 0}</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 w-1/3">
+                <span className="font-bold text-center line-clamp-2">{(match.entryB as any)?.name || t("matchExecution.teamB", "Team B")}</span>
+              </div>
+            </div>
             {isAssignedReferee && match.status === "in_progress" && (
               <Button
                 variant={matchReadyToFinalize ? "default" : "outline"}
@@ -106,10 +124,24 @@ export default function MatchExecution() {
                 {t("matchExecution.matchReadyForReferee", "Match is completed. Waiting for assigned referee to finalize.")}
               </p>
             )}
-            {match.resultStatus === "pending" && (
+            {match.resultStatus === "pending" && !isChiefReferee && (
               <p className="text-amber-600 font-semibold text-sm">
                 {t("matchExecution.matchPendingApproval", "Match finalized. Waiting for Chief Referee approval.")}
               </p>
+            )}
+            {isChiefReferee && match.status === "completed" && match.resultStatus === "pending" && (
+              <Button
+                onClick={() => approveMatch({ id: match.id }, {
+                  onSuccess: () => {
+                    showToast.success(t("matchExecution.approveSuccess", "Match approved successfully"));
+                  },
+                  onError: (err: any) => showApiError(err, t("matchExecution.approveError", "Failed to approve match")),
+                })}
+                disabled={approvingMatch}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                {t("matchExecution.chiefFinalize", "Chief: Finalize Match")}
+              </Button>
             )}
           </CardContent>
         </Card>
@@ -120,6 +152,7 @@ export default function MatchExecution() {
             <SubMatchCard 
               key={sm.id} 
               subMatch={sm} 
+              match={match}
               onMatchReady={() => setMatchReadyToFinalize(true)} 
               isUmpire={sm.umpireId === userResp?.id}
             />
@@ -130,7 +163,7 @@ export default function MatchExecution() {
   );
 }
 
-function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onMatchReady: () => void; isUmpire: boolean }) {
+function SubMatchCard({ subMatch, match, onMatchReady, isUmpire }: { subMatch: any; match: any; onMatchReady: () => void; isUmpire: boolean }) {
   const { t } = useTranslation();
   const { mutate: startSubMatch, isPending: starting } = useStartSubMatch();
   const { mutate: finalizeSubMatch, isPending: finalizing } =
@@ -143,6 +176,18 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
   const { mutate: updateScore, isPending: updatingScore } = useUpdateLiveScore();
   const [scoreStatus, setScoreStatus] = useState<any>(null);
   const [scoreHistory, setScoreHistory] = useState<{a: number, b: number}[]>([]);
+  const [cooldownTimer, setCooldownTimer] = useState(0);
+  const [actionType, setActionType] = useState<"A" | "B" | null>(null);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (cooldownTimer > 0) {
+      interval = setInterval(() => {
+        setCooldownTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [cooldownTimer]);
 
   // Lineup Approval Logic
   const { data: pendingLineupsResp } = usePendingLineups();
@@ -192,6 +237,8 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
     if (newA < 0) newA = 0;
     if (newB < 0) newB = 0;
 
+    setActionType(team);
+
     // push to history
     setScoreHistory(prev => [...prev, { a: currentA, b: currentB }]);
 
@@ -206,12 +253,13 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
         onSuccess: (data: any) => {
           setScoreStatus(data);
           if (data?.message) {
-            showToast.success(data.message);
+            showToast.success(t("matchExecution.scoreUpdated", "Score updated successfully"), data.message);
           }
           if (data?.nextSetNumber) {
             setActiveSetNumber(data.nextSetNumber);
             setScoreHistory([]); // clear history on new set
           }
+          setCooldownTimer(3);
         },
         onError: (err: any) => {
           showApiError(err, t("matchExecution.updateScoreError", "Failed to update score"));
@@ -236,11 +284,21 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
 
   const isSubMatchReady = scoreStatus?.subMatchReadyToFinalize;
 
+  const isTeamCategory = (match?.schedule as any)?.tournamentCategory?.type === "team";
+  const cardTitleText = isTeamCategory 
+    ? `${t("matchExecution.subMatchTitle", "Sub-Match #")}${subMatch.subMatchNumber}`
+    : `${t("matchExecution.setNumber", "Set #")}${activeSetNumber}`;
+
+  const teamAName = (match?.entryA as any)?.name || t("matchExecution.teamA", "Team A");
+  const teamBName = (match?.entryB as any)?.name || t("matchExecution.teamB", "Team B");
+
+  const completedSets = (subMatch.matchSets || []).filter((s: any) => s.status === "completed" || (s.entryAScore !== undefined && s.entryBScore !== undefined));
+
   return (
     <Card className={isSubMatchReady ? "border-amber-500 shadow-md" : ""}>
       <CardHeader>
         <CardTitle className="flex justify-between">
-          <span>{t("matchExecution.subMatchTitle", "Sub-Match #")}{subMatch.subMatchNumber}</span>
+          <span>{cardTitleText}</span>
           <Badge>{t(`constants.status.match.${subMatch.status}`, subMatch.status) as string}</Badge>
         </CardTitle>
       </CardHeader>
@@ -346,8 +404,8 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
             )}
 
             <div className="flex justify-between items-center bg-secondary/20 p-4 rounded-lg">
-              <div className="flex flex-col items-center gap-2">
-                <span className="font-bold">{t("matchExecution.teamA", "Team A")}</span>
+              <div className="flex flex-col items-center gap-2 flex-1 text-center">
+                <span className="font-bold text-sm line-clamp-2">{teamAName}</span>
                 <span className="text-4xl font-bold">
                   {liveScore?.entryAScore || 0}
                 </span>
@@ -357,12 +415,12 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
                       size="sm"
                       variant="outline"
                       onClick={() => handleScore("A", "subtract")}
-                      disabled={updatingScore}
+                      disabled={updatingScore || cooldownTimer > 0}
                     >
                       -
                     </Button>
-                    <Button size="sm" onClick={() => handleScore("A", "add")} disabled={updatingScore}>
-                      +
+                    <Button size="sm" onClick={() => handleScore("A", "add")} disabled={updatingScore || cooldownTimer > 0}>
+                      {cooldownTimer > 0 && actionType === 'A' ? cooldownTimer : '+'} 
                     </Button>
                   </div>
                 )}
@@ -377,21 +435,21 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
                 )}
               </div>
 
-              <div className="flex flex-col items-center gap-2">
-                <span className="font-bold">{t("matchExecution.teamB", "Team B")}</span>
+              <div className="flex flex-col items-center gap-2 flex-1 text-center">
+                <span className="font-bold text-sm line-clamp-2">{teamBName}</span>
                 <span className="text-4xl font-bold">
                   {liveScore?.entryBScore || 0}
                 </span>
                 {isUmpire && (
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => handleScore("B", "add")} disabled={updatingScore}>
-                      +
+                    <Button size="sm" onClick={() => handleScore("B", "add")} disabled={updatingScore || cooldownTimer > 0}>
+                      {cooldownTimer > 0 && actionType === 'B' ? cooldownTimer : '+'} 
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleScore("B", "subtract")}
-                      disabled={updatingScore}
+                      disabled={updatingScore || cooldownTimer > 0}
                     >
                       -
                     </Button>
@@ -443,6 +501,20 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
 
         {subMatch.status === "completed" && (
           <p className="text-green-600 font-semibold">{t("matchExecution.subMatchCompleted", "Sub-Match Completed")}</p>
+        )}
+
+        {completedSets.length > 0 && (
+          <div className="mt-4 border-t border-border pt-4">
+            <h4 className="text-sm font-semibold mb-2">{t("matchExecution.scoreHistory", "Score History")}</h4>
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {completedSets.map((s: any) => (
+                <div key={s.id} className="flex flex-col items-center bg-muted px-3 py-1.5 rounded text-xs">
+                  <span className="font-bold text-muted-foreground">{t("matchExecution.setNumber", "Set #")}{s.setNumber}</span>
+                  <span className="font-black text-sm">{s.entryAScore} - {s.entryBScore}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>

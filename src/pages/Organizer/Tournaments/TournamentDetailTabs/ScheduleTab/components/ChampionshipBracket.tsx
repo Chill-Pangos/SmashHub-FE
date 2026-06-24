@@ -122,7 +122,9 @@ function BracketMatchCard({ bracket, onEntryClick, onClick }: { bracket: any, on
   let finalScoreA: number | string = bracket.setsWonA ?? "-";
   let finalScoreB: number | string = bracket.setsWonB ?? "-";
 
-  if (matchDetail && matchDetail.subMatches) {
+  const showPoints = bracket.status === 'in_progress' || (bracket.status === 'completed' && bracket.resultStatus === 'approved');
+
+  if (showPoints && matchDetail && matchDetail.subMatches) {
     const isTeam = (matchDetail.schedule as any)?.tournamentCategory?.type === 'team';
     if (isTeam) {
       finalScoreA = matchDetail.subMatches.filter((sm: any) => sm.winnerTeam === 'A').length || 0;
@@ -140,6 +142,9 @@ function BracketMatchCard({ bracket, onEntryClick, onClick }: { bracket: any, on
         finalScoreB = b;
       }
     }
+  } else if (!showPoints) {
+    finalScoreA = "-";
+    finalScoreB = "-";
   }
 
   const winnerA = bracket.winnerEntryId && bracket.winnerEntryId === bracket.entryA?.entryId;
