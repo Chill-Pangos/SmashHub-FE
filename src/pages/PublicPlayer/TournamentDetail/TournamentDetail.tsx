@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { useTournament, useScheduleConfigByTournament } from "@/hooks/queries"; 
+import { useTournament, useScheduleConfigByTournament } from "@/hooks/queries";
+import { useMyEntries } from "@/hooks/queries/useEntryQueries";
 
 import { Calendar, MapPin } from "lucide-react";
 import {
@@ -26,8 +27,15 @@ export default function TournamentDetail() {
   } = useTournament(id);
 
   const { data: scheduleConfig, isLoading: isScheduleLoading } = useScheduleConfigByTournament(id, { enabled: !!id });
+  const { data: myEntriesData, isLoading: isMyEntriesLoading } = useMyEntries();
 
-  const isLoading = isTournamentLoading || isScheduleLoading;
+  const isLoading = isTournamentLoading || isScheduleLoading || isMyEntriesLoading;
+
+  // Check if user is registered for any category in this tournament
+  const isRegistered = myEntriesData?.rows?.some((row: any) => {
+    const catId = row.entry ? row.entry.categoryId : row.categoryId;
+    return tournament?.categories?.some((c) => c.id === catId);
+  });
 
   // State cho Tabs
   const [activeTab, setActiveTab] = useState(
@@ -37,8 +45,11 @@ export default function TournamentDetail() {
     t("publicPlayer.tournamentDetail.overview", "Overview"),
     t("publicPlayer.tournamentDetail.scheduleTab.title", "Schedule"),
     t("publicPlayer.tournamentDetail.registrationTab.title", "Registration"),
-    t("publicPlayer.paymentTab.title", "Payment"),
   ];
+
+  if (isRegistered) {
+    tabs.push(t("publicPlayer.paymentTab.title", "Payment"));
+  }
 
   if (isLoading) {
     return (
