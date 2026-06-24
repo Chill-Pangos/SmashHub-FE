@@ -2,19 +2,21 @@ import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, MapPin, Users, Search } from "lucide-react";
 import { useTournaments, useScheduleConfigsByTournaments } from "@/hooks/queries";
+import { useDateFormat } from "@/hooks/useDateFormat";
 import type { Tournament } from "@/types";
 import ServerPagination from "@/components/custom/ServerPagination";
 import { useTranslation } from "react-i18next";
 
-function formatDateRange(start?: string, end?: string) {
-  if (!start) return "TBD";
-  const s = new Date(start).toLocaleDateString();
-  if (!end) return s;
-  const e = new Date(end).toLocaleDateString();
-  return `${s} — ${e}`;
-}
-
 export default function TournamentListing() {
+  const { formatDate } = useDateFormat();
+  
+  function formatDateRange(start?: string, end?: string) {
+    if (!start) return "TBD";
+    const s = formatDate(start);
+    if (!end) return s;
+    const e = formatDate(end);
+    return `${s} — ${e}`;
+  }
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);

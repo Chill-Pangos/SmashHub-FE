@@ -30,7 +30,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Upload, Database, Activity, RefreshCw, Download, FileText, AlertTriangle } from "lucide-react";
+import { RefreshCw, Database, FileText, Upload, Download, Activity, AlertTriangle } from "lucide-react";
+import { useDateFormat } from "@/hooks/useDateFormat";
 import {
   useChatbotHealth,
   useChatbotFiles,
@@ -43,6 +44,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 
 export default function ChatbotManagement() {
   const { t } = useTranslation();
+  const { formatDateTime } = useDateFormat();
   const { data: healthData, isLoading: isLoadingHealth, refetch: refetchHealth } = useChatbotHealth();
   const { data: filesData, isLoading: isLoadingFiles, refetch: refetchFiles } = useChatbotFiles();
   
@@ -225,7 +227,7 @@ export default function ChatbotManagement() {
                       <TableRow key={file.path}>
                         <TableCell className="font-medium">{file.name}</TableCell>
                         <TableCell>{file.size_label}</TableCell>
-                        <TableCell>{new Date(file.modified_at_iso).toLocaleString()}</TableCell>
+                        <TableCell>{formatDateTime(file.modified_at_iso)}</TableCell>
                         <TableCell className="text-right">
                           <Button variant="ghost" size="sm" asChild>
                             <a href={getChatbotFileUrl(file.download_url)} target="_blank" rel="noopener noreferrer">

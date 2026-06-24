@@ -23,6 +23,7 @@ export default function UserProfile() {
   const navigate = useNavigate();
   const location = useLocation();
   const forceUpdate = location.state?.forceUpdate;
+  const requireCompletion = location.state?.requireCompletion;
   
   const [phoneNumber, setPhoneNumber] = useState("");
   const [dob, setDob] = useState<Date | undefined>(undefined);
@@ -99,6 +100,17 @@ export default function UserProfile() {
           </AlertDescription>
         </Alert>
       )}
+      
+      {requireCompletion && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>{t("profile.completionRequiredTitle", "Profile Completion Required")}</AlertTitle>
+          <AlertDescription>
+            {t("profile.completionRequiredDesc", "You must complete your profile by providing your Date of Birth before accessing other features.")}
+          </AlertDescription>
+        </Alert>
+      )}
+
       <h1 className="mb-6 text-3xl font-bold">{t("profile.title") || "User Profile"}</h1>
       
       <div className="grid gap-8 md:grid-cols-3">

@@ -1,4 +1,4 @@
-import TournamentCard from "./TournamentCard";
+import { TournamentCard } from "./TournamentCard";
 import type { Tournament } from "@/types";
 import { useTranslation } from "react-i18next";
 

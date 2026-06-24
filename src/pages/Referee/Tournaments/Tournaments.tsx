@@ -29,8 +29,10 @@ import {
 } from "@/hooks/queries";
 import ServerPagination from "@/components/custom/ServerPagination";
 import { useTranslation } from "react-i18next";
+import { useDateFormat } from "@/hooks/useDateFormat";
 
 export default function Tournaments() {
+  const { formatDate } = useDateFormat();
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<string | undefined>(undefined);
@@ -155,9 +157,7 @@ export default function Tournaments() {
                         <li key={t.id} className="text-xs text-green-800">
                           <strong>{t.name}</strong>
                           <br />
-                          {new Date(
-                            t.registrationStartDate,
-                          ).toLocaleDateString()}
+                          {formatDate(t.registrationStartDate)}
                         </li>
                       ))}
                     </ul>
@@ -174,7 +174,7 @@ export default function Tournaments() {
                         <li key={t.id} className="text-xs text-orange-800">
                           <strong>{t.name}</strong>
                           <br />
-                          {new Date(t.registrationEndDate).toLocaleDateString()}
+                          {formatDate(t.registrationEndDate)}
                         </li>
                       ))}
                     </ul>
@@ -191,9 +191,7 @@ export default function Tournaments() {
                         <li key={t.id} className="text-xs text-blue-800">
                           <strong>{t.name}</strong>
                           <br />
-                          {new Date(
-                            t.bracketGenerationDate,
-                          ).toLocaleDateString()}
+                          {formatDate(t.bracketGenerationDate)}
                         </li>
                       ))}
                     </ul>

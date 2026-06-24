@@ -1,5 +1,6 @@
 import { Calendar, Clock, Coffee, PlayCircle } from "lucide-react";
 import { Calendar as CalendarUI } from "@/components/ui/calendar";
+import { useDateFormat } from "@/hooks/useDateFormat";
 import type { ScheduleConfigResponse } from "@/types/scheduleConfig.types";
 import { useTranslation } from "react-i18next";
 
@@ -9,6 +10,7 @@ interface PublicScheduleViewProps {
 
 export default function PublicScheduleView({ config }: PublicScheduleViewProps) {
   const { t } = useTranslation();
+  const { formatDate } = useDateFormat();
   const formatTime = (hour: number | null | undefined, minute: number | null | undefined) => {
     if (hour == null || minute == null) return "N/A";
     const h = hour.toString().padStart(2, "0");
@@ -16,14 +18,9 @@ export default function PublicScheduleView({ config }: PublicScheduleViewProps) 
     return `${h}:${m}`;
   };
 
-  const formatDate = (dateString?: string) => {
+  const formatCustomDate = (dateString?: string) => {
     if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric"
-    });
+    return formatDate(dateString);
   };
 
   const registrationStart = config?.registrationStartDate ? new Date(config.registrationStartDate) : undefined;
@@ -65,11 +62,11 @@ export default function PublicScheduleView({ config }: PublicScheduleViewProps) 
             <div className="space-y-4">
               <div className="flex justify-between items-center py-2 border-b border-border/50">
                 <span className="text-sm text-muted-foreground">{t("publicPlayer.tournamentDetail.scheduleTab.startDate", "Start Date")}</span>
-                <span className="font-medium">{formatDate(config.startDate)}</span>
+                <span className="font-semibold">{formatCustomDate(config.startDate)}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-border/50">
                 <span className="text-sm text-muted-foreground">{t("publicPlayer.tournamentDetail.scheduleTab.endDate", "End Date")}</span>
-                <span className="font-medium">{formatDate(config.endDate)}</span>
+                <span className="font-semibold">{formatCustomDate(config.endDate)}</span>
               </div>
             </div>
           </div>
@@ -85,11 +82,11 @@ export default function PublicScheduleView({ config }: PublicScheduleViewProps) 
             <div className="space-y-4">
               <div className="flex justify-between items-center py-2 border-b border-border/50">
                 <span className="text-sm text-muted-foreground">{t("publicPlayer.tournamentDetail.scheduleTab.opens", "Opens")}</span>
-                <span className="font-medium">{formatDate(config.registrationStartDate)}</span>
+                <span className="font-semibold">{formatCustomDate(config.registrationStartDate)}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-border/50">
                 <span className="text-sm text-muted-foreground">{t("publicPlayer.tournamentDetail.scheduleTab.closes", "Closes")}</span>
-                <span className="font-medium">{formatDate(config.registrationEndDate)}</span>
+                <span className="font-semibold">{formatCustomDate(config.registrationEndDate)}</span>
               </div>
             </div>
           </div>

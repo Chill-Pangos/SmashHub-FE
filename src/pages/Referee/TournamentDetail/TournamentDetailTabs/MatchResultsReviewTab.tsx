@@ -3,6 +3,7 @@ import { Filter, CheckCircle, X, Swords } from "lucide-react";
 import { usePendingMatches, useApproveMatch, useRejectMatch, useMatch } from "@/hooks/queries";
 import type { Match, SubMatch, MatchSet, Entry, EntryMember } from "@/types";
 import { showToast, showApiError } from "@/utils/toast.utils";
+import { useDateFormat } from "@/hooks/useDateFormat";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ const getEntryDisplayName = (entry: Entry | undefined | null | any, type: string
 
 export default function MatchResultsReviewTab() {
   const { t } = useTranslation();
+  const { formatDateTime } = useDateFormat();
   const { tournamentId } = useParams();
   
   const [page, setPage] = useState<number>(1);
@@ -144,7 +146,7 @@ export default function MatchResultsReviewTab() {
           </span>
           <p className="text-xs text-muted-foreground font-semibold mt-2">
             {t("matchExecution.scheduledAt", "Scheduled:")}{" "}
-            {currentMatch.schedule?.scheduledAt ? new Date(currentMatch.schedule.scheduledAt).toLocaleString() : t("referee.matchResultsReview.na", "N/A")}
+            {currentMatch.schedule?.scheduledAt ? formatDateTime(currentMatch.schedule.scheduledAt) : t("referee.matchResultsReview.na", "N/A")}
           </p>
           {currentMatch.matchReferees && currentMatch.matchReferees.length > 0 && (
             <div className="mt-2 text-xs text-muted-foreground text-right">

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Wand2 } from "lucide-react";
 import { GroupStageBoard, type Group } from "./GroupStageBoard";
 import { ChampionshipBracket } from "./ChampionshipBracket";
+import { useDateFormat } from "@/hooks/useDateFormat";
 import { EntryInfoModal } from "./EntryInfoModal";
 import { useState, useEffect } from "react";
 import { useGroupStandingsByCategory } from "@/hooks/queries";
@@ -20,6 +21,7 @@ export default function TournamentScheduleViewer({
   schedulesOverride,
 }: TournamentScheduleViewerProps) {
   const { t } = useTranslation();
+  const { formatDateTime } = useDateFormat();
   const [selectedEntryId, setSelectedEntryId] = useState<number | null>(null);
   const [stageTab, setStageTab] = useState<"group" | "knockout">("group");
   
@@ -41,7 +43,7 @@ export default function TournamentScheduleViewer({
         return (s.scheduledMatches || []).map((m: any) => {
           const showPoints = m.status === 'in_progress' || (m.status === 'completed' && m.resultStatus === 'approved');
           return {
-            time: s.scheduledAt ? new Date(s.scheduledAt).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' }) : "TBD",
+            time: s.scheduledAt ? formatDateTime(s.scheduledAt) : "TBD",
             playerA: m.entryA?.name || "TBD",
             playerB: m.entryB?.name || "TBD",
             status: m.status,

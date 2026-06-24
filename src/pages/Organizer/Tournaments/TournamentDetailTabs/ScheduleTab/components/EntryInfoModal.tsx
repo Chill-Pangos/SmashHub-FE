@@ -7,6 +7,7 @@ import {
 import { useEntryMembers } from "@/hooks/queries";
 import { useTranslation } from "react-i18next";
 import { getImageUrl } from "@/utils/api.utils";
+import { useDateFormat } from "@/hooks/useDateFormat";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface EntryInfoModalProps {
@@ -16,6 +17,7 @@ interface EntryInfoModalProps {
 
 export function EntryInfoModal({ entryId, onClose }: EntryInfoModalProps) {
   const { t } = useTranslation();
+  const { formatDate } = useDateFormat();
   
   const { data, isLoading, error } = useEntryMembers(entryId || 0, 1, 10, {
     enabled: !!entryId,
@@ -72,7 +74,7 @@ export function EntryInfoModal({ entryId, onClose }: EntryInfoModalProps) {
                       {user.dob && (
                         <div>
                           <span className="font-medium mr-1">{t('tournamentManager.scheduleTab.dob', 'DOB')}:</span>
-                          <span>{new Date(user.dob).toLocaleDateString()}</span>
+                          <span>{formatDate(user.dob)}</span>
                         </div>
                       )}
                     </div>

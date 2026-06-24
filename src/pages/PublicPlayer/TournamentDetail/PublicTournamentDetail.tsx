@@ -4,10 +4,12 @@ import { useTournament, useScheduleConfigByTournament } from "@/hooks/queries";
 import { Calendar, MapPin, AlertCircle } from "lucide-react";
 import { OverviewTab, ScheduleTab } from "@/pages/PublicPlayer/TournamentDetail/TournamentDetailTabs";
 import { useTranslation } from "react-i18next";
+import { useDateFormat } from "@/hooks/useDateFormat";
 
 export default function PublicTournamentDetail() {
   const { t } = useTranslation();
   const { tournamentId } = useParams();
+  const { formatDate } = useDateFormat();
   const id = tournamentId ? parseInt(tournamentId, 10) : 0;
 
   const { data: tournament, isLoading: isTournamentLoading, error: tournamentError } = useTournament(id);
@@ -42,21 +44,10 @@ export default function PublicTournamentDetail() {
   const formatEventDate = (start?: string, end?: string) => {
     if (!start && !end) return "TBD";
     
-    const startDate = start ? new Date(start) : null;
-    const endDate = end ? new Date(end) : null;
-    
-    if (startDate && isNaN(startDate.getTime())) return "TBD";
-    if (endDate && isNaN(endDate.getTime())) return "TBD";
-
-    const options: Intl.DateTimeFormatOptions = {
-      month: "short",
-      day: "numeric",
-    };
-
-    if (startDate && endDate) {
-      return `${startDate.toLocaleDateString("en-US", options)} - ${endDate.toLocaleDateString("en-US", { ...options, year: "numeric" })}`;
-    } else if (startDate) {
-      return startDate.toLocaleDateString("en-US", { ...options, year: "numeric" });
+    if (start && end) {
+      return `${formatDate(start)} - ${formatDate(end)}`;
+    } else if (start) {
+      return formatDate(start);
     }
     
     return "TBD";

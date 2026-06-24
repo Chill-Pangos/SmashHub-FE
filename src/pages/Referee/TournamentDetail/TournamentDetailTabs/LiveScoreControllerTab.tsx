@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useRefereeMatches, useTournamentCategoriesByTournament } from '@/hooks/queries';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useDateFormat } from "@/hooks/useDateFormat";
 import { Button } from '@/components/ui/button';
 import { useCurrentUser } from '@/hooks/queries/useAuthQueries';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function LiveScoreControllerTab() {
   const { t } = useTranslation();
+  const { formatDateTime } = useDateFormat();
   const navigate = useNavigate();
   const { tournamentId } = useParams();
   const { data: userData } = useCurrentUser();
@@ -70,7 +72,7 @@ export default function LiveScoreControllerTab() {
           const p2Name = match.entryB?.team?.name || match.entryB?.name || "Player 2";
           const categoryName = match.schedule?.tournamentCategory?.name || "Unknown";
           const court = match.schedule?.tableNumber ? `${t("referee.matchControlCenter.court", "Court")} ${match.schedule.tableNumber}` : t("referee.matchControlCenter.tbd", "TBD");
-          const scheduleTime = match.schedule?.scheduledAt ? new Date(match.schedule.scheduledAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : t("referee.matchControlCenter.tbdTime", "Time TBD");
+          const scheduleTime = match.schedule?.scheduledAt ? formatDateTime(match.schedule.scheduledAt) : t("referee.matchControlCenter.tbdTime", "Time TBD");
 
           const umpireId = match.subMatches?.[0]?.umpireId;
           const assistantId = match.subMatches?.[0]?.assistantUmpireId;
