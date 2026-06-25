@@ -96,7 +96,6 @@ const SignUp = () => {
           lastName: formData.lastName,
           email: formData.email,
           password: formData.password,
-          role: "user",
         });
 
         if (response.success && response.data) {

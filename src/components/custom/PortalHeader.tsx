@@ -78,7 +78,7 @@ function resolveRouteMeta(
 
 function getUserDisplayName(authUser: AuthUser) {
   const fullName = `${authUser.firstName} ${authUser.lastName}`.trim();
-  return fullName || authUser.username || authUser.email;
+  return fullName || authUser.username || authUser.email || "";
 }
 
 function getUserInitials(displayName: string) {

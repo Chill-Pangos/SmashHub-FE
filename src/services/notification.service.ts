@@ -30,10 +30,10 @@ class NotificationService {
 
   /**
    * Get notification inbox
-   * GET /api/notifications?offset=0&limit=20
+   * GET /api/notifications?page=1&limit=20
    */
   async getNotifications(
-    filters: NotificationFilters = { offset: 0, limit: 20 },
+    filters: NotificationFilters = { page: 1, limit: 20 },
   ): Promise<NotificationInboxResponse> {
     const response = await axiosInstance.get<NotificationInboxResponse>(
       this.baseURL,

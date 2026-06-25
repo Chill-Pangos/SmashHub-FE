@@ -34,7 +34,7 @@ class UserService {
       return null;
     }
 
-    if (typeof obj.id !== "number" || typeof obj.email !== "string") {
+    if (typeof obj.id !== "number") {
       return null;
     }
 

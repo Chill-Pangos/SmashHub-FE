@@ -9,7 +9,7 @@ import type {
 } from "@/types/notification.types";
 
 export const useNotificationInbox = (
-  filters: NotificationFilters = { offset: 0, limit: 20 },
+  filters: NotificationFilters = { page: 1, limit: 20 },
   options?: { enabled?: boolean },
 ) => {
   return useQuery({

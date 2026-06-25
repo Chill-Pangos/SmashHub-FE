@@ -68,7 +68,7 @@ export interface NotificationInboxItem {
 }
 
 export interface NotificationFilters {
-  offset?: number;
+  page?: number;
   limit?: number;
   isRead?: boolean;
   type?: string;

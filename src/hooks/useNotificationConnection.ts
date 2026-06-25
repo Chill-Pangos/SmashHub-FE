@@ -21,7 +21,7 @@ export function useNotificationConnection() {
   const roleNames = getRoleNames(user?.roles ?? []);
   const isAdmin = roleNames.includes("admin");
   const inboxQuery = useNotificationInbox(
-    { offset: 0, limit: 20 },
+    { page: 1, limit: 20 },
     { enabled: isAuthenticated && !!user?.id && !!accessToken },
   );
 

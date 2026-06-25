@@ -68,14 +68,9 @@ class AuthService {
    * POST /api/auth/register
    */
   async register(data: RegisterRequest): Promise<AuthResponse> {
-    const registerPayload: RegisterRequest = {
-      ...data,
-      role: data.role ?? "spectator",
-    };
-
     const response = await axiosInstance.post<AuthResponse>(
       `${this.AUTH_PREFIX}/register`,
-      registerPayload,
+      data,
     );
     return response.data;
   }

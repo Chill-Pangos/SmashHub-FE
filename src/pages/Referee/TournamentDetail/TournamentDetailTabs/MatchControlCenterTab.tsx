@@ -74,7 +74,15 @@ export default function MatchControlCenterTab() {
   const handleStartMatch = (id: number) => {
     startMatchMutation.mutate(id, {
       onSuccess: () => showToast.success(t("referee.matchControlCenter.startSuccess", "Match started successfully")),
-      onError: (err: any) => showApiError(err, t("referee.matchControlCenter.startError", "Failed to start match")),
+      onError: (err: any) => {
+        if (err.response?.status === 409) {
+          showToast.error(t("referee.matchControlCenter.startErrorTableFull", "Cannot start match: No tables available"));
+        } else if (err.response?.status === 400) {
+          showToast.error(t("referee.matchControlCenter.startErrorWrongDate", "Cannot start match: Not scheduled for today"));
+        } else {
+          showApiError(err, t("referee.matchControlCenter.startError", "Failed to start match"));
+        }
+      },
     });
   };
 
@@ -92,7 +100,13 @@ export default function MatchControlCenterTab() {
         setIsBulkStartDialogOpen(false);
       },
       onError: (err: any) => {
-        showApiError(err, t("referee.matchControlCenter.bulkStartError", "Failed to bulk start matches"));
+        if (err.response?.status === 409) {
+          showToast.error(t("referee.matchControlCenter.bulkStartErrorTableFull", "Cannot start matches: Not enough tables available"));
+        } else if (err.response?.status === 400) {
+          showToast.error(t("referee.matchControlCenter.bulkStartErrorWrongDate", "Cannot start matches: Some matches are not scheduled for today"));
+        } else {
+          showApiError(err, t("referee.matchControlCenter.bulkStartError", "Failed to bulk start matches"));
+        }
         setIsBulkStartDialogOpen(false);
       },
     });

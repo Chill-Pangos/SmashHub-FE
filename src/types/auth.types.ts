@@ -16,7 +16,6 @@ export interface RegisterRequest {
   lastName: string;
   email: string;
   password: string;
-  role?: string;
 }
 
 export interface LoginRequest {
@@ -69,9 +68,9 @@ export interface User {
   id: number;
   firstName: string;
   lastName: string;
-  email: string;
+  email?: string;
   roles?: UserRoleInput[];
-  isEmailVerified: boolean;
+  isEmailVerified?: boolean;
   eloScore?: number | null;
   password?: string;
   gender?: string | null;
