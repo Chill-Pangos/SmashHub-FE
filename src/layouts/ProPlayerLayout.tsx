@@ -1,10 +1,11 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate, useLocation } from "react-router-dom";
 
 import PortalSidebar, {
   type PortalSidebarItem,
   type PortalSidebarSection,
 } from "@/components/custom/PortalSidebar";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
+import { useAuth } from "@/store/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
 import { proPlayerSidebarConfig } from "@/config/sidebarConfigs";
 import PortalHeader from "@/components/custom/PortalHeader";
@@ -16,6 +17,25 @@ interface ProPlayerLayoutProps {
 export default function ProPlayerLayout({ children }: ProPlayerLayoutProps) {
   const { t } = useTranslation();
   const { logout } = useAuthOperations();
+  const { user, isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  if (isAuthenticated && user) {
+    const isEmailVerificationRoute = location.pathname === "/verify-email";
+    const isProfileRoute = location.pathname === "/profile";
+    const isChangePasswordRoute = location.pathname === "/change-password";
+
+    // 1. Force email verification
+    if (!user.isEmailVerified && !isEmailVerificationRoute && !isChangePasswordRoute) {
+      return <Navigate to="/verify-email" replace />;
+    }
+
+    // 2. Force profile completion
+    const isProfileComplete = user.firstName && user.lastName && user.dob;
+    if (user.isEmailVerified && !isProfileComplete && !isProfileRoute && !isChangePasswordRoute) {
+      return <Navigate to="/profile" state={{ requireCompletion: true }} replace />;
+    }
+  }
 
   // Get sections from config with translations
   const sections: PortalSidebarSection[] = proPlayerSidebarConfig.sections(t);

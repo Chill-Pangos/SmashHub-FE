@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getImageUrl } from "@/utils/api.utils";
+import { useDateFormat } from "@/hooks/useDateFormat";
 import {
   Dialog,
   DialogContent,
@@ -44,6 +45,7 @@ export default function PaymentDetailDialog({
   isRefunding,
 }: PaymentDetailDialogProps) {
   const { t } = useTranslation();
+  const { formatDateTime } = useDateFormat();
   const [refundFile, setRefundFile] = useState<File | null>(null);
   const [showRefundUpload, setShowRefundUpload] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -59,13 +61,7 @@ export default function PaymentDetailDialog({
 
   const formatDate = (date?: string | Date | null) => {
     if (!date) return "—";
-    return new Date(date as string).toLocaleDateString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return formatDateTime(date as string);
   };
 
   const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {

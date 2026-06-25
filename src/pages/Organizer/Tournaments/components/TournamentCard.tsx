@@ -14,14 +14,16 @@ import {
 import type { Tournament } from "@/types";
 import { useDeleteTournament } from "@/hooks/queries/useTournamentQueries";
 import { showToast, showApiError } from "@/utils/toast.utils";
+import { formatCategoryName } from "@/utils/category.utils";
 
 import { useTranslation } from "react-i18next";
+import { useDateFormat } from "@/hooks/useDateFormat";
 
-function formatDateRange(start?: string, end?: string, tbdText = "TBD") {
+function formatDateRange(formatDate: (d: any) => string, start?: string, end?: string, tbdText = "TBD") {
   if (!start) return tbdText;
-  const s = new Date(start).toLocaleDateString();
+  const s = formatDate(start);
   if (!end) return s;
-  const e = new Date(end).toLocaleDateString();
+  const e = formatDate(end);
   return `${s} — ${e}`;
 }
 
@@ -39,8 +41,8 @@ function getParticipants(tournament: Tournament): number {
   );
 }
 
-function getShortDescription(tournament: Tournament, categoryText = "category", categoriesText = "categories", noCategoriesText = "No categories"): string {
-  const categoryNames = tournament.categories?.map((c) => c.name).join(", ");
+function getShortDescription(tournament: Tournament, t: any, categoryText = "category", categoriesText = "categories", noCategoriesText = "No categories"): string {
+  const categoryNames = tournament.categories?.map((c) => formatCategoryName(c, t) || c.name).join(", ");
   if (categoryNames) return categoryNames;
   const categoryCount = tournament.categories?.length || 0;
   return categoryCount > 0
@@ -56,10 +58,12 @@ export default function TournamentCard({
   className?: string;
 }) {
   const { t } = useTranslation();
+  const { formatDate } = useDateFormat();
   const thumbnailUrl = getThumbnailUrl();
   const participants = getParticipants(tournament);
   const shortDescription = getShortDescription(
     tournament,
+    t,
     t('tournamentManager.tournamentsList.category', 'category'),
     t('tournamentManager.tournamentsList.categories', 'categories'),
     t('tournamentManager.tournamentsList.noCategories', 'No categories')
@@ -145,7 +149,7 @@ export default function TournamentCard({
           <div className="inline-flex items-center gap-1">
             <Calendar className="h-3.5 w-3.5" />
             <span>
-              {formatDateRange(tournament.startDate, tournament.endDate, t('tournamentManager.tournamentsList.tbd', 'TBD'))}
+              {formatDateRange(formatDate, tournament.startDate, tournament.endDate, t('tournamentManager.tournamentsList.tbd', 'TBD'))}
             </span>
           </div>
 
@@ -166,9 +170,7 @@ export default function TournamentCard({
       <div className="ml-4 flex-shrink-0 text-right">
         {tournament.status ? (
           <div className="flex flex-col items-end gap-2">
-            <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
-              {tournament.status}
-            </span>
+            <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">{t(`constants.status.tournament.${tournament.status}`, tournament.status) as string}</span>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleEdit}

@@ -155,6 +155,14 @@ axiosInstance.interceptors.response.use(
       // Save new tokens
       localStorage.setItem("accessToken", newAccessToken);
       localStorage.setItem("refreshToken", newRefreshToken);
+      window.dispatchEvent(
+        new CustomEvent("auth:tokens-refreshed", {
+          detail: {
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken,
+          },
+        }),
+      );
 
       // Update authorization header
       if (originalRequest.headers) {

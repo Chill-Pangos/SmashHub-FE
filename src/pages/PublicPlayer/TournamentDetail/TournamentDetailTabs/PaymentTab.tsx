@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   CreditCard,
@@ -143,9 +143,16 @@ function PaymentFlowView({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [proofPreview, setProofPreview] = useState<string | null>(null);
 
-  const { data: paymentsResponse, isLoading } = usePaymentsByEntry(entryId, 1, 5);
+  const { data: paymentsResponse, isLoading, error: paymentError } = usePaymentsByEntry(entryId, 1, 5);
   const payments = paymentsResponse?.data?.rows || [];
   const latestPayment = payments[0];
+
+  useEffect(() => {
+    const err: any = paymentError;
+    if (err && err.response?.status === 403) {
+      showToast.error(t("publicPlayer.paymentTab.forbidden", "You do not have permission to view this payment."));
+    }
+  }, [paymentError, t]);
 
   const createMutation = useCreatePayment();
   const uploadProofMutation = useUpdatePaymentProof();

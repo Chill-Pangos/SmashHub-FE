@@ -13,12 +13,17 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Camera, Loader2, Save, Key, MailCheck } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 export default function UserProfile() {
   const { user, updateUser } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
+  const forceUpdate = location.state?.forceUpdate;
+  const requireCompletion = location.state?.requireCompletion;
   
   const [phoneNumber, setPhoneNumber] = useState("");
   const [dob, setDob] = useState<Date | undefined>(undefined);
@@ -74,6 +79,9 @@ export default function UserProfile() {
       onSuccess: (updatedUser) => {
         updateUser(updatedUser);
         showToast.success(t("profile.updateSuccess", "Profile updated successfully"));
+        if (forceUpdate) {
+          navigate("/");
+        }
       },
       onError: (err: any) => showApiError(err, t("profile.updateError", "Failed to update profile")),
     });
@@ -83,6 +91,26 @@ export default function UserProfile() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
+      {forceUpdate && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>{t("profile.forceUpdateTitle", "Action Required")}</AlertTitle>
+          <AlertDescription>
+            {t("profile.forceUpdateDesc", "Please update your profile information before continuing.")}
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {requireCompletion && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>{t("profile.completionRequiredTitle", "Profile Completion Required")}</AlertTitle>
+          <AlertDescription>
+            {t("profile.completionRequiredDesc", "You must complete your profile by providing your Date of Birth before accessing other features.")}
+          </AlertDescription>
+        </Alert>
+      )}
+
       <h1 className="mb-6 text-3xl font-bold">{t("profile.title") || "User Profile"}</h1>
       
       <div className="grid gap-8 md:grid-cols-3">

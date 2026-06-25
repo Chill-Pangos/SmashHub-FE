@@ -14,10 +14,15 @@ interface ChampionshipBracketProps {
   rounds?: any[];
   onEntryClick?: (entryId: number) => void;
 }
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { MatchDetailModal } from "@/components/custom/MatchDetailModal";
+import { useMatch } from "@/hooks/queries/useMatchQueries";
+import { useDateFormat } from "@/hooks/useDateFormat";
 
 export function ChampionshipBracket({ matches, rounds, onEntryClick }: ChampionshipBracketProps) {
   const { t } = useTranslation();
+  const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
 
   if (rounds && rounds.length > 0) {
     return (
@@ -36,7 +41,12 @@ export function ChampionshipBracket({ matches, rounds, onEntryClick }: Champions
                   </h4>
                   <div className="space-y-8">
                     {round.brackets?.map((bracket: any) => (
-                      <BracketMatchCard key={bracket.id} bracket={bracket} onEntryClick={onEntryClick} />
+                      <BracketMatchCard 
+                        key={bracket.id} 
+                        bracket={bracket} 
+                        onEntryClick={onEntryClick} 
+                        onClick={() => setSelectedMatchId(bracket.id)}
+                      />
                     ))}
                   </div>
                 </div>
@@ -44,6 +54,7 @@ export function ChampionshipBracket({ matches, rounds, onEntryClick }: Champions
             );
           })}
         </div>
+        <MatchDetailModal matchId={selectedMatchId} onClose={() => setSelectedMatchId(null)} />
       </div>
     );
   }
@@ -96,29 +107,65 @@ export function ChampionshipBracket({ matches, rounds, onEntryClick }: Champions
   );
 }
 
-function BracketMatchCard({ bracket, onEntryClick }: { bracket: any, onEntryClick?: (entryId: number) => void }) {
+function BracketMatchCard({ bracket, onEntryClick, onClick }: { bracket: any, onEntryClick?: (entryId: number) => void, onClick?: () => void }) {
+  const { t } = useTranslation();
+  const { formatDateTime } = useDateFormat();
   const isLive = bracket.status === "in_progress";
-  const playerA = bracket.entryA?.entryName || "TBD";
-  const playerB = bracket.entryB?.entryName || "TBD";
-  const scoreA = bracket.entryA?.entryId ? (bracket.setsWonA ?? "-") : null;
-  const scoreB = bracket.entryB?.entryId ? (bracket.setsWonB ?? "-") : null;
+  
+  const { data: matchDetail } = useMatch(bracket.id, { 
+    enabled: bracket.status === 'completed' || bracket.status === 'in_progress'
+  });
+
+  const playerA = bracket.entryA?.entryName || t("match.details.tbd", "TBD");
+  const playerB = bracket.entryB?.entryName || t("match.details.tbd", "TBD");
+  
+  let finalScoreA: number | string = bracket.setsWonA ?? "-";
+  let finalScoreB: number | string = bracket.setsWonB ?? "-";
+
+  const showPoints = bracket.status === 'in_progress' || (bracket.status === 'completed' && bracket.resultStatus === 'approved');
+
+  if (showPoints && matchDetail && matchDetail.subMatches) {
+    const isTeam = (matchDetail.schedule as any)?.tournamentCategory?.type === 'team';
+    if (isTeam) {
+      finalScoreA = matchDetail.subMatches.filter((sm: any) => sm.winnerTeam === 'A').length || 0;
+      finalScoreB = matchDetail.subMatches.filter((sm: any) => sm.winnerTeam === 'B').length || 0;
+    } else {
+      const mainSubMatch = matchDetail.subMatches[0];
+      if (mainSubMatch && mainSubMatch.matchSets) {
+        let a = 0;
+        let b = 0;
+        mainSubMatch.matchSets.forEach((set: any) => {
+          if (set.entryAScore > set.entryBScore) a++;
+          else if (set.entryBScore > set.entryAScore) b++;
+        });
+        finalScoreA = a;
+        finalScoreB = b;
+      }
+    }
+  } else if (!showPoints) {
+    finalScoreA = "-";
+    finalScoreB = "-";
+  }
+
   const winnerA = bracket.winnerEntryId && bracket.winnerEntryId === bracket.entryA?.entryId;
   const winnerB = bracket.winnerEntryId && bracket.winnerEntryId === bracket.entryB?.entryId;
 
   return (
-    <div className={`bg-background border border-border rounded-lg p-3 relative overflow-hidden transition-all
+    <div 
+      className={`bg-background border border-border rounded-lg p-3 relative overflow-hidden transition-all cursor-pointer hover:border-primary/50
       ${isLive ? 'border-primary shadow-[0_0_15px_rgba(0,242,255,0.1)]' : ''}`}
+      onClick={onClick}
     >
       <div className={`absolute left-0 top-0 bottom-0 w-1 ${isLive || bracket.status === "completed" ? 'bg-primary' : 'bg-muted'}`} />
       
       <div className="pl-2">
         <div className="flex justify-between items-center text-xs text-muted-foreground mb-3">
-          <span className="font-mono">{bracket.scheduledAt ? new Date(bracket.scheduledAt).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' }) : "TBD"}</span>
+          <span className="font-mono">{bracket.scheduledAt ? formatDateTime(bracket.scheduledAt) : t("match.details.tbd", "TBD")}</span>
           <span className={`font-bold uppercase tracking-wider text-[10px] 
             ${isLive ? 'text-destructive bg-destructive/10 px-2 py-0.5 rounded' : 
               bracket.status === 'completed' ? 'text-primary bg-primary/10 px-2 py-0.5 rounded' : ''}`}
           >
-            {bracket.status}
+            {t(`constants.status.match.${bracket.status}`, bracket.status) as string}
           </span>
         </div>
 
@@ -131,7 +178,7 @@ function BracketMatchCard({ bracket, onEntryClick }: { bracket: any, onEntryClic
               {playerA}
             </span>
             <span className={`font-bold ${winnerA ? 'text-primary' : 'text-foreground'}`}>
-              {scoreA ?? '-'}
+              {finalScoreA}
             </span>
           </div>
 
@@ -143,7 +190,7 @@ function BracketMatchCard({ bracket, onEntryClick }: { bracket: any, onEntryClic
               {playerB}
             </span>
             <span className={`font-bold ${winnerB ? 'text-primary' : 'text-foreground'}`}>
-              {scoreB ?? '-'}
+              {finalScoreB}
             </span>
           </div>
         </div>
@@ -153,6 +200,7 @@ function BracketMatchCard({ bracket, onEntryClick }: { bracket: any, onEntryClic
 }
 
 function MatchCard({ match }: { match: KnockoutMatch }) {
+  const { t } = useTranslation();
   const isLive = match.status === "LIVE";
   
   return (
@@ -168,7 +216,7 @@ function MatchCard({ match }: { match: KnockoutMatch }) {
             ${isLive ? 'text-destructive bg-destructive/10 px-2 py-0.5 rounded' : 
               match.status === 'COMPLETED' ? 'text-primary bg-primary/10 px-2 py-0.5 rounded' : ''}`}
           >
-            {match.status}
+            {t(`constants.status.match.${match.status}`, match.status) as string}
           </span>
         </div>
 

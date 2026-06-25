@@ -16,7 +16,7 @@ export type MatchStatus =
 /**
  * Match result status enum (for approval workflow)
  */
-export type MatchResultStatus = "pending" | "approved" | "rejected";
+export type MatchResultStatus = "pending" | "approved";
 
 // ==================== Match ====================
 
@@ -214,7 +214,7 @@ export interface GetRefereeMatchesResponse {
   categoryId: number;
   statuses: string[] | null;
   count: number;
-  offset: number;
+  page: number;
   limit: number;
   matches: Match[];
 }
@@ -266,14 +266,14 @@ export interface GetPendingMatchesResponse {
 export interface GetAthleteUpcomingMatchesResponse {
   matches: Match[];
   count: number;
-  offset?: number;
+  page?: number;
   limit?: number;
 }
 
 export interface GetAthleteMatchHistoryResponse {
   matches: Match[];
   count: number;
-  offset?: number;
+  page?: number;
   limit?: number;
 }
 

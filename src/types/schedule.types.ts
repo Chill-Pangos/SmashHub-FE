@@ -18,6 +18,7 @@ export interface Schedule {
   scheduledAt?: string;
   matchId?: number | null;
   match?: Match | null;
+  scheduledMatches?: Match[];
   createdAt: string;
   updatedAt: string;
 }
@@ -43,7 +44,17 @@ export interface SyncMatchEntriesRequest {
 // ==================== Response Types ====================
 
 export type GetScheduleResponse = { success: boolean; data: Schedule };
-export type GetSchedulesByContentData = { schedules: Schedule[]; count: number; page: number; limit: number; };
+export type GetSchedulesByContentData = { 
+  schedules: Schedule[]; 
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  }
+};
 export type GetSchedulesByContentResponse = { success: boolean; data: GetSchedulesByContentData };
 
 export interface GenerateGroupStageScheduleResponse {

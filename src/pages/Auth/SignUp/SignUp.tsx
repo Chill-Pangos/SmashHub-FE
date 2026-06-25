@@ -96,7 +96,6 @@ const SignUp = () => {
           lastName: formData.lastName,
           email: formData.email,
           password: formData.password,
-          role: "user",
         });
 
         if (response.success && response.data) {
@@ -113,11 +112,7 @@ const SignUp = () => {
             console.warn("Failed to refresh current user after register:", err);
           }
 
-          const roleNames = getRoleNames(currentUser.roles ?? []);
-          const redirectPath =
-            roleNames.length > 1 ? "/" : getDefaultRouteForRoles(roleNames);
-
-          navigate(redirectPath, { replace: true });
+          navigate("/verify-email", { replace: true, state: { fromSignUp: true } });
           showToast.success(
             t("auth.registerSuccess"),
             t("authFlow.signUp.welcomeDescription", {

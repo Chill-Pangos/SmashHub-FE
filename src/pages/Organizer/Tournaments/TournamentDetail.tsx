@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useTournament, useCancelTournament } from "@/hooks/queries"; // Đảm bảo đường dẫn này đúng với project của bạn
 import scheduleConfigService from "@/services/scheduleConfig.service";
 import { showToast, showApiError } from "@/utils/toast.utils";
+import { useTranslation } from "react-i18next";
+import { useDateFormat } from "@/hooks/useDateFormat";
 
 import { Calendar, MapPin, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,6 +33,8 @@ import {
 export default function TournamentDetail() {
   const { tournamentId } = useParams();
   const id = tournamentId ? parseInt(tournamentId, 10) : 0;
+  const { t } = useTranslation();
+  const { formatDate } = useDateFormat();
 
   // Lấy data từ hook API
   const {
@@ -54,13 +58,13 @@ export default function TournamentDetail() {
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
 
   const cancelMutation = useCancelTournament();
-  const tabs = [
-    "Overview",
-    "Referees",
-    "Entries",
-    "Payments",
-    "Schedule",
-    "Schedule Config",
+  const tabsMap = [
+    { id: "Overview", label: t("tournamentManager.detail.tabs.overview", "Overview") },
+    { id: "Referees", label: t("tournamentManager.detail.tabs.referees", "Referees") },
+    { id: "Entries", label: t("tournamentManager.detail.tabs.entries", "Entries") },
+    { id: "Payments", label: t("tournamentManager.detail.tabs.payments", "Payments") },
+    { id: "Schedule", label: t("tournamentManager.detail.tabs.schedule", "Schedule") },
+    { id: "Schedule Config", label: t("tournamentManager.detail.tabs.scheduleConfig", "Schedule Config") }
   ];
 
   if (isLoading) {
@@ -85,17 +89,15 @@ export default function TournamentDetail() {
 
   // --- Hàm hỗ trợ xử lý dữ liệu ---
 
-  // Format ngày tháng (VD: Oct 15 - Oct 18, 2026)
+  // Format Event Date Function
   const formatEventDate = (start?: string, end?: string) => {
-    if (!start || !end) return "TBD";
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const options: Intl.DateTimeFormatOptions = {
-      month: "short",
-      day: "numeric",
-    };
-
-    return `${startDate.toLocaleDateString("en-US", options)} - ${endDate.toLocaleDateString("en-US", { ...options, year: "numeric" })}`;
+    if (!start && !end) return "TBD";
+    if (start && end) {
+      return `${formatDate(start)} - ${formatDate(end)}`;
+    } else if (start) {
+      return formatDate(start);
+    }
+    return "TBD";
   };
 
   const renderTabContent = () => {
@@ -123,9 +125,7 @@ export default function TournamentDetail() {
       <div className="space-y-4">
         {/* Status & ID Badge */}
         <div className="flex items-center gap-3">
-          <span className="rounded bg-primary px-2 py-1 text-xs font-bold uppercase tracking-wider text-primary-foreground">
-            {tournament.status}
-          </span>
+          <span className="rounded bg-primary px-2 py-1 text-xs font-bold uppercase tracking-wider text-primary-foreground">{t(`constants.status.tournament.${tournament.status}`, tournament.status) as string}</span>
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             ID: TRN-{new Date(tournament.createdAt).getFullYear()}-
             {tournament.id.toString().padStart(3, "0")}
@@ -168,16 +168,16 @@ export default function TournamentDetail() {
       {/* 2. TABS NAVIGATION */}
       <div className="border-b border-border">
         <nav className="-mb-px flex space-x-6 overflow-x-auto">
-          {tabs.map((tab) => (
+          {tabsMap.map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors ${activeTab === tab
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors ${activeTab === tab.id
                   ? "border-primary text-foreground"
                   : "border-transparent text-muted-foreground hover:border-border hover:text-foreground"
                 }`}
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
         </nav>

@@ -3,13 +3,23 @@ import MatchControlCenterTab from "./TournamentDetailTabs/MatchControlCenterTab"
 import MatchResultsReviewTab from "./TournamentDetailTabs/MatchResultsReviewTab";
 import LiveScoreControllerTab from "./TournamentDetailTabs/LiveScoreControllerTab";
 import ResultsSubmissionTab from "./TournamentDetailTabs/ResultsSubmissionTab";
-import { Search } from "lucide-react";
+import { Calendar, MapPin, AlertCircle } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { useTournament, useScheduleConfigByTournament } from "@/hooks/queries";
 
 import { useCurrentUser } from "@/hooks/queries/useAuthQueries";
 import { useTranslation } from "react-i18next";
+import { useDateFormat } from "@/hooks/useDateFormat";
 
 export default function TournamentDetail() {
   const { t } = useTranslation();
+  const { formatDate } = useDateFormat();
+  const { tournamentId } = useParams();
+  const id = tournamentId ? parseInt(tournamentId, 10) : 0;
+
+  const { data: tournament, isLoading, error } = useTournament(id);
+  const { data: scheduleConfig } = useScheduleConfigByTournament(id, { enabled: !!id });
+
   const { data: userData } = useCurrentUser();
   const roleItem = userData?.roles?.[0];
   const roleName = typeof roleItem === 'object' ? roleItem?.name : undefined;
@@ -33,28 +43,68 @@ export default function TournamentDetail() {
     setActiveTab(role === "chief_referee" ? "control_center" : "live_score");
   }, [role]);
 
+  const formatEventDate = (start?: string, end?: string) => {
+    if (!start && !end) return "TBD";
+    if (start && end) {
+      return `${formatDate(start)} - ${formatDate(end)}`;
+    } else if (start) {
+      return formatDate(start);
+    }
+    return "TBD";
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center rounded-2xl border border-border bg-card">
+        <p className="text-muted-foreground animate-pulse">Loading tournament details...</p>
+      </div>
+    );
+  }
+
+  if (error || !tournament) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center rounded-2xl border border-destructive/20 bg-card p-6">
+        <AlertCircle className="h-10 w-10 text-destructive mb-4" />
+        <p className="text-destructive font-medium">{error?.message || "Failed to load tournament"}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground p-6 flex flex-col gap-6">
-      {/* Header dùng chung */}
-      <header className="flex justify-between items-center pb-4 border-b border-border">
-        <h1 className="text-2xl font-bold text-primary">
-          {role === "chief_referee"
-            ? t("referee.tournamentDetail.chiefRefereeDashboard", "Chief Referee Dashboard")
-            : t("referee.tournamentDetail.refereeDashboard", "Referee Dashboard")}
-        </h1>
-        <div className="flex items-center gap-4">
+      {/* 1. HEADER SECTION */}
+      <div className="space-y-4">
+        {/* Status & ID Badge */}
+        <div className="flex items-center gap-3">
+          <span className="rounded bg-primary px-2 py-1 text-xs font-bold uppercase tracking-wider text-primary-foreground">
+            {t(`constants.status.tournament.${tournament.status}`, tournament.status) as string}
+          </span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            ID: TRN-{new Date(tournament.createdAt).getFullYear()}-{tournament.id.toString().padStart(3, "0")}
+          </span>
+          <span className="ml-auto text-sm font-bold text-primary border border-primary px-3 py-1 rounded-full">
+            {role === "chief_referee" ? t("referee.tournamentDetail.chiefRefereeDashboard", "Chief Referee Dashboard") : t("referee.tournamentDetail.refereeDashboard", "Referee Dashboard")}
+          </span>
+        </div>
 
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder={t("referee.tournamentDetail.searchMatches", "Search matches...")}
-              className="bg-input border border-border rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-            />
+        {/* Title */}
+        <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          {tournament.name}
+        </h1>
+
+        {/* Date & Location Info */}
+        <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <Calendar className="h-4 w-4" />
+            <span>{formatEventDate(scheduleConfig?.startDate || tournament.startDate, scheduleConfig?.endDate || tournament.endDate)}</span>
+          </div>
+          <div className="h-4 w-px bg-border hidden sm:block"></div>
+          <div className="flex items-center gap-1.5">
+            <MapPin className="h-4 w-4" />
+            <span>{tournament.location}</span>
           </div>
         </div>
-      </header>
-
+      </div>
       {/* Custom Tabs Navigation */}
       <div className="flex gap-2 border-b border-border">
         {role === "chief_referee" ? (

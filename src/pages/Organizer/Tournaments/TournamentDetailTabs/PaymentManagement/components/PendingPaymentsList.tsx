@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useDateFormat } from "@/hooks/useDateFormat";
 import { CheckCircle2, XCircle, Eye, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +40,7 @@ export default function PendingPaymentsList({
   isRejecting,
 }: PendingPaymentsListProps) {
   const { t } = useTranslation();
+  const { formatDateTime } = useDateFormat();
   const [proofPreview, setProofPreview] = useState<string | null>(null);
 
   const formatCurrency = (amount?: number) => {
@@ -52,13 +54,7 @@ export default function PendingPaymentsList({
 
   const formatDate = (date?: string | Date) => {
     if (!date) return "—";
-    return new Date(date).toLocaleDateString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return formatDateTime(date);
   };
 
   if (isLoading) {

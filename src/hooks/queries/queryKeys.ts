@@ -317,7 +317,7 @@ export const queryKeys = {
   notifications: {
     all: ["notifications"] as const,
     lists: () => [...queryKeys.notifications.all, "list"] as const,
-    list: (filters?: { page?: number; limit?: number }) =>
+    list: (filters?: object) =>
       [...queryKeys.notifications.lists(), filters] as const,
     unread: () => [...queryKeys.notifications.all, "unread"] as const,
     byUser: (userId: number) =>
@@ -328,6 +328,8 @@ export const queryKeys = {
       [...queryKeys.notifications.all, "serviceStatus"] as const,
     userStatus: (userId: string) =>
       [...queryKeys.notifications.all, "userStatus", userId] as const,
+    adminSystemSummary: () =>
+      [...queryKeys.notifications.all, "adminSystemSummary"] as const,
   },
 
   // ==================== Payment Keys ====================

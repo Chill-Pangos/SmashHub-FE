@@ -1,0 +1,23 @@
+export default {
+  "home": "Home",
+  "dashboard": "Dashboard",
+  "tournaments": "Tournaments",
+  "brackets": "Brackets",
+  "elo": "ELO",
+  "schedule": "Schedule",
+  "matches": "Matches",
+  "teams": "Teams",
+  "athletes": "Athletes",
+  "referees": "Referees",
+  "rankings": "Rankings",
+  "notifications": "Notifications",
+  "profile": "Profile",
+  "settings": "Settings",
+  "help": "Help",
+  "about": "About",
+  "contact": "Contact",
+  "analytics": "Analytics",
+  "team": "My Team",
+  "eloHistory": "Elo History",
+  "chatbot": "AI Assistant"
+};

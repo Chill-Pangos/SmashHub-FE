@@ -5,7 +5,7 @@ import {
   useState,
   type FormEvent,
 } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Mail, ArrowLeft, MailCheck, RefreshCw } from "lucide-react";
 import { useAuth } from "@/store";
 import { useTranslation } from "@/hooks";
@@ -28,6 +28,7 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
 
 const EmailVerification = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const { user, isAuthenticated, updateUser } = useAuth();
@@ -146,7 +147,12 @@ const EmailVerification = () => {
           t("authFlow.emailVerification.verificationSuccessTitle"),
           t("authFlow.emailVerification.verificationSuccessDescription"),
         );
-        navigate("/");
+        const fromSignUp = location.state?.fromSignUp;
+        if (fromSignUp) {
+          navigate("/profile", { state: { forceUpdate: true } });
+        } else {
+          navigate("/");
+        }
       } else {
         const errMsg =
           typeof resp.error === "string"

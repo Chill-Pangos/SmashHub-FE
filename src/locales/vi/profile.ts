@@ -1,0 +1,23 @@
+export default {
+  "title": "Hồ sơ cá nhân",
+  "avatarTitle": "Ảnh đại diện",
+  "avatarDesc": "Nhấn để tải lên ảnh đại diện mới.",
+  "detailsTitle": "Chi tiết hồ sơ",
+  "detailsDesc": "Quản lý thông tin cá nhân của bạn.",
+  "firstName": "Tên",
+  "lastName": "Họ",
+  "email": "Email",
+  "phoneNumber": "Số điện thoại",
+  "dob": "Ngày sinh",
+  "selectDate": "Chọn ngày",
+  "gender": "Giới tính",
+  "selectGender": "Chọn giới tính",
+  "male": "Nam",
+  "female": "Nữ",
+  "securityTitle": "Bảo mật",
+  "securityDesc": "Quản lý bảo mật tài khoản và xác thực.",
+  "uploadAvatarSuccess": "Avatar uploaded successfully",
+  "uploadAvatarError": "Failed to upload avatar",
+  "updateSuccess": "Profile updated successfully",
+  "updateError": "Failed to update profile"
+};

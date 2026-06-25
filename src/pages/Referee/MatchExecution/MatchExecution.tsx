@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useMatch, useFinalizeMatch } from "@/hooks/queries/useMatchQueries";
+import { useMatch, useFinalizeMatch, useApproveMatch } from "@/hooks/queries/useMatchQueries";
 import {
   useSubMatchesByMatch,
   useStartSubMatch,
@@ -16,6 +16,7 @@ import {
   useRejectLineups,
 } from "@/hooks/queries/useSubMatchPlayerQueries";
 import { useCurrentUser } from "@/hooks/queries/useAuthQueries";
+import { useMatchRealtime } from "@/hooks/queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +37,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { showToast, showApiError } from "@/utils/toast.utils";
 import { useTranslation } from "react-i18next";
@@ -43,6 +45,7 @@ import { useTranslation } from "react-i18next";
 export default function MatchExecution() {
   const { t } = useTranslation();
   const { matchId } = useParams();
+  useMatchRealtime({ matchId: Number(matchId) });
 
   const { data: matchResp, isLoading: matchLoading } = useMatch(
     Number(matchId)
@@ -50,6 +53,10 @@ export default function MatchExecution() {
   const match = matchResp;
 
   const { data: userResp } = useCurrentUser();
+
+  const roleItem = userResp?.roles?.[0];
+  const roleName = typeof roleItem === 'object' ? (roleItem as any)?.name : undefined;
+  const isChiefReferee = roleName === "chief_referee" || roleName === "CHIEF_REFEREE";
 
   const isAssignedReferee = match?.matchReferees?.some(
     (mr: { refereeId: number }) => mr.refereeId === userResp?.id
@@ -61,6 +68,8 @@ export default function MatchExecution() {
   const { mutate: finalizeMatch, isPending: finalizingMatch } =
     useFinalizeMatch();
 
+  const { mutate: approveMatch, isPending: approvingMatch } = useApproveMatch();
+
   const [matchReadyToFinalize, setMatchReadyToFinalize] = useState(false);
 
   if (matchLoading) return <div className="p-6">{t("matchExecution.loading", "Loading match...")}</div>;
@@ -70,7 +79,7 @@ export default function MatchExecution() {
     <div className="px-6 py-10 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">{t("matchExecution.title", "Match Execution #")}{match.id}</h1>
-        <Badge>{match.status}</Badge>
+        <Badge>{t(`constants.status.match.${match.status}`, match.status) as string}</Badge>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -80,11 +89,23 @@ export default function MatchExecution() {
           </CardHeader>
           <CardContent className="space-y-2">
             <p>
-              <strong>{t("matchExecution.category", "Category:")}</strong> {match.schedule?.tournamentContent?.name || "Category"}
+              <strong>{t("matchExecution.category", "Category:")}</strong> {(match.schedule as any)?.tournamentCategory?.name || match.schedule?.tournamentContent?.name || "Category"}
             </p>
             <p>
-              <strong>{t("matchExecution.status", "Status:")}</strong> {match.status}
+              <strong>{t("matchExecution.status", "Status:")}</strong> {t(`constants.status.match.${match.status}`, match.status) as string}
             </p>
+            <div className="flex justify-between items-center py-4 border-y border-border my-4">
+              <div className="flex flex-col items-center gap-1 w-1/3">
+                <span className="font-bold text-center line-clamp-2">{(match.entryA as any)?.name || t("matchExecution.teamA", "Team A")}</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 w-1/3">
+                <span className="text-sm font-bold text-muted-foreground">{t("matchExecution.totalScore", "Total Score")}</span>
+                <span className="text-2xl font-black">{match.setsWonA || 0} - {match.setsWonB || 0}</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 w-1/3">
+                <span className="font-bold text-center line-clamp-2">{(match.entryB as any)?.name || t("matchExecution.teamB", "Team B")}</span>
+              </div>
+            </div>
             {isAssignedReferee && match.status === "in_progress" && (
               <Button
                 variant={matchReadyToFinalize ? "default" : "outline"}
@@ -105,10 +126,24 @@ export default function MatchExecution() {
                 {t("matchExecution.matchReadyForReferee", "Match is completed. Waiting for assigned referee to finalize.")}
               </p>
             )}
-            {match.resultStatus === "pending" && (
+            {match.resultStatus === "pending" && !isChiefReferee && (
               <p className="text-amber-600 font-semibold text-sm">
                 {t("matchExecution.matchPendingApproval", "Match finalized. Waiting for Chief Referee approval.")}
               </p>
+            )}
+            {isChiefReferee && match.status === "completed" && match.resultStatus === "pending" && (
+              <Button
+                onClick={() => approveMatch({ id: match.id }, {
+                  onSuccess: () => {
+                    showToast.success(t("matchExecution.approveSuccess", "Match approved successfully"));
+                  },
+                  onError: (err: any) => showApiError(err, t("matchExecution.approveError", "Failed to approve match")),
+                })}
+                disabled={approvingMatch}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                {t("matchExecution.chiefFinalize", "Chief: Finalize Match")}
+              </Button>
             )}
           </CardContent>
         </Card>
@@ -119,6 +154,7 @@ export default function MatchExecution() {
             <SubMatchCard 
               key={sm.id} 
               subMatch={sm} 
+              match={match}
               onMatchReady={() => setMatchReadyToFinalize(true)} 
               isUmpire={sm.umpireId === userResp?.id}
             />
@@ -129,7 +165,7 @@ export default function MatchExecution() {
   );
 }
 
-function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onMatchReady: () => void; isUmpire: boolean }) {
+function SubMatchCard({ subMatch, match, onMatchReady, isUmpire }: { subMatch: any; match: any; onMatchReady: () => void; isUmpire: boolean }) {
   const { t } = useTranslation();
   const { mutate: startSubMatch, isPending: starting } = useStartSubMatch();
   const { mutate: finalizeSubMatch, isPending: finalizing } =
@@ -139,8 +175,21 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
   const { data: liveScoreResp } = useLiveScore(subMatch.id, activeSetNumber);
   const liveScore = liveScoreResp?.liveScore;
 
-  const { mutate: updateScore } = useUpdateLiveScore();
+  const { mutate: updateScore, isPending: updatingScore } = useUpdateLiveScore();
   const [scoreStatus, setScoreStatus] = useState<any>(null);
+  const [scoreHistory, setScoreHistory] = useState<{a: number, b: number}[]>([]);
+  const [cooldownTimer, setCooldownTimer] = useState(0);
+  const [actionType, setActionType] = useState<"A" | "B" | null>(null);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (cooldownTimer > 0) {
+      interval = setInterval(() => {
+        setCooldownTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [cooldownTimer]);
 
   // Lineup Approval Logic
   const { data: pendingLineupsResp } = usePendingLineups();
@@ -175,48 +224,84 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
   };
 
   const handleScore = (team: "A" | "B", action: "add" | "subtract") => {
-    let entryAScore = liveScore?.entryAScore || 0;
-    let entryBScore = liveScore?.entryBScore || 0;
+    let currentA = liveScore?.entryAScore || 0;
+    let currentB = liveScore?.entryBScore || 0;
+
+    let newA = currentA;
+    let newB = currentB;
 
     if (team === "A") {
-      entryAScore += action === "add" ? 1 : -1;
+      newA += action === "add" ? 1 : -1;
     } else {
-      entryBScore += action === "add" ? 1 : -1;
+      newB += action === "add" ? 1 : -1;
     }
 
-    if (entryAScore < 0) entryAScore = 0;
-    if (entryBScore < 0) entryBScore = 0;
+    if (newA < 0) newA = 0;
+    if (newB < 0) newB = 0;
+
+    setActionType(team);
+
+    // push to history
+    setScoreHistory(prev => [...prev, { a: currentA, b: currentB }]);
 
     updateScore(
       {
         subMatchId: subMatch.id,
         setNumber: activeSetNumber,
-        entryAScore,
-        entryBScore,
+        entryAScore: newA,
+        entryBScore: newB,
       },
       {
         onSuccess: (data: any) => {
           setScoreStatus(data);
           if (data?.message) {
-            showToast.success(data.message);
+            showToast.success(t("matchExecution.scoreUpdated", "Score updated successfully"), data.message);
           }
           if (data?.nextSetNumber) {
             setActiveSetNumber(data.nextSetNumber);
+            setScoreHistory([]); // clear history on new set
           }
+          setCooldownTimer(3);
         },
-        onError: (err: any) => showApiError(err, t("matchExecution.updateScoreError", "Failed to update score")),
+        onError: (err: any) => {
+          showApiError(err, t("matchExecution.updateScoreError", "Failed to update score"));
+          // revert history
+          setScoreHistory(prev => prev.slice(0, -1));
+        },
       }
     );
   };
 
+  const handleUndoScore = () => {
+    if (scoreHistory.length === 0) return;
+    const prev = scoreHistory[scoreHistory.length - 1];
+    setScoreHistory(curr => curr.slice(0, -1));
+    updateScore({
+      subMatchId: subMatch.id,
+      setNumber: activeSetNumber,
+      entryAScore: prev.a,
+      entryBScore: prev.b,
+    });
+  };
+
   const isSubMatchReady = scoreStatus?.subMatchReadyToFinalize;
+
+  const isTeamCategory = (match?.schedule as any)?.tournamentCategory?.type === "team";
+  const cardTitleText = isTeamCategory 
+    ? `${t("matchExecution.subMatchTitle", "Sub-Match #")}${subMatch.subMatchNumber}`
+    : `${t("matchExecution.setNumber", "Set #")}${activeSetNumber}`;
+
+  const teamAName = (match?.entryA as any)?.name || t("matchExecution.teamA", "Team A");
+  const teamBName = (match?.entryB as any)?.name || t("matchExecution.teamB", "Team B");
+
+  const completedSets = (subMatch.matchSets || []).filter((s: any) => s.status === "completed" || (s.entryAScore !== undefined && s.entryBScore !== undefined));
 
   return (
     <Card className={isSubMatchReady ? "border-amber-500 shadow-md" : ""}>
       <CardHeader>
         <CardTitle className="flex justify-between">
-          <span>{t("matchExecution.subMatchTitle", "Sub-Match #")}{subMatch.subMatchNumber}</span>
-          <Badge>{subMatch.status}</Badge>
+          <span>{cardTitleText}</span>
+          <Badge>{t(`constants.status.match.${subMatch.status}`, subMatch.status) as string}</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -273,15 +358,33 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
               </AlertDialog>
             )}
             {isUmpire ? (
-              <Button
-                onClick={() => startSubMatch(subMatch.id, {
-                  onSuccess: () => showToast.success(t("matchExecution.startSubMatchSuccess", "Sub-match started successfully")),
-                  onError: (err: any) => showApiError(err, t("matchExecution.startSubMatchError", "Failed to start sub-match")),
-                })}
-                disabled={starting || hasPendingLineup}
-              >
-                {t("matchExecution.startSubMatch", "Start Sub-Match")}
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button disabled={starting || hasPendingLineup}>
+                    {t("matchExecution.startSubMatch", "Start Sub-Match")}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t("matchExecution.startConfirmTitle", "Start Sub-Match?")}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t("matchExecution.startConfirmDesc", "Are you sure you want to start this sub-match? Make sure players are ready.")}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t("common.cancel", "Cancel")}</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => startSubMatch(subMatch.id, {
+                        onSuccess: () => showToast.success(t("matchExecution.startSubMatchSuccess", "Sub-match started successfully")),
+                        onError: (err: any) => showApiError(err, t("matchExecution.startSubMatchError", "Failed to start sub-match")),
+                      })}
+                      disabled={starting}
+                    >
+                      {starting ? t("common.starting", "Starting...") : t("common.start", "Start")}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             ) : (
               <p className="text-sm text-muted-foreground text-center italic py-2">
                 {t("matchExecution.waitingForUmpireToStart", "Waiting for Umpire to start the match...")}
@@ -303,8 +406,8 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
             )}
 
             <div className="flex justify-between items-center bg-secondary/20 p-4 rounded-lg">
-              <div className="flex flex-col items-center gap-2">
-                <span className="font-bold">{t("matchExecution.teamA", "Team A")}</span>
+              <div className="flex flex-col items-center gap-2 flex-1 text-center">
+                <span className="font-bold text-sm line-clamp-2">{teamAName}</span>
                 <span className="text-4xl font-bold">
                   {liveScore?.entryAScore || 0}
                 </span>
@@ -314,32 +417,41 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
                       size="sm"
                       variant="outline"
                       onClick={() => handleScore("A", "subtract")}
+                      disabled={updatingScore || cooldownTimer > 0}
                     >
                       -
                     </Button>
-                    <Button size="sm" onClick={() => handleScore("A", "add")}>
-                      +
+                    <Button size="sm" onClick={() => handleScore("A", "add")} disabled={updatingScore || cooldownTimer > 0}>
+                      {cooldownTimer > 0 && actionType === 'A' ? cooldownTimer : '+'} 
                     </Button>
                   </div>
                 )}
               </div>
 
-              <span className="text-2xl font-bold text-muted-foreground">-</span>
-
               <div className="flex flex-col items-center gap-2">
-                <span className="font-bold">{t("matchExecution.teamB", "Team B")}</span>
+                <span className="text-2xl font-bold text-muted-foreground">-</span>
+                {isUmpire && scoreHistory.length > 0 && (
+                  <Button size="sm" variant="ghost" onClick={handleUndoScore} disabled={updatingScore} className="text-xs h-6 px-2 text-muted-foreground hover:text-foreground">
+                    {t("matchExecution.undo", "Undo")}
+                  </Button>
+                )}
+              </div>
+
+              <div className="flex flex-col items-center gap-2 flex-1 text-center">
+                <span className="font-bold text-sm line-clamp-2">{teamBName}</span>
                 <span className="text-4xl font-bold">
                   {liveScore?.entryBScore || 0}
                 </span>
                 {isUmpire && (
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => handleScore("B", "add")}>
-                      +
+                    <Button size="sm" onClick={() => handleScore("B", "add")} disabled={updatingScore || cooldownTimer > 0}>
+                      {cooldownTimer > 0 && actionType === 'B' ? cooldownTimer : '+'} 
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleScore("B", "subtract")}
+                      disabled={updatingScore || cooldownTimer > 0}
                     >
                       -
                     </Button>
@@ -349,28 +461,62 @@ function SubMatchCard({ subMatch, onMatchReady, isUmpire }: { subMatch: any; onM
             </div>
 
             {isUmpire && (
-              <Button
-                className="w-full"
-                variant={isSubMatchReady ? "default" : "secondary"}
-                onClick={() => finalizeSubMatch(subMatch.id, {
-                  onSuccess: (data: any) => {
-                    showToast.success(t("matchExecution.finalizeSubMatchSuccess", "Sub-match finalized successfully"));
-                    if (data?.matchReadyToFinalize) {
-                      onMatchReady();
-                    }
-                  },
-                  onError: (err: any) => showApiError(err, t("matchExecution.finalizeSubMatchError", "Failed to finalize sub-match")),
-                })}
-                disabled={finalizing}
-              >
-                {t("matchExecution.finalizeSubMatch", "Finalize Sub-Match")}
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    className="w-full"
+                    variant={isSubMatchReady ? "default" : "secondary"}
+                    disabled={finalizing}
+                  >
+                    {t("matchExecution.finalizeSubMatch", "Finalize Sub-Match")}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t("matchExecution.finalizeConfirmTitle", "Finalize Sub-Match?")}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t("matchExecution.finalizeConfirmDesc", "Are you sure you want to finalize this sub-match? You won't be able to change the score afterwards.")}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t("common.cancel", "Cancel")}</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => finalizeSubMatch(subMatch.id, {
+                        onSuccess: (data: any) => {
+                          showToast.success(t("matchExecution.finalizeSubMatchSuccess", "Sub-match finalized successfully"));
+                          if (data?.matchReadyToFinalize) {
+                            onMatchReady();
+                          }
+                        },
+                        onError: (err: any) => showApiError(err, t("matchExecution.finalizeSubMatchError", "Failed to finalize sub-match")),
+                      })}
+                      disabled={finalizing}
+                    >
+                      {finalizing ? t("common.finalizing", "Finalizing...") : t("common.finalize", "Finalize")}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
           </div>
         )}
 
         {subMatch.status === "completed" && (
           <p className="text-green-600 font-semibold">{t("matchExecution.subMatchCompleted", "Sub-Match Completed")}</p>
+        )}
+
+        {completedSets.length > 0 && (
+          <div className="mt-4 border-t border-border pt-4">
+            <h4 className="text-sm font-semibold mb-2">{t("matchExecution.scoreHistory", "Score History")}</h4>
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {completedSets.map((s: any) => (
+                <div key={s.id} className="flex flex-col items-center bg-muted px-3 py-1.5 rounded text-xs">
+                  <span className="font-bold text-muted-foreground">{t("matchExecution.setNumber", "Set #")}{s.setNumber}</span>
+                  <span className="font-black text-sm">{s.entryAScore} - {s.entryBScore}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>

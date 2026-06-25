@@ -1,0 +1,20 @@
+export default {
+  "heroTitle1": "LÀM CHỦ",
+  "heroTitle2": "BÓNG BÀN CỦA BẠN",
+  "heroDescription": "Hệ thống quản lý toàn diện cho giải đấu bóng bàn, bảng xếp hạng và thống kê trận đấu. Theo dõi tiến trình và cạnh tranh với những người giỏi nhất.",
+  "welcomeBack": "Chào mừng trở lại, {{name}}!",
+  "goToDashboard": "Vào Dashboard",
+  "getStarted": "Bắt đầu ngay",
+  "viewRankings": "Xem bảng xếp hạng",
+  "featuresTitle": "NHÀ VÔ ĐỊCH MÙA GIẢI",
+  "featuresDescription": "Theo dõi hiệu suất, quản lý giải đấu và leo hạng",
+  "ctaTitle": "Sẵn sàng nâng tầm trò chơi?",
+  "ctaDescription": "Tham gia cùng hàng nghìn người chơi đang sử dụng PingPong Pro để quản lý trải nghiệm bóng bàn.",
+  "startJourney": "Bắt đầu hành trình",
+  "tournamentManagementDesc": "Tạo và quản lý giải đấu với tự động tạo nhánh thi đấu và cập nhật thời gian thực.",
+  "playerRankingsDesc": "Hệ thống xếp hạng động theo dõi hiệu suất và sự tiến bộ kỹ năng của người chơi.",
+  "playerProfilesDesc": "Hồ sơ người chơi toàn diện với lịch sử trận đấu, thống kê và thành tích.",
+  "matchSchedulingDesc": "Hệ thống lên lịch thông minh với thông báo và nhắc nhở tự động.",
+  "performanceAnalyticsDesc": "Phân tích chi tiết và thông tin hữu ích giúp người chơi cải thiện kỹ năng và chiến thuật.",
+  "achievementSystemDesc": "Mở khóa thành tựu và huy hiệu khi bạn tiến bộ trong hành trình bóng bàn."
+};

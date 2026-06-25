@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Select,
@@ -65,19 +65,19 @@ export default function PaymentManagement({
     : categories[0]?.id || 0;
 
   // Stats
-  const { data: statsResponse, isLoading: statsLoading } =
+  const { data: statsResponse, isLoading: statsLoading, error: statsError } =
     usePaymentStatistics(categoryId, { enabled: categoryId > 0 });
   const stats = statsResponse?.data;
 
   // Pending payments
-  const { data: pendingResponse, isLoading: pendingLoading } =
+  const { data: pendingResponse, isLoading: pendingLoading, error: pendingError } =
     usePendingPayments(categoryId, page, 20, undefined, {
       enabled: categoryId > 0 && viewMode === "pending",
     });
   const pendingPayments = pendingResponse?.data?.rows || [];
 
   // All payments (with filter)
-  const { data: allResponse, isLoading: allLoading } = usePaymentsByCategory(
+  const { data: allResponse, isLoading: allLoading, error: allError } = usePaymentsByCategory(
     categoryId,
     page,
     20,
@@ -145,6 +145,13 @@ export default function PaymentManagement({
     { value: "failed", label: t("tournamentManager.paymentManagement.filter.failed", "Failed"), color: "text-destructive" },
     { value: "refunded", label: t("tournamentManager.paymentManagement.filter.refunded", "Refunded"), color: "text-blue-500" },
   ];
+
+  useEffect(() => {
+    const err: any = statsError || pendingError || allError;
+    if (err && err.response?.status === 403) {
+      showToast.error(t("tournamentManager.paymentManagement.forbidden", "You do not have permission to view or manage payments for this tournament."));
+    }
+  }, [statsError, pendingError, allError, t]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">

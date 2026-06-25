@@ -6,6 +6,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useDateFormat } from "@/hooks/useDateFormat";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -25,6 +26,7 @@ import { useTranslation } from "react-i18next";
 
 export default function PendingInvitations() {
   const { t } = useTranslation();
+  const { formatDateTime } = useDateFormat();
   const { data: invitationsResp, isLoading } = useMyRefereeInvitations(
     1,
     50,
@@ -72,14 +74,7 @@ export default function PendingInvitations() {
   };
 
   const formatDate = (dateStr: string) => {
-    if (!dateStr) return "N/A";
-    return new Date(dateStr).toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return formatDateTime(dateStr);
   };
 
   return (

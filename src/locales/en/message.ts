@@ -1,0 +1,21 @@
+export default {
+  "welcomeBack": "Welcome back",
+  "confirmDelete": "Are you sure you want to delete?",
+  "confirmCancel": "Are you sure you want to cancel?",
+  "unsavedChanges": "You have unsaved changes. Do you want to continue?",
+  "deleteSuccess": "Deleted successfully",
+  "saveSuccess": "Saved successfully",
+  "updateSuccess": "Updated successfully",
+  "createSuccess": "Created successfully",
+  "operationSuccess": "Operation successful",
+  "operationFailed": "Operation failed",
+  "networkError": "Network error",
+  "serverError": "Server error",
+  "notFound": "Not found",
+  "accessDenied": "Access denied",
+  "sessionExpired": "Session expired",
+  "pleaseTryAgain": "Please try again",
+  "noResultsFound": "No results found",
+  "loadingData": "Loading data...",
+  "processingRequest": "Processing request..."
+};

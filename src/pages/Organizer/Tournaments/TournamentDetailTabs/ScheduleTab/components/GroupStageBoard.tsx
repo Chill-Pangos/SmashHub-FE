@@ -86,7 +86,7 @@ export function GroupStageBoard({ group, onEntryClick }: GroupStageBoardProps) {
             </div>
             <div className="flex items-center gap-4">
               <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-muted text-muted-foreground tracking-wider uppercase">
-                {match.status}
+                {t(`constants.status.match.${match.status}`, match.status) as string}
               </span>
               <span className="font-bold text-primary w-8 text-right tracking-widest">
                 {match.scoreA}-{match.scoreB}

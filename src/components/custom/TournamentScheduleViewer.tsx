@@ -270,7 +270,7 @@ export default function TournamentScheduleViewer({
                           </TableCell>
                           <TableCell>
                             <Badge variant="outline">
-                              #{schedule.tableNumber}
+                              {schedule.tableNumber ? `#${schedule.tableNumber}` : t("components.tournamentScheduleViewer.tbd", "TBD")}
                             </Badge>
                           </TableCell>
                           <TableCell>{getStageBadge(schedule)}</TableCell>

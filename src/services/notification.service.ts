@@ -8,7 +8,17 @@ import type {
   CheckUserConnectionResponse,
   DisconnectUserResponse,
   GetServiceStatusResponse,
+  NotificationFilters,
+  NotificationInboxResponse,
+  MarkNotificationReadResponse,
+  MarkAllNotificationsReadResponse,
+  AdminSystemSummaryResponse,
 } from "@/types/notification.types";
+
+type RawConnectedUsersResponse = GetConnectedUsersResponse & {
+  totalConnectedUsers?: number;
+  connectedUserIds?: string[];
+};
 
 /**
  * Notification Service
@@ -17,6 +27,56 @@ import type {
  */
 class NotificationService {
   private readonly baseURL = "/notifications";
+
+  /**
+   * Get notification inbox
+   * GET /api/notifications?page=1&limit=20
+   */
+  async getNotifications(
+    filters: NotificationFilters = { page: 1, limit: 20 },
+  ): Promise<NotificationInboxResponse> {
+    const response = await axiosInstance.get<NotificationInboxResponse>(
+      this.baseURL,
+      { params: filters },
+    );
+    return response.data;
+  }
+
+  /**
+   * Mark one notification as read
+   * PATCH /api/notifications/:id/read
+   */
+  async markNotificationRead(
+    notificationId: number,
+  ): Promise<MarkNotificationReadResponse> {
+    const response = await axiosInstance.patch<MarkNotificationReadResponse>(
+      `${this.baseURL}/${notificationId}/read`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Mark all notifications as read
+   * PATCH /api/notifications/read-all
+   */
+  async markAllNotificationsRead(): Promise<MarkAllNotificationsReadResponse> {
+    const response =
+      await axiosInstance.patch<MarkAllNotificationsReadResponse>(
+        `${this.baseURL}/read-all`,
+      );
+    return response.data;
+  }
+
+  /**
+   * Get admin system realtime snapshot
+   * GET /api/admin/system/summary
+   */
+  async getAdminSystemSummary(): Promise<AdminSystemSummaryResponse> {
+    const response = await axiosInstance.get<AdminSystemSummaryResponse>(
+      "/admin/system/summary",
+    );
+    return response.data;
+  }
 
   /**
    * Send notification
@@ -91,10 +151,22 @@ class NotificationService {
    * console.log(`${result.data.totalConnectedUsers} users online`);
    */
   async getConnectedUsers(): Promise<GetConnectedUsersResponse> {
-    const response = await axiosInstance.get<GetConnectedUsersResponse>(
+    const response = await axiosInstance.get<RawConnectedUsersResponse>(
       `${this.baseURL}/connected-users`,
     );
-    return response.data;
+    const payload = response.data;
+
+    if (payload.data) {
+      return payload;
+    }
+
+    return {
+      success: payload.success ?? true,
+      data: {
+        totalConnectedUsers: payload.totalConnectedUsers ?? 0,
+        connectedUserIds: payload.connectedUserIds ?? [],
+      },
+    };
   }
 
   /**

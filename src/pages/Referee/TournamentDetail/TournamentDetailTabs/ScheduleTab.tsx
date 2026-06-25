@@ -69,10 +69,18 @@ export default function ScheduleTab() {
                   <div className="flex items-center gap-3 mb-2">
                     <span className="text-sm font-bold text-primary">{t("referee.scheduleTab.matchNumber", "Match #")}{match.id}</span>
                     <Badge variant="outline">{category}</Badge>
-                    <Badge>{match.status}</Badge>
+                    <Badge>{t(`constants.status.match.${match.status}`, match.status) as string}</Badge>
                   </div>
-                  <p className="font-semibold">
-                    {player1} <span className="text-muted-foreground mx-2">{t("referee.scheduleTab.vs", "vs")}</span> {player2}
+                  <p className="font-semibold flex items-center">
+                    <span className={match.winnerEntryId === match.entryAId ? "text-yellow-500" : ""}>{player1}</span>
+                    {match.status === "completed" && match.setsWonA !== undefined && (
+                      <span className="text-lg font-bold ml-2">{match.setsWonA}</span>
+                    )}
+                    <span className="text-muted-foreground mx-4">{t("referee.scheduleTab.vs", "vs")}</span> 
+                    {match.status === "completed" && match.setsWonB !== undefined && (
+                      <span className="text-lg font-bold mr-2">{match.setsWonB}</span>
+                    )}
+                    <span className={match.winnerEntryId === match.entryBId ? "text-yellow-500" : ""}>{player2}</span>
                   </p>
                 </div>
                 <div>

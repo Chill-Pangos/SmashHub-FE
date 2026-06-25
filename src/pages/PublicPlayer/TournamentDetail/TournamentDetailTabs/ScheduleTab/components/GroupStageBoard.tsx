@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 export interface Standing {
   rank: number;
   player: string;
@@ -27,6 +29,7 @@ interface GroupStageBoardProps {
 }
 
 export function GroupStageBoard({ group }: GroupStageBoardProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
       <h3 className="text-xl font-bold text-primary mb-6">{group.name}</h3>
@@ -77,7 +80,7 @@ export function GroupStageBoard({ group }: GroupStageBoardProps) {
             </div>
             <div className="flex items-center gap-4">
               <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-muted text-muted-foreground tracking-wider uppercase">
-                {match.status}
+                {t(`constants.status.match.${match.status}`, match.status) as string}
               </span>
               <span className="font-bold text-primary w-8 text-right tracking-widest">
                 {match.scoreA}-{match.scoreB}

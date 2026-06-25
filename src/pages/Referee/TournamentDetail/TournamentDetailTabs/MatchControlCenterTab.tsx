@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { User } from 'lucide-react';
+import { useDateFormat } from "@/hooks/useDateFormat";
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -20,6 +21,7 @@ import { showToast, showApiError } from "@/utils/toast.utils";
 
 export default function MatchControlCenterTab() {
   const { t } = useTranslation();
+  const { formatDateTime } = useDateFormat();
   const navigate = useNavigate();
   const { tournamentId } = useParams();
 
@@ -72,7 +74,15 @@ export default function MatchControlCenterTab() {
   const handleStartMatch = (id: number) => {
     startMatchMutation.mutate(id, {
       onSuccess: () => showToast.success(t("referee.matchControlCenter.startSuccess", "Match started successfully")),
-      onError: (err: any) => showApiError(err, t("referee.matchControlCenter.startError", "Failed to start match")),
+      onError: (err: any) => {
+        if (err.response?.status === 409) {
+          showToast.error(t("referee.matchControlCenter.startErrorTableFull", "Cannot start match: No tables available"));
+        } else if (err.response?.status === 400) {
+          showToast.error(t("referee.matchControlCenter.startErrorWrongDate", "Cannot start match: Not scheduled for today"));
+        } else {
+          showApiError(err, t("referee.matchControlCenter.startError", "Failed to start match"));
+        }
+      },
     });
   };
 
@@ -90,7 +100,13 @@ export default function MatchControlCenterTab() {
         setIsBulkStartDialogOpen(false);
       },
       onError: (err: any) => {
-        showApiError(err, t("referee.matchControlCenter.bulkStartError", "Failed to bulk start matches"));
+        if (err.response?.status === 409) {
+          showToast.error(t("referee.matchControlCenter.bulkStartErrorTableFull", "Cannot start matches: Not enough tables available"));
+        } else if (err.response?.status === 400) {
+          showToast.error(t("referee.matchControlCenter.bulkStartErrorWrongDate", "Cannot start matches: Some matches are not scheduled for today"));
+        } else {
+          showApiError(err, t("referee.matchControlCenter.bulkStartError", "Failed to bulk start matches"));
+        }
         setIsBulkStartDialogOpen(false);
       },
     });
@@ -230,7 +246,7 @@ export default function MatchControlCenterTab() {
                 const category = match.schedule?.tournamentCategory?.name || t("referee.matchControlCenter.unknownCategory", "Unknown Category");
                 const court = match.schedule?.tableNumber ? `${t("referee.matchControlCenter.court", "Court")} ${match.schedule.tableNumber}` : t("referee.matchControlCenter.tbd", "TBD");
                 const isReady = match.status === 'scheduled';
-                const scheduleTime = match.schedule?.scheduledAt ? new Date(match.schedule.scheduledAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : t("referee.matchControlCenter.tbdTime", "Time TBD");
+                const scheduleTime = match.schedule?.scheduledAt ? formatDateTime(match.schedule.scheduledAt) : t("referee.matchControlCenter.tbdTime", "Time TBD");
                 
                 let refereesText = t("referee.matchControlCenter.tbd", "TBD");
                 if (match.matchReferees && match.matchReferees.length > 0) {

@@ -1,0 +1,21 @@
+export default {
+  "welcomeBack": "Chào mừng trở lại",
+  "confirmDelete": "Bạn có chắc chắn muốn xóa?",
+  "confirmCancel": "Bạn có chắc chắn muốn hủy?",
+  "unsavedChanges": "Bạn có thay đổi chưa lưu. Bạn có muốn tiếp tục?",
+  "deleteSuccess": "Xóa thành công",
+  "saveSuccess": "Lưu thành công",
+  "updateSuccess": "Cập nhật thành công",
+  "createSuccess": "Tạo mới thành công",
+  "operationSuccess": "Thao tác thành công",
+  "operationFailed": "Thao tác thất bại",
+  "networkError": "Lỗi kết nối mạng",
+  "serverError": "Lỗi máy chủ",
+  "notFound": "Không tìm thấy tài nguyên",
+  "accessDenied": "Không có quyền truy cập",
+  "sessionExpired": "Phiên đăng nhập đã hết hạn",
+  "pleaseTryAgain": "Vui lòng thử lại",
+  "noResultsFound": "Không tìm thấy kết quả",
+  "loadingData": "Đang tải dữ liệu...",
+  "processingRequest": "Đang xử lý yêu cầu..."
+};

@@ -1,0 +1,20 @@
+export default {
+  "heroTitle1": "MASTER YOUR",
+  "heroTitle2": "TABLE TENNIS GAME",
+  "heroDescription": "The ultimate management system for table tennis tournaments, player rankings, and match statistics. Track your progress and compete with the best.",
+  "welcomeBack": "Welcome back, {{name}}!",
+  "goToDashboard": "Go to Dashboard",
+  "getStarted": "Get Started",
+  "viewRankings": "View Rankings",
+  "featuresTitle": "CHAMPIONS OF THE SEASON",
+  "featuresDescription": "Track performance, manage tournaments, and climb the rankings",
+  "ctaTitle": "Ready to Elevate Your Game?",
+  "ctaDescription": "Join thousands of players already using PingPong Pro to manage their table tennis experience.",
+  "startJourney": "Start Your Journey",
+  "tournamentManagementDesc": "Create and manage tournaments with automated bracket generation and real-time updates.",
+  "playerRankingsDesc": "Dynamic ranking system that tracks player performance and skill progression over time.",
+  "playerProfilesDesc": "Comprehensive player profiles with match history, statistics, and achievements.",
+  "matchSchedulingDesc": "Smart scheduling system for matches with automated notifications and reminders.",
+  "performanceAnalyticsDesc": "Detailed analytics and insights to help players improve their game and strategy.",
+  "achievementSystemDesc": "Unlock achievements and badges as you progress through your table tennis journey."
+};

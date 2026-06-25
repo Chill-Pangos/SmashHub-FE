@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Card,
@@ -8,17 +9,98 @@ import {
 } from "@/components/ui/card";
 import { useUsersPaginated } from "@/hooks/queries/useUserQueries";
 import { useTournaments } from "@/hooks/queries/useTournamentQueries";
-import { Users, Trophy, ShieldAlert, Activity } from "lucide-react";
+import { useAdminSystemSummary } from "@/hooks/queries/useNotificationQueries";
+import { useNotification } from "@/store";
+import {
+  Activity,
+  Cpu,
+  HardDrive,
+  MemoryStick,
+  ShieldAlert,
+  Trophy,
+  Users,
+  Wifi,
+  Database,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+
+const statusClassName = (status?: string) => {
+  switch (status) {
+    case "ok":
+    case "up":
+      return "text-green-500";
+    case "warning":
+    case "degraded":
+      return "text-amber-500";
+    case "critical":
+    case "down":
+      return "text-destructive";
+    default:
+      return "text-muted-foreground";
+  }
+};
+
+const formatGbPair = (
+  usedGb?: number | null,
+  totalGb?: number | null,
+) => {
+  if (usedGb === null || totalGb === null || usedGb === undefined || totalGb === undefined) {
+    return "N/A";
+  }
+
+  return `${usedGb}/${totalGb} GB`;
+};
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
   const { data: usersData, isLoading: isLoadingUsers } = useUsersPaginated(1, 1);
   const { data: tournamentsData, isLoading: isLoadingTournaments } = useTournaments(1, 1);
+  const { data: systemSummary } = useAdminSystemSummary();
+  const { systemSummary: liveSystemSummary, hydrateAdminSystem } = useNotification();
 
   const totalUsers = usersData?.meta?.total || 0;
   const totalTournaments = tournamentsData?.pagination?.total || 0;
+  const summary = liveSystemSummary;
+  const cpu = summary?.resources.cpu;
+  const ram = summary?.resources.ram;
+  const disk = summary?.resources.disk;
+  const traffic = summary?.traffic;
+  const realtime = summary?.realtime;
+  const alerts = summary?.alerts;
+  const services = summary?.services;
+  const serviceCards = [
+    {
+      key: "db",
+      title: "Database",
+      value: services?.db,
+      icon: Database,
+    },
+    {
+      key: "redis",
+      title: "Redis",
+      value: services?.redis,
+      icon: Activity,
+    },
+    {
+      key: "socket",
+      title: "Socket.IO",
+      value: services?.socket,
+      icon: Wifi,
+    },
+    {
+      key: "cron",
+      title: "Cron",
+      value: services?.cron,
+      icon: Activity,
+    },
+  ];
+
+  useEffect(() => {
+    if (systemSummary?.data) {
+      hydrateAdminSystem(systemSummary.data);
+    }
+  }, [hydrateAdminSystem, systemSummary?.data]);
 
   return (
     <div className="space-y-6">
@@ -69,16 +151,18 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t("adminPage.dashboard.systemHealth", "System Health")}
+              {t("adminPage.dashboard.systemStatus", "System Status")}
             </CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-500">
-              {t("adminPage.dashboard.online", "Online")}
+            <div className={`text-2xl font-bold uppercase ${statusClassName(summary?.status)}`}>
+              {summary?.status ?? "--"}
             </div>
-            <p className="text-xs text-muted-foreground">
-              {t("adminPage.dashboard.allSystemsOperational", "All systems operational")}
+            <p className="truncate text-xs text-muted-foreground">
+              {summary?.generatedAt
+                ? new Date(summary.generatedAt).toLocaleTimeString()
+                : t("adminPage.dashboard.noSystemSnapshot", "No system snapshot")}
             </p>
           </CardContent>
         </Card>
@@ -91,9 +175,124 @@ export default function AdminDashboard() {
             <ShieldAlert className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{alerts?.total ?? 0}</div>
             <p className="text-xs text-muted-foreground">
-              {t("adminPage.dashboard.noActiveAlerts", "No active alerts")}
+              {t("adminPage.dashboard.alertBreakdown", "{{critical}} critical / {{warning}} warning", {
+                critical: alerts?.critical ?? 0,
+                warning: alerts?.warning ?? 0,
+              })}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {serviceCards.map((service) => {
+          const Icon = service.icon;
+
+          return (
+            <Card key={service.key}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {service.title}
+                </CardTitle>
+                <Icon className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className={`text-2xl font-bold uppercase ${statusClassName(service.value)}`}>
+                  {service.value ?? "--"}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {service.value === "up"
+                    ? t("adminPage.dashboard.serviceAvailable", "Available")
+                    : t("adminPage.dashboard.serviceNeedsAttention", "Needs attention")}
+                </p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">CPU</CardTitle>
+            <Cpu className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${statusClassName(cpu?.status)}`}>
+              {cpu?.label ?? "--"}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {cpu?.percent !== undefined ? `${cpu.percent}%` : "N/A"}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">RAM</CardTitle>
+            <MemoryStick className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${statusClassName(ram?.status)}`}>
+              {ram?.label ?? "--"}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {formatGbPair(ram?.usedGb, ram?.totalGb)}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Disk</CardTitle>
+            <HardDrive className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${statusClassName(disk?.status)}`}>
+              {disk?.label ?? "--"}
+            </div>
+            <p className="truncate text-xs text-muted-foreground">
+              {formatGbPair(disk?.usedGb, disk?.totalGb)}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              {t("adminPage.dashboard.traffic", "Traffic")}
+            </CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {traffic?.requestCount ?? 0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {traffic
+                ? `${traffic.window} / ${traffic.errorPercent}% errors / p95 ${traffic.p95LatencyMs}ms`
+                : "N/A"}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              {t("adminPage.dashboard.realtime", "Realtime")}
+            </CardTitle>
+            <Wifi className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {realtime?.connectedUsers ?? 0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t("adminPage.dashboard.roomCount", "{{count}} rooms", {
+                count: realtime?.roomCount ?? 0,
+              })}
             </p>
           </CardContent>
         </Card>

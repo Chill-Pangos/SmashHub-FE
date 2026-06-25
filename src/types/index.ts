@@ -7,6 +7,7 @@ export * from "./groupStanding.types";
 export * from "./knockoutBracket.types";
 export * from "./match.types";
 export * from "./matchSet.types";
+export * from "./matchRealtime.types";
 export * from "./schedule.types";
 export * from "./scheduleConfig.types";
 export * from "./tournamentReferee.types";

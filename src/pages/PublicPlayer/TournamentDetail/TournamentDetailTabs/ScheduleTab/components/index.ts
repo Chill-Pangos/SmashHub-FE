@@ -1,3 +1,4 @@
 export { default as TournamentScheduleViewer } from "./TournamentScheduleViewer";
-export * from "./GroupStageBoard";
-export * from "./ChampionshipBracket";
+export { GroupStageBoard } from "./GroupStageBoard";
+export { ChampionshipBracket } from "./ChampionshipBracket";
+export { default as MatchListView } from "./MatchListView";

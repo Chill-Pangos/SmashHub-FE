@@ -1,13 +1,15 @@
 import { Link } from "react-router-dom";
+import { useDateFormat } from "@/hooks/useDateFormat";
 import { Calendar, MapPin, Users } from "lucide-react";
 import type { Tournament } from "@/types";
 import { t } from "i18next";
+import { formatCategoryName } from "@/utils/category.utils";
 
-function formatDateRange(start?: string, end?: string) {
+function formatDateRange(formatDate: (d: any) => string, start?: string, end?: string) {
   if (!start) return t('publicPlayer.tournamentDetail.scheduleTab.tbd', 'TBD');
-  const s = new Date(start).toLocaleDateString();
+  const s = formatDate(start);
   if (!end) return s;
-  const e = new Date(end).toLocaleDateString();
+  const e = formatDate(end);
   return `${s} — ${e}`;
 }
 
@@ -21,7 +23,7 @@ function getParticipants(tournament: Tournament): number {
 }
 
 function getShortDescription(tournament: Tournament): string {
-  const categoryNames = tournament.categories?.map((c) => c.name).join(", ");
+  const categoryNames = tournament.categories?.map((c) => formatCategoryName(c, t) || c.name).join(", ");
   if (categoryNames) return categoryNames;
   const categoryCount = tournament.categories?.length || 0;
   return categoryCount > 0
@@ -29,15 +31,20 @@ function getShortDescription(tournament: Tournament): string {
     : t('publicPlayer.tournamentDetail.scheduleTab.noCategories', 'No categories');
 }
 
-export default function TournamentCard({
+import { useTranslation } from "react-i18next";
+
+export function TournamentCard({
   tournament,
   className = "",
 }: {
   tournament: Tournament;
   className?: string;
 }) {
+  const { formatDate } = useDateFormat();
+  const { t } = useTranslation();
   const participants = getParticipants(tournament);
   const shortDescription = getShortDescription(tournament);
+  
   return (
     <Link
       to={`/referee/tournaments/${tournament.id}`}
@@ -83,7 +90,7 @@ export default function TournamentCard({
           <div className="inline-flex items-center gap-1">
             <Calendar className="h-3.5 w-3.5" />
             <span>
-              {formatDateRange(tournament.startDate, tournament.endDate)}
+              {formatDateRange(formatDate, tournament.startDate, tournament.endDate)}
             </span>
           </div>
 
@@ -104,9 +111,7 @@ export default function TournamentCard({
       <div className="ml-4 flex-shrink-0 text-right">
         {tournament.status ? (
           <div className="flex flex-col items-end gap-2">
-            <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
-              {tournament.status}
-            </span>
+            <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">{t(`constants.status.tournament.${tournament.status}`, tournament.status) as string}</span>
             <span>
               <span
                 className="inline-flex items-center gap-2 rounded-md bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
