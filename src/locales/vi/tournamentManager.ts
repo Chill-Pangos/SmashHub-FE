@@ -292,6 +292,28 @@ export default {
     "registrationPeriod": "Thời gian đăng ký",
     "bracketGeneration": "Ngày tạo Bracket"
   },
+  "detail": {
+    "tabs": {
+      "overview": "Tổng quan",
+      "referees": "Trọng tài",
+      "entries": "Danh sách",
+      "payments": "Thanh toán",
+      "schedule": "Lịch trình",
+      "scheduleConfig": "Cấu hình Lịch trình"
+    },
+    "cancelTournament": {
+      "button": "Hủy giải đấu",
+      "title": "Hủy giải đấu?",
+      "description": "Bạn có chắc chắn muốn hủy giải đấu <strong>{{name}}</strong>? Hành động này không thể hoàn tác. Danh sách người chơi vẫn giữ nguyên nhưng trạng thái sẽ chuyển thành đã hủy. Bạn có thể hoàn tiền thủ công nếu cần.",
+      "close": "Đóng",
+      "confirm": "Có, Hủy giải",
+      "cancelling": "Đang hủy...",
+      "success": "Đã hủy giải đấu thành công",
+      "error": "Không thể hủy giải đấu"
+    },
+    "loading": "Đang tải thông tin giải đấu...",
+    "loadError": "Không thể tải thông tin giải đấu"
+  },
   "tournamentsList": {
     "title": "Giải đấu",
     "subtitle": "Quản lý các giải đấu của bạn tại đây.",

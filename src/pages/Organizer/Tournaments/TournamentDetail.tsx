@@ -71,7 +71,7 @@ export default function TournamentDetail() {
     return (
       <div className="flex h-[50vh] items-center justify-center rounded-2xl border border-border bg-card">
         <p className="text-muted-foreground animate-pulse">
-          Loading tournament details...
+          {t("tournamentManager.detail.loading", "Loading tournament details...")}
         </p>
       </div>
     );
@@ -81,7 +81,7 @@ export default function TournamentDetail() {
     return (
       <div className="flex h-[50vh] items-center justify-center rounded-2xl border border-destructive/20 bg-card p-6">
         <p className="text-destructive font-medium">
-          {error?.message || "Failed to load tournament"}
+          {error?.message || t("tournamentManager.detail.loadError", "Failed to load tournament")}
         </p>
       </div>
     );
@@ -139,7 +139,7 @@ export default function TournamentDetail() {
               disabled={cancelMutation.isPending}
             >
               <Ban className="h-4 w-4 mr-2" />
-              Cancel Tournament
+              {t("tournamentManager.detail.cancelTournament.button", "Cancel Tournament")}
             </Button>
           )}
         </div>
@@ -189,30 +189,26 @@ export default function TournamentDetail() {
       <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Cancel Tournament?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to cancel the tournament <strong>{tournament.name}</strong>? 
-              This action cannot be undone. Players' entries will remain, but the tournament status will be changed to cancelled. 
-              You can still manually refund payments if needed.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("tournamentManager.detail.cancelTournament.title", "Cancel Tournament?")}</AlertDialogTitle>
+            <AlertDialogDescription dangerouslySetInnerHTML={{ __html: t("tournamentManager.detail.cancelTournament.description", { name: tournament.name }, "Are you sure you want to cancel the tournament <strong>{{name}}</strong>? This action cannot be undone. Players' entries will remain, but the tournament status will be changed to cancelled. You can still manually refund payments if needed.") }} />
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={cancelMutation.isPending}>Close</AlertDialogCancel>
+            <AlertDialogCancel disabled={cancelMutation.isPending}>{t("tournamentManager.detail.cancelTournament.close", "Close")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 cancelMutation.mutate(id, {
                   onSuccess: () => {
                     setIsCancelDialogOpen(false);
-                    showToast.success("Tournament cancelled successfully");
+                    showToast.success(t("tournamentManager.detail.cancelTournament.success", "Tournament cancelled successfully"));
                   },
-                  onError: (err: any) => showApiError(err, "Failed to cancel tournament"),
+                  onError: (err: any) => showApiError(err, t("tournamentManager.detail.cancelTournament.error", "Failed to cancel tournament")),
                 });
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={cancelMutation.isPending}
             >
-              {cancelMutation.isPending ? "Cancelling..." : "Yes, Cancel It"}
+              {cancelMutation.isPending ? t("tournamentManager.detail.cancelTournament.cancelling", "Cancelling...") : t("tournamentManager.detail.cancelTournament.confirm", "Yes, Cancel It")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

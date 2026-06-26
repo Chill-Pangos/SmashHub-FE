@@ -292,6 +292,28 @@ export default {
     "registrationPeriod": "Registration Period",
     "bracketGeneration": "Bracket Generation"
   },
+  "detail": {
+    "tabs": {
+      "overview": "Overview",
+      "referees": "Referees",
+      "entries": "Entries",
+      "payments": "Payments",
+      "schedule": "Schedule",
+      "scheduleConfig": "Schedule Config"
+    },
+    "cancelTournament": {
+      "button": "Cancel Tournament",
+      "title": "Cancel Tournament?",
+      "description": "Are you sure you want to cancel the tournament <strong>{{name}}</strong>? This action cannot be undone. Players' entries will remain, but the tournament status will be changed to cancelled. You can still manually refund payments if needed.",
+      "close": "Close",
+      "confirm": "Yes, Cancel It",
+      "cancelling": "Cancelling...",
+      "success": "Tournament cancelled successfully",
+      "error": "Failed to cancel tournament"
+    },
+    "loading": "Loading tournament details...",
+    "loadError": "Failed to load tournament"
+  },
   "tournamentsList": {
     "title": "Tournaments",
     "subtitle": "Manage your tournaments here.",
