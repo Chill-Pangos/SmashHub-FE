@@ -12,10 +12,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Camera, Loader2, Save, Key, MailCheck } from "lucide-react";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, subYears } from "date-fns";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { z } from "zod";
 
 export default function UserProfile() {
   const { user, updateUser } = useAuth();
@@ -68,6 +69,23 @@ export default function UserProfile() {
   const handleSaveProfile = () => {
     if (!user) return;
     
+    const profileSchema = z.object({
+      phoneNumber: z.string().regex(/^\+?[0-9]{10,15}$/, t("validation.phoneNumber", "Invalid phone number")).optional().or(z.literal("")),
+      dob: z.date({
+        message: t("validation.dobRequired", "Date of birth is required"),
+      }).max(subYears(new Date(), 18), t("validation.dobUnder18", "You must be at least 18 years old")),
+    });
+
+    const parseResult = profileSchema.safeParse({
+      phoneNumber: phoneNumber || undefined,
+      dob,
+    });
+
+    if (!parseResult.success) {
+      showToast.error(parseResult.error.issues[0].message);
+      return;
+    }
+    
     updateProfileMutation.mutate({
       id: user.id,
       data: {
@@ -79,9 +97,7 @@ export default function UserProfile() {
       onSuccess: (updatedUser) => {
         updateUser(updatedUser);
         showToast.success(t("profile.updateSuccess", "Profile updated successfully"));
-        if (forceUpdate) {
-          navigate("/");
-        }
+        navigate("/");
       },
       onError: (err: any) => showApiError(err, t("profile.updateError", "Failed to update profile")),
     });
