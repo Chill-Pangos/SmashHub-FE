@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,9 @@ import { useCreateUser, useUpdateUser } from "@/hooks/queries/useUserQueries";
 import { showToast, showApiError } from "@/utils/toast.utils";
 import type { AdminUser, CreateUserRequest, UpdateUserRequest } from "@/types/user.types";
 import { useTranslation } from "react-i18next";
+import { useZodForm } from "@/hooks/useZodForm";
+import { getAdminUserSchema } from "@/schemas/admin.schema";
+import { z } from "zod";
 
 interface UserFormModalProps {
   open: boolean;
@@ -30,15 +33,20 @@ interface UserFormModalProps {
 export default function UserFormModal({ open, onOpenChange, user }: UserFormModalProps) {
   const { t } = useTranslation();
   const isEdit = !!user;
-  const [formData, setFormData] = useState<CreateUserRequest | UpdateUserRequest>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    gender: "male",
-    dob: "",
-    phoneNumber: "",
+  const form = useZodForm({
+    schema: getAdminUserSchema(t, isEdit),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      gender: "male",
+      dob: "",
+      phoneNumber: "",
+    },
   });
+
+  const { errors } = form.formState;
 
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
@@ -46,7 +54,7 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
   useEffect(() => {
     if (open) {
       if (user) {
-        setFormData({
+        form.reset({
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
@@ -55,7 +63,7 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
           phoneNumber: user.phoneNumber || "",
         });
       } else {
-        setFormData({
+        form.reset({
           firstName: "",
           lastName: "",
           email: "",
@@ -65,22 +73,17 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
           phoneNumber: "",
         });
       }
+    } else {
+      form.reset();
     }
-  }, [open, user]);
+  }, [open, user, form]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  type AdminUserFormValues = z.infer<ReturnType<typeof getAdminUserSchema>>;
 
-  const handleSelectChange = (value: string, name: string) => {
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = (data: AdminUserFormValues) => {
     if (isEdit && user) {
       updateUser.mutate(
-        { id: user.id, data: formData as UpdateUserRequest },
+        { id: user.id, data: data as UpdateUserRequest },
         {
           onSuccess: () => {
             showToast.success(t("adminPage.userFormModal.updateSuccess", "User updated successfully"));
@@ -92,7 +95,7 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
         }
       );
     } else {
-      createUser.mutate(formData as CreateUserRequest, {
+      createUser.mutate(data as CreateUserRequest, {
         onSuccess: () => {
           showToast.success(t("adminPage.userFormModal.createSuccess", "User created successfully"));
           onOpenChange(false);
@@ -104,124 +107,100 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
     }
   };
 
-  const isLoading = createUser.isPending || updateUser.isPending;
+  const isSubmitting = createUser.isPending || updateUser.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>{isEdit ? t("adminPage.userFormModal.editUser", "Edit User") : t("adminPage.userFormModal.createUser", "Create User")}</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="firstName" className="text-right">
-                {t("adminPage.userFormModal.firstName", "First Name")}
-              </Label>
+        <DialogHeader>
+          <DialogTitle>{isEdit ? t("adminPage.userFormModal.editUser", "Edit User") : t("adminPage.userFormModal.addUser", "Add New User")}</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="firstName">{t("adminPage.userFormModal.firstName", "First Name")}</Label>
               <Input
                 id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                className="col-span-3"
-                required
+                placeholder="John"
+                {...form.register("firstName")}
               />
+              {errors.firstName && <p className="text-xs text-destructive">{errors.firstName.message as string}</p>}
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="lastName" className="text-right">
-                {t("adminPage.userFormModal.lastName", "Last Name")}
-              </Label>
+            <div className="space-y-2">
+              <Label htmlFor="lastName">{t("adminPage.userFormModal.lastName", "Last Name")}</Label>
               <Input
                 id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                className="col-span-3"
-                required
+                placeholder="Doe"
+                {...form.register("lastName")}
               />
+              {errors.lastName && <p className="text-xs text-destructive">{errors.lastName.message as string}</p>}
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="email" className="text-right">
-                {t("adminPage.userFormModal.email", "Email")}
-              </Label>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">{t("adminPage.userFormModal.email", "Email")}</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="john@example.com"
+              {...form.register("email")}
+            />
+            {errors.email && <p className="text-xs text-destructive">{errors.email.message as string}</p>}
+          </div>
+          {!isEdit && (
+            <div className="space-y-2">
+              <Label htmlFor="password">{t("adminPage.userFormModal.password", "Password")}</Label>
               <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="col-span-3"
-                required
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                {...form.register("password")}
               />
+              {errors.password && <p className="text-xs text-destructive">{errors.password.message as string}</p>}
             </div>
-            {!isEdit && (
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="password" className="text-right">
-                  {t("adminPage.userFormModal.password", "Password")}
-                </Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={(formData as CreateUserRequest).password || ""}
-                  onChange={handleChange}
-                  className="col-span-3"
-                  required={!isEdit}
-                />
-              </div>
-            )}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="phoneNumber" className="text-right">
-                {t("adminPage.userFormModal.phone", "Phone")}
-              </Label>
-              <Input
-                id="phoneNumber"
-                name="phoneNumber"
-                value={formData.phoneNumber || ""}
-                onChange={handleChange}
-                className="col-span-3"
-              />
+          )}
+          <div className="space-y-2">
+            <Label htmlFor="phoneNumber">{t("adminPage.userFormModal.phoneNumber", "Phone Number")}</Label>
+            <Input
+              id="phoneNumber"
+              placeholder="+1234567890"
+              {...form.register("phoneNumber")}
+            />
+            {errors.phoneNumber && <p className="text-xs text-destructive">{errors.phoneNumber.message as string}</p>}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="gender">{t("adminPage.userFormModal.gender", "Gender")}</Label>
+              <Select
+                value={form.watch("gender")}
+                onValueChange={(value) => form.setValue("gender", value, { shouldValidate: true })}
+              >
+                <SelectTrigger id="gender">
+                  <SelectValue placeholder={t("adminPage.userFormModal.selectGender", "Select gender")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">{t("profile.genders.male", "Male")}</SelectItem>
+                  <SelectItem value="female">{t("profile.genders.female", "Female")}</SelectItem>
+                  <SelectItem value="other">{t("profile.genders.other", "Other")}</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.gender && <p className="text-xs text-destructive">{errors.gender.message as string}</p>}
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="dob" className="text-right">
-                {t("adminPage.userFormModal.dob", "Date of Birth")}
-              </Label>
+            <div className="space-y-2">
+              <Label htmlFor="dob">{t("adminPage.userFormModal.dob", "Date of Birth")}</Label>
               <Input
                 id="dob"
-                name="dob"
                 type="date"
-                value={formData.dob || ""}
-                onChange={handleChange}
-                className="col-span-3"
+                {...form.register("dob")}
               />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="gender" className="text-right">
-                {t("adminPage.userFormModal.gender", "Gender")}
-              </Label>
-              <div className="col-span-3">
-                <Select
-                  value={formData.gender || "male"}
-                  onValueChange={(value) => handleSelectChange(value, "gender")}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("adminPage.userFormModal.selectGender", "Select gender")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="male">{t("adminPage.userFormModal.male", "Male")}</SelectItem>
-                    <SelectItem value="female">{t("adminPage.userFormModal.female", "Female")}</SelectItem>
-                    <SelectItem value="other">{t("adminPage.userFormModal.other", "Other")}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {errors.dob && <p className="text-xs text-destructive">{errors.dob.message as string}</p>}
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
               {t("adminPage.userFormModal.cancel", "Cancel")}
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? t("adminPage.userFormModal.saving", "Saving...") : t("adminPage.userFormModal.saveChanges", "Save changes")}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? t("adminPage.userFormModal.saving", "Saving...") : t("adminPage.userFormModal.save", "Save")}
             </Button>
           </DialogFooter>
         </form>

@@ -552,6 +552,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hookform/resolvers@npm:^5.4.0":
+  version: 5.4.0
+  resolution: "@hookform/resolvers@npm:5.4.0"
+  dependencies:
+    "@standard-schema/utils": "npm:^0.3.0"
+  peerDependencies:
+    react-hook-form: ^7.55.0
+  checksum: 10c0/ea312948a8ee4dd711287295c95ddd4cefc69d3e01ecf196477aaf5179fbb28b10801486cb3e909abaea169ee7199ce9e725fcded8a98a539ba07aa278753a42
+  languageName: node
+  linkType: hard
+
 "@humanfs/core@npm:^0.19.1":
   version: 0.19.1
   resolution: "@humanfs/core@npm:0.19.1"
@@ -5541,6 +5552,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-hook-form@npm:^7.80.0":
+  version: 7.80.0
+  resolution: "react-hook-form@npm:7.80.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17 || ^18 || ^19
+  checksum: 10c0/9a2a1316a562d3a144e3854ce22123b08fe886c8e0327a0682d3d30312a851beac115049f285bacd20d9dd1bdfe7d05333b5dab8ecb9b18c2976557220c8e648
+  languageName: node
+  linkType: hard
+
 "react-i18next@npm:^16.5.4":
   version: 16.5.4
   resolution: "react-i18next@npm:16.5.4"
@@ -5908,6 +5928,7 @@ __metadata:
   resolution: "smashhub-fe@workspace:."
   dependencies:
     "@eslint/js": "npm:^9.36.0"
+    "@hookform/resolvers": "npm:^5.4.0"
     "@radix-ui/react-alert-dialog": "npm:^1.1.15"
     "@radix-ui/react-avatar": "npm:^1.1.10"
     "@radix-ui/react-checkbox": "npm:^1.3.3"
@@ -5947,6 +5968,7 @@ __metadata:
     react: "npm:^19.1.1"
     react-day-picker: "npm:8.10.1"
     react-dom: "npm:^19.1.1"
+    react-hook-form: "npm:^7.80.0"
     react-i18next: "npm:^16.5.4"
     react-is: "npm:^19.2.0"
     react-router-dom: "npm:^7.9.4"

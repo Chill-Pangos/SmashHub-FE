@@ -1,19 +1,14 @@
-import { useState, type FormEvent, type ChangeEvent, useCallback } from "react";
+import { useCallback } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Mail, Lock, ArrowRight/* , Briefcase, Fingerprint */ } from "lucide-react";
+import { Mail, Lock, ArrowRight } from "lucide-react";
 import tableTennisBgLight from "@/assets/table_tennis_bg_light.png";
 import tableTennisBgDark from "@/assets/table_tennis_bg_dark.png";
 import { useCurrentUser, useLogin, useTranslation } from "@/hooks";
 import { useAuth, useRole } from "@/store";
-import {
-  validateLoginForm,
-  hasValidationErrors,
-  showToast,
-  showApiError,
-  type LoginFormData,
-  type ValidationErrors,
-} from "@/utils";
-
+import { showToast, showApiError } from "@/utils";
+import { useZodForm } from "@/hooks/useZodForm";
+import { getLoginSchema } from "@/schemas/auth.schema";
+import { z } from "zod";
 const SignIn = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -21,11 +16,18 @@ const SignIn = () => {
   const { getDefaultRouteForRoles, getRoleNames } = useRole();
   const loginMutation = useLogin();
   const { refetch: fetchCurrentUser } = useCurrentUser({ enabled: false });
-  const [formData, setFormData] = useState<LoginFormData>({
-    email: "",
-    password: "",
+  
+  type LoginFormValues = z.infer<ReturnType<typeof getLoginSchema>>;
+  
+  const form = useZodForm({
+    schema: getLoginSchema(t),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
-  const [errors, setErrors] = useState<ValidationErrors>({});
+  
+  const { errors } = form.formState;
   /*  const quickAccessItems = [
      {
        icon: <Briefcase className="w-5 h-5" />,
@@ -37,31 +39,10 @@ const SignIn = () => {
      },
    ]; */
 
-  const handleChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const { id, value } = e.target;
-      setFormData((prev) => ({ ...prev, [id]: value }));
-      if (errors[id]) {
-        setErrors((prev) => {
-          const next = { ...prev };
-          delete next[id];
-          return next;
-        });
-      }
-    },
-    [errors],
-  );
-
-  const handleSubmit = useCallback(
-    async (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      const validationErrors = validateLoginForm(formData);
-      if (hasValidationErrors(validationErrors)) {
-        setErrors(validationErrors);
-        return;
-      }
+  const onSubmit = useCallback(
+    async (data: LoginFormValues) => {
       try {
-        const response = await loginMutation.mutateAsync(formData);
+        const response = await loginMutation.mutateAsync(data);
 
         if (response.success && response.data) {
           setAuthData(response.data);
@@ -97,7 +78,6 @@ const SignIn = () => {
     },
     [
       fetchCurrentUser,
-      formData,
       getDefaultRouteForRoles,
       getRoleNames,
       loginMutation,
@@ -406,7 +386,7 @@ const SignIn = () => {
           </div>
 
           {/* Form */}
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
             {/* Email */}
             <div className="flex flex-col gap-1.5">
               <label
@@ -425,10 +405,8 @@ const SignIn = () => {
                   id="email"
                   type="email"
                   placeholder={t("placeholder.enterEmail")}
-                  value={formData.email}
-                  onChange={handleChange}
+                  {...form.register("email")}
                   disabled={loginMutation.isPending}
-                  required
                   className="w-full py-3 pl-10 pr-4 text-sm outline-none transition-all duration-200"
                   style={{
                     background: "var(--card)",
@@ -462,7 +440,7 @@ const SignIn = () => {
               </div>
               {errors.email && (
                 <p className="text-xs" style={{ color: "var(--destructive)" }}>
-                  {errors.email}
+                  {errors.email.message as string}
                 </p>
               )}
             </div>
@@ -485,10 +463,8 @@ const SignIn = () => {
                   id="password"
                   type="password"
                   placeholder={t("auth.enterPassword")}
-                  value={formData.password}
-                  onChange={handleChange}
+                  {...form.register("password")}
                   disabled={loginMutation.isPending}
-                  required
                   className="w-full py-3 pl-10 pr-4 text-sm outline-none transition-all duration-200"
                   style={{
                     background: "var(--card)",
@@ -522,7 +498,7 @@ const SignIn = () => {
               </div>
               {errors.password && (
                 <p className="text-xs" style={{ color: "var(--destructive)" }}>
-                  {errors.password}
+                  {errors.password.message as string}
                 </p>
               )}
             </div>

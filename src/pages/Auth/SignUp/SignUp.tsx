@@ -1,20 +1,14 @@
-import { useCallback, useState, type ChangeEvent, type FormEvent } from "react";
+import { useCallback, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { ArrowRight, Lock, Loader2, Mail, User } from "lucide-react";
 import tableTennisBgLight from "@/assets/table_tennis_bg_light.png";
 import tableTennisBgDark from "@/assets/table_tennis_bg_dark.png";
 import { useCurrentUser, useRegister, useTranslation } from "@/hooks";
 import { useAuth, useRole } from "@/store";
-import {
-  checkPasswordStrength,
-  hasValidationErrors,
-  PasswordStrength,
-  showToast,
-  showApiError,
-  validateRegisterForm,
-  type RegisterFormData,
-  type ValidationErrors,
-} from "@/utils";
+import { checkPasswordStrength, PasswordStrength, showToast, showApiError } from "@/utils";
+import { useZodForm } from "@/hooks/useZodForm";
+import { getRegisterSchema } from "@/schemas/auth.schema";
+import { z } from "zod";
 
 const SignUp = () => {
   const { t } = useTranslation();
@@ -23,30 +17,24 @@ const SignUp = () => {
   const { getDefaultRouteForRoles, getRoleNames } = useRole();
   const registerMutation = useRegister();
   const { refetch: fetchCurrentUser } = useCurrentUser({ enabled: false });
-  const [formData, setFormData] = useState<RegisterFormData>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-  const [errors, setErrors] = useState<ValidationErrors>({});
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  
+  type RegisterFormValues = z.infer<ReturnType<typeof getRegisterSchema>>;
 
-  const handleChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const { id, value } = e.target;
-      setFormData((prev) => ({ ...prev, [id]: value }));
-      if (errors[id]) {
-        setErrors((prev) => {
-          const next = { ...prev };
-          delete next[id];
-          return next;
-        });
-      }
+  const form = useZodForm({
+    schema: getRegisterSchema(t),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
     },
-    [errors],
-  );
+  });
+  
+  const { errors } = form.formState;
+  const passwordValue = form.watch("password");
+
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const getPasswordStrengthColor = (strength: PasswordStrength) => {
     switch (strength) {
@@ -74,28 +62,22 @@ const SignUp = () => {
     }
   };
 
-  const passwordStrength = formData.password
-    ? checkPasswordStrength(formData.password)
+  const passwordStrength = passwordValue
+    ? checkPasswordStrength(passwordValue)
     : null;
 
-  const handleSubmit = useCallback(
-    async (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
+  const onSubmit = useCallback(
+    async (data: RegisterFormValues) => {
       if (!agreedToTerms) {
         showToast.error(t("authFlow.signUp.termsRequired"));
         return;
       }
-      const validationErrors = validateRegisterForm(formData);
-      if (hasValidationErrors(validationErrors)) {
-        setErrors(validationErrors);
-        return;
-      }
       try {
         const response = await registerMutation.mutateAsync({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          password: formData.password,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          password: data.password,
         });
 
         if (response.success && response.data) {
@@ -129,7 +111,6 @@ const SignUp = () => {
     [
       agreedToTerms,
       fetchCurrentUser,
-      formData,
       getDefaultRouteForRoles,
       getRoleNames,
       navigate,
@@ -465,7 +446,7 @@ const SignUp = () => {
           </div>
 
           {/* Form */}
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
             {/* First Name + Last Name */}
             <div className="grid grid-cols-2 gap-3">
               {[
@@ -473,13 +454,13 @@ const SignUp = () => {
                   id: "firstName",
                   label: t("validation.fields.firstName"),
                   placeholder: t("authFlow.signUp.firstNamePlaceholder"),
-                  error: errors.firstName,
+                  error: errors.firstName?.message as string,
                 },
                 {
                   id: "lastName",
                   label: t("validation.fields.lastName"),
                   placeholder: t("authFlow.signUp.lastNamePlaceholder"),
-                  error: errors.lastName,
+                  error: errors.lastName?.message as string,
                 },
               ].map(({ id, label, placeholder, error }) => (
                 <div key={id} className="flex flex-col gap-1.5">
@@ -499,10 +480,8 @@ const SignUp = () => {
                       id={id}
                       type="text"
                       placeholder={placeholder}
-                      value={formData[id as keyof RegisterFormData]}
-                      onChange={handleChange}
+                      {...form.register(id as "firstName" | "lastName")}
                       disabled={registerMutation.isPending}
-                      required
                       style={{
                         ...inputBase,
                         border: error
@@ -510,7 +489,10 @@ const SignUp = () => {
                           : "1px solid var(--border)",
                       }}
                       onFocus={handleFocus}
-                      onBlur={(e) => handleBlur(e, !!error)}
+                      onBlur={(e) => {
+                        form.register(id as "firstName" | "lastName").onBlur(e);
+                        handleBlur(e, !!error);
+                      }}
                     />
                   </div>
                   {error && (
@@ -543,10 +525,8 @@ const SignUp = () => {
                   id="email"
                   type="email"
                   placeholder={t("placeholder.enterEmail")}
-                  value={formData.email}
-                  onChange={handleChange}
+                  {...form.register("email")}
                   disabled={registerMutation.isPending}
-                  required
                   style={{
                     ...inputBase,
                     border: errors.email
@@ -554,12 +534,15 @@ const SignUp = () => {
                       : "1px solid var(--border)",
                   }}
                   onFocus={handleFocus}
-                  onBlur={(e) => handleBlur(e, !!errors.email)}
+                  onBlur={(e) => {
+                    form.register("email").onBlur(e);
+                    handleBlur(e, !!errors.email);
+                  }}
                 />
               </div>
               {errors.email && (
                 <p className="text-xs" style={{ color: "var(--destructive)" }}>
-                  {errors.email}
+                  {errors.email.message as string}
                 </p>
               )}
             </div>
@@ -582,10 +565,8 @@ const SignUp = () => {
                   id="password"
                   type="password"
                   placeholder={t("auth.enterPassword")}
-                  value={formData.password}
-                  onChange={handleChange}
+                  {...form.register("password")}
                   disabled={registerMutation.isPending}
-                  required
                   style={{
                     ...inputBase,
                     border: errors.password
@@ -593,7 +574,10 @@ const SignUp = () => {
                       : "1px solid var(--border)",
                   }}
                   onFocus={handleFocus}
-                  onBlur={(e) => handleBlur(e, !!errors.password)}
+                  onBlur={(e) => {
+                    form.register("password").onBlur(e);
+                    handleBlur(e, !!errors.password);
+                  }}
                 />
               </div>
               {passwordStrength && (
@@ -607,7 +591,7 @@ const SignUp = () => {
               )}
               {errors.password && (
                 <p className="text-xs" style={{ color: "var(--destructive)" }}>
-                  {errors.password}
+                  {errors.password.message as string}
                 </p>
               )}
             </div>
@@ -630,10 +614,8 @@ const SignUp = () => {
                   id="confirmPassword"
                   type="password"
                   placeholder={t("auth.confirmPassword")}
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
+                  {...form.register("confirmPassword")}
                   disabled={registerMutation.isPending}
-                  required
                   style={{
                     ...inputBase,
                     border: errors.confirmPassword
@@ -641,12 +623,15 @@ const SignUp = () => {
                       : "1px solid var(--border)",
                   }}
                   onFocus={handleFocus}
-                  onBlur={(e) => handleBlur(e, !!errors.confirmPassword)}
+                  onBlur={(e) => {
+                    form.register("confirmPassword").onBlur(e);
+                    handleBlur(e, !!errors.confirmPassword);
+                  }}
                 />
               </div>
               {errors.confirmPassword && (
                 <p className="text-xs" style={{ color: "var(--destructive)" }}>
-                  {errors.confirmPassword}
+                  {errors.confirmPassword.message as string}
                 </p>
               )}
             </div>

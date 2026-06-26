@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import { useAuth } from "@/store/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useUpdateUserProfile, useUploadAvatar } from "@/hooks/queries/useUserQueries";
@@ -12,10 +12,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Camera, Loader2, Save, Key, MailCheck } from "lucide-react";
-import { format, parseISO, subYears } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { useZodForm } from "@/hooks/useZodForm";
+import { getUserProfileSchema } from "@/schemas/user.schema";
+import { Controller } from "react-hook-form";
 import { z } from "zod";
 
 export default function UserProfile() {
@@ -26,22 +29,31 @@ export default function UserProfile() {
   const forceUpdate = location.state?.forceUpdate;
   const requireCompletion = location.state?.requireCompletion;
   
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [dob, setDob] = useState<Date | undefined>(undefined);
-  const [gender, setGender] = useState("");
-
   const updateProfileMutation = useUpdateUserProfile();
   const uploadAvatarMutation = useUploadAvatar();
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  type ProfileFormValues = z.infer<ReturnType<typeof getUserProfileSchema>>;
+
+  const form = useZodForm({
+    schema: getUserProfileSchema(t),
+    defaultValues: {
+      phoneNumber: "",
+      dob: undefined,
+      gender: "",
+    },
+  });
+
   useEffect(() => {
     if (user) {
-      setPhoneNumber(user.phoneNumber || "");
-      setDob(user.dob ? parseISO(user.dob) : undefined);
-      setGender(user.gender || "");
+      form.reset({
+        phoneNumber: user.phoneNumber || "",
+        dob: user.dob ? parseISO(user.dob) : undefined,
+        gender: user.gender || "",
+      });
     }
-  }, [user]);
+  }, [user, form]);
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -53,45 +65,26 @@ export default function UserProfile() {
     
     uploadAvatarMutation.mutate({ id: user.id, file }, {
       onSuccess: (data) => {
-        // Optimistic local update / Auth sync
         updateUser({ ...user, avatarUrl: data.avatarUrl });
         showToast.success(t("profile.uploadAvatarSuccess", "Avatar uploaded successfully"));
       },
       onError: (err: any) => showApiError(err, t("profile.uploadAvatarError", "Failed to upload avatar")),
     });
     
-    // Clear input
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  const handleSaveProfile = () => {
+  const onSubmit = (data: ProfileFormValues) => {
     if (!user) return;
-    
-    const profileSchema = z.object({
-      phoneNumber: z.string().regex(/^\+?[0-9]{10,15}$/, t("validation.phoneNumber", "Invalid phone number")).optional().or(z.literal("")),
-      dob: z.date({
-        message: t("validation.dobRequired", "Date of birth is required"),
-      }).max(subYears(new Date(), 18), t("validation.dobUnder18", "You must be at least 18 years old")),
-    });
-
-    const parseResult = profileSchema.safeParse({
-      phoneNumber: phoneNumber || undefined,
-      dob,
-    });
-
-    if (!parseResult.success) {
-      showToast.error(parseResult.error.issues[0].message);
-      return;
-    }
     
     updateProfileMutation.mutate({
       id: user.id,
       data: {
-        phoneNumber,
-        dob: dob ? format(dob, "yyyy-MM-dd") : null,
-        gender: gender || null,
+        phoneNumber: data.phoneNumber,
+        dob: data.dob ? format(data.dob, "yyyy-MM-dd") : null,
+        gender: data.gender || null,
       }
     }, {
       onSuccess: (updatedUser) => {
@@ -171,66 +164,80 @@ export default function UserProfile() {
             <CardTitle>{t("profile.detailsTitle") || "Profile Details"}</CardTitle>
             <CardDescription>{t("profile.detailsDesc") || "Manage your personal information."}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">{t("profile.firstName") || "First Name"}</Label>
-                <Input id="firstName" value={user.firstName} readOnly className="bg-muted" />
+          <CardContent>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">{t("profile.firstName") || "First Name"}</Label>
+                  <Input id="firstName" value={user.firstName} readOnly className="bg-muted" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">{t("profile.lastName") || "Last Name"}</Label>
+                  <Input id="lastName" value={user.lastName} readOnly className="bg-muted" />
+                </div>
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="lastName">{t("profile.lastName") || "Last Name"}</Label>
-                <Input id="lastName" value={user.lastName} readOnly className="bg-muted" />
+                <Label htmlFor="email">{t("profile.email") || "Email"}</Label>
+                <Input id="email" value={user.email} readOnly className="bg-muted" />
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">{t("profile.email") || "Email"}</Label>
-              <Input id="email" value={user.email} readOnly className="bg-muted" />
-            </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="phoneNumber">{t("profile.phoneNumber") || "Phone Number"}</Label>
+                  <Input 
+                    id="phoneNumber" 
+                    {...form.register("phoneNumber")}
+                    placeholder="+84..."
+                    className={form.formState.errors.phoneNumber ? "border-red-500 focus-visible:ring-red-500" : ""}
+                  />
+                </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2 flex flex-col">
+                  <Label className="mb-2">{t("profile.dob") || "Date of Birth"}</Label>
+                  <Controller
+                    control={form.control}
+                    name="dob"
+                    render={({ field }) => (
+                      <DatePicker 
+                        date={field.value} 
+                        setDate={field.onChange} 
+                        placeholder={t("profile.selectDate") || "Select Date"}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <Label htmlFor="phoneNumber">{t("profile.phoneNumber") || "Phone Number"}</Label>
-                <Input 
-                  id="phoneNumber" 
-                  value={phoneNumber} 
-                  onChange={(e) => setPhoneNumber(e.target.value)} 
-                  placeholder="+84..."
+                <Label htmlFor="gender">{t("profile.gender") || "Gender"}</Label>
+                <Controller
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger id="gender" className={form.formState.errors.gender ? "border-red-500 focus-visible:ring-red-500" : ""}>
+                        <SelectValue placeholder={t("profile.selectGender") || "Select gender"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">{t("profile.male") || "Male"}</SelectItem>
+                        <SelectItem value="female">{t("profile.female") || "Female"}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                 />
               </div>
 
-              <div className="space-y-2 flex flex-col">
-                <Label className="mb-2">{t("profile.dob") || "Date of Birth"}</Label>
-                <DatePicker 
-                  date={dob} 
-                  setDate={setDob} 
-                  placeholder={t("profile.selectDate") || "Select Date"}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="gender">{t("profile.gender") || "Gender"}</Label>
-              <Select value={gender} onValueChange={setGender}>
-                <SelectTrigger id="gender">
-                  <SelectValue placeholder={t("profile.selectGender") || "Select gender"} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="male">{t("profile.male") || "Male"}</SelectItem>
-                  <SelectItem value="female">{t("profile.female") || "Female"}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button 
-              onClick={handleSaveProfile} 
-              disabled={updateProfileMutation.isPending}
-              className="mt-4"
-            >
-              {updateProfileMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              <Save className="mr-2 h-4 w-4" />
-              {t("common.save") || "Save Changes"}
-            </Button>
+              <Button 
+                type="submit"
+                disabled={updateProfileMutation.isPending}
+                className="mt-4"
+              >
+                {updateProfileMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                <Save className="mr-2 h-4 w-4" />
+                {t("common.save") || "Save Changes"}
+              </Button>
+            </form>
           </CardContent>
         </Card>
 

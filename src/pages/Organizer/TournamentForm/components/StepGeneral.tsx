@@ -36,12 +36,15 @@ const DEFAULT_CATEGORY: CategoryFormState = {
   entryFee: 0,
 };
 
+import { useFormContext } from "react-hook-form";
+
 export const StepGeneral: React.FC<StepProps> = ({
   data,
   updateData,
   onNext,
 }) => {
   const { t } = useTranslation();
+  const form = useFormContext();
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const tierLabels = {
@@ -52,106 +55,41 @@ export const StepGeneral: React.FC<StepProps> = ({
     5: "Tier 5",
   };
 
-  const handleNext = () => {
-    const startDate = data.startDate ? new Date(data.startDate) : null;
-    const endDate = data.endDate ? new Date(data.endDate) : null;
-    const regStartDate = data.registrationStartDate ? new Date(data.registrationStartDate) : null;
-    const regEndDate = data.registrationEndDate ? new Date(data.registrationEndDate) : null;
-    const bracketDate = data.bracketGenerationDate ? new Date(data.bracketGenerationDate) : null;
+  const handleNext = async () => {
+    const isValid = await form.trigger([
+      "name",
+      "tier",
+      "location",
+      "startDate",
+      "endDate",
+      "registrationStartDate",
+      "registrationEndDate",
+      "bracketGenerationDate",
+      "categories",
+    ]);
 
-    if (!data.name?.trim()) {
-      setValidationError(t("tournamentManager.createTournamentForm.general.validation.nameRequired"));
-      return;
-    }
-
-    if (!data.location?.trim()) {
-      setValidationError(t("tournamentManager.createTournamentForm.general.validation.locationRequired"));
-      return;
-    }
-
-    if (!Number.isInteger(data.tier) || data.tier < 1 || data.tier > 5) {
-      setValidationError(t("tournamentManager.createTournamentForm.general.validation.tierRangeInvalid", "Tier phải nằm trong khoảng từ 1 đến 5."));
-      return;
-    }
-
-    if (!startDate || Number.isNaN(startDate.getTime())) {
-      setValidationError(t("tournamentManager.createTournamentForm.general.validation.startDateRequired"));
-      return;
-    }
-
-    if (!endDate || Number.isNaN(endDate.getTime())) {
-      setValidationError(t("tournamentManager.createTournamentForm.general.validation.endDateRequired"));
-      return;
-    }
-
-    if (startDate.getTime() > endDate.getTime()) {
-      setValidationError(t("tournamentManager.createTournamentForm.general.validation.dateOrderInvalid"));
-      return;
-    }
-
-    if (!regStartDate || Number.isNaN(regStartDate.getTime())) {
-      setValidationError(t("tournamentManager.createTournamentForm.general.validation.regStartDateRequired", "Vui lòng nhập thời gian mở đăng ký."));
-      return;
-    }
-
-    if (!regEndDate || Number.isNaN(regEndDate.getTime())) {
-      setValidationError(t("tournamentManager.createTournamentForm.general.validation.regEndDateRequired", "Vui lòng nhập thời gian đóng đăng ký."));
-      return;
-    }
-
-    if (!bracketDate || Number.isNaN(bracketDate.getTime())) {
-      setValidationError(t("tournamentManager.createTournamentForm.general.validation.bracketDateRequired", "Vui lòng nhập ngày chốt Bracket."));
-      return;
-    }
-
-    if (regStartDate.getTime() >= regEndDate.getTime()) {
-      setValidationError(t("tournamentManager.createTournamentForm.general.validation.regDateOrderInvalid", "Thời gian đóng đăng ký phải sau thời gian mở."));
-      return;
-    }
-
-    if (regEndDate.getTime() >= bracketDate.getTime()) {
-      setValidationError(t("tournamentManager.createTournamentForm.general.validation.bracketAfterReg", "Ngày chốt Bracket phải sau khi đóng đăng ký."));
-      return;
-    }
-
-    if (bracketDate.getTime() >= startDate.getTime()) {
-      setValidationError(t("tournamentManager.createTournamentForm.general.validation.bracketBeforeStart", "Ngày chốt Bracket phải trước ngày bắt đầu giải đấu."));
-      return;
-    }
-
-    const categories = data.categories || [];
-    if (categories.length === 0) {
-      setValidationError(t("tournamentManager.createTournamentForm.general.validation.categoryRequired", "Vui lòng thêm ít nhất một hạng mục thi đấu (Category)."));
-      return;
-    }
-
-    for (let i = 0; i < categories.length; i++) {
-      const cat = categories[i];
-      if (!cat.name?.trim()) {
-        setValidationError(t("tournamentManager.createTournamentForm.general.validation.categoryNameEmpty", "Hạng mục #{{index}} đang để trống tên.").replace("{{index}}", (i + 1).toString()));
-        return;
+    if (!isValid) {
+      // Find the first error message to display
+      const errors = form.formState.errors;
+      let firstErrorMessage = t("tournamentManager.createTournamentForm.general.validation.checkFields", "Vui lòng kiểm tra lại các trường thông tin.");
+      
+      const getFirstError = (obj: any): string | undefined => {
+        for (const key in obj) {
+          if (obj[key]?.message) return obj[key].message;
+          if (typeof obj[key] === "object") {
+            const nested = getFirstError(obj[key]);
+            if (nested) return nested;
+          }
+        }
+      };
+      
+      const err = getFirstError(errors);
+      if (err) {
+        firstErrorMessage = err;
       }
-      if (cat.maxEntries < 2) {
-        setValidationError(t("tournamentManager.createTournamentForm.general.validation.categoryMinEntries", "Số lượng tham gia tối đa ở hạng mục \"{{name}}\" phải từ 2 trở lên.").replace("{{name}}", cat.name));
-        return;
-      }
-      if (cat.type === "team" && (!cat.teamFormat?.trim())) {
-        setValidationError(t("tournamentManager.createTournamentForm.general.validation.teamFormatRequired", "Vui lòng nhập định dạng đồng đội (Team Format) cho hạng mục \"{{name}}\".").replace("{{name}}", cat.name));
-        return;
-      }
-      if (cat.type === "team" && (cat.maxMembersPerEntry === null || cat.maxMembersPerEntry < 1)) {
-        setValidationError(t("tournamentManager.createTournamentForm.general.validation.maxMembersRequired", "Vui lòng nhập số thành viên tối đa cho hạng mục \"{{name}}\".").replace("{{name}}", cat.name));
-        return;
-      }
-      // Kiểm tra min/max không bị ngược
-      if (cat.minAge && cat.maxAge && cat.minAge > cat.maxAge) {
-        setValidationError(t("tournamentManager.createTournamentForm.general.validation.ageMinMaxInvalid", "Độ tuổi Min không được lớn hơn Max ở hạng mục \"{{name}}\".").replace("{{name}}", cat.name));
-        return;
-      }
-      if (cat.minElo && cat.maxElo && cat.minElo > cat.maxElo) {
-        setValidationError(t("tournamentManager.createTournamentForm.general.validation.eloMinMaxInvalid", "Mức Elo Min không được lớn hơn Max ở hạng mục \"{{name}}\".").replace("{{name}}", cat.name));
-        return;
-      }
+      
+      setValidationError(firstErrorMessage);
+      return;
     }
 
     setValidationError(null);
