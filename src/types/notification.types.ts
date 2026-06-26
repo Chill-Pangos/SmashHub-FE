@@ -148,6 +148,13 @@ export interface AdminSystemSummary {
     total: number;
     critical: number;
     warning: number;
+    items?: Array<{
+      key: string;
+      severity: "critical" | "warning" | "info";
+      message: string;
+      createdAt: string;
+      data?: Record<string, unknown>;
+    }>;
   };
   generatedAt: string;
 }

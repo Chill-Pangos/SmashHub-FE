@@ -167,21 +167,44 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               {t("adminPage.dashboard.pendingAlerts", "Pending Alerts")}
             </CardTitle>
             <ShieldAlert className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex-1 flex flex-col">
             <div className="text-2xl font-bold">{alerts?.total ?? 0}</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mb-3">
               {t("adminPage.dashboard.alertBreakdown", "{{critical}} critical / {{warning}} warning", {
                 critical: alerts?.critical ?? 0,
                 warning: alerts?.warning ?? 0,
               })}
             </p>
+            {alerts?.items && alerts.items.length > 0 && (
+              <div className="space-y-2 mt-auto">
+                {alerts.items.slice(0, 2).map((alert: any, idx: number) => (
+                  <div key={idx} className="text-xs p-2 rounded bg-destructive/10 text-destructive truncate" title={alert.message}>
+                    {alert.message}
+                  </div>
+                ))}
+                <Button variant="link" size="sm" asChild className="p-0 h-auto text-xs mt-1">
+                  <Link to="/admin/system-logs">
+                    {t("adminPage.dashboard.viewAllLogs", "View system logs →")}
+                  </Link>
+                </Button>
+              </div>
+            )}
+            {(!alerts?.items || alerts.items.length === 0) && (
+               <div className="mt-auto pt-2">
+                 <Button variant="link" size="sm" asChild className="p-0 h-auto text-xs text-muted-foreground">
+                   <Link to="/admin/system-logs">
+                     {t("adminPage.dashboard.viewAllLogs", "View system logs →")}
+                   </Link>
+                 </Button>
+               </div>
+            )}
           </CardContent>
         </Card>
       </div>

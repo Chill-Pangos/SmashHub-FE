@@ -22,7 +22,8 @@ export default {
     "serviceNeedsAttention": "Needs attention",
     "traffic": "Traffic",
     "realtime": "Realtime",
-    "roomCount": "{{count}} rooms"
+    "roomCount": "{{count}} rooms",
+    "viewAllLogs": "View system logs →"
   },
   "userManagement": {
     "title": "User Management",
@@ -83,5 +84,28 @@ export default {
     "cancel": "Cancel",
     "saving": "Saving...",
     "saveChanges": "Save changes"
+  },
+  "systemLogs": {
+    "title": "System Logs",
+    "description": "Monitor system health, API audit logs, and cron job executions.",
+    "refresh": "Refresh",
+    "auditLogs": "Audit Logs",
+    "cronLogs": "Cron Logs",
+    "auditLogsData": "Audit Logs Data",
+    "auditLogsDesc": "API requests and audit data will appear here. Currently waiting for data source integration.",
+    "cronLogsEmpty": "No Cron Logs",
+    "cronLogsEmptyDesc": "There are no cron logs to display at this time.",
+    "systemHealthCheck": "System Health Check",
+    "uptime": "Uptime",
+    "alerts": "Alerts",
+    "cpu": "CPU",
+    "resources": "Resources",
+    "servicesTraffic": "Services & Traffic",
+    "dbRedis": "DB / Redis",
+    "socketCron": "Socket / Cron",
+    "requests5m": "Requests (5m)",
+    "p95Latency": "p95 Latency",
+    "noActiveAlerts": "No active alerts",
+    "rawJson": "Raw JSON"
   }
 };

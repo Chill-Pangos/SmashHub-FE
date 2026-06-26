@@ -22,7 +22,8 @@ export default {
     "serviceNeedsAttention": "Cần chú ý",
     "traffic": "Lưu lượng",
     "realtime": "Thời gian thực",
-    "roomCount": "{{count}} phòng"
+    "roomCount": "{{count}} phòng",
+    "viewAllLogs": "Xem nhật ký hệ thống →"
   },
   "userManagement": {
     "title": "Quản lý Người dùng",
@@ -83,5 +84,28 @@ export default {
     "cancel": "Huỷ",
     "saving": "Đang lưu...",
     "saveChanges": "Lưu thay đổi"
+  },
+  "systemLogs": {
+    "title": "Nhật ký Hệ thống",
+    "description": "Theo dõi tình trạng hệ thống, nhật ký API và các lệnh cron.",
+    "refresh": "Làm mới",
+    "auditLogs": "Nhật ký API",
+    "cronLogs": "Nhật ký Cron",
+    "auditLogsData": "Dữ liệu Nhật ký API",
+    "auditLogsDesc": "Các yêu cầu API và dữ liệu nhật ký sẽ xuất hiện ở đây. Hiện đang chờ tích hợp nguồn dữ liệu.",
+    "cronLogsEmpty": "Không có Nhật ký Cron",
+    "cronLogsEmptyDesc": "Hiện tại không có nhật ký cron nào để hiển thị.",
+    "systemHealthCheck": "Kiểm tra Tình trạng Hệ thống",
+    "uptime": "Thời gian hoạt động",
+    "alerts": "Cảnh báo",
+    "cpu": "CPU",
+    "resources": "Tài nguyên",
+    "servicesTraffic": "Dịch vụ & Lưu lượng",
+    "dbRedis": "DB / Redis",
+    "socketCron": "Socket / Cron",
+    "requests5m": "Yêu cầu (5p)",
+    "p95Latency": "Độ trễ p95",
+    "noActiveAlerts": "Không có cảnh báo nào",
+    "rawJson": "JSON gốc"
   }
 };

@@ -187,6 +187,12 @@ export const adminSidebarConfig: SidebarConfig = {
           icon: Settings2,
         },
         {
+          key: "system-logs",
+          label: t("nav.systemLogs") || "System Logs",
+          to: "/admin/system-logs",
+          icon: Settings2,
+        },
+        {
           key: "notifications",
           label: t("nav.notifications"),
           to: "/admin/notifications",
