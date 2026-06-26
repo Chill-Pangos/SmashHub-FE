@@ -41,7 +41,7 @@ export default {
     "unknown": "Không rõ",
     "na": "N/A",
     "noPhone": "Không có SĐT",
-    "roleId": "Role ID: {{id}}",
+    "roleId": "ID Vai trò: {{id}}",
     "noRoles": "Không có vai trò",
     "verified": "Đã xác minh",
     "unverified": "Chưa xác minh",

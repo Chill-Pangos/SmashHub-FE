@@ -44,8 +44,9 @@ export default {
   "finalizeSubMatchError": "Kết thúc trận phụ thất bại",
   "scheduledAt": "Scheduled:",
   "setNum": "Set {{num}}",
-  "subMatchNum": "Sub-Match {{num}}",
+  "subMatchNum": "Trận phụ {{num}}",
   "scoreUpdated": "Cập nhật điểm thành công",
   "totalScore": "Tỉ số tổng",
-  "scoreHistory": "Lịch sử tỉ số"
+  "scoreHistory": "Lịch sử tỉ số",
+  "setNumber": "Set {{num}}"
 };

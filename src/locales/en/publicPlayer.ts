@@ -97,6 +97,9 @@ export default {
     "welcome": "Welcome to the",
     "formatDetails": "Format Details",
     "categories": "Categories",
+    "categoriesCount": "{{count}} categories",
+    "basedOn": "Based on",
+    "groupKo": "Group + KO",
     "type": "Type",
     "gender": "Gender",
     "ageLimit": "Age Limit",
@@ -640,6 +643,7 @@ export default {
     "paymentRefunded": "Your payment has been refunded.",
     "paymentRefundedDesc": "Please check your bank account or contact the organizer if you have not received it.",
     "refundProof": "Refund Proof",
-    "statusFailed": "Payment Rejected"
+    "statusFailed": "Payment Rejected",
+    "forbidden": "You do not have permission to view this payment."
   }
 };

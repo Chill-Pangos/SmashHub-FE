@@ -115,7 +115,8 @@ export default {
     "bulkStartError": "Failed to start matches.",
     "hideRegenerate": "Hide Regenerate Options",
     "regenerateSchedule": "Regenerate Schedule",
-    "bulkStartMatches": "Bulk Start Matches"
+    "bulkStartMatches": "Bulk Start Matches",
+    "generateKnockout": "Generate Knockout"
   },
   "placeholders": {
     "bulkImportTitle": "Bulk Import",
@@ -270,7 +271,8 @@ export default {
     "refundSuccess": "Payment refunded successfully",
     "refundError": "Failed to refund payment",
     "rejectTitle": "Reject Payment?",
-    "rejectDesc": "Are you sure you want to reject this payment? This will mark the payment as failed."
+    "rejectDesc": "Are you sure you want to reject this payment? This will mark the payment as failed.",
+    "forbidden": "You do not have permission to view or manage payments for this tournament."
   },
   "overviewTab": {
     "totalMaxEntries": "Total Max Entries",
@@ -440,7 +442,8 @@ export default {
         "teamFormatRequired": "Please enter Team Format for category \"{{name}}\".",
         "maxMembersRequired": "Please enter max members per team for category \"{{name}}\".",
         "ageMinMaxInvalid": "Min age cannot be greater than Max age for category \"{{name}}\".",
-        "eloMinMaxInvalid": "Min Elo cannot be greater than Max Elo for category \"{{name}}\"."
+        "eloMinMaxInvalid": "Min Elo cannot be greater than Max Elo for category \"{{name}}\".",
+        "checkFields": "Please check the input fields."
       },
       "tournamentPeriod": "Tournament Period",
       "registrationPeriod": "Registration Period",
@@ -521,7 +524,8 @@ export default {
         "operatingWindowTooShort": "Operating hours are too short for at least one match.",
         "breakStartInvalid": "Break start time must be valid when breaks are enabled.",
         "breakDurationInvalid": "Break duration must be at least 1 minute.",
-        "breakOutsideWindow": "Break time must stay within the operating hours window."
+        "breakOutsideWindow": "Break time must stay within the operating hours window.",
+        "checkFields": "Please check the schedule configurations."
       }
     },
     "review": {

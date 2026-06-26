@@ -118,8 +118,8 @@ export default {
     "defaultRole": "Người dùng"
   },
   "signIn": {
-    "sso": "authFlow.signIn.sso",
-    "biometric": "authFlow.signIn.biometric",
-    "continueWith": "authFlow.signIn.continueWith"
+    "sso": "Đăng nhập một lần (SSO)",
+    "biometric": "Sinh trắc học",
+    "continueWith": "Tiếp tục với"
   }
 };

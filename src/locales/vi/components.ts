@@ -4,7 +4,7 @@ export default {
     "selectTime": "Chọn giờ"
   },
   "footer": {
-    "copyright": "@ 2025 SmashHub. All rights reserved"
+    "copyright": "@ 2025 SmashHub. Đã đăng ký bản quyền"
   },
   "notificationDropdown": {
     "notifications": "Thông báo",
@@ -69,7 +69,7 @@ export default {
   },
   "teamImportDialog": {
     "importTeamsFromExcel": "Import Teams từ Excel",
-    "uploadExcelFile": "Upload File Excel",
+    "uploadExcelFile": "Tải lên file Excel",
     "previewData": "Xem trước dữ liệu",
     "uploadDescription": "Tải lên file Excel chứa danh sách teams và members. Vui lòng sử dụng file mẫu để đảm bảo định dạng đúng.",
     "checkDataBeforeImport": "Kiểm tra dữ liệu trước khi import vào hệ thống",
@@ -157,6 +157,6 @@ export default {
     "upcoming": "Sắp diễn ra"
   },
   "timePicker": {
-    "selectTime": "Select time"
+    "selectTime": "Chọn thời gian"
   }
 };

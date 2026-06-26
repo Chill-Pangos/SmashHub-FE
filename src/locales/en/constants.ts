@@ -37,5 +37,9 @@ export default {
     "3": "Tier 3 (Regional)",
     "4": "Tier 4 (Club)",
     "5": "Tier 5 (Recreational)"
-  }
+  },
+  "any": "Any",
+  "max": "Max",
+  "free": "Free",
+  "tbd": "TBD"
 };

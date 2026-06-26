@@ -190,7 +190,7 @@ export default function TournamentDetail() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t("tournamentManager.detail.cancelTournament.title", "Cancel Tournament?")}</AlertDialogTitle>
-            <AlertDialogDescription dangerouslySetInnerHTML={{ __html: t("tournamentManager.detail.cancelTournament.description", { name: tournament.name }, "Are you sure you want to cancel the tournament <strong>{{name}}</strong>? This action cannot be undone. Players' entries will remain, but the tournament status will be changed to cancelled. You can still manually refund payments if needed.") }} />
+            <AlertDialogDescription dangerouslySetInnerHTML={{ __html: t("tournamentManager.detail.cancelTournament.description", "Are you sure you want to cancel the tournament <strong>{{name}}</strong>? This action cannot be undone. Players' entries will remain, but the tournament status will be changed to cancelled. You can still manually refund payments if needed.", { name: tournament.name }) }} />
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={cancelMutation.isPending}>{t("tournamentManager.detail.cancelTournament.close", "Close")}</AlertDialogCancel>

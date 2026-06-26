@@ -37,5 +37,9 @@ export default {
     "3": "Cấp độ 3 (Khu vực)",
     "4": "Cấp độ 4 (Câu lạc bộ)",
     "5": "Cấp độ 5 (Giải trí)"
-  }
+  },
+  "any": "Bất kỳ",
+  "max": "Tối đa",
+  "free": "Miễn phí",
+  "tbd": "Chưa xác định"
 };
