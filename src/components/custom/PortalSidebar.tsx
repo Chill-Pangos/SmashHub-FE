@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronDown, ChevronRight, Menu } from "lucide-react";
+import logoSvg from "@/assets/smashhub_logo.svg";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -99,10 +100,10 @@ function SidebarItemView({
             itemClassName,
             // Trạng thái isActive chỉ làm đổi màu nếu ĐÓ KHÔNG PHẢI là nút Primary
             !isPrimary &&
-              isActive &&
-              (item.danger
-                ? "bg-destructive/10 text-destructive"
-                : "bg-primary text-primary-foreground shadow-sm hover:bg-primary hover:text-primary-foreground"),
+            isActive &&
+            (item.danger
+              ? "bg-destructive/10 text-destructive"
+              : "bg-primary text-primary-foreground shadow-sm hover:bg-primary hover:text-primary-foreground"),
           )
         }
       >
@@ -236,7 +237,6 @@ function SidebarContent({
   footerItems?: PortalSidebarItem[];
   mobile?: boolean;
 }) {
-  const BrandIcon = brand.icon;
   const [collapsedSectionKeys, setCollapsedSectionKeys] = useState<string[]>(
     [],
   );
@@ -253,11 +253,9 @@ function SidebarContent({
     <div className="flex h-full flex-col bg-background text-foreground">
       <div className="space-y-4 px-5 pt-6">
         <div className="flex items-start gap-3">
-          {BrandIcon ? (
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/20">
-              <BrandIcon className="h-5 w-5" />
-            </div>
-          ) : null}
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 dark:bg-gradient-to-br dark:from-white/20 dark:to-white/5 dark:backdrop-blur-xl ring-1 ring-primary/20 dark:ring-white/20 dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_4px_12px_rgba(0,0,0,0.5)] overflow-hidden">
+            <img src={logoSvg} alt="SmashHub Logo" className="h-12 w-12 object-contain" />
+          </div>
           <div className="min-w-0 flex-1">
             {brand.subtitle ? (
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-foreground/60">
