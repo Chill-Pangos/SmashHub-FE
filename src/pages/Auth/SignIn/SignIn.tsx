@@ -9,8 +9,8 @@ import { showToast, showApiError } from "@/utils";
 import { useZodForm } from "@/hooks/useZodForm";
 import { getLoginSchema } from "@/schemas/auth.schema";
 import { z } from "zod";
-import logoSvg from "@/assets/smashhub_logo.svg";
-import logoTextSvg from "@/assets/smashhub_logo_text.svg";
+const logoSvg = "/smashhub_logo.svg";
+const logoTextSvg = "/smashhub_logo_text.svg";
 const SignIn = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();

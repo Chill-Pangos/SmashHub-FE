@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronDown, ChevronRight, Menu } from "lucide-react";
-import logoSvg from "@/assets/smashhub_logo.svg";
+const logoSvg = "/smashhub_logo.svg";
 
 import { Button } from "@/components/ui/button";
 import {

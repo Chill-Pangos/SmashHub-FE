@@ -16,7 +16,7 @@ import {
 } from "@/hooks/queries/useAuthQueries";
 import { validateOTP } from "@/utils/validation.utils";
 import { showToast } from "@/utils";
-import logoSvg from "@/assets/smashhub_logo.svg";
+const logoSvg = "/smashhub_logo.svg";
 const getErrorMessage = (error: unknown, fallback: string): string => {
   if (error instanceof Error && error.message) {
     return error.message;

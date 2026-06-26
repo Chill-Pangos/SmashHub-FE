@@ -9,8 +9,8 @@ import { checkPasswordStrength, PasswordStrength, showToast, showApiError } from
 import { useZodForm } from "@/hooks/useZodForm";
 import { getRegisterSchema } from "@/schemas/auth.schema";
 import { z } from "zod";
-import logoSvg from "@/assets/smashhub_logo.svg";
-import logoTextSvg from "@/assets/smashhub_logo_text.svg";
+const logoSvg = "/smashhub_logo.svg";
+const logoTextSvg = "/smashhub_logo_text.svg";
 
 const SignUp = () => {
   const { t } = useTranslation();

@@ -19,7 +19,7 @@ import {
   PasswordStrength,
   type ValidationErrors,
 } from "@/utils/validation.utils";
-import logoSvg from "@/assets/smashhub_logo.svg";
+const logoSvg = "/smashhub_logo.svg";
 
 interface ChangePasswordFormData {
   oldPassword: string;

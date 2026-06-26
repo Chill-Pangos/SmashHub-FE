@@ -19,7 +19,7 @@ import { useRole } from "@/store/useRole";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { User as AuthUser } from "@/types";
-import logoSvg from "@/assets/smashhub_logo.svg";
+const logoSvg = "/smashhub_logo.svg";
 
 const getNavItems = (t: (key: string) => string, isAuthenticated: boolean) => {
   const items = [
