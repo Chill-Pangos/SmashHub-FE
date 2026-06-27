@@ -137,6 +137,23 @@ export default function ChatbotScreen() {
         </div>
       );
     } catch (e) {
+      const errorMatch = content.match(/(\{.*\})/);
+      if (errorMatch) {
+        try {
+          const parsedErr = JSON.parse(errorMatch[1]);
+          if (parsedErr?.error?.message) {
+            const prefix = content.replace(errorMatch[1], '').trim();
+            return (
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20 mt-1">
+                {prefix && <p className="font-semibold mb-1">{prefix}</p>}
+                <p>{parsedErr.error.message}</p>
+              </div>
+            );
+          }
+        } catch (err) {
+          // Ignore and fallback to raw content
+        }
+      }
       return <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>;
     }
   };
