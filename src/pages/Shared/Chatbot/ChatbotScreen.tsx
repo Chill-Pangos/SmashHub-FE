@@ -69,30 +69,67 @@ export default function ChatbotScreen() {
   const renderMessageContent = (content: string) => {
     try {
       const parsed = JSON.parse(content);
-      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].endpoint === '/entries/me') {
-        return (
-          <div className="space-y-3 w-full mt-1 text-foreground">
-            {parsed.map((group: any, idx: number) => (
-              <div key={idx} className="space-y-2">
-                {group.label && <h4 className="font-medium text-sm">{group.label}</h4>}
-                <div className="flex flex-col gap-2">
-                  {group.data?.rows?.map((row: any) => (
-                    <div key={row.id} className="p-3 bg-background border rounded-lg shadow-sm text-sm">
-                      <div className="font-semibold text-primary">{row.category?.tournament?.name || "Unknown Tournament"}</div>
-                      <div className="text-xs text-muted-foreground mb-2">{row.category?.name || "Unknown Category"}</div>
-                      <div className="grid grid-cols-2 gap-y-1 gap-x-2 text-xs">
-                        <div><span className="font-medium">Status:</span> <span className="capitalize">{row.category?.tournament?.status}</span></div>
-                        <div className="truncate" title={row.category?.tournament?.location}><span className="font-medium">Location:</span> {row.category?.tournament?.location || "TBD"}</div>
-                        <div><span className="font-medium">Fee:</span> {row.category?.entryFee && row.category?.entryFee !== "0.00" ? `${Number(row.category?.entryFee).toLocaleString()}đ` : "Free"}</div>
-                        <div><span className="font-medium">Role:</span> <span className="capitalize">{row.userRole}</span></div>
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        if (parsed[0].endpoint === '/entries/me') {
+          return (
+            <div className="space-y-3 w-full mt-1 text-foreground">
+              {parsed.map((group: any, idx: number) => (
+                <div key={idx} className="space-y-2">
+                  {group.label && <h4 className="font-medium text-sm">{group.label}</h4>}
+                  <div className="flex flex-col gap-2">
+                    {group.data?.rows?.map((row: any) => (
+                      <div key={row.id} className="p-3 bg-background border rounded-lg shadow-sm text-sm">
+                        <div className="font-semibold text-primary">{row.category?.tournament?.name || "Unknown Tournament"}</div>
+                        <div className="text-xs text-muted-foreground mb-2">{row.category?.name || "Unknown Category"}</div>
+                        <div className="grid grid-cols-2 gap-y-1 gap-x-2 text-xs">
+                          <div><span className="font-medium">Status:</span> <span className="capitalize">{row.category?.tournament?.status}</span></div>
+                          <div className="truncate" title={row.category?.tournament?.location}><span className="font-medium">Location:</span> {row.category?.tournament?.location || "TBD"}</div>
+                          <div><span className="font-medium">Fee:</span> {row.category?.entryFee && row.category?.entryFee !== "0.00" ? `${Number(row.category?.entryFee).toLocaleString()}đ` : "Free"}</div>
+                          <div><span className="font-medium">Role:</span> <span className="capitalize">{row.userRole}</span></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        }
+
+        if (parsed[0].endpoint?.startsWith('/users/')) {
+          return (
+            <div className="space-y-3 w-full mt-1 text-foreground">
+              {parsed.map((group: any, idx: number) => {
+                const u = group.data;
+                if (!u) return null;
+                const fullName = `${u.firstName || ""} ${u.lastName || ""}`.trim();
+                return (
+                  <div key={idx} className="space-y-2">
+                    {group.label && <h4 className="font-medium text-sm">{group.label}</h4>}
+                    <div className="p-3 bg-background border rounded-lg shadow-sm text-sm">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Avatar className="h-10 w-10 border">
+                          {u.avatarUrl ? <AvatarImage src={getImageUrl(u.avatarUrl)} alt="User avatar" /> : null}
+                          <AvatarFallback><User className="w-5 h-5" /></AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-semibold text-primary">{fullName || "Unknown User"}</div>
+                          <div className="text-xs text-muted-foreground">{u.email}</div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-y-2 gap-x-2 text-xs">
+                        {u.phoneNumber && <div><span className="font-medium text-muted-foreground">Phone:</span> <div>{u.phoneNumber}</div></div>}
+                        {u.gender && <div><span className="font-medium text-muted-foreground">Gender:</span> <div className="capitalize">{u.gender}</div></div>}
+                        {u.dob && <div><span className="font-medium text-muted-foreground">DOB:</span> <div>{new Date(u.dob).toLocaleDateString()}</div></div>}
+                        {u.eloScore !== null && u.eloScore !== undefined && <div><span className="font-medium text-muted-foreground">Elo:</span> <div>{u.eloScore}</div></div>}
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        );
+                  </div>
+                );
+              })}
+            </div>
+          );
+        }
       }
       return (
         <div className="bg-background/50 p-2 rounded border overflow-x-auto mt-1 max-w-full">
