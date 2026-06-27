@@ -19,5 +19,6 @@ export default {
   "analytics": "Phân tích",
   "team": "Đội của tôi",
   "eloHistory": "Lịch sử ELO",
-  "chatbot": "Trợ lý AI"
+  "chatbot": "Trợ lý AI",
+  "systemLogs": "Nhật ký hệ thống"
 };
