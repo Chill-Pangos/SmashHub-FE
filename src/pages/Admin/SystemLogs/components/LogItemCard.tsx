@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronUp, AlertCircle, CheckCircle2, Server, Activity, Database, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { useTranslation } from 'react-i18next';
@@ -15,6 +16,7 @@ interface LogItemCardProps {
 export const LogItemCard: React.FC<LogItemCardProps> = ({ log }) => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+  const [isRawOpen, setIsRawOpen] = useState(false);
   
   const data = log.data;
   const isCritical = data.status === 'critical' || log.alerts.critical > 0;
@@ -147,10 +149,21 @@ export const LogItemCard: React.FC<LogItemCardProps> = ({ log }) => {
             </div>
             
             <div className="mt-4 pt-4 border-t">
-               <h4 className="text-sm font-semibold mb-2">{t("adminPage.systemLogs.rawJson", "Raw JSON")}</h4>
-               <pre className="bg-muted p-4 rounded-md text-xs overflow-x-auto w-full text-muted-foreground font-mono">
-                 {JSON.stringify(log, null, 2)}
-               </pre>
+               <Collapsible open={isRawOpen} onOpenChange={setIsRawOpen}>
+                 <div className="flex items-center gap-2 mb-2">
+                   <h4 className="text-sm font-semibold">{t("adminPage.systemLogs.rawJson", "Raw JSON")}</h4>
+                   <CollapsibleTrigger asChild>
+                     <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-transparent">
+                       {isRawOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                     </Button>
+                   </CollapsibleTrigger>
+                 </div>
+                 <CollapsibleContent>
+                   <pre className="bg-muted p-4 rounded-md text-xs overflow-x-auto w-full text-muted-foreground font-mono">
+                     {JSON.stringify(log, null, 2)}
+                   </pre>
+                 </CollapsibleContent>
+               </Collapsible>
             </div>
           </CardContent>
         </CollapsibleContent>

@@ -164,6 +164,43 @@ export interface AdminSystemSummaryResponse {
   data: AdminSystemSummary;
 }
 
+export interface AuditLogItem {
+  id: number;
+  actorUserId: number;
+  action: string;
+  resourceType: string;
+  resourceId: number | null;
+  method: string;
+  path: string;
+  statusCode: number;
+  ip: string;
+  userAgent: string;
+  durationMs: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuditLogFilters {
+  action?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface AuditLogsResponse {
+  success: boolean;
+  data: {
+    rows: AuditLogItem[];
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
+  };
+}
+
 export type AdminSystemHealthChangedEvent = Pick<
   AdminSystemSummary,
   "status" | "services" | "resources" | "alerts" | "generatedAt"
