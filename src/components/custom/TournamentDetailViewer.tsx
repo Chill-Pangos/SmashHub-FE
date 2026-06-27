@@ -65,11 +65,13 @@ export default function TournamentDetailViewer({
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "outline"> = {
       upcoming: "outline",
+      brackets_generated: "outline",
       ongoing: "default",
       completed: "secondary",
     };
     const labels: Record<string, string> = {
       upcoming: t("components.tournamentDetailViewer.upcoming"),
+      brackets_generated: t("components.tournamentDetailViewer.brackets_generated"),
       ongoing: t("components.tournamentDetailViewer.ongoing"),
       completed: t("components.tournamentDetailViewer.completed"),
     };

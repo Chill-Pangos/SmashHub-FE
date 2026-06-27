@@ -4,5 +4,20 @@ export default {
   "send": "Gửi",
   "clearHistory": "Xóa lịch sử",
   "emptyState": "Hôm nay tôi có thể giúp gì cho bạn?",
-  "mockResponse": "Đây là câu trả lời mẫu từ trợ lý AI. Tôi chưa được kết nối với API."
+  "mockResponse": "Đây là câu trả lời mẫu từ trợ lý AI. Tôi chưa được kết nối với API.",
+  "modePersonal": "Thông tin bản thân / Giải đấu",
+  "modeGeneral": "Luật bóng bàn / Hỏi chung",
+  "phone": "Số điện thoại:",
+  "gender": "Giới tính:",
+  "dob": "Ngày sinh:",
+  "elo": "Elo:",
+  "unknownUser": "Người dùng ẩn danh",
+  "status": "Trạng thái:",
+  "location": "Địa điểm:",
+  "fee": "Lệ phí:",
+  "role": "Vai trò:",
+  "unknownTournament": "Giải đấu không xác định",
+  "unknownCategory": "Hạng mục không xác định",
+  "free": "Miễn phí",
+  "tbd": "Chưa xác định"
 };

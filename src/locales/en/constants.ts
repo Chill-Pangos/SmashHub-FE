@@ -3,6 +3,7 @@ export default {
     "tournament": {
       "upcoming": "Upcoming",
       "registration_open": "Registration Open",
+      "brackets_generated": "Brackets Generated",
       "ongoing": "Ongoing",
       "completed": "Completed",
       "cancelled": "Cancelled"
