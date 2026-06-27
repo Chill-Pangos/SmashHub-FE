@@ -206,7 +206,7 @@ export const adminSidebarConfig: SidebarConfig = {
         },
         {
           key: "chatbot-management",
-          label: "Chatbot Management",
+          label: t("nav.chatbotManagement"),
           to: "/admin/chatbot-management",
           icon: Settings2,
         },
