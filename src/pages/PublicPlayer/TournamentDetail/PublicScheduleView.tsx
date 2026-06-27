@@ -143,7 +143,7 @@ export default function PublicScheduleView({ config }: PublicScheduleViewProps) 
                 </span>
                 <span className="font-semibold text-primary">{t("publicPlayer.tournamentDetail.scheduleTab.matchesBegin", "Matches Begin")}</span>
                 <span className="text-sm text-muted-foreground mt-1">
-                  Each match is scheduled for {config.matchDurationMinutes} minutes, with a {config.breakDurationMinutes}-minute break between matches.
+                  {t("publicPlayer.tournamentDetail.scheduleTab.matchBreakDesc", { match: config.matchDurationMinutes, break: config.breakDurationMinutes })}
                 </span>
               </div>
             </div>
@@ -160,7 +160,7 @@ export default function PublicScheduleView({ config }: PublicScheduleViewProps) 
                   </span>
                   <span className="font-semibold text-secondary-foreground">{t("publicPlayer.tournamentDetail.scheduleTab.lunchBreak", "Lunch Break")}</span>
                   <span className="text-sm text-muted-foreground mt-1">
-                    Play pauses for {config.lunchBreakDurationMinutes} minutes.
+                    {t("publicPlayer.tournamentDetail.scheduleTab.lunchBreakDesc", { lunch: config.lunchBreakDurationMinutes })}
                   </span>
                 </div>
               </div>

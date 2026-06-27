@@ -2,6 +2,10 @@ export default {
   "required": "This field is required",
   "invalidEmail": "Invalid email",
   "invalidPhone": "Invalid phone number",
+  "phoneNumber": "Invalid phone number",
+  "dobRequired": "Date of birth is required",
+  "dobInvalid": "Invalid date of birth",
+  "dobUnder18": "You must be at least 18 years old",
   "passwordTooShort": "Password must be at least 8 characters",
   "passwordMismatch": "Passwords do not match",
   "invalidDate": "Invalid date",
@@ -43,7 +47,9 @@ export default {
     "otpRequired": "OTP is required",
     "otpInvalid": "OTP must be exactly 6 digits",
     "oldPasswordRequired": "Current password is required",
-    "newPasswordMustDiffer": "New password must be different from current password"
+    "newPasswordMustDiffer": "New password must be different from current password",
+    "firstNameRequired": "First name is required",
+    "lastNameRequired": "Last name is required"
   },
   "tournament": {
     "nameRequired": "Tournament name is required",
@@ -60,7 +66,16 @@ export default {
     "startDateInvalid": "Tournament start date is invalid",
     "endDateInvalid": "Tournament end date is invalid",
     "startDatePast": "Tournament start date cannot be in the past",
-    "endDateAfterStart": "Tournament end date must be after or equal to start date"
+    "endDateAfterStart": "Tournament end date must be after or equal to start date",
+    "categoryNameRequired": "Category name is required",
+    "minEntries2": "Minimum 2 entries required",
+    "registrationStartDateRequired": "Registration start date is required",
+    "registrationEndDateRequired": "Registration end date is required",
+    "bracketGenerationDateRequired": "Bracket generation date is required",
+    "minOneCategory": "At least one category is required",
+    "minOneTable": "At least one table is required",
+    "minMatchDuration": "Match duration must be at least 1 minute",
+    "invalidTime": "Invalid time format"
   },
   "content": {
     "nameRequired": "Content name is required",

@@ -97,6 +97,9 @@ export default {
     "welcome": "Welcome to the",
     "formatDetails": "Format Details",
     "categories": "Categories",
+    "categoriesCount": "{{count}} categories",
+    "basedOn": "Based on",
+    "groupKo": "Group + KO",
     "type": "Type",
     "gender": "Gender",
     "ageLimit": "Age Limit",
@@ -165,7 +168,9 @@ export default {
       "dailySchedule": "Daily Schedule Format",
       "dailyFormatDesc": "Standard format for match days during the tournament.",
       "matchesBegin": "Matches Begin",
+      "matchBreakDesc": "Each match is scheduled for {{match}} minutes, with a {{break}}-minute break between matches.",
       "lunchBreak": "Lunch Break",
+      "lunchBreakDesc": "Play pauses for {{lunch}} minutes.",
       "endOfPlay": "End of Play",
       "endOfPlayDesc": "All matches for the day must conclude by this time.",
       "additionalNotes": "Additional Notes",
@@ -379,7 +384,9 @@ export default {
         "dailySchedule": "Daily Schedule Format",
         "dailyFormatDesc": "Standard format for match days during the tournament.",
         "matchesBegin": "Matches Begin",
+        "matchBreakDesc": "Each match is scheduled for {{match}} minutes, with a {{break}}-minute break between matches.",
         "lunchBreak": "Lunch Break",
+        "lunchBreakDesc": "Play pauses for {{lunch}} minutes.",
         "endOfPlay": "End of Play",
         "endOfPlayDesc": "All matches for the day must conclude by this time.",
         "additionalNotes": "Additional Notes",
@@ -636,6 +643,7 @@ export default {
     "paymentRefunded": "Your payment has been refunded.",
     "paymentRefundedDesc": "Please check your bank account or contact the organizer if you have not received it.",
     "refundProof": "Refund Proof",
-    "statusFailed": "Payment Rejected"
+    "statusFailed": "Payment Rejected",
+    "forbidden": "You do not have permission to view this payment."
   }
 };

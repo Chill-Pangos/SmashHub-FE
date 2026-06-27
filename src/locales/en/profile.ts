@@ -19,5 +19,9 @@ export default {
   "uploadAvatarSuccess": "Avatar uploaded successfully",
   "uploadAvatarError": "Failed to upload avatar",
   "updateSuccess": "Profile updated successfully",
-  "updateError": "Failed to update profile"
+  "updateError": "Failed to update profile",
+  "forceUpdateTitle": "Action Required",
+  "forceUpdateDesc": "Please update your profile information before continuing.",
+  "completionRequiredTitle": "Profile Completion Required",
+  "completionRequiredDesc": "You must complete your profile by providing your Date of Birth before accessing other features."
 };

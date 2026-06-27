@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { useValidateScheduleConfig } from "@/hooks/queries/useScheduleConfigQueries";
 
+import { useFormContext } from "react-hook-form";
+
 export const StepSchedule: React.FC<StepProps> = ({
   data,
   updateData,
@@ -23,6 +25,7 @@ export const StepSchedule: React.FC<StepProps> = ({
   onBack,
 }) => {
   const { t } = useTranslation();
+  const form = useFormContext();
   const [isValidated, setIsValidated] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -30,81 +33,31 @@ export const StepSchedule: React.FC<StepProps> = ({
 
   const parseTimeToMinutes = (timeStr: string) => {
     const [hours, minutes] = timeStr.split(":").map(Number);
-
-    if (Number.isNaN(hours) || Number.isNaN(minutes)) {
-      return null;
-    }
-
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
     return hours * 60 + minutes;
   };
 
   const validateSchedule = () => {
-    const activeTables = Number(data.schedule.activeTables);
     const matchDurationMinutes = Number(data.schedule.matchDurationMinutes);
     const dailyStartMinutes = parseTimeToMinutes(data.schedule.dailyStartTime);
     const dailyEndMinutes = parseTimeToMinutes(data.schedule.dailyEndTime);
 
-    if (!Number.isFinite(activeTables) || activeTables < 1) {
-      return t(
-        "tournamentManager.createTournamentForm.schedule.validation.activeTablesInvalid",
-      );
-    }
-
-    if (!Number.isFinite(matchDurationMinutes) || matchDurationMinutes < 1) {
-      return t(
-        "tournamentManager.createTournamentForm.schedule.validation.matchDurationInvalid",
-      );
-    }
-
-    if (dailyStartMinutes === null || dailyEndMinutes === null) {
-      return t(
-        "tournamentManager.createTournamentForm.schedule.validation.dailyTimeInvalid",
-      );
-    }
-
-    if (dailyStartMinutes >= dailyEndMinutes) {
-      return t(
-        "tournamentManager.createTournamentForm.schedule.validation.dailyTimeOrderInvalid",
-      );
-    }
+    if (dailyStartMinutes === null || dailyEndMinutes === null) return t("tournamentManager.createTournamentForm.schedule.validation.dailyTimeInvalid");
+    if (dailyStartMinutes >= dailyEndMinutes) return t("tournamentManager.createTournamentForm.schedule.validation.dailyTimeOrderInvalid");
 
     const operatingWindowMinutes = dailyEndMinutes - dailyStartMinutes;
-    if (operatingWindowMinutes < matchDurationMinutes) {
-      return t(
-        "tournamentManager.createTournamentForm.schedule.validation.operatingWindowTooShort",
-      );
-    }
+    if (operatingWindowMinutes < matchDurationMinutes) return t("tournamentManager.createTournamentForm.schedule.validation.operatingWindowTooShort");
 
     if (data.schedule.hasBreak) {
-      const breakStartMinutes = parseTimeToMinutes(
-        data.schedule.breakStartTime,
-      );
+      const breakStartMinutes = parseTimeToMinutes(data.schedule.breakStartTime);
       const breakDurationMinutes = Number(data.schedule.breakDurationMinutes);
-
-      if (breakStartMinutes === null) {
-        return t(
-          "tournamentManager.createTournamentForm.schedule.validation.breakStartInvalid",
-        );
-      }
-
-      if (!Number.isFinite(breakDurationMinutes) || breakDurationMinutes < 1) {
-        return t(
-          "tournamentManager.createTournamentForm.schedule.validation.breakDurationInvalid",
-        );
-      }
-
+      if (breakStartMinutes === null) return t("tournamentManager.createTournamentForm.schedule.validation.breakStartInvalid");
+      
       const breakEndMinutes = breakStartMinutes + breakDurationMinutes;
-
-      if (
-        breakStartMinutes < dailyStartMinutes ||
-        breakEndMinutes > dailyEndMinutes
-      ) {
-        return t(
-          "tournamentManager.createTournamentForm.schedule.validation.breakOutsideWindow",
-        );
+      if (breakStartMinutes < dailyStartMinutes || breakEndMinutes > dailyEndMinutes) {
+        return t("tournamentManager.createTournamentForm.schedule.validation.breakOutsideWindow");
       }
     }
-
     return null;
   };
 
@@ -113,6 +66,25 @@ export const StepSchedule: React.FC<StepProps> = ({
   const handleValidate = async () => {
     setValidationError(null);
     setIsValidated(false);
+
+    const isValid = await form.trigger("schedule");
+    if (!isValid) {
+      const errors = form.formState.errors.schedule as any;
+      let firstErrorMessage = t("tournamentManager.createTournamentForm.schedule.validation.checkFields", "Vui lòng kiểm tra lại các cấu hình thời gian.");
+      const getFirstError = (obj: any): string | undefined => {
+        for (const key in obj) {
+          if (obj[key]?.message) return obj[key].message;
+          if (typeof obj[key] === "object") {
+            const nested = getFirstError(obj[key]);
+            if (nested) return nested;
+          }
+        }
+      };
+      const err = getFirstError(errors);
+      if (err) firstErrorMessage = err;
+      setValidationError(firstErrorMessage);
+      return;
+    }
 
     const localError = validateSchedule();
     if (localError) {

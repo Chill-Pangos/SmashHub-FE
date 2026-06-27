@@ -1,5 +1,4 @@
 import type { MatchStatus, MatchResultStatus } from "./match.types";
-// import removed
 
 export type MatchRealtimeEventType =
   | "match_started"
@@ -59,31 +58,31 @@ export interface RealtimeSetData {
 
 export type MatchRealtimePayloadData =
   | {
-      // match_started | match_result_submitted | match_result_approved
-      match: RealtimeMatchData;
-    }
+    // match_started | match_result_submitted | match_result_approved
+    match: RealtimeMatchData;
+  }
   | {
-      // sub_match_players_assigned
-      subMatchId: number;
-      players: RealtimeSubMatchPlayer[];
-    }
+    // sub_match_players_assigned
+    subMatchId: number;
+    players: RealtimeSubMatchPlayer[];
+  }
   | {
-      // sub_match_started
-      subMatch: RealtimeSubMatchData;
-    }
+    // sub_match_started
+    subMatch: RealtimeSubMatchData;
+  }
   | {
-      // sub_match_finalized
-      subMatch: RealtimeSubMatchData;
-      matchReadyToFinalize: boolean;
-    }
+    // sub_match_finalized
+    subMatch: RealtimeSubMatchData;
+    matchReadyToFinalize: boolean;
+  }
   | {
-      // live_score_updated
-      liveScore: RealtimeLiveScoreData;
-    }
+    // live_score_updated
+    liveScore: RealtimeLiveScoreData;
+  }
   | {
-      // set_created | set_score_updated | set_deleted
-      set: RealtimeSetData;
-    };
+    // set_created | set_score_updated | set_deleted
+    set: RealtimeSetData;
+  };
 
 export type MatchRealtimePayload = {
   roomId: `match:${number}`;

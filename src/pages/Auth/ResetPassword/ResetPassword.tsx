@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent, type ChangeEvent } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Lock,
@@ -12,15 +12,14 @@ import {
 } from "lucide-react";
 import { useResetPassword, useTranslation } from "@/hooks";
 import {
-  validatePassword,
-  validatePasswordConfirmation,
-  validateOTP,
   checkPasswordStrength,
   showToast,
   showApiError,
   PasswordStrength,
-  type ValidationErrors,
 } from "@/utils";
+import { useZodForm } from "@/hooks/useZodForm";
+import { getResetPasswordSchema } from "@/schemas/auth.schema";
+import { z } from "zod";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -29,12 +28,19 @@ const ResetPassword = () => {
   const resetPasswordMutation = useResetPassword();
 
   const email = searchParams.get("email");
-  const [formData, setFormData] = useState({
-    otpCode: "",
-    newPassword: "",
-    confirmPassword: "",
+  
+  type ResetPasswordFormValues = z.infer<ReturnType<typeof getResetPasswordSchema>>;
+
+  const form = useZodForm({
+    schema: getResetPasswordSchema(t),
+    defaultValues: {
+      otpCode: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
   });
-  const [errors, setErrors] = useState<ValidationErrors>({});
+  const { errors } = form.formState;
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -45,54 +51,23 @@ const ResetPassword = () => {
     }
   }, [email, navigate, t]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [id]: id === "otpCode" ? value.replace(/\D/g, "").slice(0, 6) : value,
-    }));
-    if (errors[id]) {
-      setErrors((prev) => {
-        const n = { ...prev };
-        delete n[id];
-        return n;
-      });
-    }
-  };
-
-  const pw = formData.newPassword;
+  const pw = form.watch("newPassword") || "";
   const hasMinLength = pw.length >= 12;
   const hasSymbol = /[^a-zA-Z0-9]/.test(pw);
   const hasNumber = /\d/.test(pw);
   const passwordStrength = pw ? checkPasswordStrength(pw) : null;
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = async (data: ResetPasswordFormValues) => {
     if (!email) {
       showToast.error(t("authFlow.resetPassword.invalidInfo"));
-      return;
-    }
-
-    const otpError = validateOTP(formData.otpCode);
-    const passwordError = validatePassword(formData.newPassword);
-    const confirmError = validatePasswordConfirmation(
-      formData.newPassword,
-      formData.confirmPassword,
-    );
-    if (otpError || passwordError || confirmError) {
-      setErrors({
-        otpCode: otpError || "",
-        newPassword: passwordError || "",
-        confirmPassword: confirmError || "",
-      });
       return;
     }
 
     try {
       const response = await resetPasswordMutation.mutateAsync({
         email,
-        otp: formData.otpCode,
-        newPassword: formData.newPassword,
+        otp: data.otpCode,
+        newPassword: data.newPassword,
       });
       if (response.success) {
         showToast.success(
@@ -219,7 +194,7 @@ const ResetPassword = () => {
           </div>
 
           {/* Form */}
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
             {/* OTP */}
             <div className="flex flex-col gap-1.5">
               <label
@@ -236,10 +211,12 @@ const ResetPassword = () => {
                   inputMode="numeric"
                   maxLength={6}
                   placeholder={t("authFlow.resetPassword.otpPlaceholder")}
-                  value={formData.otpCode}
-                  onChange={handleChange}
+                  {...form.register("otpCode", {
+                    onChange: (e) => {
+                      e.target.value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                    }
+                  })}
                   disabled={resetPasswordMutation.isPending}
-                  required
                   className="w-full outline-none transition-all duration-200"
                   style={{
                     background: "var(--input)",
@@ -262,7 +239,7 @@ const ResetPassword = () => {
               </p>
               {errors.otpCode && (
                 <p className="text-xs" style={{ color: "var(--destructive)" }}>
-                  {errors.otpCode}
+                  {errors.otpCode.message as string}
                 </p>
               )}
             </div>
@@ -281,10 +258,8 @@ const ResetPassword = () => {
                   id="newPassword"
                   type={showPassword ? "text" : "password"}
                   placeholder={t("auth.enterNewPassword")}
-                  value={formData.newPassword}
-                  onChange={handleChange}
+                  {...form.register("newPassword")}
                   disabled={resetPasswordMutation.isPending}
-                  required
                   style={{
                     ...inputBase,
                     border: errors.newPassword
@@ -292,7 +267,10 @@ const ResetPassword = () => {
                       : "1px solid var(--border)",
                   }}
                   onFocus={handleFocus}
-                  onBlur={(e) => handleBlur(e, !!errors.newPassword)}
+                  onBlur={(e) => {
+                    form.register("newPassword").onBlur(e);
+                    handleBlur(e, !!errors.newPassword);
+                  }}
                 />
                 <button
                   type="button"
@@ -335,7 +313,7 @@ const ResetPassword = () => {
               )}
               {errors.newPassword && (
                 <p className="text-xs" style={{ color: "var(--destructive)" }}>
-                  {errors.newPassword}
+                  {errors.newPassword.message as string}
                 </p>
               )}
             </div>
@@ -356,10 +334,8 @@ const ResetPassword = () => {
                   placeholder={t(
                     "authFlow.resetPassword.confirmPasswordPlaceholder",
                   )}
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
+                  {...form.register("confirmPassword")}
                   disabled={resetPasswordMutation.isPending}
-                  required
                   style={{
                     ...inputBase,
                     border: errors.confirmPassword
@@ -367,7 +343,10 @@ const ResetPassword = () => {
                       : "1px solid var(--border)",
                   }}
                   onFocus={handleFocus}
-                  onBlur={(e) => handleBlur(e, !!errors.confirmPassword)}
+                  onBlur={(e) => {
+                    form.register("confirmPassword").onBlur(e);
+                    handleBlur(e, !!errors.confirmPassword);
+                  }}
                 />
                 <button
                   type="button"
@@ -390,7 +369,7 @@ const ResetPassword = () => {
               </div>
               {errors.confirmPassword && (
                 <p className="text-xs" style={{ color: "var(--destructive)" }}>
-                  {errors.confirmPassword}
+                  {errors.confirmPassword.message as string}
                 </p>
               )}
             </div>

@@ -34,7 +34,7 @@ export default {
   "registerDelegationList": "Đăng ký danh sách đoàn thể thao",
   "chooseRegistrationMethod": "Chọn cách để đăng ký đoàn: Import file Excel hoặc tạo thủ công",
   "youAreManaging": "Bạn đang quản lý",
-  "importExcel": "Import Excel",
+  "importExcel": "Nhập từ Excel",
   "createManually": "Tạo thủ công",
   "selectManually": "Chọn thủ công",
   "downloadTemplateFile": "Tải file mẫu đăng ký danh sách",

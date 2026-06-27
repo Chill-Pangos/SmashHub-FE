@@ -9,6 +9,9 @@ import {
   StepReview,
   type TournamentData,
 } from "./components";
+import { FormProvider } from "react-hook-form";
+import { useZodForm } from "@/hooks/useZodForm";
+import { getTournamentSchema } from "@/schemas/tournament.schema";
 
 const INITIAL_DATA: TournamentData = {
   name: "",
@@ -45,8 +48,14 @@ const TournamentForm = () => {
   const id = tournamentId ? parseInt(tournamentId, 10) : 0;
 
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
-  const [formData, setFormData] = useState<TournamentData>(INITIAL_DATA);
   const [isDataLoaded, setIsDataLoaded] = useState(!id);
+
+  const form = useZodForm({
+    schema: getTournamentSchema(t),
+    defaultValues: INITIAL_DATA,
+  });
+
+  const formData = form.watch();
 
   // Fetch data if editing
   const { data: tournament } = useTournament(id, { enabled: !!id });
@@ -54,7 +63,7 @@ const TournamentForm = () => {
 
   useEffect(() => {
     if (id && tournament && scheduleConfig) {
-      setFormData({
+      form.reset({
         name: tournament.name,
         tier: tournament.tier || 3,
         location: tournament.location,
@@ -73,7 +82,7 @@ const TournamentForm = () => {
           maxAge: c.maxAge || null,
           minElo: c.minElo || null,
           maxElo: c.maxElo || null,
-          maxMembersPerEntry: 0, // This might need adjustment if present in TournamentCategory
+          maxMembersPerEntry: 0, 
           gender: c.gender || "mixed",
           isGroupStage: c.isGroupStage ?? false,
           entryFee: c.entryFee || 0,
@@ -98,7 +107,10 @@ const TournamentForm = () => {
   }, [id, tournament, scheduleConfig]);
 
   const updateData = (fields: Partial<TournamentData>) => {
-    setFormData((prev) => ({ ...prev, ...fields }));
+    // Legacy support for step components before refactor
+    Object.entries(fields).forEach(([key, value]) => {
+      form.setValue(key as any, value, { shouldValidate: true, shouldDirty: true });
+    });
   };
 
   const nextStep = () =>
@@ -132,8 +144,9 @@ const TournamentForm = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 md:p-8 flex justify-center">
-      <div className="w-full max-w-5xl space-y-8">
+    <FormProvider {...form}>
+      <div className="min-h-screen bg-background text-foreground p-4 md:p-8 flex justify-center">
+        <div className="w-full max-w-5xl space-y-8">
         {/* Header & Stepper */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -171,14 +184,14 @@ const TournamentForm = () => {
         <div className="bg-card border border-border rounded-2xl p-6 md:p-8 shadow-lg">
           {currentStep === 1 && (
             <StepGeneral
-              data={formData}
+              data={formData as unknown as TournamentData}
               updateData={updateData}
               onNext={nextStep}
             />
           )}
           {currentStep === 2 && (
             <StepSchedule
-              data={formData}
+              data={formData as unknown as TournamentData}
               updateData={updateData}
               onNext={nextStep}
               onBack={prevStep}
@@ -186,14 +199,15 @@ const TournamentForm = () => {
           )}
           {currentStep === 3 && (
             <StepReview
-              data={formData}
+              data={formData as unknown as TournamentData}
               updateData={updateData}
               onBack={prevStep}
             />
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </FormProvider>
   );
 };
 

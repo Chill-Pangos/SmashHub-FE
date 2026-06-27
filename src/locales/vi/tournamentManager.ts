@@ -19,18 +19,18 @@ export default {
     "totalTournamentCapacity": "Tổng sức chứa giải đấu",
     "matches": "Trận",
     "bufferMarginNotice": "Cấu hình hiện tại hỗ trợ những người tham gia đã đăng ký với biên độ dự phòng 15%.",
-    "saveSuccess": "Schedule config saved successfully",
-    "saveError": "Failed to save config",
-    "previewError": "Failed to preview changes",
-    "tournamentDates": "Tournament Dates",
-    "startDate": "Start Date",
-    "endDate": "End Date",
-    "registrationStart": "Registration Start",
-    "registrationEnd": "Registration End",
-    "bracketGeneration": "Bracket Generation Date",
-    "totalMatches": "Total Matches",
-    "regenerateTitle": "Regenerate Schedule?",
-    "regenerateWarning": "tournamentManager.scheduleConfig.regenerateWarning"
+    "saveSuccess": "Đã lưu cấu hình lịch trình thành công",
+    "saveError": "Không thể lưu cấu hình",
+    "previewError": "Không thể xem trước",
+    "tournamentDates": "Ngày thi đấu",
+    "startDate": "Ngày bắt đầu",
+    "endDate": "Ngày kết thúc",
+    "registrationStart": "Mở đăng ký",
+    "registrationEnd": "Đóng đăng ký",
+    "bracketGeneration": "Ngày tạo Bracket",
+    "totalMatches": "Tổng số trận",
+    "regenerateTitle": "Tạo lại Lịch trình?",
+    "regenerateWarning": "Tạo lại lịch trình sẽ xóa tất cả các bảng đấu và bracket đã tạo. Bạn có chắc chắn muốn tiếp tục?"
   },
   "scheduleGeneration": {
     "wizardTitle": "Trình tạo Lịch trình",
@@ -72,14 +72,14 @@ export default {
     "assignedEntries": "Các đội đã được phân công",
     "categoryLabel": "Hạng mục #{{id}}",
     "selectedCategoryLabel": "hạng mục đã chọn",
-    "errPreviewFill": "Failed to preview fill qualifiers.",
-    "errGenerateScheduleDirect": "Failed to generate schedule directly.",
-    "previewFillQualifiers": "Fill Qualifiers (Post-Group Stage)",
-    "generating": "Generating...",
-    "generateScheduleDirect": "Generate Schedule",
-    "bracketExists": "Bracket already exists. You can directly generate the schedule or fill qualifiers if group stage is done.",
-    "stepFillQualifiersTitle": "Review Filled Qualifiers",
-    "stepFillQualifiersDesc": "Review the knockout bracket structure filled with qualifiers from the group stage."
+    "errPreviewFill": "Không thể xem trước vòng Knockout phụ.",
+    "errGenerateScheduleDirect": "Không thể tạo lịch trực tiếp.",
+    "previewFillQualifiers": "Đưa các suất vượt qua vòng bảng vào Bracket",
+    "generating": "Đang tạo...",
+    "generateScheduleDirect": "Tạo Lịch trình",
+    "bracketExists": "Bracket đã tồn tại. Bạn có thể tạo lịch trình trực tiếp hoặc đẩy các suất vào Bracket nếu vòng bảng đã xong.",
+    "stepFillQualifiersTitle": "Xem lại Bracket Knockout phụ",
+    "stepFillQualifiersDesc": "Xem lại cấu trúc Bracket knockout được điền với các suất đi tiếp từ vòng bảng."
   },
   "scheduleTab": {
     "title": "Lịch trình",
@@ -105,17 +105,18 @@ export default {
     "upcoming": "SẮP TỚI",
     "winnerSF1": "Thắng BK 1",
     "winnerSF2": "Thắng BK 2",
-    "entryInfo": "Player Information",
-    "errorLoadingEntry": "Failed to load player information.",
-    "noMembers": "No members found for this entry.",
-    "gender": "Gender",
-    "dob": "DOB",
-    "noScheduledMatches": "No scheduled matches to start.",
-    "bulkStartSuccess": "Matches started successfully.",
-    "bulkStartError": "Failed to start matches.",
-    "hideRegenerate": "Hide Regenerate Options",
-    "regenerateSchedule": "Regenerate Schedule",
-    "bulkStartMatches": "Bulk Start Matches"
+    "entryInfo": "Thông tin Vận động viên",
+    "errorLoadingEntry": "Không thể tải thông tin vận động viên.",
+    "noMembers": "Không tìm thấy thành viên nào cho đội này.",
+    "gender": "Giới tính",
+    "dob": "Ngày sinh",
+    "noScheduledMatches": "Không có trận đấu nào được lên lịch để bắt đầu.",
+    "bulkStartSuccess": "Bắt đầu các trận đấu thành công.",
+    "bulkStartError": "Không thể bắt đầu trận đấu.",
+    "hideRegenerate": "Ẩn Tùy chọn Tạo lại",
+    "regenerateSchedule": "Tạo lại Lịch trình",
+    "bulkStartMatches": "Bắt đầu Trận đấu Hàng loạt",
+    "generateKnockout": "Tạo sơ đồ Knockout"
   },
   "placeholders": {
     "bulkImportTitle": "Nhập dữ liệu hàng loạt",
@@ -159,14 +160,14 @@ export default {
     "cancel": "Hủy",
     "sending": "Đang gửi...",
     "sendInvitations": "Gửi lời mời",
-    "search": "Search",
-    "availableRefereesCount": "Available: {{count}}",
-    "showing": "Showing",
-    "to": "to",
-    "of": "of",
-    "perPage": "Rows per page",
-    "previous": "Previous",
-    "next": "Next"
+    "search": "Tìm kiếm",
+    "availableRefereesCount": "Có sẵn: {{count}}",
+    "showing": "Đang hiển thị",
+    "to": "đến",
+    "of": "trong số",
+    "perPage": "Dòng mỗi trang",
+    "previous": "Trước",
+    "next": "Tiếp"
   },
   "entriesManagement": {
     "category": "Hạng mục",
@@ -197,15 +198,15 @@ export default {
     "approveWarning": "Bạn có chắc chắn muốn xác nhận đội hình này? Họ sẽ bị khóa để chờ tạo Bracket.",
     "cancel": "Hủy",
     "confirm": "Xác nhận",
-    "disqualifySuccess": "Entries disqualified successfully",
-    "disqualifyError": "Failed to disqualify entries",
-    "showing": "Showing",
-    "to": "to",
-    "of": "of",
-    "entries": "entries",
-    "perPage": "Rows per page",
-    "previous": "Previous",
-    "next": "Next"
+    "disqualifySuccess": "Loại bỏ danh sách thành công",
+    "disqualifyError": "Không thể loại bỏ danh sách",
+    "showing": "Đang hiển thị",
+    "to": "đến",
+    "of": "trong số",
+    "entries": "danh sách",
+    "perPage": "Số dòng mỗi trang",
+    "previous": "Trước",
+    "next": "Tiếp"
   },
   "paymentManagement": {
     "title": "Quản lý Thanh toán",
@@ -260,17 +261,18 @@ export default {
       "refundProof": "Tải lên minh chứng hoàn tiền",
       "selectFile": "Chọn file",
       "submitRefund": "Xác nhận hoàn tiền",
-      "refundedAt": "Refunded At",
-      "refundProofImage": "Refund Proof"
+      "refundedAt": "Thời gian hoàn tiền",
+      "refundProofImage": "Minh chứng hoàn tiền"
     },
-    "confirmSuccess": "Payment confirmed successfully",
-    "confirmError": "Failed to confirm payment",
-    "rejectSuccess": "Payment rejected successfully",
-    "rejectError": "Failed to reject payment",
-    "refundSuccess": "Payment refunded successfully",
-    "refundError": "Failed to refund payment",
-    "rejectTitle": "Reject Payment?",
-    "rejectDesc": "Are you sure you want to reject this payment? This will mark the payment as failed."
+    "confirmSuccess": "Đã duyệt thanh toán thành công",
+    "confirmError": "Không thể duyệt thanh toán",
+    "rejectSuccess": "Đã từ chối thanh toán thành công",
+    "rejectError": "Không thể từ chối thanh toán",
+    "refundSuccess": "Đã hoàn tiền thành công",
+    "refundError": "Không thể hoàn tiền",
+    "rejectTitle": "Từ chối Thanh toán?",
+    "rejectDesc": "Bạn có chắc chắn muốn từ chối khoản thanh toán này? Trạng thái sẽ chuyển thành thất bại.",
+    "forbidden": "Bạn không có quyền xem hoặc quản lý thanh toán cho giải đấu này."
   },
   "overviewTab": {
     "totalMaxEntries": "Tổng số lượng tối đa",
@@ -291,6 +293,28 @@ export default {
     "eventDates": "Ngày thi đấu",
     "registrationPeriod": "Thời gian đăng ký",
     "bracketGeneration": "Ngày tạo Bracket"
+  },
+  "detail": {
+    "tabs": {
+      "overview": "Tổng quan",
+      "referees": "Trọng tài",
+      "entries": "Danh sách",
+      "payments": "Thanh toán",
+      "schedule": "Lịch trình",
+      "scheduleConfig": "Cấu hình Lịch trình"
+    },
+    "cancelTournament": {
+      "button": "Hủy giải đấu",
+      "title": "Hủy giải đấu?",
+      "description": "Bạn có chắc chắn muốn hủy giải đấu <strong>{{name}}</strong>? Hành động này không thể hoàn tác. Danh sách người chơi vẫn giữ nguyên nhưng trạng thái sẽ chuyển thành đã hủy. Bạn có thể hoàn tiền thủ công nếu cần.",
+      "close": "Đóng",
+      "confirm": "Có, Hủy giải",
+      "cancelling": "Đang hủy...",
+      "success": "Đã hủy giải đấu thành công",
+      "error": "Không thể hủy giải đấu"
+    },
+    "loading": "Đang tải thông tin giải đấu...",
+    "loadError": "Không thể tải thông tin giải đấu"
   },
   "tournamentsList": {
     "title": "Giải đấu",
@@ -315,9 +339,9 @@ export default {
     "deleteTitle": "Xóa giải đấu",
     "deleteConfirmDesc": "Bạn có chắc chắn muốn xóa giải đấu <strong>{{name}}</strong> không? Hành động này không thể hoàn tác.",
     "cancel": "Hủy",
-    "deleteSuccess": "Tournament deleted successfully",
-    "deleteError": "Failed to delete tournament",
-    "upcoming": "Upcoming"
+    "deleteSuccess": "Xóa giải đấu thành công",
+    "deleteError": "Không thể xóa giải đấu",
+    "upcoming": "Sắp tới"
   },
   "tournamentManager": "Quản lý giải đấu",
   "tournamentDashboard": "Bảng điều khiển giải đấu",
@@ -418,7 +442,8 @@ export default {
         "teamFormatRequired": "Vui lòng nhập định dạng đồng đội (Team Format) cho hạng mục \"{{name}}\".",
         "maxMembersRequired": "Vui lòng nhập số thành viên tối đa cho hạng mục \"{{name}}\".",
         "ageMinMaxInvalid": "Độ tuổi Min không được lớn hơn Max ở hạng mục \"{{name}}\".",
-        "eloMinMaxInvalid": "Mức Elo Min không được lớn hơn Max ở hạng mục \"{{name}}\"."
+        "eloMinMaxInvalid": "Mức Elo Min không được lớn hơn Max ở hạng mục \"{{name}}\".",
+        "checkFields": "Vui lòng kiểm tra lại các trường thông tin."
       },
       "tournamentPeriod": "Thời gian diễn ra",
       "registrationPeriod": "Thời gian đăng ký",
@@ -439,7 +464,7 @@ export default {
       "selectGender": "Chọn giới tính",
       "delete": "Xóa",
       "teamFormatDetails": "Cấu hình chi tiết cho thể thức Đồng đội (Team).",
-      "teamFormatLabel": "Team Format",
+      "teamFormatLabel": "Thể thức Đồng đội",
       "maxMembersPerTeam": "Số thành viên tối đa / team",
       "singlesPerMatch": "Số trận Đơn / Kèo",
       "doublesPerMatch": "Số trận Đôi / Kèo",
@@ -499,7 +524,8 @@ export default {
         "operatingWindowTooShort": "Khung giờ hoạt động quá ngắn để chứa ít nhất một trận đấu.",
         "breakStartInvalid": "Giờ bắt đầu nghỉ phải hợp lệ khi bật chế độ nghỉ giữa giờ.",
         "breakDurationInvalid": "Thời lượng nghỉ phải lớn hơn hoặc bằng 1 phút.",
-        "breakOutsideWindow": "Thời gian nghỉ phải nằm trong khung giờ hoạt động."
+        "breakOutsideWindow": "Thời gian nghỉ phải nằm trong khung giờ hoạt động.",
+        "checkFields": "Vui lòng kiểm tra lại các cấu hình thời gian."
       }
     },
     "review": {
@@ -524,7 +550,7 @@ export default {
       "successAlert": "Đã tạo giải đấu thành công! Quay về Dashboard.",
       "errorAlert": "Đã có lỗi xảy ra trong quá trình tạo giải đấu. Xem chi tiết ở phía dưới."
     },
-    "loading": "Loading tournament data..."
+    "loading": "Đang tải dữ liệu giải đấu..."
   },
   "fullFlow": {
     "navLabel": "Luồng đầy đủ",
@@ -548,7 +574,7 @@ export default {
     "snapshot": {
       "tournaments": "Giải đấu",
       "referees": "Trọng tài",
-      "entries": "Entries",
+      "entries": "Danh sách đăng ký",
       "schedules": "Lịch thi đấu",
       "pendingMatches": "Trận chờ duyệt",
       "groupStandings": "Dữ liệu bảng",
@@ -560,7 +586,7 @@ export default {
     "meta": {
       "docsBased": "Dựa trên API docs",
       "organizerFlow": "Dành cho Organizer",
-      "endToEnd": "Setup -> Completion"
+      "endToEnd": "Từ Thiết lập -> Hoàn tất"
     },
     "actors": {
       "organizer": "Organizer",
@@ -595,19 +621,19 @@ export default {
         "description": "Khởi tạo giải, hạng mục, trọng tài và cấu hình lịch."
       },
       "registration": {
-        "title": "2) Registration",
+        "title": "2) Đăng ký",
         "description": "Mở đăng ký entry, chốt lineup và kiểm duyệt thanh toán."
       },
       "preparation": {
-        "title": "3) Preparation",
+        "title": "3) Chuẩn bị",
         "description": "Đóng đăng ký, bốc thăm vòng bảng và generate lịch thi đấu."
       },
       "execution": {
-        "title": "4) Execution",
+        "title": "4) Điều hành",
         "description": "Điều hành trận đấu, duyệt kết quả và trigger downstream."
       },
       "completion": {
-        "title": "5) Completion",
+        "title": "5) Hoàn tất",
         "description": "Công bố standings, ELO và tổng hợp dữ liệu sau giải."
       }
     },
@@ -654,7 +680,7 @@ export default {
       },
       "finalizeResult": {
         "title": "Finalize và duyệt kết quả",
-        "description": "Referee finalize, chief referee approve/reject sau khi xem ELO preview."
+        "description": "Trọng tài hoàn tất, tổng trọng tài duyệt/từ chối sau khi xem trước ELO."
       },
       "operationalNotify": {
         "title": "Thông báo vận hành",
@@ -919,7 +945,7 @@ export default {
     "allocation": "Phân bổ",
     "timeAndTable": "Thời gian & Bàn đấu",
     "create": "Tạo",
-    "matchesAndSchedules": "Matches & Schedules",
+    "matchesAndSchedules": "Trận đấu & Lịch trình",
     "successTitle": "Tạo lịch thành công! 🎉",
     "successDesc": "Lịch thi đấu đã được tạo và lưu vào hệ thống",
     "groupStage": "Vòng Bảng",
@@ -930,8 +956,8 @@ export default {
     "numberOfRounds": "Số vòng",
     "rounds": "Các vòng đấu",
     "knockoutSchedule": "Lịch Knockout",
-    "entries": "Entries",
-    "bracketSize": "Bracket Size",
+    "entries": "Danh sách đăng ký",
+    "bracketSize": "Kích thước Bracket",
     "createNewSchedule": "Tạo lịch mới",
     "viewSchedule": "Xem lịch thi đấu"
   },

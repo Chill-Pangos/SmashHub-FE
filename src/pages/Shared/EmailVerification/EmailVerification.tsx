@@ -16,6 +16,7 @@ import {
 } from "@/hooks/queries/useAuthQueries";
 import { validateOTP } from "@/utils/validation.utils";
 import { showToast } from "@/utils";
+const logoSvg = "/smashhub_logo.svg";
 const getErrorMessage = (error: unknown, fallback: string): string => {
   if (error instanceof Error && error.message) {
     return error.message;
@@ -213,42 +214,10 @@ const EmailVerification = () => {
           }}
         >
           {/* Mobile logo */}
-          <div className="flex lg:hidden items-center justify-center gap-2 mb-8">
-            <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-              <circle
-                cx="16"
-                cy="16"
-                r="12"
-                stroke="var(--accent)"
-                strokeWidth="2.5"
-                fill="none"
-              />
-              <line
-                x1="16"
-                y1="4"
-                x2="16"
-                y2="28"
-                stroke="var(--accent)"
-                strokeWidth="1.5"
-              />
-              <line
-                x1="4"
-                y1="16"
-                x2="28"
-                y2="16"
-                stroke="var(--accent)"
-                strokeWidth="1.5"
-              />
-              <line
-                x1="24"
-                y1="24"
-                x2="34"
-                y2="36"
-                stroke="var(--accent)"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-            </svg>
+          <div className="flex lg:hidden items-center justify-center gap-3 mb-8">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 dark:bg-gradient-to-br dark:from-white/20 dark:to-white/5 dark:backdrop-blur-xl ring-1 ring-primary/20 dark:ring-white/20 dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_4px_12px_rgba(0,0,0,0.5)] overflow-hidden">
+              <img src={logoSvg} alt="SmashHub Logo" className="h-12 w-12 object-contain" />
+            </div>
             <h2
               className="text-2xl font-bold"
               style={{ color: "var(--foreground)" }}

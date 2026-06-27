@@ -1,20 +1,16 @@
-import { useCallback, useState, type ChangeEvent, type FormEvent } from "react";
+import { useCallback, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { ArrowRight, Lock, Loader2, Mail, User } from "lucide-react";
 import tableTennisBgLight from "@/assets/table_tennis_bg_light.png";
 import tableTennisBgDark from "@/assets/table_tennis_bg_dark.png";
 import { useCurrentUser, useRegister, useTranslation } from "@/hooks";
 import { useAuth, useRole } from "@/store";
-import {
-  checkPasswordStrength,
-  hasValidationErrors,
-  PasswordStrength,
-  showToast,
-  showApiError,
-  validateRegisterForm,
-  type RegisterFormData,
-  type ValidationErrors,
-} from "@/utils";
+import { checkPasswordStrength, PasswordStrength, showToast, showApiError } from "@/utils";
+import { useZodForm } from "@/hooks/useZodForm";
+import { getRegisterSchema } from "@/schemas/auth.schema";
+import { z } from "zod";
+const logoSvg = "/smashhub_logo.svg";
+const logoTextSvg = "/smashhub_logo_text.svg";
 
 const SignUp = () => {
   const { t } = useTranslation();
@@ -23,30 +19,24 @@ const SignUp = () => {
   const { getDefaultRouteForRoles, getRoleNames } = useRole();
   const registerMutation = useRegister();
   const { refetch: fetchCurrentUser } = useCurrentUser({ enabled: false });
-  const [formData, setFormData] = useState<RegisterFormData>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-  const [errors, setErrors] = useState<ValidationErrors>({});
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  
+  type RegisterFormValues = z.infer<ReturnType<typeof getRegisterSchema>>;
 
-  const handleChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const { id, value } = e.target;
-      setFormData((prev) => ({ ...prev, [id]: value }));
-      if (errors[id]) {
-        setErrors((prev) => {
-          const next = { ...prev };
-          delete next[id];
-          return next;
-        });
-      }
+  const form = useZodForm({
+    schema: getRegisterSchema(t),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
     },
-    [errors],
-  );
+  });
+  
+  const { errors } = form.formState;
+  const passwordValue = form.watch("password");
+
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const getPasswordStrengthColor = (strength: PasswordStrength) => {
     switch (strength) {
@@ -74,28 +64,22 @@ const SignUp = () => {
     }
   };
 
-  const passwordStrength = formData.password
-    ? checkPasswordStrength(formData.password)
+  const passwordStrength = passwordValue
+    ? checkPasswordStrength(passwordValue)
     : null;
 
-  const handleSubmit = useCallback(
-    async (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
+  const onSubmit = useCallback(
+    async (data: RegisterFormValues) => {
       if (!agreedToTerms) {
         showToast.error(t("authFlow.signUp.termsRequired"));
         return;
       }
-      const validationErrors = validateRegisterForm(formData);
-      if (hasValidationErrors(validationErrors)) {
-        setErrors(validationErrors);
-        return;
-      }
       try {
         const response = await registerMutation.mutateAsync({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          password: formData.password,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          password: data.password,
         });
 
         if (response.success && response.data) {
@@ -129,7 +113,6 @@ const SignUp = () => {
     [
       agreedToTerms,
       fetchCurrentUser,
-      formData,
       getDefaultRouteForRoles,
       getRoleNames,
       navigate,
@@ -271,66 +254,13 @@ const SignUp = () => {
 
         {/* Brand anchor — bottom left */}
         <div className="relative z-10 p-12 flex flex-col justify-end h-full w-full">
-          <div className="flex items-center gap-3 mb-4">
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-              <circle
-                cx="16"
-                cy="16"
-                r="12"
-                stroke="var(--accent)"
-                strokeWidth="2.5"
-                fill="none"
-              />
-              <line
-                x1="16"
-                y1="4"
-                x2="16"
-                y2="28"
-                stroke="var(--accent)"
-                strokeWidth="1.5"
-              />
-              <line
-                x1="4"
-                y1="16"
-                x2="28"
-                y2="16"
-                stroke="var(--accent)"
-                strokeWidth="1.5"
-              />
-              <line
-                x1="8"
-                y1="8"
-                x2="24"
-                y2="24"
-                stroke="var(--accent)"
-                strokeWidth="1"
-                opacity="0.6"
-              />
-              <line
-                x1="24"
-                y1="8"
-                x2="8"
-                y2="24"
-                stroke="var(--accent)"
-                strokeWidth="1"
-                opacity="0.6"
-              />
-              <line
-                x1="24"
-                y1="24"
-                x2="34"
-                y2="36"
-                stroke="var(--accent)"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-            </svg>
-            <h1
-              className="text-4xl font-bold tracking-tight"
-              style={{ color: "var(--foreground)" }}
-            >
-              Smash<span style={{ color: "var(--accent)" }}>Hub</span>
-            </h1>
+          <div className="flex flex-col items-start gap-3 mb-4">
+            {/* Project logo with text */}
+            <img
+              src={logoTextSvg}
+              alt="SmashHub Logo"
+              className="h-24 object-contain"
+            />
           </div>
           <p
             className="text-base leading-relaxed max-w-sm"
@@ -369,42 +299,10 @@ const SignUp = () => {
           }}
         >
           {/* Mobile logo */}
-          <div className="flex lg:hidden items-center justify-center gap-2 mb-8">
-            <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-              <circle
-                cx="16"
-                cy="16"
-                r="12"
-                stroke="var(--accent)"
-                strokeWidth="2.5"
-                fill="none"
-              />
-              <line
-                x1="16"
-                y1="4"
-                x2="16"
-                y2="28"
-                stroke="var(--accent)"
-                strokeWidth="1.5"
-              />
-              <line
-                x1="4"
-                y1="16"
-                x2="28"
-                y2="16"
-                stroke="var(--accent)"
-                strokeWidth="1.5"
-              />
-              <line
-                x1="24"
-                y1="24"
-                x2="34"
-                y2="36"
-                stroke="var(--accent)"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-            </svg>
+          <div className="flex lg:hidden items-center justify-center gap-3 mb-8">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/15 dark:bg-gradient-to-br dark:from-white/20 dark:to-white/5 dark:backdrop-blur-xl ring-1 ring-primary/20 dark:ring-white/20 dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_4px_12px_rgba(0,0,0,0.5)] overflow-hidden">
+              <img src={logoSvg} alt="SmashHub Logo" className="h-10 w-10 object-contain" />
+            </div>
             <h2
               className="text-2xl font-bold"
               style={{ color: "var(--foreground)" }}
@@ -465,7 +363,7 @@ const SignUp = () => {
           </div>
 
           {/* Form */}
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
             {/* First Name + Last Name */}
             <div className="grid grid-cols-2 gap-3">
               {[
@@ -473,13 +371,13 @@ const SignUp = () => {
                   id: "firstName",
                   label: t("validation.fields.firstName"),
                   placeholder: t("authFlow.signUp.firstNamePlaceholder"),
-                  error: errors.firstName,
+                  error: errors.firstName?.message as string,
                 },
                 {
                   id: "lastName",
                   label: t("validation.fields.lastName"),
                   placeholder: t("authFlow.signUp.lastNamePlaceholder"),
-                  error: errors.lastName,
+                  error: errors.lastName?.message as string,
                 },
               ].map(({ id, label, placeholder, error }) => (
                 <div key={id} className="flex flex-col gap-1.5">
@@ -499,10 +397,8 @@ const SignUp = () => {
                       id={id}
                       type="text"
                       placeholder={placeholder}
-                      value={formData[id as keyof RegisterFormData]}
-                      onChange={handleChange}
+                      {...form.register(id as "firstName" | "lastName")}
                       disabled={registerMutation.isPending}
-                      required
                       style={{
                         ...inputBase,
                         border: error
@@ -510,7 +406,10 @@ const SignUp = () => {
                           : "1px solid var(--border)",
                       }}
                       onFocus={handleFocus}
-                      onBlur={(e) => handleBlur(e, !!error)}
+                      onBlur={(e) => {
+                        form.register(id as "firstName" | "lastName").onBlur(e);
+                        handleBlur(e, !!error);
+                      }}
                     />
                   </div>
                   {error && (
@@ -543,10 +442,8 @@ const SignUp = () => {
                   id="email"
                   type="email"
                   placeholder={t("placeholder.enterEmail")}
-                  value={formData.email}
-                  onChange={handleChange}
+                  {...form.register("email")}
                   disabled={registerMutation.isPending}
-                  required
                   style={{
                     ...inputBase,
                     border: errors.email
@@ -554,12 +451,15 @@ const SignUp = () => {
                       : "1px solid var(--border)",
                   }}
                   onFocus={handleFocus}
-                  onBlur={(e) => handleBlur(e, !!errors.email)}
+                  onBlur={(e) => {
+                    form.register("email").onBlur(e);
+                    handleBlur(e, !!errors.email);
+                  }}
                 />
               </div>
               {errors.email && (
                 <p className="text-xs" style={{ color: "var(--destructive)" }}>
-                  {errors.email}
+                  {errors.email.message as string}
                 </p>
               )}
             </div>
@@ -582,10 +482,8 @@ const SignUp = () => {
                   id="password"
                   type="password"
                   placeholder={t("auth.enterPassword")}
-                  value={formData.password}
-                  onChange={handleChange}
+                  {...form.register("password")}
                   disabled={registerMutation.isPending}
-                  required
                   style={{
                     ...inputBase,
                     border: errors.password
@@ -593,7 +491,10 @@ const SignUp = () => {
                       : "1px solid var(--border)",
                   }}
                   onFocus={handleFocus}
-                  onBlur={(e) => handleBlur(e, !!errors.password)}
+                  onBlur={(e) => {
+                    form.register("password").onBlur(e);
+                    handleBlur(e, !!errors.password);
+                  }}
                 />
               </div>
               {passwordStrength && (
@@ -607,7 +508,7 @@ const SignUp = () => {
               )}
               {errors.password && (
                 <p className="text-xs" style={{ color: "var(--destructive)" }}>
-                  {errors.password}
+                  {errors.password.message as string}
                 </p>
               )}
             </div>
@@ -630,10 +531,8 @@ const SignUp = () => {
                   id="confirmPassword"
                   type="password"
                   placeholder={t("auth.confirmPassword")}
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
+                  {...form.register("confirmPassword")}
                   disabled={registerMutation.isPending}
-                  required
                   style={{
                     ...inputBase,
                     border: errors.confirmPassword
@@ -641,12 +540,15 @@ const SignUp = () => {
                       : "1px solid var(--border)",
                   }}
                   onFocus={handleFocus}
-                  onBlur={(e) => handleBlur(e, !!errors.confirmPassword)}
+                  onBlur={(e) => {
+                    form.register("confirmPassword").onBlur(e);
+                    handleBlur(e, !!errors.confirmPassword);
+                  }}
                 />
               </div>
               {errors.confirmPassword && (
                 <p className="text-xs" style={{ color: "var(--destructive)" }}>
-                  {errors.confirmPassword}
+                  {errors.confirmPassword.message as string}
                 </p>
               )}
             </div>

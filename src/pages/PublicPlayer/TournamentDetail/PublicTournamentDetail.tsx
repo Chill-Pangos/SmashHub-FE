@@ -22,7 +22,7 @@ export default function PublicTournamentDetail() {
     return (
       <div className="container mx-auto px-6 py-12 max-w-5xl">
         <div className="flex h-[40vh] items-center justify-center rounded-2xl border border-border bg-card">
-          <p className="text-muted-foreground animate-pulse">{t("publicPlayer.tournamentDetail.loading")}</p>
+          <p className="text-muted-foreground animate-pulse">{t("publicPlayer.tournamentDetail.loading", "Loading tournament details...")}</p>
         </div>
       </div>
     );
@@ -34,7 +34,7 @@ export default function PublicTournamentDetail() {
         <div className="flex flex-col h-[40vh] items-center justify-center rounded-2xl border border-destructive/20 bg-card p-6">
           <AlertCircle className="h-10 w-10 text-destructive mb-4" />
           <p className="text-destructive font-medium text-lg">
-            {tournamentError?.message || "Failed to load tournament"}
+            {tournamentError?.message || t("tournamentManager.detail.loadError", "Failed to load tournament")}
           </p>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ChangeEvent } from "react";
+import { useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import {
   Mail,
@@ -8,45 +8,47 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useForgotPassword, useTranslation } from "@/hooks";
-import { validateForgotPasswordForm, showApiError, showToast } from "@/utils";
+import { showApiError, showToast } from "@/utils";
+import { useZodForm } from "@/hooks/useZodForm";
+import { getForgotPasswordSchema } from "@/schemas/auth.schema";
+import { z } from "zod";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const forgotPasswordMutation = useForgotPassword();
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  
+  type ForgotPasswordFormValues = z.infer<ReturnType<typeof getForgotPasswordSchema>>;
+
+  const form = useZodForm({
+    schema: getForgotPasswordSchema(t),
+    defaultValues: {
+      email: "",
+    },
+  });
+  const { errors } = form.formState;
+
   const [submitted, setSubmitted] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-    if (error) setError(null);
-  };
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const validationError = validateForgotPasswordForm(email);
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
-
+  const onSubmit = async (data: ForgotPasswordFormValues) => {
     try {
-      const response = await forgotPasswordMutation.mutateAsync({ email });
+      setApiError(null);
+      const response = await forgotPasswordMutation.mutateAsync({ email: data.email });
       if (response.success) {
         setSubmitted(true);
         showToast.success(t("auth.otpSent"), t("authFlow.checkEmail"));
         setTimeout(() => {
-          navigate(`/reset-password?email=${encodeURIComponent(email)}`);
+          navigate(`/reset-password?email=${encodeURIComponent(data.email)}`);
         }, 1500);
       } else {
-        setError(
+        setApiError(
           response.message || t("authFlow.forgotPassword.otpSendFailed"),
         );
         showApiError(response, t("authFlow.forgotPassword.otpSendFailed"));
       }
     } catch (err) {
-      setError(t("authFlow.forgotPassword.otpSendFailed"));
+      setApiError(t("authFlow.forgotPassword.otpSendFailed"));
       showApiError(err, t("authFlow.forgotPassword.otpSendFailed"));
     }
   };
@@ -114,7 +116,7 @@ const ForgotPassword = () => {
                 </p>
               </div>
 
-              <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+              <form className="flex flex-col gap-5" onSubmit={form.handleSubmit(onSubmit)}>
                 {/* Email field */}
                 <div className="flex flex-col gap-1.5">
                   <label
@@ -133,14 +135,12 @@ const ForgotPassword = () => {
                       id="email"
                       type="email"
                       placeholder={t("placeholder.enterEmail")}
-                      value={email}
-                      onChange={handleChange}
+                      {...form.register("email")}
                       disabled={forgotPasswordMutation.isPending}
-                      required
                       className="w-full outline-none transition-all duration-200"
                       style={{
                         background: "var(--input)",
-                        border: error
+                        border: errors.email
                           ? "1px solid var(--destructive)"
                           : "1px solid var(--border)",
                         borderRadius: "6px",
@@ -160,7 +160,8 @@ const ForgotPassword = () => {
                         if (icon) icon.style.color = "var(--primary)";
                       }}
                       onBlur={(e) => {
-                        e.currentTarget.style.border = error
+                        form.register("email").onBlur(e);
+                        e.currentTarget.style.border = errors.email
                           ? "1px solid var(--destructive)"
                           : "1px solid var(--border)";
                         e.currentTarget.style.boxShadow = "none";
@@ -171,9 +172,14 @@ const ForgotPassword = () => {
                       }}
                     />
                   </div>
-                  {error && (
-                    <p className="text-xs" style={{ color: "#ffb4ab" }}>
-                      {error}
+                  {errors.email && (
+                    <p className="text-xs" style={{ color: "var(--destructive)" }}>
+                      {errors.email.message as string}
+                    </p>
+                  )}
+                  {apiError && (
+                    <p className="text-xs" style={{ color: "var(--destructive)" }}>
+                      {apiError}
                     </p>
                   )}
                 </div>

@@ -16,8 +16,12 @@ export default {
   "female": "Nữ",
   "securityTitle": "Bảo mật",
   "securityDesc": "Quản lý bảo mật tài khoản và xác thực.",
-  "uploadAvatarSuccess": "Avatar uploaded successfully",
-  "uploadAvatarError": "Failed to upload avatar",
-  "updateSuccess": "Profile updated successfully",
-  "updateError": "Failed to update profile"
+  "uploadAvatarSuccess": "Cập nhật ảnh đại diện thành công",
+  "uploadAvatarError": "Cập nhật ảnh đại diện thất bại",
+  "updateSuccess": "Cập nhật hồ sơ thành công",
+  "updateError": "Cập nhật hồ sơ thất bại",
+  "forceUpdateTitle": "Yêu cầu bắt buộc",
+  "forceUpdateDesc": "Vui lòng cập nhật thông tin hồ sơ của bạn trước khi tiếp tục.",
+  "completionRequiredTitle": "Yêu cầu hoàn thiện hồ sơ",
+  "completionRequiredDesc": "Bạn phải hoàn thiện hồ sơ (ngày sinh, số điện thoại) trước khi sử dụng các tính năng khác."
 };

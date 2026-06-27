@@ -1,4 +1,4 @@
-import { LogIn, Trophy, UserPlus, User, LogOut } from "lucide-react";
+import { LogIn, UserPlus, User, LogOut } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import {
@@ -19,20 +19,21 @@ import { useRole } from "@/store/useRole";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { User as AuthUser } from "@/types";
+const logoSvg = "/smashhub_logo.svg";
 
 const getNavItems = (t: (key: string) => string, isAuthenticated: boolean) => {
   const items = [
     { name: t("nav.home"), to: "/" },
     { name: t("nav.tournaments"), to: "/tournaments" },
   ];
-  
+
   if (isAuthenticated) {
     items.push(
       { name: t("nav.brackets"), to: "/brackets" },
       { name: t("nav.elo"), to: "/elo" }
     );
   }
-  
+
   return items;
 };
 
@@ -79,15 +80,15 @@ const NavigationBar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-transform duration-300 ${
-        isVisible ? "translate-y-0" : "-translate-y-full"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-transform duration-300 ${isVisible ? "translate-y-0" : "-translate-y-full"
+        }`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <NavLink to="/" className="flex items-center space-x-2">
-            <Trophy className="h-8 w-8 text-primary" />
+          <NavLink to="/" className="flex items-center space-x-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/15 dark:bg-gradient-to-br dark:from-white/20 dark:to-white/5 dark:backdrop-blur-xl ring-1 ring-primary/20 dark:ring-white/20 dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_4px_12px_rgba(0,0,0,0.5)] overflow-hidden">
+              <img src={logoSvg} alt="SmashHub Logo" className="h-10 w-10 object-contain" />
+            </div>
             <span className="text-xl font-bold text-foreground">SmashHub</span>
           </NavLink>
 

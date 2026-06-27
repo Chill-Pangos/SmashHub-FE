@@ -40,5 +40,5 @@ export default {
   "brandDescription": "Hệ thống quản lý bóng bàn chuyên nghiệp, phân tích và thực thi giải đấu cấp cao.",
   "welcomeBack": "Chào mừng trở lại",
   "enterCredentials": "Nhập thông tin đăng nhập để truy cập bảng điều khiển chuyên nghiệp.",
-  "loginFailed": "auth.loginFailed"
+  "loginFailed": "Đăng nhập thất bại"
 };

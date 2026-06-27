@@ -2,6 +2,10 @@ export default {
   "required": "Trường này là bắt buộc",
   "invalidEmail": "Email không hợp lệ",
   "invalidPhone": "Số điện thoại không hợp lệ",
+  "phoneNumber": "Số điện thoại không hợp lệ",
+  "dobRequired": "Vui lòng nhập ngày sinh",
+  "dobInvalid": "Ngày sinh không hợp lệ",
+  "dobUnder18": "Bạn phải đủ 18 tuổi",
   "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự",
   "passwordMismatch": "Mật khẩu không khớp",
   "invalidDate": "Ngày không hợp lệ",
@@ -43,7 +47,9 @@ export default {
     "otpRequired": "Mã OTP không được để trống",
     "otpInvalid": "Mã OTP phải là 6 chữ số",
     "oldPasswordRequired": "Mật khẩu hiện tại không được để trống",
-    "newPasswordMustDiffer": "Mật khẩu mới phải khác mật khẩu hiện tại"
+    "newPasswordMustDiffer": "Mật khẩu mới phải khác mật khẩu hiện tại",
+    "firstNameRequired": "Họ là bắt buộc",
+    "lastNameRequired": "Tên là bắt buộc"
   },
   "tournament": {
     "nameRequired": "Tên giải đấu không được để trống",
@@ -60,7 +66,16 @@ export default {
     "startDateInvalid": "Ngày bắt đầu giải đấu không hợp lệ",
     "endDateInvalid": "Ngày kết thúc giải đấu không hợp lệ",
     "startDatePast": "Ngày bắt đầu giải đấu không được ở quá khứ",
-    "endDateAfterStart": "Ngày kết thúc giải đấu phải sau hoặc bằng ngày bắt đầu"
+    "endDateAfterStart": "Ngày kết thúc giải đấu phải sau hoặc bằng ngày bắt đầu",
+    "categoryNameRequired": "Tên hạng mục là bắt buộc",
+    "minEntries2": "Cần tối thiểu 2 đăng ký",
+    "registrationStartDateRequired": "Ngày bắt đầu đăng ký là bắt buộc",
+    "registrationEndDateRequired": "Ngày kết thúc đăng ký là bắt buộc",
+    "bracketGenerationDateRequired": "Ngày tạo sơ đồ là bắt buộc",
+    "minOneCategory": "Cần ít nhất một hạng mục",
+    "minOneTable": "Cần ít nhất một bàn thi đấu",
+    "minMatchDuration": "Thời gian trận đấu tối thiểu 1 phút",
+    "invalidTime": "Định dạng thời gian không hợp lệ"
   },
   "content": {
     "nameRequired": "Tên nội dung không được để trống",

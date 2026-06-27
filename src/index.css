@@ -41,56 +41,38 @@
   --auth-surface: color-mix(in srgb, var(--card) 99%, var(--background) 1%);
   --auth-surface-border: color-mix(in srgb, var(--border) 72%, transparent);
   --auth-surface-shadow: 0 12px 34px color-mix(in srgb, #0d1515 7%, transparent);
-  --auth-toggle-bg: color-mix(
-    in srgb,
-    var(--secondary) 68%,
-    var(--background) 32%
-  );
+  --auth-toggle-bg: color-mix(in srgb,
+      var(--secondary) 68%,
+      var(--background) 32%);
   --auth-toggle-border: color-mix(in srgb, var(--border) 72%, transparent);
-  --auth-primary-glow: 0 0 15px
-    color-mix(in srgb, var(--primary) 28%, transparent);
-  --auth-terms-bg: color-mix(
-    in srgb,
-    var(--secondary) 64%,
-    var(--background) 36%
-  );
+  --auth-primary-glow: 0 0 15px color-mix(in srgb, var(--primary) 28%, transparent);
+  --auth-terms-bg: color-mix(in srgb,
+      var(--secondary) 64%,
+      var(--background) 36%);
   --auth-terms-border: color-mix(in srgb, var(--border) 62%, transparent);
-  --auth-ambient-primary: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--primary) 11%, transparent) 0%,
-    transparent 70%
-  );
-  --auth-ambient-accent: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--accent) 10%, transparent) 0%,
-    transparent 70%
-  );
-  --auth-card-gradient: linear-gradient(
-    180deg,
-    #ffffff 0%,
-    color-mix(in srgb, var(--card) 96%, var(--background) 4%) 100%
-  );
-  --auth-card-inner-overlay: linear-gradient(
-    to bottom,
-    color-mix(in srgb, #ffffff 40%, transparent),
-    transparent
-  );
-  --auth-status-badge-bg: linear-gradient(
-    to right,
-    color-mix(in srgb, var(--accent) 70%, var(--primary) 30%),
-    var(--primary)
-  );
+  --auth-ambient-primary: radial-gradient(circle,
+      color-mix(in srgb, var(--primary) 11%, transparent) 0%,
+      transparent 70%);
+  --auth-ambient-accent: radial-gradient(circle,
+      color-mix(in srgb, var(--accent) 10%, transparent) 0%,
+      transparent 70%);
+  --auth-card-gradient: linear-gradient(180deg,
+      #ffffff 0%,
+      color-mix(in srgb, var(--card) 96%, var(--background) 4%) 100%);
+  --auth-card-inner-overlay: linear-gradient(to bottom,
+      color-mix(in srgb, #ffffff 40%, transparent),
+      transparent);
+  --auth-status-badge-bg: linear-gradient(to right,
+      color-mix(in srgb, var(--accent) 70%, var(--primary) 30%),
+      var(--primary));
   --auth-status-badge-fg: var(--primary-foreground);
   --auth-icon-bg: color-mix(in srgb, var(--primary) 8%, #ffffff 92%);
   --auth-icon-border: color-mix(in srgb, var(--primary) 20%, transparent);
-  --auth-icon-shadow: 0 0 24px
-    color-mix(in srgb, var(--primary) 12%, transparent);
+  --auth-icon-shadow: 0 0 24px color-mix(in srgb, var(--primary) 12%, transparent);
   --auth-ghost-bg: color-mix(in srgb, var(--card) 96%, var(--background) 4%);
-  --auth-ghost-bg-hover: color-mix(
-    in srgb,
-    var(--secondary) 78%,
-    var(--background) 22%
-  );
+  --auth-ghost-bg-hover: color-mix(in srgb,
+      var(--secondary) 78%,
+      var(--background) 22%);
   --auth-ghost-border: color-mix(in srgb, var(--border) 70%, transparent);
   --auth-divider-border: color-mix(in srgb, var(--border) 48%, transparent);
 }
@@ -134,40 +116,28 @@
   --auth-surface-shadow: 0 0 40px color-mix(in srgb, #000000 56%, transparent);
   --auth-toggle-bg: color-mix(in srgb, var(--secondary) 78%, transparent);
   --auth-toggle-border: color-mix(in srgb, #ffffff 10%, transparent);
-  --auth-primary-glow: 0 0 15px
-    color-mix(in srgb, var(--primary) 28%, transparent);
+  --auth-primary-glow: 0 0 15px color-mix(in srgb, var(--primary) 28%, transparent);
   --auth-terms-bg: color-mix(in srgb, var(--card) 88%, transparent);
   --auth-terms-border: color-mix(in srgb, var(--border) 60%, transparent);
-  --auth-ambient-primary: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--primary) 16%, transparent) 0%,
-    transparent 70%
-  );
-  --auth-ambient-accent: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--accent) 14%, transparent) 0%,
-    transparent 70%
-  );
-  --auth-card-gradient: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--card) 84%, transparent) 0%,
-    color-mix(in srgb, var(--card) 72%, transparent) 100%
-  );
-  --auth-card-inner-overlay: linear-gradient(
-    to bottom,
-    color-mix(in srgb, #ffffff 12%, transparent),
-    transparent
-  );
-  --auth-status-badge-bg: linear-gradient(
-    to right,
-    color-mix(in srgb, var(--accent) 60%, var(--primary) 40%),
-    var(--primary)
-  );
+  --auth-ambient-primary: radial-gradient(circle,
+      color-mix(in srgb, var(--primary) 16%, transparent) 0%,
+      transparent 70%);
+  --auth-ambient-accent: radial-gradient(circle,
+      color-mix(in srgb, var(--accent) 14%, transparent) 0%,
+      transparent 70%);
+  --auth-card-gradient: linear-gradient(180deg,
+      color-mix(in srgb, var(--card) 84%, transparent) 0%,
+      color-mix(in srgb, var(--card) 72%, transparent) 100%);
+  --auth-card-inner-overlay: linear-gradient(to bottom,
+      color-mix(in srgb, #ffffff 12%, transparent),
+      transparent);
+  --auth-status-badge-bg: linear-gradient(to right,
+      color-mix(in srgb, var(--accent) 60%, var(--primary) 40%),
+      var(--primary));
   --auth-status-badge-fg: var(--primary-foreground);
   --auth-icon-bg: color-mix(in srgb, var(--primary) 14%, transparent);
   --auth-icon-border: color-mix(in srgb, var(--primary) 30%, transparent);
-  --auth-icon-shadow: 0 0 30px
-    color-mix(in srgb, var(--primary) 18%, transparent);
+  --auth-icon-shadow: 0 0 30px color-mix(in srgb, var(--primary) 18%, transparent);
   --auth-ghost-bg: color-mix(in srgb, var(--card) 76%, transparent);
   --auth-ghost-bg-hover: color-mix(in srgb, var(--card) 88%, transparent);
   --auth-ghost-border: color-mix(in srgb, #ffffff 14%, transparent);
@@ -219,9 +189,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   #root {
     @apply h-full;
   }
@@ -259,5 +231,12 @@
   .dark ::-webkit-scrollbar-thumb:hover {
     background-color: var(--muted-foreground);
     opacity: 0.6;
+  }
+
+  /* Make logo visible in dark mode via intense drop-shadow stack */
+  .dark img[src*="smashhub_logo"] {
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 1)) 
+            drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)) 
+            drop-shadow(0 0 40px rgba(255, 255, 255, 0.6));
   }
 }

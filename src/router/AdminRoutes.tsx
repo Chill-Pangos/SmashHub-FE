@@ -8,6 +8,7 @@ import AdminDashboard from "@/pages/Admin/AdminDashboard/AdminDashboard";
 import UserProfile from "@/pages/PublicPlayer/UserProfile/UserProfile";
 import ChatbotScreen from "@/pages/Shared/Chatbot/ChatbotScreen";
 import ChatbotManagement from "@/pages/Admin/ChatbotManagement/ChatbotManagement";
+import SystemLogs from "@/pages/Admin/SystemLogs/SystemLogs";
 
 /**
  * Admin Routes
@@ -30,6 +31,7 @@ export default function AdminRoutes() {
         <Route path="/admin/profile" element={<UserProfile />} />
         <Route path="/admin/chatbot" element={<ChatbotScreen />} />
         <Route path="/admin/chatbot-management" element={<ChatbotManagement />} />
+        <Route path="/admin/system-logs" element={<SystemLogs />} />
       </Route>
     </>
   );
