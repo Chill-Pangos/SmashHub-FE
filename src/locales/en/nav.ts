@@ -20,5 +20,6 @@ export default {
   "team": "My Team",
   "eloHistory": "Elo History",
   "chatbot": "AI Assistant",
-  "systemLogs": "System Logs"
+  "systemLogs": "System Logs",
+  "chatbotManagement": "Chatbot Management"
 };

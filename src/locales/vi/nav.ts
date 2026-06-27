@@ -20,5 +20,6 @@ export default {
   "team": "Đội của tôi",
   "eloHistory": "Lịch sử ELO",
   "chatbot": "Trợ lý AI",
-  "systemLogs": "Nhật ký hệ thống"
-};
+  "systemLogs": "Nhật ký hệ thống",
+  "chatbotManagement": "Quản lý Chatbot"
+}
