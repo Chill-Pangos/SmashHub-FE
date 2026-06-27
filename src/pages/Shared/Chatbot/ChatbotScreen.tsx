@@ -66,6 +66,44 @@ export default function ChatbotScreen() {
     setMessages([]);
   };
 
+  const renderMessageContent = (content: string) => {
+    try {
+      const parsed = JSON.parse(content);
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].endpoint === '/entries/me') {
+        return (
+          <div className="space-y-3 w-full mt-1 text-foreground">
+            {parsed.map((group: any, idx: number) => (
+              <div key={idx} className="space-y-2">
+                {group.label && <h4 className="font-medium text-sm">{group.label}</h4>}
+                <div className="flex flex-col gap-2">
+                  {group.data?.rows?.map((row: any) => (
+                    <div key={row.id} className="p-3 bg-background border rounded-lg shadow-sm text-sm">
+                      <div className="font-semibold text-primary">{row.category?.tournament?.name || "Unknown Tournament"}</div>
+                      <div className="text-xs text-muted-foreground mb-2">{row.category?.name || "Unknown Category"}</div>
+                      <div className="grid grid-cols-2 gap-y-1 gap-x-2 text-xs">
+                        <div><span className="font-medium">Status:</span> <span className="capitalize">{row.category?.tournament?.status}</span></div>
+                        <div className="truncate" title={row.category?.tournament?.location}><span className="font-medium">Location:</span> {row.category?.tournament?.location || "TBD"}</div>
+                        <div><span className="font-medium">Fee:</span> {row.category?.entryFee && row.category?.entryFee !== "0.00" ? `${Number(row.category?.entryFee).toLocaleString()}đ` : "Free"}</div>
+                        <div><span className="font-medium">Role:</span> <span className="capitalize">{row.userRole}</span></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      }
+      return (
+        <div className="bg-background/50 p-2 rounded border overflow-x-auto mt-1 max-w-full">
+           <pre className="text-xs text-foreground">{JSON.stringify(parsed, null, 2)}</pre>
+        </div>
+      );
+    } catch (e) {
+      return <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>;
+    }
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-10rem)] min-h-[500px] max-h-[800px] bg-card border rounded-xl shadow-sm overflow-hidden">
       {/* Header */}
@@ -120,10 +158,10 @@ export default function ChatbotScreen() {
                 className={`p-3 rounded-2xl ${
                   msg.role === "user"
                     ? "bg-primary text-primary-foreground rounded-tr-sm"
-                    : "bg-muted rounded-tl-sm"
+                    : "bg-muted rounded-tl-sm w-full"
                 }`}
               >
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                {renderMessageContent(msg.content)}
               </div>
             </div>
           ))
