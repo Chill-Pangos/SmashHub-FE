@@ -4,5 +4,20 @@ export default {
   "send": "Send",
   "clearHistory": "Clear History",
   "emptyState": "How can I help you today?",
-  "mockResponse": "This is a mock response from the AI assistant. I am not connected to an API yet."
+  "mockResponse": "This is a mock response from the AI assistant. I am not connected to an API yet.",
+  "modePersonal": "My Information / Tournaments",
+  "modeGeneral": "Table Tennis Rules / General Info",
+  "phone": "Phone:",
+  "gender": "Gender:",
+  "dob": "DOB:",
+  "elo": "Elo:",
+  "unknownUser": "Unknown User",
+  "status": "Status:",
+  "location": "Location:",
+  "fee": "Fee:",
+  "role": "Role:",
+  "unknownTournament": "Unknown Tournament",
+  "unknownCategory": "Unknown Category",
+  "free": "Free",
+  "tbd": "TBD"
 };

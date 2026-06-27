@@ -14,6 +14,7 @@ export default function ChatbotScreen() {
   
   const { messages, isLoading, sendMessage, setMessages } = useChatStream();
   const [input, setInput] = useState("");
+  const [contextMode, setContextMode] = useState<"personal" | "general">("personal");
 
   const getUserInitials = () => {
     if (!user) return "";
@@ -46,14 +47,25 @@ export default function ChatbotScreen() {
     const question = input.trim();
     setInput("");
 
-    const scope = {
-      tournament_id: tournamentId ? parseInt(tournamentId, 10) : null,
-      category_id: categoryId ? parseInt(categoryId, 10) : null,
-      entry_id: entryId ? parseInt(entryId, 10) : null,
-      user_id: user ? user.id : null,
-      schedule_id: scheduleId ? parseInt(scheduleId, 10) : null,
-      match_id: matchId ? parseInt(matchId, 10) : null,
+    let scope = {
+      tournament_id: null as number | null,
+      category_id: null as number | null,
+      entry_id: null as number | null,
+      user_id: null as number | null,
+      schedule_id: null as number | null,
+      match_id: null as number | null,
     };
+
+    if (contextMode === "personal") {
+      scope = {
+        tournament_id: tournamentId ? parseInt(tournamentId, 10) : null,
+        category_id: categoryId ? parseInt(categoryId, 10) : null,
+        entry_id: entryId ? parseInt(entryId, 10) : null,
+        user_id: user ? user.id : null,
+        schedule_id: scheduleId ? parseInt(scheduleId, 10) : null,
+        match_id: matchId ? parseInt(matchId, 10) : null,
+      };
+    }
 
     await sendMessage({
       question,
@@ -79,13 +91,13 @@ export default function ChatbotScreen() {
                   <div className="flex flex-col gap-2">
                     {group.data?.rows?.map((row: any) => (
                       <div key={row.id} className="p-3 bg-background border rounded-lg shadow-sm text-sm">
-                        <div className="font-semibold text-primary">{row.category?.tournament?.name || "Unknown Tournament"}</div>
-                        <div className="text-xs text-muted-foreground mb-2">{row.category?.name || "Unknown Category"}</div>
+                        <div className="font-semibold text-primary">{row.category?.tournament?.name || t("chatbot.unknownTournament", "Unknown Tournament")}</div>
+                        <div className="text-xs text-muted-foreground mb-2">{row.category?.name || t("chatbot.unknownCategory", "Unknown Category")}</div>
                         <div className="grid grid-cols-2 gap-y-1 gap-x-2 text-xs">
-                          <div><span className="font-medium">Status:</span> <span className="capitalize">{row.category?.tournament?.status}</span></div>
-                          <div className="truncate" title={row.category?.tournament?.location}><span className="font-medium">Location:</span> {row.category?.tournament?.location || "TBD"}</div>
-                          <div><span className="font-medium">Fee:</span> {row.category?.entryFee && row.category?.entryFee !== "0.00" ? `${Number(row.category?.entryFee).toLocaleString()}đ` : "Free"}</div>
-                          <div><span className="font-medium">Role:</span> <span className="capitalize">{row.userRole}</span></div>
+                          <div><span className="font-medium">{t("chatbot.status", "Status:")}</span> <span className="capitalize">{row.category?.tournament?.status}</span></div>
+                          <div className="truncate" title={row.category?.tournament?.location}><span className="font-medium">{t("chatbot.location", "Location:")}</span> {row.category?.tournament?.location || t("chatbot.tbd", "TBD")}</div>
+                          <div><span className="font-medium">{t("chatbot.fee", "Fee:")}</span> {row.category?.entryFee && row.category?.entryFee !== "0.00" ? `${Number(row.category?.entryFee).toLocaleString()}đ` : t("chatbot.free", "Free")}</div>
+                          <div><span className="font-medium">{t("chatbot.role", "Role:")}</span> <span className="capitalize">{row.userRole}</span></div>
                         </div>
                       </div>
                     ))}
@@ -113,15 +125,15 @@ export default function ChatbotScreen() {
                           <AvatarFallback><User className="w-5 h-5" /></AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-semibold text-primary">{fullName || "Unknown User"}</div>
+                          <div className="font-semibold text-primary">{fullName || t("chatbot.unknownUser", "Unknown User")}</div>
                           <div className="text-xs text-muted-foreground">{u.email}</div>
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-y-2 gap-x-2 text-xs">
-                        {u.phoneNumber && <div><span className="font-medium text-muted-foreground">Phone:</span> <div>{u.phoneNumber}</div></div>}
-                        {u.gender && <div><span className="font-medium text-muted-foreground">Gender:</span> <div className="capitalize">{u.gender}</div></div>}
-                        {u.dob && <div><span className="font-medium text-muted-foreground">DOB:</span> <div>{new Date(u.dob).toLocaleDateString()}</div></div>}
-                        {u.eloScore !== null && u.eloScore !== undefined && <div><span className="font-medium text-muted-foreground">Elo:</span> <div>{u.eloScore}</div></div>}
+                        {u.phoneNumber && <div><span className="font-medium text-muted-foreground">{t("chatbot.phone", "Phone:")}</span> <div>{u.phoneNumber}</div></div>}
+                        {u.gender && <div><span className="font-medium text-muted-foreground">{t("chatbot.gender", "Gender:")}</span> <div className="capitalize">{u.gender}</div></div>}
+                        {u.dob && <div><span className="font-medium text-muted-foreground">{t("chatbot.dob", "DOB:")}</span> <div>{new Date(u.dob).toLocaleDateString()}</div></div>}
+                        {u.eloScore !== null && u.eloScore !== undefined && <div><span className="font-medium text-muted-foreground">{t("chatbot.elo", "Elo:")}</span> <div>{u.eloScore}</div></div>}
                       </div>
                     </div>
                   </div>
@@ -239,6 +251,30 @@ export default function ChatbotScreen() {
 
       {/* Input Area */}
       <div className="p-4 border-t bg-background">
+        <div className="mb-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setContextMode("personal")}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              contextMode === "personal"
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+          >
+            {t("chatbot.modePersonal", "My Information / Tournaments")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setContextMode("general")}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              contextMode === "general"
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+          >
+            {t("chatbot.modeGeneral", "Table Tennis Rules / General Info")}
+          </button>
+        </div>
         <form onSubmit={handleSend} className="flex gap-2 relative">
           <input
             type="text"

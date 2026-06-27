@@ -136,6 +136,7 @@ export default {
     "selectContentToViewBracket": "Please select match content to view bracket",
     "selectContentToViewSchedule": "Please select match content to view schedule",
     "upcoming": "Upcoming",
+    "brackets_generated": "Brackets Generated",
     "ongoing": "Ongoing",
     "completed": "Completed"
   },

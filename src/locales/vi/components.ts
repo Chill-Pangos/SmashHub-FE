@@ -136,6 +136,7 @@ export default {
     "selectContentToViewBracket": "Vui lòng chọn nội dung thi đấu để xem bảng đấu",
     "selectContentToViewSchedule": "Vui lòng chọn nội dung thi đấu để xem lịch thi đấu",
     "upcoming": "Sắp diễn ra",
+    "brackets_generated": "Đã tạo bảng đấu",
     "ongoing": "Đang diễn ra",
     "completed": "Đã kết thúc"
   },

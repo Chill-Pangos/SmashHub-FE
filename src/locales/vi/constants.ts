@@ -3,6 +3,7 @@ export default {
     "tournament": {
       "upcoming": "Sắp tới",
       "registration_open": "Đang mở đăng ký",
+      "brackets_generated": "Đã tạo bảng đấu",
       "ongoing": "Đang diễn ra",
       "completed": "Đã hoàn thành",
       "cancelled": "Đã hủy"
