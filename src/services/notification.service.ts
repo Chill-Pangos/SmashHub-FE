@@ -13,6 +13,8 @@ import type {
   MarkNotificationReadResponse,
   MarkAllNotificationsReadResponse,
   AdminSystemSummaryResponse,
+  AuditLogFilters,
+  AuditLogsResponse,
 } from "@/types/notification.types";
 
 type RawConnectedUsersResponse = GetConnectedUsersResponse & {
@@ -74,6 +76,20 @@ class NotificationService {
   async getAdminSystemSummary(): Promise<AdminSystemSummaryResponse> {
     const response = await axiosInstance.get<AdminSystemSummaryResponse>(
       "/admin/system/summary",
+    );
+    return response.data;
+  }
+
+  /**
+   * Get system audit logs
+   * GET /api/admin/system/audit-logs
+   */
+  async getAuditLogs(
+    filters: AuditLogFilters = { page: 1, limit: 50 },
+  ): Promise<AuditLogsResponse> {
+    const response = await axiosInstance.get<AuditLogsResponse>(
+      "/admin/system/audit-logs",
+      { params: filters },
     );
     return response.data;
   }

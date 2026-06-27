@@ -58,6 +58,17 @@ export const useAdminSystemSummary = (options?: { enabled?: boolean }) => {
   });
 };
 
+export const useAdminSystemAuditLogs = (
+  filters?: { action?: string; page?: number; limit?: number },
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: queryKeys.notifications.adminSystemAuditLogs(filters),
+    queryFn: () => notificationService.getAuditLogs(filters),
+    enabled: options?.enabled ?? true,
+  });
+};
+
 export const useMarkNotificationRead = () => {
   const queryClient = useQueryClient();
 

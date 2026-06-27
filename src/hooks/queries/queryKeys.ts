@@ -330,6 +330,8 @@ export const queryKeys = {
       [...queryKeys.notifications.all, "userStatus", userId] as const,
     adminSystemSummary: () =>
       [...queryKeys.notifications.all, "adminSystemSummary"] as const,
+    adminSystemAuditLogs: (filters?: object) =>
+      [...queryKeys.notifications.all, "adminSystemAuditLogs", filters] as const,
   },
 
   // ==================== Payment Keys ====================
