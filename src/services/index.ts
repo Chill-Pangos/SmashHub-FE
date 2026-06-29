@@ -22,3 +22,4 @@ export { default as subMatchPlayerService } from "./subMatchPlayer.service";
 export { default as permissionService } from "./permission.service";
 export { default as userRoleService } from "./userRole.service";
 export { default as rolePermissionService } from "./rolePermission.service";
+export { default as systemService } from "./system.service";

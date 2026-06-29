@@ -414,6 +414,14 @@ export const queryKeys = {
     health: () => [...queryKeys.chatbot.all, "health"] as const,
     files: () => [...queryKeys.chatbot.all, "files"] as const,
   },
+
+  // ==================== System Keys ====================
+  system: {
+    all: ["system"] as const,
+    health: () => [...queryKeys.system.all, "health"] as const,
+    metrics: (params?: object) => [...queryKeys.system.all, "metrics", params] as const,
+    events: (params?: object) => [...queryKeys.system.all, "events", params] as const,
+  },
 } as const;
 
 // Type helpers for query keys

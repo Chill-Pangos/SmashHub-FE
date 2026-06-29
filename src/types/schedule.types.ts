@@ -26,7 +26,7 @@ export interface Schedule {
 // ==================== Request Types ====================
 
 export interface GenerateTournamentScheduleRequest {
-  categoryId: number;
+  tournamentId: number;
 }
 
 export interface GenerateGroupStageScheduleRequest {

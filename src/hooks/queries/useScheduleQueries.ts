@@ -53,11 +53,7 @@ export const useGenerateTournamentSchedule = () => {
   return useMutation({
     mutationFn: (data: GenerateTournamentScheduleRequest) =>
       scheduleService.generateTournamentSchedule(data),
-    onSuccess: (_result, data) => {
-      const categoryId = getCategoryId(data);
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.schedules.byCategory(categoryId),
-      });
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.schedules.all,
       });
