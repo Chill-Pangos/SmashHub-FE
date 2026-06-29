@@ -107,7 +107,7 @@ export default function ScheduleGeneration({
       await saveKnockoutAssignments.mutateAsync({ categoryId });
       
       // Finally generate full tournament schedule
-      await genTournamentSchedule.mutateAsync({ categoryId });
+      await genTournamentSchedule.mutateAsync({ tournamentId });
       setStep("DONE");
     } catch (err: any) {
       setErrorMsg(err?.response?.data?.error?.message || err?.response?.data?.message || t('tournamentManager.scheduleGeneration.errSaveKnockoutGroupFlow', 'Failed to save knockout placeholders or generate schedule.'));
@@ -193,7 +193,7 @@ export default function ScheduleGeneration({
     setErrorMsg("");
     try {
       if (isGroupStage) {
-        await genTournamentSchedule.mutateAsync({ categoryId });
+        await genTournamentSchedule.mutateAsync({ tournamentId });
       } else {
         await genKnockoutSchedule.mutateAsync({ categoryId });
       }
