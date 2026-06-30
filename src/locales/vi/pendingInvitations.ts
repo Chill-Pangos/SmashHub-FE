@@ -26,5 +26,7 @@ export default {
   "declining": "Đang từ chối...",
   "confirmDecline": "Xác nhận từ chối",
   "declineConfirmTitle": "Từ chối lời mời?",
-  "declineConfirmDesc": "Bạn có chắc chắn muốn từ chối lời mời làm trọng tài này không?"
+  "declineConfirmDesc": "Bạn có chắc chắn muốn từ chối lời mời làm trọng tài này không?",
+  "declineConfirmDescReason": "Bạn có chắc chắn muốn từ chối lời mời làm trọng tài này không? Bạn có thể cung cấp lý do (không bắt buộc).",
+  "reasonOptionalPlaceholder": "Nhập lý do (không bắt buộc)"
 };

@@ -26,5 +26,7 @@ export default {
   "declining": "Declining...",
   "confirmDecline": "Confirm Decline",
   "declineConfirmTitle": "Decline Invitation?",
-  "declineConfirmDesc": "Are you sure you want to decline this referee invitation?"
+  "declineConfirmDesc": "Are you sure you want to decline this referee invitation?",
+  "declineConfirmDescReason": "Are you sure you want to decline this referee invitation? You can optionally provide a reason.",
+  "reasonOptionalPlaceholder": "Enter reason (optional)"
 };
