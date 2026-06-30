@@ -28,5 +28,10 @@ export default {
   "declineConfirmTitle": "Decline Invitation?",
   "declineConfirmDesc": "Are you sure you want to decline this referee invitation?",
   "declineConfirmDescReason": "Are you sure you want to decline this referee invitation? You can optionally provide a reason.",
-  "reasonOptionalPlaceholder": "Enter reason (optional)"
+  "reasonOptionalPlaceholder": "Enter reason (optional)",
+  "tournamentSchedule": "Tournament Schedule",
+  "eventDate": "Event Date:",
+  "regOpen": "Reg. Open:",
+  "regClose": "Reg. Close:",
+  "bracketDate": "Bracket Date:"
 };

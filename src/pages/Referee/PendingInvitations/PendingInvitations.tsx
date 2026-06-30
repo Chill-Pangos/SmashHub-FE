@@ -108,6 +108,39 @@ export default function PendingInvitations() {
                     </div>
                   </div>
 
+                  {inv.tournament?.scheduleConfig && (
+                    <div className="p-3 bg-secondary/20 rounded-lg text-xs space-y-2 mt-4 border border-border/40">
+                      <div className="font-medium text-foreground/80 mb-1 flex items-center gap-1.5 pb-1 border-b border-border/50">
+                        <Calendar className="w-3.5 h-3.5" />
+                        {t("pendingInvitations.tournamentSchedule", "Tournament Schedule")}
+                      </div>
+                      {inv.tournament.scheduleConfig.startDate && (
+                        <div className="flex justify-between items-start text-muted-foreground gap-2">
+                          <span className="shrink-0">{t("pendingInvitations.eventDate", "Event:")}</span>
+                          <span className="font-medium text-foreground text-right">{formatDate(inv.tournament.scheduleConfig.startDate)}</span>
+                        </div>
+                      )}
+                      {inv.tournament.scheduleConfig.registrationStartDate && (
+                        <div className="flex justify-between items-start text-muted-foreground gap-2">
+                          <span className="shrink-0">{t("pendingInvitations.regOpen", "Reg. Open:")}</span>
+                          <span className="font-medium text-foreground text-right">{formatDate(inv.tournament.scheduleConfig.registrationStartDate)}</span>
+                        </div>
+                      )}
+                      {inv.tournament.scheduleConfig.registrationEndDate && (
+                        <div className="flex justify-between items-start text-muted-foreground gap-2">
+                          <span className="shrink-0">{t("pendingInvitations.regClose", "Reg. Close:")}</span>
+                          <span className="font-medium text-foreground text-right">{formatDate(inv.tournament.scheduleConfig.registrationEndDate)}</span>
+                        </div>
+                      )}
+                      {inv.tournament.scheduleConfig.bracketGenerationDate && (
+                        <div className="flex justify-between items-start text-muted-foreground gap-2">
+                          <span className="shrink-0">{t("pendingInvitations.bracketDate", "Bracket:")}</span>
+                          <span className="font-medium text-foreground text-right">{formatDate(inv.tournament.scheduleConfig.bracketGenerationDate)}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div className="p-3 bg-secondary/30 rounded-lg text-xs space-y-2">
                     <div className="flex items-center justify-between text-muted-foreground">
                       <div className="flex items-center gap-1.5">

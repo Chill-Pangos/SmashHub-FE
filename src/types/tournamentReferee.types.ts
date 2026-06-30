@@ -22,6 +22,13 @@ export interface TournamentInfo {
   tier?: number;
   status?: string;
   createdBy?: number;
+  scheduleConfig?: {
+    startDate?: string;
+    endDate?: string;
+    registrationStartDate?: string;
+    registrationEndDate?: string;
+    bracketGenerationDate?: string;
+  };
 }
 
 export interface TournamentReferee {

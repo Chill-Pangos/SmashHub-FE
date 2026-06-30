@@ -28,5 +28,10 @@ export default {
   "declineConfirmTitle": "Từ chối lời mời?",
   "declineConfirmDesc": "Bạn có chắc chắn muốn từ chối lời mời làm trọng tài này không?",
   "declineConfirmDescReason": "Bạn có chắc chắn muốn từ chối lời mời làm trọng tài này không? Bạn có thể cung cấp lý do (không bắt buộc).",
-  "reasonOptionalPlaceholder": "Nhập lý do (không bắt buộc)"
+  "reasonOptionalPlaceholder": "Nhập lý do (không bắt buộc)",
+  "tournamentSchedule": "Lịch trình giải đấu",
+  "eventDate": "Ngày thi đấu:",
+  "regOpen": "Mở đăng ký:",
+  "regClose": "Đóng đăng ký:",
+  "bracketDate": "Chốt nhánh đấu:"
 };
