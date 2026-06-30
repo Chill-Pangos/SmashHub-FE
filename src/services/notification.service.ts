@@ -15,6 +15,7 @@ import type {
   AdminSystemSummaryResponse,
   AuditLogFilters,
   AuditLogsResponse,
+  SystemAuditLogDetailResponse
 } from "@/types/notification.types";
 
 type RawConnectedUsersResponse = GetConnectedUsersResponse & {
@@ -66,6 +67,17 @@ class NotificationService {
       await axiosInstance.patch<MarkAllNotificationsReadResponse>(
         `${this.baseURL}/read-all`,
       );
+    return response.data;
+  }
+
+  /**
+   * Get system audit log detail
+   * GET /api/admin/system/audit-logs/:id
+   */
+  async getAuditLogDetail(id: number): Promise<SystemAuditLogDetailResponse> {
+    const response = await axiosInstance.get<SystemAuditLogDetailResponse>(
+      `/admin/system/audit-logs/${id}`,
+    );
     return response.data;
   }
 

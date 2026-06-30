@@ -332,6 +332,8 @@ export const queryKeys = {
       [...queryKeys.notifications.all, "adminSystemSummary"] as const,
     adminSystemAuditLogs: (filters?: object) =>
       [...queryKeys.notifications.all, "adminSystemAuditLogs", filters] as const,
+    adminSystemAuditLogDetail: (id: number) =>
+      [...queryKeys.notifications.all, "adminSystemAuditLogDetail", id] as const,
   },
 
   // ==================== Payment Keys ====================
@@ -421,6 +423,8 @@ export const queryKeys = {
     health: () => [...queryKeys.system.all, "health"] as const,
     metrics: (params?: object) => [...queryKeys.system.all, "metrics", params] as const,
     events: (params?: object) => [...queryKeys.system.all, "events", params] as const,
+    cronLogDetail: (id: number) => [...queryKeys.system.all, "cronLog", id] as const,
+    apiLogDetail: (id: number) => [...queryKeys.system.all, "apiLog", id] as const,
   },
 } as const;
 

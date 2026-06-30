@@ -82,6 +82,22 @@ export interface SystemCronEvent {
   updatedAt: string;
 }
 
+export interface SystemCronLogDetail extends Omit<SystemCronEvent, 'meta'> {
+  meta: Record<string, any> | null;
+  tournament?: {
+    id: number;
+    name: string;
+    status: string;
+    location: string;
+    createdBy: number;
+  };
+}
+
+export interface SystemCronLogDetailResponse {
+  success: boolean;
+  data: SystemCronLogDetail;
+}
+
 export interface SystemApiEvent {
   id: number;
   requestId: string | null;
@@ -102,6 +118,22 @@ export interface SystemApiEvent {
   durationMs: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface SystemApiLogDetail extends Omit<SystemApiEvent, 'requestMeta' | 'responseMeta'> {
+  requestMeta: Record<string, any> | null;
+  responseMeta: Record<string, any> | null;
+  user?: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}
+
+export interface SystemApiLogDetailResponse {
+  success: boolean;
+  data: SystemApiLogDetail;
 }
 
 export interface SystemEventsResponse {

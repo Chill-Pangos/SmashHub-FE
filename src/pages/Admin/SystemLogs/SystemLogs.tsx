@@ -7,6 +7,7 @@ import { ShieldAlert, RefreshCw, Loader2, LineChart, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAdminSystemAuditLogs } from '@/hooks/queries/useNotificationQueries';
 import { useSystemMetrics, useSystemEvents } from '@/hooks/queries/useSystemQueries';
+import { LogDetailSheet, type SelectedLog } from './components/LogDetailSheet';
 
 export default function SystemLogs() {
   const { t } = useTranslation();
@@ -18,6 +19,7 @@ export default function SystemLogs() {
   const [metricsWindow, setMetricsWindow] = useState<'1m' | '5m' | '15m'>('5m');
   const [eventsType, setEventsType] = useState<'all' | 'error' | 'alert' | 'cron' | 'api'>('all');
   const [eventsLimit, setEventsLimit] = useState(50);
+  const [selectedLogDetail, setSelectedLogDetail] = useState<SelectedLog>(null);
 
   const { data: auditLogsRes, isLoading: isLoadingAudit, refetch: refetchAudit, isFetching: isFetchingAudit } = useAdminSystemAuditLogs({
     page: auditPage,
@@ -249,7 +251,7 @@ export default function SystemLogs() {
                       </TableHeader>
                       <TableBody>
                         {eventsRes.data.cronLogs.map((c, i) => (
-                          <TableRow key={i}>
+                          <TableRow key={i} className="cursor-pointer hover:bg-muted transition-colors" onClick={() => setSelectedLogDetail({ type: 'cron', id: c.id })}>
                             <TableCell className="whitespace-nowrap">{new Date(c.createdAt).toLocaleString()}</TableCell>
                             <TableCell className="font-medium">{c.jobName}</TableCell>
                             <TableCell className="capitalize">
@@ -283,7 +285,7 @@ export default function SystemLogs() {
                       </TableHeader>
                       <TableBody>
                         {eventsRes.data.apiRequestLogs.map((a, i) => (
-                          <TableRow key={i}>
+                          <TableRow key={i} className="cursor-pointer hover:bg-muted transition-colors" onClick={() => setSelectedLogDetail({ type: 'api', id: a.id })}>
                             <TableCell className="whitespace-nowrap">{new Date(a.createdAt).toLocaleString()}</TableCell>
                             <TableCell><div className="flex flex-col gap-1"><span className="font-mono text-xs">{a.method}</span> <span className="text-xs text-muted-foreground">{a.path}</span></div></TableCell>
                             <TableCell><span className={`${a.success ? 'text-green-500' : 'text-red-500'} font-medium`}>{a.statusCode}</span></TableCell>
@@ -382,14 +384,14 @@ export default function SystemLogs() {
                 </TableHeader>
                 <TableBody>
                   {auditLogsRes.data.rows.map((log) => (
-                    <TableRow key={log.id}>
+                    <TableRow key={log.id} className="cursor-pointer hover:bg-muted transition-colors" onClick={() => setSelectedLogDetail({ type: 'audit', id: log.id })}>
                       <TableCell className="whitespace-nowrap">{new Date(log.createdAt).toLocaleString()}</TableCell>
-                      <TableCell>User #{log.actorUserId}</TableCell>
+                      <TableCell>{t("adminPage.systemLogs.user")} #{log.actorUserId}</TableCell>
                       <TableCell className="capitalize">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${log.action === 'create' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                            log.action === 'update' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
-                              log.action === 'delete' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
-                                'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                          log.action === 'update' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                            log.action === 'delete' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                              'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
                           }`}>
                           {log.action === 'create' ? t("adminPage.systemLogs.create") :
                             log.action === 'update' ? t("adminPage.systemLogs.update") :
@@ -417,9 +419,9 @@ export default function SystemLogs() {
           ) : (
             <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg border-dashed bg-muted/20">
               <ShieldAlert className="h-10 w-10 text-muted-foreground mb-4 opacity-50" />
-              <h3 className="text-lg font-medium">{t("adminPage.systemLogs.auditLogsData", "Audit Logs Data")}</h3>
+              <h3 className="text-lg font-medium">{t("adminPage.systemLogs.auditLogsData")}</h3>
               <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-                No audit logs found for the selected filters.
+                {t("adminPage.systemLogs.noAuditLogs")}
               </p>
             </div>
           )}
@@ -427,6 +429,7 @@ export default function SystemLogs() {
 
 
       </Tabs>
+      <LogDetailSheet selectedLog={selectedLogDetail} onClose={() => setSelectedLogDetail(null)} />
     </div>
   );
 }

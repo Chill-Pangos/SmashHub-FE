@@ -188,6 +188,20 @@ export interface AuditLogItem {
   updatedAt: string;
 }
 
+export interface SystemAuditLogDetail extends AuditLogItem {
+  actor?: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}
+
+export interface SystemAuditLogDetailResponse {
+  success: boolean;
+  data: SystemAuditLogDetail;
+}
+
 export interface AuditLogFilters {
   action?: string;
   page?: number;
