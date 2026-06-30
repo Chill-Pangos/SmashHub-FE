@@ -17,12 +17,10 @@ import {
   Check,
   Trash2,
   Trophy,
-  Calendar,
   AlertCircle,
-  Megaphone,
   Users,
 } from "lucide-react";
-import { useNotification } from "@/store";
+import { useNotification, useAuth, useRole } from "@/store";
 import {
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
@@ -31,22 +29,28 @@ import { formatDistanceToNow } from "date-fns";
 import { vi, enUS } from "date-fns/locale";
 import { useTranslation } from "@/hooks/useTranslation";
 import i18n from "@/locales/i18n";
+import { useNavigate } from "react-router-dom";
+import type { RealtimeNotification, NotificationInboxItem } from "@/types/notification.types";
 
 const getNotificationIcon = (type: string) => {
   switch (type) {
-    case "match_update":
+    case "match_scheduled":
+    case "match_starting_soon":
+    case "match_result":
       return <Trophy className="h-4 w-4 text-blue-500" />;
-    case "tournament_start":
-    case "tournament_end":
+    case "tournament_announcement":
+    case "tournament_status_changed":
       return <Trophy className="h-4 w-4 text-purple-500" />;
-    case "schedule_change":
-      return <Calendar className="h-4 w-4 text-orange-500" />;
-    case "referee_assigned":
+    case "referee_invitation":
       return <Users className="h-4 w-4 text-green-500" />;
-    case "reminder":
+    case "join_request":
+    case "join_request_approved":
+    case "join_request_rejected":
+      return <Users className="h-4 w-4 text-orange-500" />;
+    case "payment_confirmed":
+    case "payment_rejected":
+    case "payment_refunded":
       return <AlertCircle className="h-4 w-4 text-yellow-500" />;
-    case "announcement":
-      return <Megaphone className="h-4 w-4 text-red-500" />;
     default:
       return <Bell className="h-4 w-4 text-gray-500" />;
   }
@@ -54,6 +58,8 @@ const getNotificationIcon = (type: string) => {
 
 export default function NotificationDropdown() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const { getRoleNames } = useRole();
   const {
     notifications,
     unreadCount,
@@ -67,6 +73,8 @@ export default function NotificationDropdown() {
   const [open, setOpen] = useState(false);
   const dateLocale = i18n.language === "vi" ? vi : enUS;
 
+  const navigate = useNavigate();
+
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
     if (newOpen && unreadCount > 0) {
@@ -76,11 +84,54 @@ export default function NotificationDropdown() {
     }
   };
 
-  const handleNotificationClick = (notificationId?: number) => {
-    if (!notificationId) return;
+  const handleNotificationClick = (notification: RealtimeNotification | NotificationInboxItem) => {
+    const notificationId = "id" in notification ? notification.id : undefined;
+    
+    // Redirect logic
+    const navigateBasedOnRole = () => {
+      const roleNames = getRoleNames(user?.roles);
+      const isOrganizer = roleNames.includes("organizer");
+      const isReferee = roleNames.includes("referee");
+      const isAdmin = roleNames.includes("admin");
+      
+      switch (notification.type) {
+        case "referee_invitation":
+          navigate("/referee/invitations");
+          break;
+        case "join_request":
+        case "join_request_approved":
+        case "join_request_rejected":
+          navigate("/team");
+          break;
+        case "match_scheduled":
+        case "match_starting_soon":
+        case "match_result":
+          navigate(isReferee ? "/referee/pending-matches" : "/matches");
+          break;
+        case "tournament_announcement":
+        case "tournament_status_changed":
+          navigate(isOrganizer ? "/organizer/tournaments" : isReferee ? "/referee/tournaments" : isAdmin ? "/admin/tournaments" : "/tournaments");
+          break;
+        case "payment_confirmed":
+        case "payment_rejected":
+        case "payment_refunded":
+          navigate(isOrganizer ? "/organizer/tournaments" : "/tournaments");
+          break;
+        default:
+          break; // no specific route
+      }
+    };
+
+    if (!notificationId) {
+      navigateBasedOnRole();
+      return;
+    }
 
     markOneReadMutation.mutate(notificationId, {
-      onSuccess: () => markNotificationRead(notificationId),
+      onSuccess: () => {
+        markNotificationRead(notificationId);
+        navigateBasedOnRole();
+      },
     });
   };
 
@@ -140,7 +191,7 @@ export default function NotificationDropdown() {
                 <DropdownMenuItem
                   key={notification.id ?? `${notification.type}-${notification.timestamp}-${index}`}
                   className="flex items-start gap-3 p-3 cursor-pointer"
-                  onClick={() => handleNotificationClick(notification.id)}
+                  onClick={() => handleNotificationClick(notification)}
                 >
                   <div className="mt-0.5">
                     {getNotificationIcon(notification.type)}

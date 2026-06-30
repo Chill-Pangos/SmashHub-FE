@@ -4,14 +4,22 @@
  * Common notification types
  */
 export type NotificationType =
-  | "match_update"
-  | "tournament_start"
-  | "tournament_end"
-  | "schedule_change"
-  | "bracket_update"
-  | "reminder"
-  | "announcement"
-  | "referee_assigned";
+  // Entry / Team
+  | "join_request"
+  | "join_request_approved"
+  | "join_request_rejected"
+  // Payment
+  | "payment_confirmed"
+  | "payment_rejected"
+  | "payment_refunded"
+  // Match
+  | "match_scheduled"
+  | "match_starting_soon"
+  | "match_result"
+  // Tournament
+  | "tournament_announcement"
+  | "referee_invitation"
+  | "tournament_status_changed";
 
 /**
  * Service status
