@@ -17,7 +17,7 @@ interface EntryInfoModalProps {
 
 export function EntryInfoModal({ entryId, onClose }: EntryInfoModalProps) {
   const { t } = useTranslation();
-  const { formatDate } = useDateFormat();
+  const { formatDateTime } = useDateFormat();
   
   const { data, isLoading, error } = useEntryMembers(entryId || 0, 1, 10, {
     enabled: !!entryId,
@@ -74,7 +74,7 @@ export function EntryInfoModal({ entryId, onClose }: EntryInfoModalProps) {
                       {user.dob && (
                         <div>
                           <span className="font-medium mr-1">{t('tournamentManager.scheduleTab.dob', 'DOB')}:</span>
-                          <span>{formatDate(user.dob)}</span>
+                          <span>{formatDateTime(user.dob)}</span>
                         </div>
                       )}
                     </div>

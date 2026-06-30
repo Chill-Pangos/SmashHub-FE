@@ -10,7 +10,7 @@ interface PublicScheduleViewProps {
 
 export default function PublicScheduleView({ config }: PublicScheduleViewProps) {
   const { t } = useTranslation();
-  const { formatDate } = useDateFormat();
+  const { formatDateTime } = useDateFormat();
   const formatTime = (hour: number | null | undefined, minute: number | null | undefined) => {
     if (hour == null || minute == null) return "N/A";
     const h = hour.toString().padStart(2, "0");
@@ -20,7 +20,7 @@ export default function PublicScheduleView({ config }: PublicScheduleViewProps) 
 
   const formatCustomDate = (dateString?: string) => {
     if (!dateString) return "N/A";
-    return formatDate(dateString);
+    return formatDateTime(dateString);
   };
 
   const registrationStart = config?.registrationStartDate ? new Date(config.registrationStartDate) : undefined;

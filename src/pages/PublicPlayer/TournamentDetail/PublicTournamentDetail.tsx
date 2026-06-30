@@ -9,7 +9,7 @@ import { useDateFormat } from "@/hooks/useDateFormat";
 export default function PublicTournamentDetail() {
   const { t } = useTranslation();
   const { tournamentId } = useParams();
-  const { formatDate } = useDateFormat();
+  const { formatDateTime } = useDateFormat();
   const id = tournamentId ? parseInt(tournamentId, 10) : 0;
 
   const { data: tournament, isLoading: isTournamentLoading, error: tournamentError } = useTournament(id);
@@ -45,9 +45,9 @@ export default function PublicTournamentDetail() {
     if (!start && !end) return "TBD";
     
     if (start && end) {
-      return `${formatDate(start)} - ${formatDate(end)}`;
+      return `${formatDateTime(start)} - ${formatDateTime(end)}`;
     } else if (start) {
-      return formatDate(start);
+      return formatDateTime(start);
     }
     
     return "TBD";

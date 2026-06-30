@@ -15,7 +15,7 @@ import { useDateFormat } from "@/hooks/useDateFormat";
 
 export default function TournamentDetail() {
   const { t } = useTranslation();
-  const { formatDate } = useDateFormat();
+  const { formatDateTime } = useDateFormat();
   const { tournamentId } = useParams();
   const location = useLocation();
   const id = tournamentId ? parseInt(tournamentId, 10) : 0;
@@ -77,9 +77,9 @@ export default function TournamentDetail() {
   const formatEventDate = (start?: string, end?: string) => {
     if (!start && !end) return "TBD";
     if (start && end) {
-      return `${formatDate(start)} - ${formatDate(end)}`;
+      return `${formatDateTime(start)} - ${formatDateTime(end)}`;
     } else if (start) {
-      return formatDate(start);
+      return formatDateTime(start);
     }
     return "TBD";
   };

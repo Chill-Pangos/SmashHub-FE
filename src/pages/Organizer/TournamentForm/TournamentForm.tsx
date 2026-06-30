@@ -42,6 +42,13 @@ const safeFormatDate = (dateStr?: string | null) => {
   return d.toISOString().split("T")[0];
 };
 
+const safeFormatDateTime = (dateStr?: string | null) => {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toISOString();
+};
+
 const TournamentForm = () => {
   const { t } = useTranslation();
   const { tournamentId } = useParams();
@@ -69,9 +76,9 @@ const TournamentForm = () => {
         location: tournament.location,
         startDate: safeFormatDate(tournament.startDate),
         endDate: safeFormatDate(tournament.endDate),
-        registrationStartDate: safeFormatDate(tournament.registrationStartDate),
-        registrationEndDate: safeFormatDate(tournament.registrationEndDate),
-        bracketGenerationDate: safeFormatDate(tournament.bracketGenerationDate),
+        registrationStartDate: safeFormatDateTime(tournament.registrationStartDate),
+        registrationEndDate: safeFormatDateTime(tournament.registrationEndDate),
+        bracketGenerationDate: safeFormatDateTime(tournament.bracketGenerationDate),
         categories: tournament.categories?.map(c => ({
           name: c.name,
           type: c.type,

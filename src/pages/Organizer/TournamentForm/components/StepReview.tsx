@@ -23,6 +23,22 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
 
   const isSubmitting = createTournament.isPending || createScheduleConfig.isPending || updateTournament.isPending || updateScheduleConfig.isPending;
 
+  // ── Helper ───────────────────────────────────────────────────────────────────
+  const toGMT7String = (dateInput: string | Date | undefined | null) => {
+    if (!dateInput) return "";
+    const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return "";
+
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const seconds = String(d.getSeconds()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000+07:00`;
+  };
+
   // ── Submit ───────────────────────────────────────────────────────────────────
 
   const handleSubmit = async () => {
@@ -31,8 +47,8 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
       name: data.name,
       tier: data.tier,
       location: data.location,
-      startDate: data.startDate,
-      endDate: data.endDate,
+      startDate: toGMT7String(data.startDate),
+      endDate: toGMT7String(data.endDate),
       ...(isEditing ? {} : { status: "upcoming" as const }),
       // Map categories từ Form State về chuẩn CreateTournamentCategoryRequest
       categories: (data.categories || []).map((cat) => ({
@@ -101,11 +117,11 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
       const lunchBreakEndMinutes = lunchBreakStartMinutes !== null ? lunchBreakStartMinutes + data.schedule.breakDurationMinutes : null;
 
       const schedulePayload = {
-        startDate: new Date(data.startDate).toISOString(),
-        endDate: new Date(data.endDate).toISOString(),
-        registrationStartDate: new Date(data.registrationStartDate).toISOString(),
-        registrationEndDate: new Date(data.registrationEndDate).toISOString(),
-        bracketGenerationDate: new Date(data.bracketGenerationDate).toISOString(),
+        startDate: toGMT7String(data.startDate),
+        endDate: toGMT7String(data.endDate),
+        registrationStartDate: toGMT7String(data.registrationStartDate),
+        registrationEndDate: toGMT7String(data.registrationEndDate),
+        bracketGenerationDate: toGMT7String(data.bracketGenerationDate),
         numberOfTables: Number(data.schedule.activeTables),
         matchDurationMinutes: Number(data.schedule.matchDurationMinutes),
         breakDurationMinutes: 10,

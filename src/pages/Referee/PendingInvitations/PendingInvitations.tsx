@@ -55,10 +55,7 @@ export default function PendingInvitations() {
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    return formatDateTime(dateStr);
-  };
-
+  
   return (
     <div className="px-6 py-10 space-y-6">
       <div className="flex justify-between items-end">
@@ -117,25 +114,25 @@ export default function PendingInvitations() {
                       {inv.tournament.scheduleConfig.startDate && (
                         <div className="flex justify-between items-start text-muted-foreground gap-2">
                           <span className="shrink-0">{t("pendingInvitations.eventDate", "Event:")}</span>
-                          <span className="font-medium text-foreground text-right">{formatDate(inv.tournament.scheduleConfig.startDate)}</span>
+                          <span className="font-medium text-foreground text-right">{formatDateTime(inv.tournament.scheduleConfig.startDate)}</span>
                         </div>
                       )}
                       {inv.tournament.scheduleConfig.registrationStartDate && (
                         <div className="flex justify-between items-start text-muted-foreground gap-2">
                           <span className="shrink-0">{t("pendingInvitations.regOpen", "Reg. Open:")}</span>
-                          <span className="font-medium text-foreground text-right">{formatDate(inv.tournament.scheduleConfig.registrationStartDate)}</span>
+                          <span className="font-medium text-foreground text-right">{formatDateTime(inv.tournament.scheduleConfig.registrationStartDate)}</span>
                         </div>
                       )}
                       {inv.tournament.scheduleConfig.registrationEndDate && (
                         <div className="flex justify-between items-start text-muted-foreground gap-2">
                           <span className="shrink-0">{t("pendingInvitations.regClose", "Reg. Close:")}</span>
-                          <span className="font-medium text-foreground text-right">{formatDate(inv.tournament.scheduleConfig.registrationEndDate)}</span>
+                          <span className="font-medium text-foreground text-right">{formatDateTime(inv.tournament.scheduleConfig.registrationEndDate)}</span>
                         </div>
                       )}
                       {inv.tournament.scheduleConfig.bracketGenerationDate && (
                         <div className="flex justify-between items-start text-muted-foreground gap-2">
                           <span className="shrink-0">{t("pendingInvitations.bracketDate", "Bracket:")}</span>
-                          <span className="font-medium text-foreground text-right">{formatDate(inv.tournament.scheduleConfig.bracketGenerationDate)}</span>
+                          <span className="font-medium text-foreground text-right">{formatDateTime(inv.tournament.scheduleConfig.bracketGenerationDate)}</span>
                         </div>
                       )}
                     </div>
@@ -147,14 +144,14 @@ export default function PendingInvitations() {
                         <Calendar className="w-3.5 h-3.5" />
                         <span>{t("pendingInvitations.created", "Created:")}</span>
                       </div>
-                      <span className="font-medium text-foreground">{formatDate(inv.createdAt)}</span>
+                      <span className="font-medium text-foreground">{formatDateTime(inv.createdAt)}</span>
                     </div>
                     <div className="flex items-center justify-between text-muted-foreground">
                       <div className="flex items-center gap-1.5 text-amber-500/80">
                         <Clock className="w-3.5 h-3.5" />
                         <span>{t("pendingInvitations.expires", "Expires:")}</span>
                       </div>
-                      <span className="font-medium text-amber-500/90">{formatDate(inv.expiresAt)}</span>
+                      <span className="font-medium text-amber-500/90">{formatDateTime(inv.expiresAt)}</span>
                     </div>
                   </div>
                 </CardContent>

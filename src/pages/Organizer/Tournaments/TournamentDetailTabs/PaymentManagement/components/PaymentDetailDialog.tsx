@@ -59,11 +59,7 @@ export default function PaymentDetailDialog({
     }).format(amount);
   };
 
-  const formatDate = (date?: string | Date | null) => {
-    if (!date) return "—";
-    return formatDateTime(date as string);
-  };
-
+  
   const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
     pending: {
       label: t("tournamentManager.paymentManagement.status.pending", "Pending"),
@@ -133,14 +129,14 @@ export default function PaymentDetailDialog({
               <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 {t("tournamentManager.paymentManagement.table.createdAt", "Created")}
               </p>
-              <p className="text-sm">{formatDate(payment.createdAt)}</p>
+              <p className="text-sm">{formatDateTime(payment.createdAt)}</p>
             </div>
             {payment.confirmedAt && (
               <div className="space-y-1">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   {t("tournamentManager.paymentManagement.detail.confirmedAt", "Confirmed At")}
                 </p>
-                <p className="text-sm">{formatDate(payment.confirmedAt)}</p>
+                <p className="text-sm">{formatDateTime(payment.confirmedAt)}</p>
               </div>
             )}
             {payment.refundedAt && (
@@ -148,7 +144,7 @@ export default function PaymentDetailDialog({
                 <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   {t("tournamentManager.paymentManagement.detail.refundedAt", "Refunded At")}
                 </p>
-                <p className="text-sm">{formatDate(payment.refundedAt)}</p>
+                <p className="text-sm">{formatDateTime(payment.refundedAt)}</p>
               </div>
             )}
           </div>
