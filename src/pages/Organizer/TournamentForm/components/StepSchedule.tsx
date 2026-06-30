@@ -15,6 +15,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { useValidateScheduleConfig } from "@/hooks/queries/useScheduleConfigQueries";
+import { extractScheduleTimezone } from "@/utils/timezone.utils";
 
 import { useFormContext } from "react-hook-form";
 
@@ -97,10 +98,26 @@ export const StepSchedule: React.FC<StepProps> = ({
       const lunchBreakStartMinutes = data.schedule.hasBreak ? parseTimeToMinutes(data.schedule.breakStartTime) : null;
       const lunchBreakEndMinutes = lunchBreakStartMinutes !== null ? lunchBreakStartMinutes + data.schedule.breakDurationMinutes : null;
 
+      const dailyStartLocalHour = parseInt(data.schedule.dailyStartTime.split(":")[0]);
+      const dailyStartLocalMinute = parseInt(data.schedule.dailyStartTime.split(":")[1]);
+      const dailyEndLocalHour = parseInt(data.schedule.dailyEndTime.split(":")[0]);
+      const dailyEndLocalMinute = parseInt(data.schedule.dailyEndTime.split(":")[1]);
+
+      const startUtc = extractScheduleTimezone(dailyStartLocalHour, dailyStartLocalMinute);
+      const endUtc = extractScheduleTimezone(dailyEndLocalHour, dailyEndLocalMinute);
+
+      let lunchStartUtc = { hour: null, minute: null };
+      let lunchEndUtc = { hour: null, minute: null };
+
+      if (lunchBreakStartMinutes !== null && lunchBreakEndMinutes !== null) {
+        lunchStartUtc = extractScheduleTimezone(Math.floor(lunchBreakStartMinutes / 60), lunchBreakStartMinutes % 60) as any;
+        lunchEndUtc = extractScheduleTimezone(Math.floor(lunchBreakEndMinutes / 60), lunchBreakEndMinutes % 60) as any;
+      }
+
       const res = await validateConfig({
         category: {
-          maxEntries: (data.categories || []).reduce((acc, cat) => acc + (cat.maxEntries || 0), 0),
-          isGroupStage: (data.categories || []).some(cat => cat.isGroupStage),
+          maxEntries: (data.categories || []).reduce((acc: any, cat: any) => acc + (cat.maxEntries || 0), 0),
+          isGroupStage: (data.categories || []).some((cat: any) => cat.isGroupStage),
         },
         scheduleConfig: {
           startDate: new Date(data.startDate).toISOString(),
@@ -110,16 +127,17 @@ export const StepSchedule: React.FC<StepProps> = ({
           bracketGenerationDate: new Date(data.bracketGenerationDate).toISOString(),
           numberOfTables: Number(data.schedule.activeTables),
           matchDurationMinutes: Number(data.schedule.matchDurationMinutes),
-          breakDurationMinutes: 10, // Assuming standard break duration between matches
-          dailyStartHour: parseInt(data.schedule.dailyStartTime.split(":")[0]),
-          dailyStartMinute: parseInt(data.schedule.dailyStartTime.split(":")[1]),
-          dailyEndHour: parseInt(data.schedule.dailyEndTime.split(":")[0]),
-          dailyEndMinute: parseInt(data.schedule.dailyEndTime.split(":")[1]),
-          lunchBreakStartHour: lunchBreakStartMinutes !== null ? Math.floor(lunchBreakStartMinutes / 60) : null,
-          lunchBreakStartMinute: lunchBreakStartMinutes !== null ? lunchBreakStartMinutes % 60 : null,
-          lunchBreakEndHour: lunchBreakEndMinutes !== null ? Math.floor(lunchBreakEndMinutes / 60) : null,
-          lunchBreakEndMinute: lunchBreakEndMinutes !== null ? lunchBreakEndMinutes % 60 : null,
+          breakDurationMinutes: 10,
+          dailyStartHour: startUtc.hour,
+          dailyStartMinute: startUtc.minute,
+          dailyEndHour: endUtc.hour,
+          dailyEndMinute: endUtc.minute,
+          lunchBreakStartHour: lunchStartUtc.hour,
+          lunchBreakStartMinute: lunchStartUtc.minute,
+          lunchBreakEndHour: lunchEndUtc.hour,
+          lunchBreakEndMinute: lunchEndUtc.minute,
           lunchBreakDurationMinutes: data.schedule.hasBreak ? data.schedule.breakDurationMinutes : null,
+          timeZone: "UTC",
           notes: data.schedule.notes || "",
         }
       });

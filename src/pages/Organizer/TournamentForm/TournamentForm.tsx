@@ -12,6 +12,7 @@ import {
 import { FormProvider } from "react-hook-form";
 import { useZodForm } from "@/hooks/useZodForm";
 import { getTournamentSchema } from "@/schemas/tournament.schema";
+import { applyScheduleTimezone } from "@/utils/timezone.utils";
 
 const INITIAL_DATA: TournamentData = {
   name: "",
@@ -79,7 +80,7 @@ const TournamentForm = () => {
         registrationStartDate: safeFormatDateTime(tournament.registrationStartDate),
         registrationEndDate: safeFormatDateTime(tournament.registrationEndDate),
         bracketGenerationDate: safeFormatDateTime(tournament.bracketGenerationDate),
-        categories: tournament.categories?.map(c => ({
+        categories: tournament.categories?.map((c: any) => ({
           name: c.name,
           type: c.type,
           maxEntries: c.maxEntries,
@@ -96,18 +97,28 @@ const TournamentForm = () => {
           numberOfSingles: c.numberOfSingles || 0,
           numberOfDoubles: c.numberOfDoubles || 0,
         })) || [],
-        schedule: {
-          activeTables: scheduleConfig.numberOfTables || 12,
-          matchDurationMinutes: scheduleConfig.matchDurationMinutes || 45,
-          dailyStartTime: `${String(scheduleConfig.dailyStartHour || 8).padStart(2, '0')}:${String(scheduleConfig.dailyStartMinute || 0).padStart(2, '0')}`,
-          dailyEndTime: `${String(scheduleConfig.dailyEndHour || 22).padStart(2, '0')}:${String(scheduleConfig.dailyEndMinute || 0).padStart(2, '0')}`,
-          hasBreak: scheduleConfig.lunchBreakDurationMinutes != null,
-          breakStartTime: scheduleConfig.lunchBreakStartHour != null 
-            ? `${String(scheduleConfig.lunchBreakStartHour).padStart(2, '0')}:${String(scheduleConfig.lunchBreakStartMinute || 0).padStart(2, '0')}` 
-            : "12:30",
-          breakDurationMinutes: scheduleConfig.lunchBreakDurationMinutes || 60,
-          notes: scheduleConfig.notes || "",
-        },
+        schedule: (() => {
+          const tz = scheduleConfig.timeZone || "UTC";
+          const dailyStartLocal = applyScheduleTimezone(scheduleConfig.dailyStartHour || 8, scheduleConfig.dailyStartMinute || 0, tz);
+          const dailyEndLocal = applyScheduleTimezone(scheduleConfig.dailyEndHour || 22, scheduleConfig.dailyEndMinute || 0, tz);
+
+          let breakStartTimeStr = "12:30";
+          if (scheduleConfig.lunchBreakStartHour != null) {
+            const breakLocal = applyScheduleTimezone(scheduleConfig.lunchBreakStartHour, scheduleConfig.lunchBreakStartMinute || 0, tz);
+            breakStartTimeStr = `${String(breakLocal.hour).padStart(2, '0')}:${String(breakLocal.minute).padStart(2, '0')}`;
+          }
+
+          return {
+            activeTables: scheduleConfig.numberOfTables || 12,
+            matchDurationMinutes: scheduleConfig.matchDurationMinutes || 45,
+            dailyStartTime: `${String(dailyStartLocal.hour).padStart(2, '0')}:${String(dailyStartLocal.minute).padStart(2, '0')}`,
+            dailyEndTime: `${String(dailyEndLocal.hour).padStart(2, '0')}:${String(dailyEndLocal.minute).padStart(2, '0')}`,
+            hasBreak: scheduleConfig.lunchBreakDurationMinutes != null,
+            breakStartTime: breakStartTimeStr,
+            breakDurationMinutes: scheduleConfig.lunchBreakDurationMinutes || 60,
+            notes: scheduleConfig.notes || "",
+          };
+        })(),
       });
       setIsDataLoaded(true);
     }

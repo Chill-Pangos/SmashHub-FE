@@ -4,6 +4,7 @@ import { format } from "date-fns"
 import { vi, enUS } from "date-fns/locale"
 import { Calendar as CalendarIcon } from "lucide-react"
 import { useTranslation } from "@/hooks/useTranslation"
+import { toLocalDisplay, toUtcString } from "@/utils/timezone.utils"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -28,6 +29,18 @@ export function DatePicker({
   const { currentLanguage } = useTranslation()
   const locale = currentLanguage === "vi" ? vi : enUS
 
+  const displayDate = date ? toLocalDisplay(date) : undefined;
+
+  const handleSelect = (newDate: Date | undefined) => {
+    if (!newDate) {
+      setDate(undefined);
+      return;
+    }
+    // Convert local calendar date to UTC date object
+    const utcStr = toUtcString(newDate);
+    setDate(new Date(utcStr));
+  };
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -35,19 +48,19 @@ export function DatePicker({
           variant={"outline"}
           className={cn(
             "w-full justify-start text-left font-normal bg-input/50",
-            !date && "text-muted-foreground",
+            !displayDate && "text-muted-foreground",
             className
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "dd/MM/yyyy", { locale }) : <span>{placeholder}</span>}
+          {displayDate ? format(displayDate, "dd/MM/yyyy", { locale }) : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar
           mode="single"
-          selected={date}
-          onSelect={setDate}
+          selected={displayDate}
+          onSelect={handleSelect}
           initialFocus
           captionLayout="dropdown-buttons"
           fromYear={1900}

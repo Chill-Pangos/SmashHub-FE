@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input"
 import { useTranslation } from "@/hooks/useTranslation"
+import { toLocalDisplay, toUtcString } from "@/utils/timezone.utils"
 
 export function DateTimePicker({
   date,
@@ -29,15 +30,18 @@ export function DateTimePicker({
   const { t } = useTranslation()
   const displayPlaceholder = placeholder || t("components.dateTimePicker.selectDateTime")
 
-  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(date)
+  const displayDate = date ? toLocalDisplay(date) : undefined;
+
+  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(displayDate)
   const [time, setTime] = React.useState<string>(
-    date ? format(date, "HH:mm") : "00:00"
+    displayDate ? format(displayDate, "HH:mm") : "00:00"
   )
 
   React.useEffect(() => {
-    setSelectedDate(date)
-    if (date) {
-      setTime(format(date, "HH:mm"))
+    const d = date ? toLocalDisplay(date) : undefined;
+    setSelectedDate(d)
+    if (d) {
+      setTime(format(d, "HH:mm"))
     }
   }, [date])
 
@@ -47,7 +51,7 @@ export function DateTimePicker({
       const [hours, minutes] = time.split(":").map(Number)
       const updatedDate = new Date(newDate)
       updatedDate.setHours(hours || 0, minutes || 0, 0, 0)
-      setDate(updatedDate)
+      setDate(new Date(toUtcString(updatedDate)))
     } else {
       setDate(undefined)
     }
@@ -81,7 +85,7 @@ export function DateTimePicker({
       const updatedDate = new Date(selectedDate)
       const [hours, minutes] = newTime.split(":").map(Number)
       updatedDate.setHours(hours || 0, minutes || 0, 0, 0)
-      setDate(updatedDate)
+      setDate(new Date(toUtcString(updatedDate)))
     }
   }
 
@@ -92,7 +96,7 @@ export function DateTimePicker({
       const [hours, minutes] = newTime.split(":").map(Number)
       const updatedDate = new Date(selectedDate)
       updatedDate.setHours(hours || 0, minutes || 0, 0, 0)
-      setDate(updatedDate)
+      setDate(new Date(toUtcString(updatedDate)))
     }
   }
 
@@ -123,7 +127,7 @@ export function DateTimePicker({
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "dd/MM/yyyy HH:mm") : <span>{displayPlaceholder}</span>}
+          {displayDate ? format(displayDate, "dd/MM/yyyy HH:mm") : <span>{displayPlaceholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0 flex flex-col sm:flex-row" align="start">

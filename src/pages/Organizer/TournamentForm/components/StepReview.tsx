@@ -7,6 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useCreateTournament, useUpdateTournament } from "@/hooks/queries/useTournamentQueries";
 import { useCreateScheduleConfig, useUpdateScheduleConfig } from "@/hooks/queries/useScheduleConfigQueries";
 import { showToast, showApiError } from "@/utils/toast.utils";
+import { extractScheduleTimezone, toUtcString } from "@/utils/timezone.utils";
 import type { CreateTournamentRequest, UpdateTournamentRequest } from "@/types/tournament.types";
 
 export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
@@ -23,32 +24,22 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
 
   const isSubmitting = createTournament.isPending || createScheduleConfig.isPending || updateTournament.isPending || updateScheduleConfig.isPending;
 
-  // ── Helper ───────────────────────────────────────────────────────────────────
-  const toGMT7String = (dateInput: string | Date | undefined | null) => {
-    if (!dateInput) return "";
-    const d = new Date(dateInput);
-    if (isNaN(d.getTime())) return "";
 
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const hours = String(d.getHours()).padStart(2, '0');
-    const minutes = String(d.getMinutes()).padStart(2, '0');
-    const seconds = String(d.getSeconds()).padStart(2, '0');
-    
-    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000+07:00`;
-  };
-
-  // ── Submit ───────────────────────────────────────────────────────────────────
 
   const handleSubmit = async () => {
-    // Ép kiểu (cast) payload về đúng dạng để Typescript không báo lỗi
+    const getApiDateString = (dateInput: string | Date | undefined | null) => {
+      if (!dateInput) return "";
+      const d = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+      if (isNaN(d.getTime())) return "";
+      return toUtcString(d); 
+    };
+
     const payload: CreateTournamentRequest | UpdateTournamentRequest = {
       name: data.name,
       tier: data.tier,
       location: data.location,
-      startDate: toGMT7String(data.startDate),
-      endDate: toGMT7String(data.endDate),
+      startDate: getApiDateString(data.startDate),
+      endDate: getApiDateString(data.endDate),
       ...(isEditing ? {} : { status: "upcoming" as const }),
       // Map categories từ Form State về chuẩn CreateTournamentCategoryRequest
       categories: (data.categories || []).map((cat) => ({
@@ -116,24 +107,48 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
       const lunchBreakStartMinutes = data.schedule.hasBreak ? parseTimeToMinutes(data.schedule.breakStartTime) : null;
       const lunchBreakEndMinutes = lunchBreakStartMinutes !== null ? lunchBreakStartMinutes + data.schedule.breakDurationMinutes : null;
 
+      const dailyStartLocalHour = parseInt(data.schedule.dailyStartTime.split(":")[0]);
+      const dailyStartLocalMinute = parseInt(data.schedule.dailyStartTime.split(":")[1]);
+      const dailyEndLocalHour = parseInt(data.schedule.dailyEndTime.split(":")[0]);
+      const dailyEndLocalMinute = parseInt(data.schedule.dailyEndTime.split(":")[1]);
+
+      const startUtc = extractScheduleTimezone(dailyStartLocalHour, dailyStartLocalMinute);
+      const endUtc = extractScheduleTimezone(dailyEndLocalHour, dailyEndLocalMinute);
+
+      let lunchStartUtc = { hour: null, minute: null };
+      let lunchEndUtc = { hour: null, minute: null };
+
+      if (lunchBreakStartMinutes !== null && lunchBreakEndMinutes !== null) {
+        lunchStartUtc = extractScheduleTimezone(Math.floor(lunchBreakStartMinutes / 60), lunchBreakStartMinutes % 60) as any;
+        lunchEndUtc = extractScheduleTimezone(Math.floor(lunchBreakEndMinutes / 60), lunchBreakEndMinutes % 60) as any;
+      }
+
+      const getApiDateString = (dateInput: string | Date | undefined | null) => {
+        if (!dateInput) return "";
+        const d = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+        if (isNaN(d.getTime())) return "";
+        return toUtcString(d); // send as UTC string with Z
+      };
+
       const schedulePayload = {
-        startDate: toGMT7String(data.startDate),
-        endDate: toGMT7String(data.endDate),
-        registrationStartDate: toGMT7String(data.registrationStartDate),
-        registrationEndDate: toGMT7String(data.registrationEndDate),
-        bracketGenerationDate: toGMT7String(data.bracketGenerationDate),
+        startDate: getApiDateString(data.startDate),
+        endDate: getApiDateString(data.endDate),
+        registrationStartDate: getApiDateString(data.registrationStartDate),
+        registrationEndDate: getApiDateString(data.registrationEndDate),
+        bracketGenerationDate: getApiDateString(data.bracketGenerationDate),
         numberOfTables: Number(data.schedule.activeTables),
         matchDurationMinutes: Number(data.schedule.matchDurationMinutes),
         breakDurationMinutes: 10,
-        dailyStartHour: parseInt(data.schedule.dailyStartTime.split(":")[0]),
-        dailyStartMinute: parseInt(data.schedule.dailyStartTime.split(":")[1]),
-        dailyEndHour: parseInt(data.schedule.dailyEndTime.split(":")[0]),
-        dailyEndMinute: parseInt(data.schedule.dailyEndTime.split(":")[1]),
-        lunchBreakStartHour: lunchBreakStartMinutes !== null ? Math.floor(lunchBreakStartMinutes / 60) : null,
-        lunchBreakStartMinute: lunchBreakStartMinutes !== null ? lunchBreakStartMinutes % 60 : null,
-        lunchBreakEndHour: lunchBreakEndMinutes !== null ? Math.floor(lunchBreakEndMinutes / 60) : null,
-        lunchBreakEndMinute: lunchBreakEndMinutes !== null ? lunchBreakEndMinutes % 60 : null,
+        dailyStartHour: startUtc.hour,
+        dailyStartMinute: startUtc.minute,
+        dailyEndHour: endUtc.hour,
+        dailyEndMinute: endUtc.minute,
+        lunchBreakStartHour: lunchStartUtc.hour,
+        lunchBreakStartMinute: lunchStartUtc.minute,
+        lunchBreakEndHour: lunchEndUtc.hour,
+        lunchBreakEndMinute: lunchEndUtc.minute,
         lunchBreakDurationMinutes: data.schedule.hasBreak ? data.schedule.breakDurationMinutes : null,
+        timeZone: "UTC",
         notes: data.schedule.notes || "",
       };
 

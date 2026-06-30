@@ -21,6 +21,7 @@ export interface ScheduleConfig {
   lunchBreakEndHour?: number | null;
   lunchBreakEndMinute?: number | null;
   lunchBreakDurationMinutes?: number | null;
+  timeZone?: string;
   notes?: string | null;
   createdAt?: string;
   updatedAt?: string;
@@ -57,6 +58,7 @@ export interface CreateScheduleConfigRequest {
   lunchBreakEndHour?: number | null;
   lunchBreakEndMinute?: number | null;
   lunchBreakDurationMinutes?: number | null;
+  timeZone?: string;
   notes?: string | null;
 }
 
@@ -78,6 +80,7 @@ export interface UpdateScheduleConfigRequest {
   lunchBreakEndHour?: number | null;
   lunchBreakEndMinute?: number | null;
   lunchBreakDurationMinutes?: number | null;
+  timeZone?: string;
   notes?: string | null;
   regenerateSchedule?: boolean;
   regenerationKey?: string;
@@ -106,6 +109,7 @@ export interface ValidateScheduleConfigRequest {
     lunchBreakEndHour?: number | null;
     lunchBreakEndMinute?: number | null;
     lunchBreakDurationMinutes?: number | null;
+    timeZone?: string;
     notes?: string | null;
   };
 }
