@@ -5,6 +5,7 @@ import { useTournamentCategoriesByTournament } from "@/hooks/queries/useTourname
 import { useRegisterEntry } from "@/hooks/queries/useEntryQueries";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
+import { showApiError } from "@/utils/toast.utils";
 
 export default function EntryRegistration() {
   const { t } = useTranslation();
@@ -47,6 +48,9 @@ export default function EntryRegistration() {
           navigate(`/tournaments/${tournamentId}`, {
             state: { activeTab: t("publicPlayer.tournamentDetail.registrationTab.title", "Registration") }
           });
+        },
+        onError: (err: any) => {
+          showApiError(err, t("publicPlayer.entryRegistration.registerError", "Failed to register"));
         },
       }
     );

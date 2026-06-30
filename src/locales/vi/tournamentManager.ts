@@ -158,6 +158,8 @@ export default {
     "singleSelectionChief": "Chỉ chọn một người cho vị trí Trọng tài chính",
     "refereeSelected": "Đã chọn {{count}} trọng tài",
     "cancel": "Hủy",
+    "inviteSuccess": "Gửi lời mời thành công",
+    "inviteError": "Không thể gửi lời mời",
     "sending": "Đang gửi...",
     "sendInvitations": "Gửi lời mời",
     "search": "Tìm kiếm",

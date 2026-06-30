@@ -188,7 +188,8 @@ export default {
     "joinExisting": "Join Existing Team",
     "createNew": "Create New Team",
     "backToTournament": "Back to Tournament",
-    "entryId": "Entry ID"
+    "entryId": "Entry ID",
+    "registerError": "Failed to register"
   },
   "teamManagement": {
     "title": "Team Management",
