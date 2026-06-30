@@ -19,11 +19,11 @@ import { formatCategoryName } from "@/utils/category.utils";
 import { useTranslation } from "react-i18next";
 import { useDateFormat } from "@/hooks/useDateFormat";
 
-function formatDateRange(formatDate: (d: any) => string, start?: string, end?: string, tbdText = "TBD") {
+function formatDateRange(formatDateTime: (d: any) => string, start?: string, end?: string, tbdText = "TBD") {
   if (!start) return tbdText;
-  const s = formatDate(start);
+  const s = formatDateTime(start);
   if (!end) return s;
-  const e = formatDate(end);
+  const e = formatDateTime(end);
   return `${s} — ${e}`;
 }
 
@@ -58,7 +58,7 @@ export default function TournamentCard({
   className?: string;
 }) {
   const { t } = useTranslation();
-  const { formatDate } = useDateFormat();
+  const { formatDateTime } = useDateFormat();
   const thumbnailUrl = getThumbnailUrl();
   const participants = getParticipants(tournament);
   const shortDescription = getShortDescription(
@@ -149,7 +149,7 @@ export default function TournamentCard({
           <div className="inline-flex items-center gap-1">
             <Calendar className="h-3.5 w-3.5" />
             <span>
-              {formatDateRange(formatDate, tournament.startDate, tournament.endDate, t('tournamentManager.tournamentsList.tbd', 'TBD'))}
+              {formatDateRange(formatDateTime, tournament.startDate, tournament.endDate, t('tournamentManager.tournamentsList.tbd', 'TBD'))}
             </span>
           </div>
 

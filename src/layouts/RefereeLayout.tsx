@@ -45,7 +45,7 @@ export default function RefereeLayout() {
 
       <main className="min-h-screen lg:pl-80">
         <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-4 pb-8 pt-16 sm:px-6 lg:px-8 lg:pt-8">
-          <div className="mb-6">
+          <div className="sticky top-4 z-50 mb-6">
             <PortalHeader />
           </div>
           <Outlet />

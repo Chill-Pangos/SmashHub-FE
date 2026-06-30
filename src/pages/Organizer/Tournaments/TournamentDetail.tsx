@@ -34,7 +34,7 @@ export default function TournamentDetail() {
   const { tournamentId } = useParams();
   const id = tournamentId ? parseInt(tournamentId, 10) : 0;
   const { t } = useTranslation();
-  const { formatDate } = useDateFormat();
+  const { formatDateTime } = useDateFormat();
 
   // Lấy data từ hook API
   const {
@@ -93,9 +93,9 @@ export default function TournamentDetail() {
   const formatEventDate = (start?: string, end?: string) => {
     if (!start && !end) return "TBD";
     if (start && end) {
-      return `${formatDate(start)} - ${formatDate(end)}`;
+      return `${formatDateTime(start)} - ${formatDateTime(end)}`;
     } else if (start) {
-      return formatDate(start);
+      return formatDateTime(start);
     }
     return "TBD";
   };

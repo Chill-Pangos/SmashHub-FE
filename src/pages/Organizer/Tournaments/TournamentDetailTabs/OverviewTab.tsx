@@ -30,7 +30,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
     new Set(tournament.categories?.map((c) => t(`constants.format.${c.type}`, c.type)) || []),
   ).join(", ");
 
-  const { formatDate, formatDateTime } = useDateFormat();
+  const { formatDateTime } = useDateFormat();
 
   const registrationStart = scheduleConfig?.registrationStartDate ? new Date(scheduleConfig.registrationStartDate) : undefined;
   const registrationEnd = scheduleConfig?.registrationEndDate ? new Date(scheduleConfig.registrationEndDate) : undefined;
@@ -158,7 +158,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-lg font-bold tracking-tight">
-                  {formatDate(scheduleConfig?.bracketGenerationDate)}
+                  {formatDateTime(scheduleConfig?.bracketGenerationDate)}
                 </span>
               </div>
             </div>
@@ -172,10 +172,10 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm font-medium">
-                  {t('tournamentManager.overviewTab.start', 'Start')}: {formatDate(scheduleConfig?.startDate)}
+                  {t('tournamentManager.overviewTab.start', 'Start')}: {formatDateTime(scheduleConfig?.startDate)}
                 </span>
                 <span className="text-sm font-medium">
-                  {t('tournamentManager.overviewTab.end', 'End')}: {formatDate(scheduleConfig?.endDate)}
+                  {t('tournamentManager.overviewTab.end', 'End')}: {formatDateTime(scheduleConfig?.endDate)}
                 </span>
               </div>
             </div>

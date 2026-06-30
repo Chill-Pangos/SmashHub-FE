@@ -8,13 +8,13 @@ import ServerPagination from "@/components/custom/ServerPagination";
 import { useTranslation } from "react-i18next";
 
 export default function PublicTournamentListing() {
-  const { formatDate } = useDateFormat();
+  const { formatDateTime } = useDateFormat();
   
   function formatDateRange(start?: string, end?: string) {
     if (!start) return "TBD";
-    const s = formatDate(start);
+    const s = formatDateTime(start);
     if (!end) return s;
-    const e = formatDate(end);
+    const e = formatDateTime(end);
     return `${s} — ${e}`;
   }
   const { t } = useTranslation();

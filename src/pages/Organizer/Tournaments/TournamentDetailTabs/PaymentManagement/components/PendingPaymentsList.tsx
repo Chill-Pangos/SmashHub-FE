@@ -52,11 +52,7 @@ export default function PendingPaymentsList({
     }).format(amount);
   };
 
-  const formatDate = (date?: string | Date) => {
-    if (!date) return "—";
-    return formatDateTime(date);
-  };
-
+  
   if (isLoading) {
     return (
       <div className="rounded-xl border border-border bg-card p-8 text-center">
@@ -133,7 +129,7 @@ export default function PendingPaymentsList({
                   )}
                 </TableCell>
                 <TableCell className="text-xs text-muted-foreground">
-                  {formatDate(payment.createdAt)}
+                  {formatDateTime(payment.createdAt)}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-end gap-2">

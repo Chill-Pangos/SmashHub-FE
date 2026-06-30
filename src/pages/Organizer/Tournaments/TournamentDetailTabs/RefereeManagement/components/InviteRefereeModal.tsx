@@ -18,6 +18,7 @@ import {
 import { Search } from "lucide-react";
 import { useAvailableReferees, useInviteReferee } from "@/hooks/queries";
 import { useTranslation } from "react-i18next";
+import { showToast, showApiError } from "@/utils/toast.utils";
 
 interface InviteRefereeModalProps {
   open: boolean;
@@ -79,10 +80,12 @@ export function InviteRefereeModal({
           role: inviteMode,
         });
       }
+      showToast.success(t("tournamentManager.refereeManagement.inviteSuccess", "Invitations sent successfully."));
       onOpenChange(false);
       setSelectedIds([]);
     } catch (err) {
       console.error(err);
+      showApiError(err, t("tournamentManager.refereeManagement.inviteError", "Failed to send invitations."));
     }
   };
 

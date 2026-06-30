@@ -188,7 +188,8 @@ export default {
     "joinExisting": "Tham gia đội có sẵn",
     "createNew": "Tạo đội mới",
     "backToTournament": "Quay lại giải đấu",
-    "entryId": "Mã đăng ký"
+    "entryId": "Mã đăng ký",
+    "registerError": "Đăng ký thất bại"
   },
   "teamManagement": {
     "title": "Quản lý đội",

@@ -69,6 +69,14 @@ export const useAdminSystemAuditLogs = (
   });
 };
 
+export const useAdminSystemAuditLogDetail = (id: number | null) => {
+  return useQuery({
+    queryKey: queryKeys.notifications.adminSystemAuditLogDetail(id!),
+    queryFn: () => notificationService.getAuditLogDetail(id!),
+    enabled: !!id,
+  });
+};
+
 export const useMarkNotificationRead = () => {
   const queryClient = useQueryClient();
 

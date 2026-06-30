@@ -158,6 +158,8 @@ export default {
     "singleSelectionChief": "Single selection required for Chief position",
     "refereeSelected": "{{count}} Referee Selected",
     "cancel": "Cancel",
+    "inviteSuccess": "Invitations sent successfully",
+    "inviteError": "Failed to send invitations",
     "sending": "Sending...",
     "sendInvitations": "Send invitations",
     "search": "Search",

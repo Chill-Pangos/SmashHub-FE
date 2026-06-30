@@ -5,11 +5,11 @@ import type { Tournament } from "@/types";
 import { t } from "i18next";
 import { formatCategoryName } from "@/utils/category.utils";
 
-function formatDateRange(formatDate: (d: any) => string, start?: string, end?: string) {
+function formatDateRange(formatDateTime: (d: any) => string, start?: string, end?: string) {
   if (!start) return t('publicPlayer.tournamentDetail.scheduleTab.tbd', 'TBD');
-  const s = formatDate(start);
+  const s = formatDateTime(start);
   if (!end) return s;
-  const e = formatDate(end);
+  const e = formatDateTime(end);
   return `${s} — ${e}`;
 }
 
@@ -40,7 +40,7 @@ export function TournamentCard({
   tournament: Tournament;
   className?: string;
 }) {
-  const { formatDate } = useDateFormat();
+  const { formatDateTime } = useDateFormat();
   const { t } = useTranslation();
   const participants = getParticipants(tournament);
   const shortDescription = getShortDescription(tournament);
@@ -90,7 +90,7 @@ export function TournamentCard({
           <div className="inline-flex items-center gap-1">
             <Calendar className="h-3.5 w-3.5" />
             <span>
-              {formatDateRange(formatDate, tournament.startDate, tournament.endDate)}
+              {formatDateRange(formatDateTime, tournament.startDate, tournament.endDate)}
             </span>
           </div>
 

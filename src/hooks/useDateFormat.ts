@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
 import { enUS, vi } from "date-fns/locale";
+import { toLocalDisplay } from "../utils/timezone.utils";
 
 export function useDateFormat() {
   const { i18n } = useTranslation();
@@ -8,7 +9,7 @@ export function useDateFormat() {
   const formatDate = (date?: Date | string | number | null, formatStr?: string) => {
     if (!date) return "";
     
-    const d = new Date(date);
+    const d = toLocalDisplay(date);
     const locale = i18n.language === 'vi' ? vi : enUS;
     
     if (formatStr) {
@@ -26,7 +27,7 @@ export function useDateFormat() {
   const formatDateTime = (date?: Date | string | number | null) => {
     if (!date) return "";
     
-    const d = new Date(date);
+    const d = toLocalDisplay(date);
     const locale = i18n.language === 'vi' ? vi : enUS;
     
     if (i18n.language === 'vi') {

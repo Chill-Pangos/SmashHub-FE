@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import { useDateFormat } from "@/hooks/useDateFormat";
 
 export default function OrganizerTournaments() {
-  const { formatDate } = useDateFormat();
+  const { formatDateTime } = useDateFormat();
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<string | undefined>(undefined);
@@ -148,7 +148,7 @@ export default function OrganizerTournaments() {
                         <li key={t.id} className="text-xs text-green-800">
                           <strong>{t.name}</strong>
                           <br />
-                          {formatDate(t.registrationStartDate)}
+                          {formatDateTime(t.registrationStartDate)}
                         </li>
                       ))}
                     </ul>
@@ -165,7 +165,7 @@ export default function OrganizerTournaments() {
                         <li key={t.id} className="text-xs text-orange-800">
                           <strong>{t.name}</strong>
                           <br />
-                          {formatDate(t.registrationEndDate)}
+                          {formatDateTime(t.registrationEndDate)}
                         </li>
                       ))}
                     </ul>
@@ -182,7 +182,7 @@ export default function OrganizerTournaments() {
                         <li key={t.id} className="text-xs text-blue-800">
                           <strong>{t.name}</strong>
                           <br />
-                          {formatDate(t.bracketGenerationDate)}
+                          {formatDateTime(t.bracketGenerationDate)}
                         </li>
                       ))}
                     </ul>

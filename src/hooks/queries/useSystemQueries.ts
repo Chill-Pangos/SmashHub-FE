@@ -33,3 +33,19 @@ export const useSystemEvents = (
     enabled: options?.enabled ?? true,
   });
 };
+
+export const useCronLogDetail = (id: number | null) => {
+  return useQuery({
+    queryKey: queryKeys.system.cronLogDetail(id!),
+    queryFn: () => systemService.getCronLogDetail(id!),
+    enabled: !!id,
+  });
+};
+
+export const useSystemApiLogDetail = (id: number | null) => {
+  return useQuery({
+    queryKey: queryKeys.system.apiLogDetail(id!),
+    queryFn: () => systemService.getApiRequestLogDetail(id!),
+    enabled: !!id,
+  });
+};

@@ -4,7 +4,9 @@ import type {
   SystemMetricsParams,
   SystemMetricsResponse,
   SystemEventsParams,
-  SystemEventsResponse
+  SystemEventsResponse,
+  SystemCronLogDetailResponse,
+  SystemApiLogDetailResponse
 } from "@/types/system.types";
 
 class SystemService {
@@ -22,6 +24,16 @@ class SystemService {
 
   async getEvents(params?: SystemEventsParams): Promise<SystemEventsResponse> {
     const response = await axiosInstance.get<SystemEventsResponse>(`${this.baseURL}/events`, { params });
+    return response.data;
+  }
+
+  async getCronLogDetail(id: number): Promise<SystemCronLogDetailResponse> {
+    const response = await axiosInstance.get<SystemCronLogDetailResponse>(`/cron-logs/${id}`);
+    return response.data;
+  }
+
+  async getApiRequestLogDetail(id: number): Promise<SystemApiLogDetailResponse> {
+    const response = await axiosInstance.get<SystemApiLogDetailResponse>(`${this.baseURL}/api-request-logs/${id}`);
     return response.data;
   }
 }
