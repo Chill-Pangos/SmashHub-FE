@@ -386,7 +386,7 @@ export default {
     },
     "stepSubtitles": {
       "general": "Thông tin cơ bản và thể thức giải",
-      "schedule": "Thiết lập logistics trận đấu",
+      "schedule": "Thiết lập thông số tổ chức",
       "review": "Kiểm tra toàn bộ tham số trước khi khởi tạo"
     },
     "general": {
@@ -542,7 +542,7 @@ export default {
       "tables": "Số bàn",
       "matchDuration": "Thời lượng trận",
       "breakInfo": "Thông tin nghỉ",
-      "back": "Quay lại logistics",
+      "back": "Quay lại cấu hình lịch",
       "initializeTournament": "Khởi tạo giải đấu",
       "initializing": "Đang khởi tạo...",
       "minutesShort": "phút",
