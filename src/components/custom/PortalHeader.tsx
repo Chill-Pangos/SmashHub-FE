@@ -120,7 +120,7 @@ export default function PortalHeader() {
   const roleDisplayNames = getRoleDisplayNames(roleNames);
 
   return (
-    <div className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-border/30 bg-background/80 px-3 py-2 shadow-sm backdrop-blur">
+    <div className="flex items-center justify-between gap-3 rounded-2xl border border-border/30 bg-background/80 py-2 pr-3 pl-14 lg:px-3 shadow-sm backdrop-blur min-h-[3.5rem]">
       <div className="min-w-0 flex-1">
         <p className="truncate text-base font-semibold text-foreground sm:text-lg">
           {routeMeta.title}
