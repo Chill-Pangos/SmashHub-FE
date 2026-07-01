@@ -27,19 +27,25 @@ export const StepReview: React.FC<StepProps> = ({ data, onBack }) => {
 
 
   const handleSubmit = async () => {
-    const getApiDateString = (dateInput: string | Date | undefined | null) => {
+
+
+    const getApiDateOnlyString = (dateInput: string | Date | undefined | null) => {
       if (!dateInput) return "";
       const d = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
       if (isNaN(d.getTime())) return "";
-      return toUtcString(d); 
+      // Returns YYYY-MM-DD based on local date string to avoid timezone offset shifts
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     };
 
     const payload: CreateTournamentRequest | UpdateTournamentRequest = {
       name: data.name,
       tier: data.tier,
       location: data.location,
-      startDate: getApiDateString(data.startDate),
-      endDate: getApiDateString(data.endDate),
+      startDate: getApiDateOnlyString(data.startDate),
+      endDate: getApiDateOnlyString(data.endDate),
       ...(isEditing ? {} : { status: "upcoming" as const }),
       // Map categories từ Form State về chuẩn CreateTournamentCategoryRequest
       categories: (data.categories || []).map((cat) => ({
