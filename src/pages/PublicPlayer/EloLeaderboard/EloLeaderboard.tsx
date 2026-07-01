@@ -14,56 +14,48 @@ import {
   YAxis,
 } from "recharts";
 import { useTranslation } from "react-i18next";
-
-const performanceData = [
-  { date: "SEP 01", elo: 2100 },
-  { date: "SEP 15", elo: 2150 },
-  { date: "OCT 01", elo: 2300 },
-  { date: "OCT 15", elo: 2350 },
-  { date: "NOV 01", elo: 2450 },
-];
-
-const eloLog = [
-  {
-    id: 1,
-    match: "Pro-Circuit Qualifier Q3",
-    date: "Today, 14:30 EST",
-    opponent: "ToxicBlade",
-    result: "WIN (3-1)",
-    change: "+12",
-    isWin: true,
-  },
-  {
-    id: 2,
-    match: "Ranked Matchmaking",
-    date: "Yesterday, 21:00 EST",
-    opponent: "ShadowNinja",
-    result: "WIN (2-0)",
-    change: "+8",
-    isWin: true,
-  },
-  {
-    id: 3,
-    match: "Weekly Invitational",
-    date: "Nov 02, 18:00 EST",
-    opponent: "Valkyrie_X",
-    result: "LOSS (2-3)",
-    change: "-15",
-    isWin: false,
-  },
-  {
-    id: 4,
-    match: "Ranked Matchmaking",
-    date: "Nov 01, 14:20 EST",
-    opponent: "Grizzly_99",
-    result: "WIN (2-2)",
-    change: "+9",
-    isWin: true,
-  },
-];
+import { useCurrentUser } from "@/hooks/queries/useAuthQueries";
+import { useEloHistoriesByUser, useEloLeaderboard } from "@/hooks/queries/useEloQueries";
+import { format } from "date-fns";
 
 export default function EloLeaderboard() {
   const { t } = useTranslation();
+  const { data: userResp } = useCurrentUser();
+  const user = userResp;
+  const userId = user?.id || 0;
+
+  const { data: historyResp } = useEloHistoriesByUser(userId, 1, 50);
+  const histories = historyResp?.data?.items || [];
+  
+  const { data: leaderboardResp } = useEloLeaderboard(1, 100);
+  const leaderboardItems = leaderboardResp?.data?.items || [];
+  
+  // Calculate Global Rank
+  const rankIndex = leaderboardItems.findIndex((item: any) => item.userId === userId);
+  const globalRank = rankIndex !== -1 ? `#${rankIndex + 1}` : "N/A";
+
+  // Calculate Win Rate
+  const totalMatches = histories.length;
+  const wins = histories.filter((h: any) => (h.delta || 0) > 0).length;
+  const losses = totalMatches - wins;
+  const winRate = totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0;
+
+  // Prepare Chart Data
+  const performanceData = [...histories].reverse().map((h: any) => ({
+    date: h.createdAt ? format(new Date(h.createdAt), "MMM dd") : "",
+    elo: h.scoreAfter,
+  }));
+  
+  // Elo Change Log (Limit to 5)
+  const eloLog = histories.slice(0, 5).map((h: any, idx) => ({
+    id: h.id || idx,
+    match: `Match #${h.matchId || "?"}`,
+    date: h.createdAt ? format(new Date(h.createdAt), "MMM dd, HH:mm") : "",
+    opponent: `Opponent`, // Placeholder since we don't have opponent name in EloHistory easily without fetching match
+    result: (h.delta || 0) > 0 ? "WIN" : "LOSS",
+    change: (h.delta || 0) > 0 ? `+${h.delta}` : `${h.delta}`,
+    isWin: (h.delta || 0) > 0,
+  }));
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="flex items-center justify-between">
@@ -90,9 +82,10 @@ export default function EloLeaderboard() {
             <TrendingUp className="h-4 w-4 text-cyan-400" />
           </div>
           <div className="flex flex-col">
-            <span className="text-5xl font-bold text-foreground">2,450</span>
+            <span className="text-5xl font-bold text-foreground">{user?.eloScore || 0}</span>
             <span className="text-sm font-medium text-cyan-400 mt-2">
-              {t("publicPlayer.elo.leaderboard.plusThisWeek", "+14 this week").replace("14", "14")}
+              {/* Fallback to simple text, assuming real delta from this week is needed later */}
+              +0 this week
             </span>
           </div>
         </div>
@@ -105,12 +98,12 @@ export default function EloLeaderboard() {
             <Globe className="h-4 w-4 text-muted-foreground" />
           </div>
           <div className="flex flex-col">
-            <span className="text-5xl font-bold text-foreground">#42</span>
+            <span className="text-5xl font-bold text-foreground">{globalRank}</span>
             <div className="w-full bg-secondary h-1.5 rounded-full mt-4 overflow-hidden">
               <div className="bg-cyan-400 h-full w-[99.5%]"></div>
             </div>
             <span className="text-xs text-muted-foreground mt-2">
-              {t("publicPlayer.elo.leaderboard.topPercentage", "Top 0.5% of all active players").replace("0.5", "0.5")}
+              {globalRank !== "N/A" ? t("publicPlayer.elo.leaderboard.topPercentage", "Top player segment") : ""}
             </span>
           </div>
         </div>
@@ -123,13 +116,13 @@ export default function EloLeaderboard() {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </div>
           <div className="flex flex-col">
-            <span className="text-5xl font-bold text-foreground">68%</span>
+            <span className="text-5xl font-bold text-foreground">{winRate}%</span>
             <div className="flex items-center gap-4 mt-2">
               <span className="text-sm font-medium text-emerald-400">
-                • 142 W
+                • {wins} W
               </span>
               <span className="text-sm font-medium text-destructive">
-                • 67 L
+                • {losses} L
               </span>
             </div>
           </div>
@@ -173,7 +166,7 @@ export default function EloLeaderboard() {
                 dy={10}
               />
               <YAxis
-                domain={[2000, 2600]}
+                domain={["auto", "auto"]}
                 axisLine={false}
                 tickLine={false}
                 tick={{ fill: "#a1a1aa", fontSize: 12 }}

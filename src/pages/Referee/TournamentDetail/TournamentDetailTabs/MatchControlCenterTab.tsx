@@ -66,12 +66,26 @@ export default function MatchControlCenterTab() {
 
   const groupedMatches = matches.reduce((acc: any, match: any) => {
     const round = match.schedule?.stage === 'group' 
-      ? (match.schedule?.groupName ? `Group ${match.schedule.groupName}` : 'Group Stage')
-      : (match.schedule?.knockoutRound || 'Knockout Stage');
+      ? (match.schedule?.groupName ? `${t("constants.matchStage.group", "Group")} ${match.schedule.groupName.replace(/group/i, "").trim()}` : t("constants.matchStage.groupStage", "Group Stage"))
+      : (match.schedule?.knockoutRound || t("constants.matchStage.knockoutStage", "Knockout Stage"));
     if (!acc[round]) acc[round] = [];
     acc[round].push(match);
     return acc;
   }, {});
+
+  // Sort matches by scheduledAt for non-group and non-knockout if any.
+  // Actually, for all groups in groupedMatches, we can sort by scheduledAt unless it's group/knockout.
+  // But wait, the requirement says "cập nhật để xếp trận theo giờ, còn riêng group và knockout thì khỏi."
+  Object.keys(groupedMatches).forEach(round => {
+    const isGroupOrKnockout = round.toLowerCase().includes('group') || round.toLowerCase().includes('knockout');
+    if (!isGroupOrKnockout) {
+      groupedMatches[round].sort((a: any, b: any) => {
+        if (!a.schedule?.scheduledAt) return 1;
+        if (!b.schedule?.scheduledAt) return -1;
+        return new Date(a.schedule.scheduledAt).getTime() - new Date(b.schedule.scheduledAt).getTime();
+      });
+    }
+  });
 
   const handleStartMatch = (id: number) => {
     startMatchMutation.mutate(id, {

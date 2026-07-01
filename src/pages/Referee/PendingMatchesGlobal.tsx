@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import MatchResultsReviewTab from "./TournamentDetail/TournamentDetailTabs/MatchResultsReviewTab";
+import ResultsSubmissionTab from "./TournamentDetail/TournamentDetailTabs/ResultsSubmissionTab";
 
 export default function PendingMatchesGlobal() {
   const { t } = useTranslation();
@@ -15,7 +15,7 @@ export default function PendingMatchesGlobal() {
           </h1>
         </div>
       </div>
-      <MatchResultsReviewTab />
+      <ResultsSubmissionTab />
     </div>
   );
 }
