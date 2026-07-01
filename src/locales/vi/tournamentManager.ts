@@ -315,6 +315,38 @@ export default {
       "success": "Đã hủy giải đấu thành công",
       "error": "Không thể hủy giải đấu"
     },
+    "completeTournament": {
+      "button": "Hoàn tất Giải đấu",
+      "title": "Hoàn tất Giải đấu?",
+      "description": "Bạn có chắc chắn muốn hoàn tất giải đấu <strong>{{name}}</strong> không? Hệ thống sẽ phát thưởng và tính toán điểm Elo. Hành động này không thể hoàn tác.",
+      "close": "Đóng",
+      "confirm": "Có, Hoàn tất",
+      "completing": "Đang hoàn tất...",
+      "success": "Hoàn tất giải đấu thành công.",
+      "error": "Không thể hoàn tất giải đấu."
+    },
+    "completeTournamentResult": {
+      "title": "Giải đấu Đã Hoàn Tất",
+      "description": "Giải đấu đã được đánh dấu hoàn tất. Hệ thống đã trao giải và cập nhật điểm Elo.",
+      "awards": "Giải thưởng",
+      "eloChanges": "Thay đổi Elo",
+      "category": "Hạng mục",
+      "placement": "Xếp hạng",
+      "source": "Nguồn",
+      "entry": "Đội/Người chơi",
+      "title_label": "Danh hiệu",
+      "player": "Vận động viên",
+      "currentElo": "Elo Hiện tại",
+      "finalElo": "Elo Mới",
+      "delta": "Thay đổi",
+      "champion": "Vô địch",
+      "runner_up": "Á quân",
+      "third_place": "Hạng ba",
+      "group_winner": "Nhất bảng",
+      "knockout": "Loại trực tiếp",
+      "group": "Vòng bảng",
+      "close": "Đóng"
+    },
     "loading": "Đang tải thông tin giải đấu...",
     "loadError": "Không thể tải thông tin giải đấu"
   },

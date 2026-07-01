@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { useTournament, useCancelTournament } from "@/hooks/queries"; // Đảm bảo đường dẫn này đúng với project của bạn
+import { useTournament, useCancelTournament, useCompleteTournament } from "@/hooks/queries"; // Đảm bảo đường dẫn này đúng với project của bạn
 import scheduleConfigService from "@/services/scheduleConfig.service";
 import { showToast, showApiError } from "@/utils/toast.utils";
 import { useTranslation } from "react-i18next";
 import { useDateFormat } from "@/hooks/useDateFormat";
 
-import { Calendar, MapPin, Ban } from "lucide-react";
+import { Calendar, MapPin, Ban, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -27,6 +27,7 @@ import {
   ScheduleTab,
   PaymentManagement,
 } from "@/pages/Organizer/Tournaments/TournamentDetailTabs";
+import { CompleteTournamentResultModal } from "./components/CompleteTournamentResultModal";
 
 
 
@@ -56,8 +57,12 @@ export default function TournamentDetail() {
   // State cho Tabs
   const [activeTab, setActiveTab] = useState("Overview");
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
+  const [completeResultModalOpen, setCompleteResultModalOpen] = useState(false);
+  const [completeResult, setCompleteResult] = useState<any>(null);
 
   const cancelMutation = useCancelTournament();
+  const completeMutation = useCompleteTournament();
   const tabsMap = [
     { id: "Overview", label: t("tournamentManager.detail.tabs.overview", "Overview") },
     { id: "Referees", label: t("tournamentManager.detail.tabs.referees", "Referees") },
@@ -130,18 +135,31 @@ export default function TournamentDetail() {
             ID: TRN-{new Date(tournament.createdAt).getFullYear()}-
             {tournament.id.toString().padStart(3, "0")}
           </span>
-          {tournament.status !== "cancelled" && tournament.status !== "completed" && (
-            <Button
-              variant="destructive"
-              size="sm"
-              className="ml-auto"
-              onClick={() => setIsCancelDialogOpen(true)}
-              disabled={cancelMutation.isPending}
-            >
-              <Ban className="h-4 w-4 mr-2" />
-              {t("tournamentManager.detail.cancelTournament.button", "Cancel Tournament")}
-            </Button>
-          )}
+          <div className="ml-auto flex items-center gap-2">
+            {(tournament.status === "ongoing" || tournament.status === "brackets_generated") && (
+              <Button
+                variant="default"
+                size="sm"
+                className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                onClick={() => setIsCompleteDialogOpen(true)}
+                disabled={completeMutation.isPending}
+              >
+                <Trophy className="h-4 w-4 mr-2" />
+                {t("tournamentManager.detail.completeTournament.button", "Complete Tournament")}
+              </Button>
+            )}
+            {tournament.status !== "cancelled" && tournament.status !== "completed" && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setIsCancelDialogOpen(true)}
+                disabled={cancelMutation.isPending}
+              >
+                <Ban className="h-4 w-4 mr-2" />
+                {t("tournamentManager.detail.cancelTournament.button", "Cancel Tournament")}
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Title */}
@@ -213,6 +231,43 @@ export default function TournamentDetail() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Complete Confirmation Dialog */}
+      <AlertDialog open={isCompleteDialogOpen} onOpenChange={setIsCompleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("tournamentManager.detail.completeTournament.title", "Complete Tournament?")}</AlertDialogTitle>
+            <AlertDialogDescription dangerouslySetInnerHTML={{ __html: t("tournamentManager.detail.completeTournament.description", "Are you sure you want to complete the tournament <strong>{{name}}</strong>? This will distribute awards and calculate final Elo changes. This action cannot be undone.", { name: tournament.name }) }} />
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={completeMutation.isPending}>{t("tournamentManager.detail.completeTournament.close", "Close")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                completeMutation.mutate(id, {
+                  onSuccess: (data: any) => {
+                    setIsCompleteDialogOpen(false);
+                    setCompleteResult(data.data);
+                    setCompleteResultModalOpen(true);
+                    showToast.success(t("tournamentManager.detail.completeTournament.success", "Tournament completed successfully."));
+                  },
+                  onError: (err: any) => showApiError(err, t("tournamentManager.detail.completeTournament.error", "Failed to complete tournament.")),
+                });
+              }}
+              className="bg-yellow-600 text-white hover:bg-yellow-700"
+              disabled={completeMutation.isPending}
+            >
+              {completeMutation.isPending ? t("tournamentManager.detail.completeTournament.completing", "Completing...") : t("tournamentManager.detail.completeTournament.confirm", "Yes, Complete It")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <CompleteTournamentResultModal
+        open={completeResultModalOpen}
+        onOpenChange={setCompleteResultModalOpen}
+        result={completeResult}
+      />
     </div>
   );
 }

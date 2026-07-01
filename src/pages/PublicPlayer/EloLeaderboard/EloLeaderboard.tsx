@@ -286,7 +286,7 @@ export default function EloLeaderboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {leaderboardItems.map((item: any, idx: number) => (
+              {leaderboardItems.map((item: any) => (
                 <tr
                   key={item.id}
                   id={item.userId === userId ? "user-leaderboard-row" : undefined}
