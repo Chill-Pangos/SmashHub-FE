@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
 import { ChevronRight } from "lucide-react";
 import {
   useAthleteMatchHistory,
@@ -11,9 +10,11 @@ import { useRejectedLineups } from "@/hooks/queries/useSubMatchPlayerQueries";
 import MatchCenterLineupModal from "./MatchCenterLineupModal";
 import { MatchCard } from "./MatchCard";
 import { useTranslation } from "react-i18next";
+import { useDateFormat } from "@/hooks/useDateFormat";
 
 export default function MatchCenter() {
   const { t } = useTranslation();
+  const { formatDate } = useDateFormat();
   const navigate = useNavigate();
   const { data: userResp } = useCurrentUser();
   const userId = userResp?.id || 0;
@@ -96,7 +97,9 @@ export default function MatchCenter() {
                   <div className="flex flex-col w-48 shrink-0">
                     <span className="text-sm font-medium text-muted-foreground">
                       {match.actualStartTime
-                        ? format(new Date(match.actualStartTime), "MMM d, yyyy")
+                        ? formatDate(match.actualStartTime)
+                        : match.schedule?.scheduledAt
+                        ? formatDate(match.schedule.scheduledAt)
                         : t("publicPlayer.matchCenter.unknownDate", "Unknown Date")}
                     </span>
                     <span className="font-semibold text-foreground">

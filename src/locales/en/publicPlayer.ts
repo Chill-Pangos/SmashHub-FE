@@ -179,10 +179,12 @@ export default {
     "overview": "Overview",
     "overviewDefaultIntro": "Welcome to the <span>{{name}}</span> tournament! This event will take place at <span>{{location}}</span>. We are excited to host this competition and look forward to seeing great matches.",
     "participantsTab": {
+      "title": "Participants",
       "category": "Category",
       "selectCategory": "Select Category",
       "noCategories": "No categories",
       "totalParticipants": "Total Participants",
+      "limit": "Items per page",
       "loading": "Loading participants...",
       "noParticipants": "No participants found in this category.",
       "captain": "Captain"

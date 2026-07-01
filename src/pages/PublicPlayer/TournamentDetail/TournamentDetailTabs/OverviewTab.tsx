@@ -42,7 +42,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
             </span>
           </div>
           <div className="mt-2 text-xs font-medium text-chart-3">
-            ~ {t("publicPlayer.tournamentDetail.basedOn", "Based on")} {tournament.categories?.length || 0} {t("publicPlayer.tournamentDetail.categoriesCount", "categories")}
+            ~ {t("publicPlayer.tournamentDetail.basedOn", "Based on")} {t("publicPlayer.tournamentDetail.categoriesCount", { count: tournament.categories?.length || 0 })}
           </div>
         </div>
 

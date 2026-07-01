@@ -176,13 +176,15 @@ export default {
       "additionalNotes": "Ghi chú thêm",
       "bracketGeneration": "Tạo sơ đồ"
     },
-    "overview": "Overview",
+    "overview": "Tổng quan",
     "overviewDefaultIntro": "Chào mừng bạn đến với giải đấu <span>{{name}}</span>! Giải đấu này sẽ diễn ra tại <span>{{location}}</span>. Chúng tôi rất hào hứng được tổ chức cuộc thi này và mong chờ những trận đấu tuyệt vời.",
     "participantsTab": {
+      "title": "Người tham gia",
       "category": "Hạng mục",
       "selectCategory": "Chọn Hạng mục",
       "noCategories": "Không có hạng mục",
       "totalParticipants": "Tổng số người tham gia",
+      "limit": "Số lượng / trang",
       "loading": "Đang tải danh sách người tham gia...",
       "noParticipants": "Không có người tham gia nào trong hạng mục này.",
       "captain": "Đội trưởng"
