@@ -36,17 +36,7 @@ export interface ChatbotFilesResponse {
   files: ChatbotFileItem[];
 }
 
-export interface ChatbotChatScope {
-  tournament_id: number | null;
-  category_id: number | null;
-  entry_id: number | null;
-  user_id: number | null;
-  schedule_id: number | null;
-  match_id: number | null;
-}
-
 export interface ChatbotChatRequest {
   question: string;
   chat_history: { role: string; content: string }[];
-  scope: ChatbotChatScope;
 }
