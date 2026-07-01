@@ -45,15 +45,15 @@ export default function EloHistoryPage() {
   const userId = userResp?.id || 0;
 
   const { data: historyResp, isLoading } = useEloHistoriesByUser(userId, 1, 50);
-  const histories = historyResp?.data?.items || [];
+  const histories = historyResp?.rows || [];
 
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
 
   // Prepare data for chart (reverse to show chronological order left to right)
   const chartData = [...histories].reverse().map((h) => ({
     date: format(new Date(h.createdAt as string), "dd/MM"),
-    score: h.scoreAfter,
-    delta: h.delta,
+    score: h.newElo,
+    delta: h.eloDelta,
   }));
 
   return (
@@ -116,16 +116,16 @@ export default function EloHistoryPage() {
                     {format(new Date(h.createdAt as string), "dd/MM/yyyy HH:mm")}
                   </TableCell>
                   <TableCell>{h.matchId}</TableCell>
-                  <TableCell>{h.scoreBefore}</TableCell>
+                  <TableCell>{h.previousElo}</TableCell>
                   <TableCell
                     className={
-                      (h.delta ?? 0) > 0 ? "text-green-600" : "text-red-600"
+                      (h.eloDelta ?? 0) > 0 ? "text-green-600" : "text-red-600"
                     }
                   >
-                    {(h.delta ?? 0) > 0 ? "+" : ""}
-                    {h.delta}
+                    {(h.eloDelta ?? 0) > 0 ? "+" : ""}
+                    {h.eloDelta}
                   </TableCell>
-                  <TableCell className="font-semibold">{h.scoreAfter}</TableCell>
+                  <TableCell className="font-semibold">{h.newElo}</TableCell>
                   <TableCell>
                     {h.matchId && (
                       <Button
@@ -172,7 +172,7 @@ function MatchEloDetailsDialog({
     enabled: !!matchId,
   });
 
-  const histories = data?.data?.items || [];
+  const histories = data?.rows || [];
 
   return (
     <Dialog open={!!matchId} onOpenChange={(open) => !open && onClose()}>
@@ -197,17 +197,17 @@ function MatchEloDetailsDialog({
                 {histories.map((h: EloHistory) => (
                   <TableRow key={h.id}>
                     <TableCell>{h.userId}</TableCell>
-                    <TableCell>{h.scoreBefore}</TableCell>
+                    <TableCell>{h.previousElo}</TableCell>
                     <TableCell
                       className={
-                        (h.delta ?? 0) > 0 ? "text-green-600" : "text-red-600"
+                        (h.eloDelta ?? 0) > 0 ? "text-green-600" : "text-red-600"
                       }
                     >
-                      {(h.delta ?? 0) > 0 ? "+" : ""}
-                      {h.delta}
+                      {(h.eloDelta ?? 0) > 0 ? "+" : ""}
+                      {h.eloDelta}
                     </TableCell>
                     <TableCell className="font-semibold">
-                      {h.scoreAfter}
+                      {h.newElo}
                     </TableCell>
                   </TableRow>
                 ))}

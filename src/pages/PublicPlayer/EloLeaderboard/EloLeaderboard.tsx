@@ -25,10 +25,10 @@ export default function EloLeaderboard() {
   const userId = user?.id || 0;
 
   const { data: historyResp } = useEloHistoriesByUser(userId, 1, 50);
-  const histories = historyResp?.data?.items || [];
+  const histories = historyResp?.rows || [];
   
   const { data: leaderboardResp } = useEloLeaderboard(1, 100);
-  const leaderboardItems = leaderboardResp?.data?.items || [];
+  const leaderboardItems = leaderboardResp?.rows || [];
   
   // Calculate Global Rank
   const rankIndex = leaderboardItems.findIndex((item: any) => item.userId === userId);
@@ -36,14 +36,14 @@ export default function EloLeaderboard() {
 
   // Calculate Win Rate
   const totalMatches = histories.length;
-  const wins = histories.filter((h: any) => (h.delta || 0) > 0).length;
+  const wins = histories.filter((h: any) => (h.eloDelta || 0) > 0).length;
   const losses = totalMatches - wins;
   const winRate = totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0;
 
   // Prepare Chart Data
   const performanceData = [...histories].reverse().map((h: any) => ({
     date: h.createdAt ? format(new Date(h.createdAt), "MMM dd") : "",
-    elo: h.scoreAfter,
+    elo: h.newElo,
   }));
   
   // Elo Change Log (Limit to 5)
@@ -52,9 +52,9 @@ export default function EloLeaderboard() {
     match: `Match #${h.matchId || "?"}`,
     date: h.createdAt ? format(new Date(h.createdAt), "MMM dd, HH:mm") : "",
     opponent: `Opponent`, // Placeholder since we don't have opponent name in EloHistory easily without fetching match
-    result: (h.delta || 0) > 0 ? "WIN" : "LOSS",
-    change: (h.delta || 0) > 0 ? `+${h.delta}` : `${h.delta}`,
-    isWin: (h.delta || 0) > 0,
+    result: (h.eloDelta || 0) > 0 ? "WIN" : "LOSS",
+    change: (h.eloDelta || 0) > 0 ? `+${h.eloDelta}` : `${h.eloDelta}`,
+    isWin: (h.eloDelta || 0) > 0,
   }));
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -236,7 +236,7 @@ export default function EloLeaderboard() {
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center overflow-hidden">
                         <img
-                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${log.opponent}`}
+                          src={`https://api.dicebear.com/7.x/initials/svg?seed=${log.opponent}`}
                           alt={log.opponent}
                           className="w-full h-full"
                         />
@@ -268,6 +268,74 @@ export default function EloLeaderboard() {
                   </td>
                 </tr>
               ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden mt-6">
+        <div className="flex items-center justify-between p-6 border-b border-border">
+          <h3 className="text-lg font-semibold text-foreground">
+            {t("publicPlayer.elo.leaderboard.topPlayers", "Global Leaderboard")}
+          </h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-secondary/50 text-xs uppercase tracking-wider text-muted-foreground border-b border-border">
+              <tr>
+                <th className="px-6 py-4 font-semibold w-24">Rank</th>
+                <th className="px-6 py-4 font-semibold">Player</th>
+                <th className="px-6 py-4 font-semibold text-right">Score</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {leaderboardItems.map((item: any, idx: number) => (
+                <tr
+                  key={item.id}
+                  className={`transition-colors ${
+                    item.userId === userId 
+                      ? "bg-cyan-500/10 hover:bg-cyan-500/20" 
+                      : "hover:bg-secondary/20"
+                  }`}
+                >
+                  <td className="px-6 py-4">
+                    <span className={`font-bold text-lg ${idx < 3 ? 'text-amber-400' : 'text-muted-foreground'}`}>
+                      #{idx + 1}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center overflow-hidden border border-border">
+                        <img
+                          src={item.user?.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${item.user?.firstName || 'User'}`}
+                          alt={item.user?.firstName || "User"}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-foreground">
+                          {item.user?.firstName} {item.user?.lastName}
+                        </span>
+                        {item.userId === userId && (
+                          <span className="text-[10px] uppercase font-bold text-cyan-400">You</span>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <span className="font-bold text-lg text-foreground">
+                      {item.score}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {leaderboardItems.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="px-6 py-8 text-center text-muted-foreground">
+                    No leaderboard data available
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

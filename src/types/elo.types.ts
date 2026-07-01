@@ -7,11 +7,15 @@
 export interface EloScore {
   id: number;
   userId?: number;
-  matchId?: number | null;
   score?: number;
-  delta?: number | null;
   createdAt?: string | Date;
   updatedAt?: string | Date;
+  user?: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    avatarUrl: string;
+  };
   [key: string]: unknown;
 }
 
@@ -19,9 +23,15 @@ export interface EloHistory {
   id: number;
   userId?: number;
   matchId?: number | null;
-  scoreBefore?: number | null;
-  scoreAfter?: number | null;
-  delta?: number | null;
+  previousElo?: number | null;
+  newElo?: number | null;
+  eloDelta?: number | null;
+  changeReason?: string | null;
+  tournamentId?: number | null;
+  match?: {
+    id: number;
+    status: string;
+  };
   createdAt?: string | Date;
   updatedAt?: string | Date;
   [key: string]: unknown;
@@ -41,31 +51,11 @@ export interface EloListParams {
 }
 
 export interface GetEloHistoriesResponse {
-  success: boolean;
-  data: {
-    items: EloHistory[];
-    pagination: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-      hasNextPage: boolean;
-      hasPrevPage: boolean;
-    };
-  };
+  rows: EloHistory[];
+  count: number;
 }
 
 export interface GetEloLeaderboardResponse {
-  success: boolean;
-  data: {
-    items: EloScore[];
-    pagination: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-      hasNextPage: boolean;
-      hasPrevPage: boolean;
-    };
-  };
+  rows: EloScore[];
+  count: number;
 }
