@@ -42,7 +42,7 @@ export default {
     "liveData": "LIVE DATA",
     "performanceTracker": "Performance Tracker",
     "viewFullHistory": "View Full History",
-    "globalRank": "GLOBAL RANK",
+    "globalRank": "ELO RANK",
     "currentRating": "CURRENT RATING",
     "seasonWinRate": "SEASON WIN RATE",
     "topPercentile": "Top active players",
@@ -64,13 +64,20 @@ export default {
     "noHistory": "No history available.",
     "loadingChart": "Loading chart...",
     "eloChange": "Elo Change",
+    "you": "You",
+    "topPlayers": "Elo Leaderboard",
+    "leaderboardTable": {
+      "rank": "Rank",
+      "player": "Player",
+      "score": "Score"
+    },
     "leaderboard": {
       "title": "Performance Tracker",
       "subtitle": "Live Elo rating and historical match analytics.",
       "liveData": "LIVE DATA",
       "currentRating": "CURRENT RATING",
       "plusThisWeek": "+14 this week",
-      "globalRank": "GLOBAL RANK",
+      "globalRank": "ELO RANK",
       "topPercentage": "Top 0.5% of all active players",
       "seasonWinRate": "SEASON WIN RATE",
       "performanceCurve": "Performance Curve",
@@ -306,14 +313,15 @@ export default {
       "liveData": "LIVE DATA",
       "performanceTracker": "Performance Tracker",
       "viewFullHistory": "View Full History",
-      "globalRank": "GLOBAL RANK",
+      "globalRank": "ELO RANK",
       "currentRating": "CURRENT RATING",
       "seasonWinRate": "SEASON WIN RATE",
-      "topPercentile": "Top active players",
+      "topPercentile": "Top percentiles",
       "performanceCurve": "Performance Curve",
       "matchHistory": "Match History",
       "eloChangeLog": "Elo Change Log",
       "liveEloRatingDesc": "Live Elo rating and historical match analytics.",
+      "topPlayers": "Elo Leaderboard",
       "ratingProgression": "Rating Progression",
       "matchId": "Match ID",
       "date": "Date",
@@ -327,7 +335,13 @@ export default {
       "noRecords": "No records found",
       "noHistory": "No history available.",
       "loadingChart": "Loading chart...",
-      "eloChange": "Elo Change"
+      "eloChange": "Elo Change",
+      "you": "You",
+      "leaderboardTable": {
+        "rank": "Rank",
+        "player": "Player",
+        "score": "Score"
+      }
     },
     "tournaments": {
       "title": "Tournaments",
