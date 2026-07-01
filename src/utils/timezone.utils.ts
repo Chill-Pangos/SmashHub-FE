@@ -64,3 +64,16 @@ export const extractScheduleTimezone = (localHour: number, localMinute: number):
     minute: targetD.getUTCMinutes()
   };
 };
+
+/**
+ * Combines a UTC date string with specific UTC hours and minutes.
+ * Useful when the date portion and time portion are stored separately (like startDate and dailyStartHour).
+ */
+export const getCombinedDateTimeStr = (dateString?: string, hourUtc?: number | null, minuteUtc?: number | null): string | undefined => {
+  if (!dateString) return undefined;
+  const d = new Date(dateString);
+  if (hourUtc != null && minuteUtc != null) {
+    d.setUTCHours(hourUtc, minuteUtc, 0, 0);
+  }
+  return d.toISOString();
+};

@@ -377,13 +377,9 @@ export const proPlayerSidebarConfig: SidebarConfig = {
           label: t("nav.elo") || "Elo",
           to: "/elo",
           icon: TrendingUp,
+          end: true,
         },
-        {
-          key: "analytics",
-          label: t("nav.analytics") || "Analytics",
-          to: "/analytics",
-          icon: BarChart3,
-        },
+
         {
           key: "team",
           label: t("nav.team") || "Team",

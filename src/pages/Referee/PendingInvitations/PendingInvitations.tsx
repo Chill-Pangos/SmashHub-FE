@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useDateFormat } from "@/hooks/useDateFormat";
+import { getCombinedDateTimeStr } from "@/utils/timezone.utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -114,7 +115,7 @@ export default function PendingInvitations() {
                       {inv.tournament.scheduleConfig.startDate && (
                         <div className="flex justify-between items-start text-muted-foreground gap-2">
                           <span className="shrink-0">{t("pendingInvitations.eventDate", "Event:")}</span>
-                          <span className="font-medium text-foreground text-right">{formatDateTime(inv.tournament.scheduleConfig.startDate)}</span>
+                          <span className="font-medium text-foreground text-right">{formatDateTime(getCombinedDateTimeStr(inv.tournament.scheduleConfig.startDate, inv.tournament.scheduleConfig.dailyStartHour, inv.tournament.scheduleConfig.dailyStartMinute) || inv.tournament.scheduleConfig.startDate)}</span>
                         </div>
                       )}
                       {inv.tournament.scheduleConfig.registrationStartDate && (

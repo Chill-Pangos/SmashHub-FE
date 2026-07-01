@@ -43,5 +43,6 @@ export default {
   "any": "Any",
   "max": "Max",
   "free": "Free",
-  "tbd": "TBD"
+  "tbd": "TBD",
+  "you": "You"
 };

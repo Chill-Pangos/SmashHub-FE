@@ -1,6 +1,7 @@
 import { Calendar, Clock, Coffee, PlayCircle } from "lucide-react";
 import { Calendar as CalendarUI } from "@/components/ui/calendar";
 import { useDateFormat } from "@/hooks/useDateFormat";
+import { applyScheduleTimezone } from "@/utils/timezone.utils";
 import type { ScheduleConfigResponse } from "@/types/scheduleConfig.types";
 import { useTranslation } from "react-i18next";
 
@@ -11,16 +12,28 @@ interface PublicScheduleViewProps {
 export default function PublicScheduleView({ config }: PublicScheduleViewProps) {
   const { t } = useTranslation();
   const { formatDateTime } = useDateFormat();
-  const formatTime = (hour: number | null | undefined, minute: number | null | undefined) => {
-    if (hour == null || minute == null) return "N/A";
-    const h = hour.toString().padStart(2, "0");
-    const m = minute.toString().padStart(2, "0");
+  
+  const formatTime = (hourUtc: number | null | undefined, minuteUtc: number | null | undefined) => {
+    if (hourUtc == null || minuteUtc == null) return "N/A";
+    const local = applyScheduleTimezone(hourUtc, minuteUtc, config.timeZone || "UTC");
+    const h = local.hour.toString().padStart(2, "0");
+    const m = local.minute.toString().padStart(2, "0");
     return `${h}:${m}`;
   };
 
-  const formatCustomDate = (dateString?: string) => {
+  const getCombinedDateTimeStr = (dateString?: string, hourUtc?: number | null, minuteUtc?: number | null) => {
+    if (!dateString) return undefined;
+    const d = new Date(dateString);
+    if (hourUtc != null && minuteUtc != null) {
+      d.setUTCHours(hourUtc, minuteUtc, 0, 0);
+    }
+    return d.toISOString();
+  };
+
+  const formatCustomDate = (dateString?: string, hourUtc?: number | null, minuteUtc?: number | null) => {
     if (!dateString) return "N/A";
-    return formatDateTime(dateString);
+    const combinedStr = getCombinedDateTimeStr(dateString, hourUtc, minuteUtc);
+    return formatDateTime(combinedStr);
   };
 
   const registrationStart = config?.registrationStartDate ? new Date(config.registrationStartDate) : undefined;
@@ -62,11 +75,11 @@ export default function PublicScheduleView({ config }: PublicScheduleViewProps) 
             <div className="space-y-4">
               <div className="flex justify-between items-center py-2 border-b border-border/50">
                 <span className="text-sm text-muted-foreground">{t("publicPlayer.tournamentDetail.scheduleTab.startDate", "Start Date")}</span>
-                <span className="font-semibold">{formatCustomDate(config.startDate)}</span>
+                <span className="font-semibold">{formatCustomDate(config.startDate, config.dailyStartHour, config.dailyStartMinute)}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-border/50">
                 <span className="text-sm text-muted-foreground">{t("publicPlayer.tournamentDetail.scheduleTab.endDate", "End Date")}</span>
-                <span className="font-semibold">{formatCustomDate(config.endDate)}</span>
+                <span className="font-semibold">{formatCustomDate(config.endDate, config.dailyEndHour, config.dailyEndMinute)}</span>
               </div>
             </div>
           </div>

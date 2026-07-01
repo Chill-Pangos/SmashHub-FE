@@ -9,6 +9,7 @@ import {
 import { Calendar as CalendarUI } from "@/components/ui/calendar";
 import type { Tournament } from "@/types/tournament.types";
 import type { ScheduleConfigData } from "./ScheduleConfig/ScheduleConfig";
+import { getCombinedDateTimeStr } from "@/utils/timezone.utils";
 import { useTranslation } from "react-i18next";
 import { useDateFormat } from "@/hooks/useDateFormat";
 
@@ -172,10 +173,10 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm font-medium">
-                  {t('tournamentManager.overviewTab.start', 'Start')}: {formatDateTime(scheduleConfig?.startDate)}
+                  {t('tournamentManager.overviewTab.start', 'Start')}: {formatDateTime(getCombinedDateTimeStr(scheduleConfig?.startDate, scheduleConfig?.dailyStartHour, scheduleConfig?.dailyStartMinute) || scheduleConfig?.startDate)}
                 </span>
                 <span className="text-sm font-medium">
-                  {t('tournamentManager.overviewTab.end', 'End')}: {formatDateTime(scheduleConfig?.endDate)}
+                  {t('tournamentManager.overviewTab.end', 'End')}: {formatDateTime(getCombinedDateTimeStr(scheduleConfig?.endDate, scheduleConfig?.dailyEndHour, scheduleConfig?.dailyEndMinute) || scheduleConfig?.endDate)}
                 </span>
               </div>
             </div>

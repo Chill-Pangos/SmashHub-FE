@@ -43,5 +43,6 @@ export default {
   "any": "Bất kỳ",
   "max": "Tối đa",
   "free": "Miễn phí",
-  "tbd": "Chưa xác định"
+  "tbd": "Chưa xác định",
+  "you": "Bạn"
 };

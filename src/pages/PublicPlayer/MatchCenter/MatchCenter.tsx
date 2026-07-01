@@ -9,8 +9,7 @@ import {
 import { useCurrentUser } from "@/hooks/queries/useAuthQueries";
 import { useRejectedLineups } from "@/hooks/queries/useSubMatchPlayerQueries";
 import MatchCenterLineupModal from "./MatchCenterLineupModal";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { MatchCard } from "./MatchCard";
 import { useTranslation } from "react-i18next";
 
 export default function MatchCenter() {
@@ -68,35 +67,12 @@ export default function MatchCenter() {
                 );
 
                 return (
-                  <div
+                  <MatchCard
                     key={match.id}
-                    className="flex flex-col md:flex-row items-center justify-between gap-6 p-5 rounded-xl border border-border bg-card shadow-sm"
-                  >
-                    <div>
-                      <span className="font-semibold">{t("publicPlayer.matchCenter.matchId", "Match #{{id}}").replace("{{id}}", match.id)}</span>
-                      <div className="text-sm text-muted-foreground">
-                        {match.scheduledStartTime
-                          ? format(new Date(match.scheduledStartTime), "PPp")
-                          : t("publicPlayer.matchCenter.tbd", "TBD")}
-                      </div>
-                    </div>
-                    <div>
-                      <Badge>{t(`constants.status.match.${match.status}`, match.status) as string}</Badge>
-                      {isRejected && (
-                        <Badge variant="destructive" className="ml-2">
-                          {t("publicPlayer.matchCenter.lineupRejected", "Lineup Rejected")}
-                        </Badge>
-                      )}
-                    </div>
-                    <div>
-                      <Button
-                        variant="outline"
-                        onClick={() => setSelectedMatchId(match.id)}
-                      >
-                        {isRejected ? t("publicPlayer.matchCenter.resubmitLineup", "Resubmit Lineup") : t("publicPlayer.matchCenter.submitLineup", "Submit Lineup")}
-                      </Button>
-                    </div>
-                  </div>
+                    match={match}
+                    isRejected={isRejected}
+                    onSelect={() => setSelectedMatchId(match.id)}
+                  />
                 );
               })
             ) : (

@@ -5,6 +5,7 @@ import {
   useUpcomingTournamentStatusChanges,
   useScheduleConfigsByTournaments,
 } from "@/hooks/queries";
+import { getCombinedDateTimeStr } from "@/utils/timezone.utils";
 import ServerPagination from "@/components/custom/ServerPagination";
 import { useTranslation } from "react-i18next";
 import { useDateFormat } from "@/hooks/useDateFormat";
@@ -38,8 +39,8 @@ export default function OrganizerTournaments() {
     const configs = JSON.parse(scheduleConfigsDep);
     let items = apiTournaments.map((t, index) => ({
       ...t,
-      startDate: configs[index]?.startDate || t.startDate,
-      endDate: configs[index]?.endDate || t.endDate,
+      startDate: getCombinedDateTimeStr(configs[index]?.startDate || t.startDate, configs[index]?.dailyStartHour, configs[index]?.dailyStartMinute) || t.startDate,
+      endDate: getCombinedDateTimeStr(configs[index]?.endDate || t.endDate, configs[index]?.dailyEndHour, configs[index]?.dailyEndMinute) || t.endDate,
     }));
 
     if (query) {

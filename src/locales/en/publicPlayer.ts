@@ -176,7 +176,17 @@ export default {
       "additionalNotes": "Additional Notes",
       "bracketGeneration": "Bracket Generation"
     },
-    "overview": "Overview"
+    "overview": "Overview",
+    "overviewDefaultIntro": "Welcome to the <span>{{name}}</span> tournament! This event will take place at <span>{{location}}</span>. We are excited to host this competition and look forward to seeing great matches.",
+    "participantsTab": {
+      "category": "Category",
+      "selectCategory": "Select Category",
+      "noCategories": "No categories",
+      "totalParticipants": "Total Participants",
+      "loading": "Loading participants...",
+      "noParticipants": "No participants found in this category.",
+      "captain": "Captain"
+    }
   },
   "entryRegistration": {
     "title": "Entry Registration",
@@ -361,6 +371,15 @@ export default {
         "confirmed": "Confirmed",
         "recruiting": "RECRUITING"
       },
+      "participantsTab": {
+        "category": "Category",
+        "selectCategory": "Select Category",
+        "noCategories": "No categories",
+        "totalParticipants": "Total Participants",
+        "loading": "Loading participants...",
+        "noParticipants": "No participants found in this category.",
+        "captain": "Captain"
+      },
       "scheduleTab": {
         "title": "Schedule",
         "selectCategoryToView": "Select a category to view its schedule.",
@@ -392,7 +411,8 @@ export default {
         "endOfPlayDesc": "All matches for the day must conclude by this time.",
         "additionalNotes": "Additional Notes",
         "bracketGeneration": "Bracket Generation"
-      }
+      },
+      "overviewDefaultIntro": "Welcome to the <span>{{name}}</span> tournament! This event will take place at <span>{{location}}</span>. We are excited to host this competition and look forward to seeing great matches."
     },
     "entryRegistration": {
       "title": "Entry Registration",
@@ -429,6 +449,8 @@ export default {
       "playerPortal": "PLAYER PORTAL",
       "upcomingLive": "Upcoming & Live Matches",
       "noUpcoming": "No upcoming matches.",
+      "loadingTournament": "Loading Tournament...",
+      "loadingCategory": "Loading Category...",
       "matchHistory": "Match History",
       "noHistory": "No match history.",
       "competitiveHistory": "Competitive History",
@@ -594,6 +616,8 @@ export default {
     "upcomingMatchesTitle": "Upcoming & Live Matches",
     "matchId": "Match #{{id}}",
     "tbd": "TBD",
+    "loadingTournament": "Loading Tournament...",
+    "loadingCategory": "Loading Category...",
     "lineupRejected": "Lineup Rejected",
     "resubmitLineup": "Resubmit Lineup",
     "submitLineup": "Submit Lineup",

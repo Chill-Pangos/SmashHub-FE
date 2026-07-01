@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { useTournament, useScheduleConfigByTournament } from "@/hooks/queries";
+import { getCombinedDateTimeStr } from "@/utils/timezone.utils";
 import { useMyEntries } from "@/hooks/queries/useEntryQueries";
 
 import { Calendar, MapPin } from "lucide-react";
@@ -139,7 +140,7 @@ export default function TournamentDetail() {
         <div className="flex flex-wrap items-center gap-6 text-base font-medium text-muted-foreground">
           <div className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-primary/70" />
-            <span>{formatEventDate(scheduleConfig?.startDate || tournament.startDate, scheduleConfig?.endDate || tournament.endDate)}</span>
+            <span>{formatEventDate(getCombinedDateTimeStr(scheduleConfig?.startDate, scheduleConfig?.dailyStartHour, scheduleConfig?.dailyStartMinute) || tournament.startDate, getCombinedDateTimeStr(scheduleConfig?.endDate, scheduleConfig?.dailyEndHour, scheduleConfig?.dailyEndMinute) || tournament.endDate)}</span>
           </div>
           <div className="h-4 w-px bg-border hidden sm:block"></div>
           <div className="flex items-center gap-1.5">

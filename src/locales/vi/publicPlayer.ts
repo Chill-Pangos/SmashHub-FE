@@ -176,7 +176,17 @@ export default {
       "additionalNotes": "Ghi chú thêm",
       "bracketGeneration": "Tạo sơ đồ"
     },
-    "overview": "Overview"
+    "overview": "Overview",
+    "overviewDefaultIntro": "Chào mừng bạn đến với giải đấu <span>{{name}}</span>! Giải đấu này sẽ diễn ra tại <span>{{location}}</span>. Chúng tôi rất hào hứng được tổ chức cuộc thi này và mong chờ những trận đấu tuyệt vời.",
+    "participantsTab": {
+      "category": "Hạng mục",
+      "selectCategory": "Chọn Hạng mục",
+      "noCategories": "Không có hạng mục",
+      "totalParticipants": "Tổng số người tham gia",
+      "loading": "Đang tải danh sách người tham gia...",
+      "noParticipants": "Không có người tham gia nào trong hạng mục này.",
+      "captain": "Đội trưởng"
+    }
   },
   "entryRegistration": {
     "title": "Đăng ký tham gia",
@@ -239,6 +249,8 @@ export default {
     "upcomingMatchesTitle": "Trận đấu Sắp tới & Trực tiếp",
     "matchId": "Trận #{{id}}",
     "tbd": "TBD",
+    "loadingTournament": "Đang tải Giải đấu...",
+    "loadingCategory": "Đang tải Hạng mục...",
     "lineupRejected": "Đội hình bị từ chối",
     "resubmitLineup": "Gửi lại đội hình",
     "submitLineup": "Gửi đội hình",
@@ -376,6 +388,15 @@ export default {
         "confirmed": "Đã xác nhận",
         "recruiting": "ĐANG TUYỂN"
       },
+      "participantsTab": {
+        "category": "Hạng mục",
+        "selectCategory": "Chọn Hạng mục",
+        "noCategories": "Không có hạng mục",
+        "totalParticipants": "Tổng số người tham gia",
+        "loading": "Đang tải danh sách người tham gia...",
+        "noParticipants": "Không có người tham gia nào trong hạng mục này.",
+        "captain": "Đội trưởng"
+      },
       "scheduleTab": {
         "title": "Lịch thi đấu",
         "selectCategoryToView": "Chọn một hạng mục để xem lịch thi đấu.",
@@ -407,7 +428,8 @@ export default {
         "endOfPlayDesc": "Tất cả trận đấu trong ngày phải kết thúc trước giờ này.",
         "additionalNotes": "Ghi chú thêm",
         "bracketGeneration": "Tạo sơ đồ"
-      }
+      },
+      "overviewDefaultIntro": "Chào mừng bạn đến với giải đấu <span>{{name}}</span>! Giải đấu này sẽ diễn ra tại <span>{{location}}</span>. Chúng tôi rất hào hứng được tổ chức sự kiện này và mong chờ những trận đấu tuyệt vời."
     },
     "entryRegistration": {
       "title": "Đăng ký tham gia",
@@ -444,6 +466,8 @@ export default {
       "playerPortal": "CỔNG THÔNG TIN VĐV",
       "upcomingLive": "Trận đấu sắp tới & Trực tiếp",
       "noUpcoming": "Không có trận đấu nào sắp tới.",
+      "loadingTournament": "Đang tải Giải đấu...",
+      "loadingCategory": "Đang tải Hạng mục...",
       "matchHistory": "Lịch sử trận đấu",
       "noHistory": "Không có lịch sử thi đấu.",
       "competitiveHistory": "Lịch sử thi đấu",
