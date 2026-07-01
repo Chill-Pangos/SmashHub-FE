@@ -110,7 +110,7 @@ export default function ScheduleTab({
         </div>
         {options.length > 0 && (
           <Select
-            value={selectedCategoryId ? String(selectedCategoryId) : undefined}
+            value={selectedCategoryId ? String(selectedCategoryId) : ""}
             onValueChange={(value) => setSelectedCategoryId(Number(value))}
           >
             <SelectTrigger className="min-w-[220px]">

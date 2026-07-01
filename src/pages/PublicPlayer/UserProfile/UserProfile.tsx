@@ -215,7 +215,7 @@ export default function UserProfile() {
                   control={form.control}
                   name="gender"
                   render={({ field }) => (
-                    <Select value={field.value || undefined} onValueChange={field.onChange}>
+                    <Select value={field.value ? field.value.toLowerCase() : ""} onValueChange={field.onChange}>
                       <SelectTrigger id="gender" className={form.formState.errors.gender ? "border-red-500 focus-visible:ring-red-500" : ""}>
                         <SelectValue placeholder={t("profile.selectGender") || "Select gender"} />
                       </SelectTrigger>
