@@ -48,7 +48,7 @@ export type PortalUser = {
 };
 
 export type SidebarConfig = {
-  brand: PortalBrand;
+  brand: (t: (key: string) => string) => PortalBrand;
   sections: (t: (key: string) => string) => PortalSidebarSection[];
   primaryAction?: (t: (key: string) => string) => PortalSidebarItem;
   footerItems: (
@@ -61,10 +61,11 @@ export type SidebarConfig = {
  * Organizer Portal Sidebar Configuration
  */
 export const organizerSidebarConfig: SidebarConfig = {
-  brand: {
+  brand: (t) => ({
     title: "SmashHub",
+    subtitle: t("portal.organizer.subtitle"),
     icon: Trophy,
-  },
+  }),
   sections: (t) => [
     {
       title: t("portal.organizer.sections.operations"),
@@ -141,11 +142,11 @@ export const organizerSidebarConfig: SidebarConfig = {
  * Admin Portal Sidebar Configuration
  */
 export const adminSidebarConfig: SidebarConfig = {
-  brand: {
-    title: "Admin Panel",
-    subtitle: "SmashHub",
+  brand: (t) => ({
+    title: "SmashHub",
+    subtitle: t("portal.admin.subtitle"),
     icon: Shield,
-  },
+  }),
   sections: (t) => [
     {
       title: t("portal.admin.sections.management"),
@@ -233,11 +234,11 @@ export const adminSidebarConfig: SidebarConfig = {
  * Referee Portal Sidebar Configuration
  */
 export const refereeSidebarConfig: SidebarConfig = {
-  brand: {
-    title: "Referee Portal",
-    subtitle: "SmashHub",
+  brand: (t) => ({
+    title: "SmashHub",
+    subtitle: t("portal.referee.title"),
     icon: Gavel,
-  },
+  }),
   sections: (t) => [
     {
       title: t("portal.referee.sections.main"),
@@ -289,11 +290,11 @@ export const refereeSidebarConfig: SidebarConfig = {
  * Chief Referee Portal Sidebar Configuration
  */
 export const chiefRefereeSidebarConfig: SidebarConfig = {
-  brand: {
-    title: "Chief Referee Portal",
-    subtitle: "SmashHub",
+  brand: (t) => ({
+    title: "SmashHub",
+    subtitle: t("portal.referee.title"),
     icon: Gavel,
-  },
+  }),
   sections: (t) => [
     {
       title: t("portal.referee.sections.main"),
@@ -351,13 +352,14 @@ export const chiefRefereeSidebarConfig: SidebarConfig = {
  * Pro Player Portal Sidebar Configuration
  */
 export const proPlayerSidebarConfig: SidebarConfig = {
-  brand: {
+  brand: (t) => ({
     title: "SmashHub",
-    subtitle: "Pro Player Portal",
+    subtitle: t("portal.player.subtitle"),
     icon: Gamepad2,
-  },
+  }),
   sections: (t) => [
     {
+      title: t("portal.player.sections.main"),
       items: [
         {
           key: "dashboard",

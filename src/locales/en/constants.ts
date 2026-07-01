@@ -30,6 +30,7 @@ export default {
   },
   "format": {
     "single": "Single",
+    "double": "Doubles",
     "doubles": "Doubles",
     "team": "Team"
   },

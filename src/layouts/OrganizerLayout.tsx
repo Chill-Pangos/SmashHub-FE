@@ -28,11 +28,8 @@ export default function OrganizerLayout() {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_color-mix(in_srgb,_var(--primary)_8%,_transparent)_0%,_transparent_32%),linear-gradient(180deg,_var(--background)_0%,_color-mix(in_srgb,_var(--background)_92%,_var(--card)_8%)_100%)] text-foreground">
       <PortalSidebar
-        brand={{
-          ...organizerSidebarConfig.brand,
-          title: t("portal.organizer.title"),
-        }}
-        mobileTitle={t("portal.organizer.title")}
+        brand={organizerSidebarConfig.brand(t)}
+        mobileTitle={t("portal.organizer.subtitle", "Organizer Portal")}
         triggerLabel={t("portal.organizer.openSidebar")}
         sections={sections}
         primaryAction={primaryAction}

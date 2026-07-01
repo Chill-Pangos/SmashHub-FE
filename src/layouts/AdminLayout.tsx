@@ -25,11 +25,8 @@ export default function AdminLayout() {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_color-mix(in_srgb,_var(--primary)_8%,_transparent)_0%,_transparent_32%),linear-gradient(180deg,_var(--background)_0%,_color-mix(in_srgb,_var(--background)_92%,_var(--card)_8%)_100%)] text-foreground">
       <PortalSidebar
-        brand={{
-          ...adminSidebarConfig.brand,
-          title: t("portal.admin.title"),
-        }}
-        mobileTitle={t("portal.admin.title")}
+        brand={adminSidebarConfig.brand(t)}
+        mobileTitle={t("portal.admin.subtitle", "Admin Portal")}
         triggerLabel={t("portal.admin.openSidebar")}
         sections={sections}
         footerItems={footerItems}

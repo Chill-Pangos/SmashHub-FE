@@ -1,6 +1,7 @@
 export default {
   "admin": {
     "title": "Bảng điều khiển Admin",
+    "subtitle": "Bảng điều khiển Admin",
     "openSidebar": "Mở sidebar admin",
     "users": "Người dùng",
     "roles": "Vai trò & Phân quyền",
@@ -10,10 +11,10 @@ export default {
     }
   },
   "organizer": {
-    "title": "Bảng điều khiển Organizer",
+    "title": "Bảng điều khiển Tổ chức giải đấu",
     "subtitle": "Cổng quản trị giải đấu",
     "primaryAction": "Tạo giải đấu",
-    "openSidebar": "Mở sidebar organizer",
+    "openSidebar": "Mở sidebar tổ chức giải đấu",
     "categories": "Hạng mục",
     "playerManagement": "Quản lý người chơi",
     "scheduleGeneration": "Tạo lịch thi đấu",
@@ -32,7 +33,13 @@ export default {
     "approvals": "Phê duyệt",
     "approvalDetail": "Chi tiết phê duyệt",
     "sections": {
-      "main": "Chính"
+      "main": "Quản lý chung"
+    }
+  },
+  "player": {
+    "subtitle": "Khu vực Vận động viên",
+    "sections": {
+      "main": "Quản lý chung"
     }
   }
 };

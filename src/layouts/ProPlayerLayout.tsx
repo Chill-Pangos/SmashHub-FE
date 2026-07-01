@@ -49,11 +49,8 @@ export default function ProPlayerLayout({ children }: ProPlayerLayoutProps) {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_color-mix(in_srgb,_var(--primary)_8%,_transparent)_0%,_transparent_32%),linear-gradient(180deg,_var(--background)_0%,_color-mix(in_srgb,_var(--background)_92%,_var(--card)_8%)_100%)] text-foreground">
       <PortalSidebar
-        brand={{
-          ...proPlayerSidebarConfig.brand,
-          title: "SmashHub",
-        }}
-        mobileTitle={"Pro Player Portal"}
+        brand={proPlayerSidebarConfig.brand(t)}
+        mobileTitle={t("portal.player.subtitle", "Player Portal")}
         triggerLabel={"Open Sidebar"}
         sections={sections}
         footerItems={footerItems}

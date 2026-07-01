@@ -30,6 +30,7 @@ export default {
   },
   "format": {
     "single": "Đánh đơn",
+    "double": "Đánh đôi",
     "doubles": "Đánh đôi",
     "team": "Đồng đội"
   },
