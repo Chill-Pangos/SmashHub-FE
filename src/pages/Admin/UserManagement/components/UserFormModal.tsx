@@ -178,9 +178,9 @@ export default function UserFormModal({ open, onOpenChange, user }: UserFormModa
                   <SelectValue placeholder={t("adminPage.userFormModal.selectGender", "Select gender")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="male">{t("profile.genders.male", "Male")}</SelectItem>
-                  <SelectItem value="female">{t("profile.genders.female", "Female")}</SelectItem>
-                  <SelectItem value="other">{t("profile.genders.other", "Other")}</SelectItem>
+                  <SelectItem value="male">{t("profile.male", "Male")}</SelectItem>
+                  <SelectItem value="female">{t("profile.female", "Female")}</SelectItem>
+                  <SelectItem value="other">{t("profile.other", "Other")}</SelectItem>
                 </SelectContent>
               </Select>
               {errors.gender && <p className="text-xs text-destructive">{errors.gender.message as string}</p>}

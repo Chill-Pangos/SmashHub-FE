@@ -59,7 +59,7 @@ export default function TournamentScheduleViewer({
         .filter((s: any) => s.groupName === groupName)
         .map((s: any) => ({
           rank: s.position || 0,
-          player: s.entryName || `Entry ${s.entryId}`, // Adjust based on your API
+          player: s.entry?.team?.name || s.entry?.name || s.entryName || `Entry ${s.entryId}`,
           entryId: s.entryId,
           p: s.matchesPlayed || 0,
           w: s.matchesWon || 0,

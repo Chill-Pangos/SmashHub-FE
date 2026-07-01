@@ -3,6 +3,8 @@ import MatchControlCenterTab from "./TournamentDetailTabs/MatchControlCenterTab"
 import MatchResultsReviewTab from "./TournamentDetailTabs/MatchResultsReviewTab";
 import LiveScoreControllerTab from "./TournamentDetailTabs/LiveScoreControllerTab";
 import ResultsSubmissionTab from "./TournamentDetailTabs/ResultsSubmissionTab";
+import PlayersTab from "./TournamentDetailTabs/PlayersTab";
+import RefereesTab from "./TournamentDetailTabs/RefereesTab";
 import { Calendar, MapPin, AlertCircle } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useTournament, useScheduleConfigByTournament } from "@/hooks/queries";
@@ -138,6 +140,18 @@ export default function TournamentDetail() {
             </button>
           </>
         )}
+        <button
+          onClick={() => setActiveTab("players")}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === "players" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+        >
+          {t("referee.tournamentDetail.players", "Players")}
+        </button>
+        <button
+          onClick={() => setActiveTab("referees")}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === "referees" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+        >
+          {t("referee.tournamentDetail.referees", "Referees")}
+        </button>
       </div>
 
       {/* Tab Content */}
@@ -146,6 +160,8 @@ export default function TournamentDetail() {
         {activeTab === "results_review" && <MatchResultsReviewTab />}
         {activeTab === "live_score" && <LiveScoreControllerTab />}
         {activeTab === "results_submission" && <ResultsSubmissionTab />}
+        {activeTab === "players" && <PlayersTab tournamentId={id} />}
+        {activeTab === "referees" && <RefereesTab tournamentId={id} />}
       </main>
     </div>
   );

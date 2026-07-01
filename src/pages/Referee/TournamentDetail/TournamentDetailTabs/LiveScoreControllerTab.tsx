@@ -6,6 +6,8 @@ import { useDateFormat } from "@/hooks/useDateFormat";
 import { Button } from '@/components/ui/button';
 import { useCurrentUser } from '@/hooks/queries/useAuthQueries';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getImageUrl } from "@/utils/api.utils";
 
 export default function LiveScoreControllerTab() {
   const { t } = useTranslation();
@@ -79,7 +81,7 @@ export default function LiveScoreControllerTab() {
           const isUmpire = umpireId === currentUserId;
           const isAssistant = assistantId === currentUserId;
           
-          let roleText = isUmpire ? "Umpire" : isAssistant ? "Assistant" : "Referee";
+          let roleText = isUmpire ? t("referee.matchControlCenter.umpire", "Umpire") : isAssistant ? t("referee.matchControlCenter.assistant", "Assistant") : t("referee.referee", "Referee");
           
           return (
             <div key={match.id} className="bg-card border border-border rounded-xl p-5 flex flex-col gap-4 relative overflow-hidden transition-all duration-200 hover:shadow-md">
@@ -101,16 +103,18 @@ export default function LiveScoreControllerTab() {
 
               <div className="flex justify-between items-center px-2">
                 <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
-                  <div className="w-12 h-12 rounded-full bg-secondary flex justify-center items-center font-bold text-lg border border-border flex-shrink-0">
-                    {p1Name.charAt(0)}
-                  </div>
+                  <Avatar className="w-12 h-12 border border-border flex-shrink-0">
+                    <AvatarImage src={getImageUrl(match.entryA?.team?.avatarUrl || match.entryA?.avatarUrl || "")} alt={p1Name} />
+                    <AvatarFallback className="bg-secondary text-lg font-bold">{p1Name.charAt(0)}</AvatarFallback>
+                  </Avatar>
                   <p className="font-bold text-sm text-center truncate w-full">{p1Name}</p>
                 </div>
                 <div className="px-4 text-muted-foreground font-black italic text-lg flex-shrink-0">VS</div>
                 <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
-                  <div className="w-12 h-12 rounded-full bg-secondary flex justify-center items-center font-bold text-lg border border-border flex-shrink-0">
-                    {p2Name.charAt(0)}
-                  </div>
+                  <Avatar className="w-12 h-12 border border-border flex-shrink-0">
+                    <AvatarImage src={getImageUrl(match.entryB?.team?.avatarUrl || match.entryB?.avatarUrl || "")} alt={p2Name} />
+                    <AvatarFallback className="bg-secondary text-lg font-bold">{p2Name.charAt(0)}</AvatarFallback>
+                  </Avatar>
                   <p className="font-bold text-sm text-center truncate w-full">{p2Name}</p>
                 </div>
               </div>

@@ -5,3 +5,5 @@ export { default as LiveScoreControllerTab } from "./LiveScoreControllerTab";
 export { default as ResultsSubmissionTab } from "./ResultsSubmissionTab";
 export { default as MatchControlCenterTab } from "./MatchControlCenterTab";
 export { default as MatchResultsReviewTab } from "./MatchResultsReviewTab";
+export { default as PlayersTab } from "./PlayersTab";
+export { default as RefereesTab } from "./RefereesTab";

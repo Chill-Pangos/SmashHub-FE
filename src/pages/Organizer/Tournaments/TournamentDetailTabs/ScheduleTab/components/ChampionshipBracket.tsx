@@ -25,34 +25,88 @@ export function ChampionshipBracket({ matches, rounds, onEntryClick }: Champions
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
 
   if (rounds && rounds.length > 0) {
+    const isFinalOnly = rounds.length === 1;
+    const finalRound = rounds[rounds.length - 1];
+
+    const leftRounds = isFinalOnly ? [] : rounds.slice(0, -1).map((r: any) => ({
+      ...r,
+      brackets: r.brackets.slice(0, Math.ceil(r.brackets.length / 2))
+    }));
+
+    const rightRounds = isFinalOnly ? [] : [...rounds].slice(0, -1).reverse().map((r: any) => ({
+      ...r,
+      brackets: r.brackets.slice(Math.ceil(r.brackets.length / 2))
+    }));
+
     return (
       <div className="bg-card border border-border rounded-xl p-6 overflow-x-auto">
-        <div className="flex gap-12 min-w-[800px]">
-          {rounds.map((round: any, idx: number) => {
-            const isFirst = idx === 0;
-            const isLast = idx === rounds.length - 1;
-            const flexClass = isLast ? "justify-center" : (isFirst ? "justify-start" : "justify-around");
-            
-            return (
-              <div key={round.roundNumber} className={`flex-1 space-y-8 flex flex-col ${flexClass}`}>
-                <div>
-                  <h4 className={`text-sm font-bold mb-6 text-center ${isLast ? 'text-chart-4' : 'text-muted-foreground'}`}>
-                    {round.roundName}
-                  </h4>
-                  <div className="space-y-8">
-                    {round.brackets?.map((bracket: any) => (
+        <div className="flex gap-12 min-w-[800px] justify-center">
+          
+          {/* Left Rounds */}
+          {leftRounds.map((round: any) => (
+            <div key={`left-${round.roundNumber}`} className="flex-1 space-y-8 flex flex-col justify-around relative">
+              <div>
+                <h4 className="text-sm font-bold mb-6 text-center text-muted-foreground">
+                  {round.roundName}
+                </h4>
+                <div className="space-y-8">
+                  {round.brackets?.map((bracket: any) => (
+                    <div key={bracket.id} className="relative">
                       <BracketMatchCard 
-                        key={bracket.id} 
                         bracket={bracket} 
                         onEntryClick={onEntryClick} 
                         onClick={() => setSelectedMatchId(bracket.id)}
                       />
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
+
+          {/* Center (Final Round) */}
+          <div className="flex-1 space-y-8 flex flex-col justify-center min-w-[250px] relative z-10">
+            <div>
+              <div className="flex items-center justify-center mb-6">
+                <h4 className="text-sm font-bold text-chart-4 uppercase tracking-widest px-4 py-1 bg-chart-4/10 rounded-full border border-chart-4/20 shadow-[0_0_15px_rgba(255,165,0,0.15)]">
+                  {finalRound.roundName}
+                </h4>
+              </div>
+              <div className="space-y-8">
+                {finalRound.brackets?.map((bracket: any) => (
+                  <BracketMatchCard 
+                    key={bracket.id} 
+                    bracket={bracket} 
+                    onEntryClick={onEntryClick} 
+                    onClick={() => setSelectedMatchId(bracket.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Rounds */}
+          {rightRounds.map((round: any) => (
+            <div key={`right-${round.roundNumber}`} className="flex-1 space-y-8 flex flex-col justify-around relative">
+              <div>
+                <h4 className="text-sm font-bold mb-6 text-center text-muted-foreground">
+                  {round.roundName}
+                </h4>
+                <div className="space-y-8">
+                  {round.brackets?.map((bracket: any) => (
+                    <div key={bracket.id} className="relative">
+                      <BracketMatchCard 
+                        bracket={bracket} 
+                        onEntryClick={onEntryClick} 
+                        onClick={() => setSelectedMatchId(bracket.id)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+
         </div>
         <MatchDetailModal matchId={selectedMatchId} onClose={() => setSelectedMatchId(null)} />
       </div>
@@ -64,26 +118,38 @@ export function ChampionshipBracket({ matches, rounds, onEntryClick }: Champions
 
   return (
     <div className="bg-card border border-border rounded-xl p-6 overflow-x-auto">
-      <div className="flex gap-12 min-w-[800px]">
-        <div className="flex-1 space-y-8">
-          <h4 className="text-sm font-bold text-muted-foreground mb-6 text-center">{t('tournamentManager.scheduleTab.quarterFinals', 'Quarter-Finals')}</h4>
-          {quarterFinals.map((match, idx) => (
-            <MatchCard key={idx} match={match} />
-          ))}
+      <div className="flex gap-12 min-w-[800px] justify-center">
+        {/* Left Side: Quarter Final 1, 2 -> Semi Final 1 */}
+        <div className="flex-1 space-y-8 flex flex-col justify-around">
+          <div>
+            <h4 className="text-sm font-bold text-muted-foreground mb-6 text-center">{t('tournamentManager.scheduleTab.quarterFinals', 'Quarter-Finals')}</h4>
+            <div className="space-y-8">
+              {quarterFinals.slice(0, 2).map((match, idx) => (
+                <MatchCard key={idx} match={match} />
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="flex-1 space-y-8 flex flex-col justify-around">
           <div>
             <h4 className="text-sm font-bold text-muted-foreground mb-6 text-center">{t('tournamentManager.scheduleTab.semiFinals', 'Semi-Finals')}</h4>
-            {semiFinals.map((match, idx) => (
-              <MatchCard key={idx} match={match} />
-            ))}
+            <div className="space-y-8">
+              {semiFinals.slice(0, 1).map((match, idx) => (
+                <MatchCard key={idx} match={match} />
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="flex-1 space-y-8 flex flex-col justify-center">
+        {/* Center: Grand Final */}
+        <div className="flex-1 space-y-8 flex flex-col justify-center min-w-[250px] relative z-10">
           <div>
-            <h4 className="text-sm font-bold text-chart-4 mb-6 text-center">{t('tournamentManager.scheduleTab.grandFinal', 'Grand Final')}</h4>
+            <div className="flex items-center justify-center mb-6">
+              <h4 className="text-sm font-bold text-chart-4 uppercase tracking-widest px-4 py-1 bg-chart-4/10 rounded-full border border-chart-4/20 shadow-[0_0_15px_rgba(255,165,0,0.15)]">
+                {t('tournamentManager.scheduleTab.grandFinal', 'Grand Final')}
+              </h4>
+            </div>
             <div className="bg-background border border-border rounded-lg p-3 relative opacity-50 border-dashed">
               <div className="flex justify-between text-xs text-muted-foreground mb-3">
                 <span className="font-mono">TBD</span>
@@ -99,6 +165,29 @@ export function ChampionshipBracket({ matches, rounds, onEntryClick }: Champions
                   <span>-</span>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side: Semi Final 2 <- Quarter Final 3, 4 */}
+        <div className="flex-1 space-y-8 flex flex-col justify-around">
+          <div>
+            <h4 className="text-sm font-bold text-muted-foreground mb-6 text-center">{t('tournamentManager.scheduleTab.semiFinals', 'Semi-Finals')}</h4>
+            <div className="space-y-8">
+              {semiFinals.slice(1, 2).map((match, idx) => (
+                <MatchCard key={idx} match={match} />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 space-y-8 flex flex-col justify-around">
+          <div>
+            <h4 className="text-sm font-bold text-muted-foreground mb-6 text-center">{t('tournamentManager.scheduleTab.quarterFinals', 'Quarter-Finals')}</h4>
+            <div className="space-y-8">
+              {quarterFinals.slice(2, 4).map((match, idx) => (
+                <MatchCard key={idx} match={match} />
+              ))}
             </div>
           </div>
         </div>

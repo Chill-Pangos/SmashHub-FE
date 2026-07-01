@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { useSchedulesByCategory } from "@/hooks/queries";
 import type {
   Tournament,
@@ -61,6 +62,7 @@ export default function ScheduleTab({
   const [stage, setStage] = useState<ScheduleStage | undefined>(undefined);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+  const [subTab, setSubTab] = useState<"list" | "bracket">("list");
 
   useEffect(() => {
     if (options.length === 0) {
@@ -137,9 +139,9 @@ export default function ScheduleTab({
                 <SelectValue placeholder="All Stages" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Stages</SelectItem>
-                <SelectItem value="group">Group Stage</SelectItem>
-                <SelectItem value="knockout">Knockout</SelectItem>
+                <SelectItem value="all">{t("components.tournamentScheduleViewer.allStages", "All Stages")}</SelectItem>
+                <SelectItem value="group">{t("components.tournamentScheduleViewer.groupStage", "Group Stage")}</SelectItem>
+                <SelectItem value="knockout">{t("components.tournamentScheduleViewer.knockout", "Knockout")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -194,42 +196,61 @@ export default function ScheduleTab({
         !error &&
         hasSchedule && (
           <div className="space-y-8">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold">Match List</h3>
-                <span className="px-2 py-1 text-xs font-semibold rounded-md bg-secondary text-muted-foreground">
-                  {pagination?.total || 0} Matches
-                </span>
-              </div>
-              <MatchListView schedules={schedulesData?.schedules || []} />
-              
-              {pagination && (
-                <div className="mt-6">
-                  <ServerPagination
-                    skip={(page - 1) * limit}
-                    limit={limit}
-                    total={pagination.total}
-                    hasNext={pagination.hasNextPage}
-                    hasPrevious={pagination.hasPrevPage}
-                    isLoading={isLoading}
-                    onSkipChange={(nextSkip) => setPage(Math.floor(nextSkip / limit) + 1)}
-                    onLimitChange={(nextLimit) => {
-                      setLimit(nextLimit);
-                      setPage(1);
-                    }}
-                  />
-                </div>
-              )}
+            <div className="flex gap-2 border-b border-border pb-4 mb-6">
+              <Button
+                variant={subTab === "list" ? "default" : "outline"}
+                onClick={() => setSubTab("list")}
+              >
+                {t("publicPlayer.tournamentDetail.scheduleTab.matchList", "Match List")}
+              </Button>
+              <Button
+                variant={subTab === "bracket" ? "default" : "outline"}
+                onClick={() => setSubTab("bracket")}
+              >
+                {t("publicPlayer.tournamentDetail.scheduleTab.tournamentBracket", "Tournament Bracket")}
+              </Button>
             </div>
 
-            <div className="pt-8 border-t border-border">
-              <h3 className="text-lg font-bold mb-6">Tournament Bracket</h3>
-              <TournamentScheduleViewer
-                contentId={selectedCategoryId}
-                tournamentId={tournamentId} 
-                schedulesOverride={schedulesData}
-              />
-            </div>
+            {subTab === "list" && (
+              <div className="animate-in fade-in duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold">{t("publicPlayer.tournamentDetail.scheduleTab.matchList", "Match List")}</h3>
+                  <span className="px-2 py-1 text-xs font-semibold rounded-md bg-secondary text-muted-foreground">
+                    {pagination?.total || 0} {t("publicPlayer.tournamentDetail.scheduleTab.matchesCount", "Matches")}
+                  </span>
+                </div>
+                <MatchListView schedules={schedulesData?.schedules || []} />
+                
+                {pagination && (
+                  <div className="mt-6">
+                    <ServerPagination
+                      skip={(page - 1) * limit}
+                      limit={limit}
+                      total={pagination.total}
+                      hasNext={pagination.hasNextPage}
+                      hasPrevious={pagination.hasPrevPage}
+                      isLoading={isLoading}
+                      onSkipChange={(nextSkip) => setPage(Math.floor(nextSkip / limit) + 1)}
+                      onLimitChange={(nextLimit) => {
+                        setLimit(nextLimit);
+                        setPage(1);
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {subTab === "bracket" && (
+              <div className="animate-in fade-in duration-300">
+                <h3 className="text-lg font-bold mb-6">{t("publicPlayer.tournamentDetail.scheduleTab.tournamentBracket", "Tournament Bracket")}</h3>
+                <TournamentScheduleViewer
+                  contentId={selectedCategoryId}
+                  tournamentId={tournamentId} 
+                  schedulesOverride={schedulesData}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>
