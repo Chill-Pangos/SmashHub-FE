@@ -122,7 +122,9 @@ export default {
     "vs": "VS",
     "ref": "Trọng tài:",
     "startMatch": "Bắt đầu trận",
-    "prepMatch": "Chuẩn bị trận"
+    "prepMatch": "Chuẩn bị trận",
+    "umpire": "Trọng tài chính",
+    "assistant": "Trọng tài phụ"
   },
   "liveScoreController": {
     "viewMatch": "Xem thông tin",
@@ -170,6 +172,7 @@ export default {
     "loading": "Đang tải các trận chờ duyệt...",
     "noMatches": "Không có trận đấu nào chờ duyệt.",
     "matchDetails": "Chi tiết trận đấu",
+    "referees": "Trọng tài:",
     "reviewDesc": "Xem lại trận đấu đã hoàn thành trước khi xác minh cuối cùng.",
     "matchId": "Mã trận:",
     "duration": "Thời lượng:",

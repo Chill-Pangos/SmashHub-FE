@@ -122,7 +122,9 @@ export default {
       "vs": "VS",
       "ref": "Ref:",
       "startMatch": "Start Match",
-      "prepMatch": "Prep Match"
+      "prepMatch": "Prep Match",
+      "umpire": "Umpire",
+      "assistant": "Assistant"
     },
   "liveScoreController": {
     "viewMatch": "View Info",
@@ -170,6 +172,7 @@ export default {
       "loading": "Loading pending matches...",
       "noMatches": "No pending matches to review.",
       "matchDetails": "Match Details",
+      "referees": "Referees:",
       "reviewDesc": "Review completed match before finalizing verification.",
       "matchId": "Match ID:",
       "duration": "Duration:",

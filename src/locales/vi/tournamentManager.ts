@@ -479,7 +479,7 @@ export default {
       "selectSets": "Chọn số Set",
       "progression": "Lộ trình",
       "groupStage": "Có vòng bảng",
-      "knockout": "Loại trực tiếp",
+      "knockout": "Vòng loại trực tiếp",
       "ageRequirement": "Yêu cầu Độ tuổi (Min - Max)",
       "dragToSelectOrInput": "Kéo để chọn nhanh hoặc nhập số chính xác ở ô trên",
       "eloRange": "Vùng Elo (Min - Max)",
@@ -681,7 +681,7 @@ export default {
         "description": "Bắt đầu match, tạo sub-matches (nếu team format) và ghi điểm từng set."
       },
       "finalizeResult": {
-        "title": "Finalize và duyệt kết quả",
+        "title": "Hoàn tất và duyệt kết quả",
         "description": "Trọng tài hoàn tất, tổng trọng tài duyệt/từ chối sau khi xem trước ELO."
       },
       "operationalNotify": {
