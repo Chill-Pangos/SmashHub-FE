@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTournament, useScheduleConfigByTournament } from "@/hooks/queries";
+import { getCombinedDateTimeStr } from "@/utils/timezone.utils";
 import { Calendar, MapPin, AlertCircle } from "lucide-react";
 import { OverviewTab, ScheduleTab } from "@/pages/PublicPlayer/TournamentDetail/TournamentDetailTabs";
 import { useTranslation } from "react-i18next";
@@ -81,7 +82,7 @@ export default function PublicTournamentDetail() {
         <div className="flex flex-wrap items-center gap-6 text-base font-medium text-muted-foreground">
           <div className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-primary/70" />
-            <span>{formatEventDate(scheduleConfig?.startDate || tournament.startDate, scheduleConfig?.endDate || tournament.endDate)}</span>
+            <span>{formatEventDate(getCombinedDateTimeStr(scheduleConfig?.startDate, scheduleConfig?.dailyStartHour, scheduleConfig?.dailyStartMinute) || tournament.startDate, getCombinedDateTimeStr(scheduleConfig?.endDate, scheduleConfig?.dailyEndHour, scheduleConfig?.dailyEndMinute) || tournament.endDate)}</span>
           </div>
           <div className="h-5 w-px bg-border hidden sm:block"></div>
           <div className="flex items-center gap-2">

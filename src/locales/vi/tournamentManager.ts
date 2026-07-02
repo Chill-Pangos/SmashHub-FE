@@ -116,7 +116,16 @@ export default {
     "hideRegenerate": "Ẩn Tùy chọn Tạo lại",
     "regenerateSchedule": "Tạo lại Lịch trình",
     "bulkStartMatches": "Bắt đầu Trận đấu Hàng loạt",
-    "generateKnockout": "Tạo sơ đồ Loại trực tiếp"
+    "generateKnockout": "Tạo sơ đồ Loại trực tiếp",
+    "rounds": {
+      "roundOf128": "Vòng 1/128",
+      "roundOf64": "Vòng 1/64",
+      "roundOf32": "Vòng 1/32",
+      "roundOf16": "Vòng 1/16",
+      "quarterFinal": "Tứ kết",
+      "semiFinal": "Bán kết",
+      "final": "Chung kết"
+    }
   },
   "placeholders": {
     "bulkImportTitle": "Nhập dữ liệu hàng loạt",
@@ -315,6 +324,38 @@ export default {
       "success": "Đã hủy giải đấu thành công",
       "error": "Không thể hủy giải đấu"
     },
+    "completeTournament": {
+      "button": "Hoàn tất Giải đấu",
+      "title": "Hoàn tất Giải đấu?",
+      "description": "Bạn có chắc chắn muốn hoàn tất giải đấu <strong>{{name}}</strong> không? Hệ thống sẽ phát thưởng và tính toán điểm Elo. Hành động này không thể hoàn tác.",
+      "close": "Đóng",
+      "confirm": "Có, Hoàn tất",
+      "completing": "Đang hoàn tất...",
+      "success": "Hoàn tất giải đấu thành công.",
+      "error": "Không thể hoàn tất giải đấu."
+    },
+    "completeTournamentResult": {
+      "title": "Giải đấu Đã Hoàn Tất",
+      "description": "Giải đấu đã được đánh dấu hoàn tất. Hệ thống đã trao giải và cập nhật điểm Elo.",
+      "awards": "Giải thưởng",
+      "eloChanges": "Thay đổi Elo",
+      "category": "Hạng mục",
+      "placement": "Xếp hạng",
+      "source": "Nguồn",
+      "entry": "Đội/Người chơi",
+      "title_label": "Danh hiệu",
+      "player": "Vận động viên",
+      "currentElo": "Elo Hiện tại",
+      "finalElo": "Elo Mới",
+      "delta": "Thay đổi",
+      "champion": "Vô địch",
+      "runner_up": "Á quân",
+      "third_place": "Hạng ba",
+      "group_winner": "Nhất bảng",
+      "knockout": "Loại trực tiếp",
+      "group": "Vòng bảng",
+      "close": "Đóng"
+    },
     "loading": "Đang tải thông tin giải đấu...",
     "loadError": "Không thể tải thông tin giải đấu"
   },
@@ -479,7 +520,7 @@ export default {
       "selectSets": "Chọn số Set",
       "progression": "Lộ trình",
       "groupStage": "Có vòng bảng",
-      "knockout": "Loại trực tiếp",
+      "knockout": "Vòng loại trực tiếp",
       "ageRequirement": "Yêu cầu Độ tuổi (Min - Max)",
       "dragToSelectOrInput": "Kéo để chọn nhanh hoặc nhập số chính xác ở ô trên",
       "eloRange": "Vùng Elo (Min - Max)",
@@ -681,7 +722,7 @@ export default {
         "description": "Bắt đầu match, tạo sub-matches (nếu team format) và ghi điểm từng set."
       },
       "finalizeResult": {
-        "title": "Finalize và duyệt kết quả",
+        "title": "Hoàn tất và duyệt kết quả",
         "description": "Trọng tài hoàn tất, tổng trọng tài duyệt/từ chối sau khi xem trước ELO."
       },
       "operationalNotify": {

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { useTournament, useScheduleConfigByTournament } from "@/hooks/queries";
+import { getCombinedDateTimeStr } from "@/utils/timezone.utils";
 import { useMyEntries } from "@/hooks/queries/useEntryQueries";
 
 import { Calendar, MapPin } from "lucide-react";
@@ -9,6 +10,7 @@ import {
   ScheduleTab,
   RegistrationTab,
   PaymentTab,
+  ParticipantsTab,
 } from "@/pages/PublicPlayer/TournamentDetail/TournamentDetailTabs";
 import { useTranslation } from "react-i18next";
 import { useDateFormat } from "@/hooks/useDateFormat";
@@ -37,6 +39,8 @@ export default function TournamentDetail() {
     return tournament?.categories?.some((c) => c.id === catId);
   });
 
+  const hideRegistration = tournament?.status && ["registration_closed", "brackets_generated", "ongoing", "completed", "cancelled"].includes(tournament.status);
+
   // State cho Tabs
   const [activeTab, setActiveTab] = useState(
     location.state?.activeTab || t("publicPlayer.tournamentDetail.overview", "Overview")
@@ -44,8 +48,13 @@ export default function TournamentDetail() {
   const tabs = [
     t("publicPlayer.tournamentDetail.overview", "Overview"),
     t("publicPlayer.tournamentDetail.scheduleTab.title", "Schedule"),
-    t("publicPlayer.tournamentDetail.registrationTab.title", "Registration"),
   ];
+
+  if (!hideRegistration) {
+    tabs.push(t("publicPlayer.tournamentDetail.registrationTab.title", "Registration"));
+  }
+
+  tabs.push(t("publicPlayer.tournamentDetail.participantsTab.title", "Participants"));
 
   if (isRegistered) {
     tabs.push(t("publicPlayer.paymentTab.title", "Payment"));
@@ -103,6 +112,9 @@ export default function TournamentDetail() {
     if (activeTab === t("publicPlayer.paymentTab.title", "Payment")) {
       return <PaymentTab tournamentId={id} tournament={tournament} />;
     }
+    if (activeTab === t("publicPlayer.tournamentDetail.participantsTab.title", "Participants")) {
+      return <ParticipantsTab tournamentId={id} />;
+    }
     return null;
   };
 
@@ -128,7 +140,7 @@ export default function TournamentDetail() {
         <div className="flex flex-wrap items-center gap-6 text-base font-medium text-muted-foreground">
           <div className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-primary/70" />
-            <span>{formatEventDate(scheduleConfig?.startDate || tournament.startDate, scheduleConfig?.endDate || tournament.endDate)}</span>
+            <span>{formatEventDate(getCombinedDateTimeStr(scheduleConfig?.startDate, scheduleConfig?.dailyStartHour, scheduleConfig?.dailyStartMinute) || tournament.startDate, getCombinedDateTimeStr(scheduleConfig?.endDate, scheduleConfig?.dailyEndHour, scheduleConfig?.dailyEndMinute) || tournament.endDate)}</span>
           </div>
           <div className="h-4 w-px bg-border hidden sm:block"></div>
           <div className="flex items-center gap-1.5">

@@ -42,11 +42,11 @@ export default {
   "finalizeConfirmDesc": "Bạn có chắc muốn kết thúc trận phụ này? Bạn sẽ không thể thay đổi điểm số sau đó.",
   "finalizeSubMatchSuccess": "Kết thúc trận phụ thành công",
   "finalizeSubMatchError": "Kết thúc trận phụ thất bại",
-  "scheduledAt": "Scheduled:",
+  "scheduledAt": "Dự kiến:",
   "setNum": "Set {{num}}",
   "subMatchNum": "Trận phụ {{num}}",
   "scoreUpdated": "Cập nhật điểm thành công",
   "totalScore": "Tỉ số tổng",
   "scoreHistory": "Lịch sử tỉ số",
-  "setNumber": "Set {{num}}"
+  "setNumber": "Set #"
 };

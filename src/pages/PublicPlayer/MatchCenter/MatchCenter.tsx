@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
 import { ChevronRight } from "lucide-react";
 import {
   useAthleteMatchHistory,
@@ -9,12 +8,13 @@ import {
 import { useCurrentUser } from "@/hooks/queries/useAuthQueries";
 import { useRejectedLineups } from "@/hooks/queries/useSubMatchPlayerQueries";
 import MatchCenterLineupModal from "./MatchCenterLineupModal";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { MatchCard } from "./MatchCard";
 import { useTranslation } from "react-i18next";
+import { useDateFormat } from "@/hooks/useDateFormat";
 
 export default function MatchCenter() {
   const { t } = useTranslation();
+  const { formatDate } = useDateFormat();
   const navigate = useNavigate();
   const { data: userResp } = useCurrentUser();
   const userId = userResp?.id || 0;
@@ -68,35 +68,12 @@ export default function MatchCenter() {
                 );
 
                 return (
-                  <div
+                  <MatchCard
                     key={match.id}
-                    className="flex flex-col md:flex-row items-center justify-between gap-6 p-5 rounded-xl border border-border bg-card shadow-sm"
-                  >
-                    <div>
-                      <span className="font-semibold">{t("publicPlayer.matchCenter.matchId", "Match #{{id}}").replace("{{id}}", match.id)}</span>
-                      <div className="text-sm text-muted-foreground">
-                        {match.scheduledStartTime
-                          ? format(new Date(match.scheduledStartTime), "PPp")
-                          : t("publicPlayer.matchCenter.tbd", "TBD")}
-                      </div>
-                    </div>
-                    <div>
-                      <Badge>{t(`constants.status.match.${match.status}`, match.status) as string}</Badge>
-                      {isRejected && (
-                        <Badge variant="destructive" className="ml-2">
-                          {t("publicPlayer.matchCenter.lineupRejected", "Lineup Rejected")}
-                        </Badge>
-                      )}
-                    </div>
-                    <div>
-                      <Button
-                        variant="outline"
-                        onClick={() => setSelectedMatchId(match.id)}
-                      >
-                        {isRejected ? t("publicPlayer.matchCenter.resubmitLineup", "Resubmit Lineup") : t("publicPlayer.matchCenter.submitLineup", "Submit Lineup")}
-                      </Button>
-                    </div>
-                  </div>
+                    match={match}
+                    isRejected={isRejected}
+                    onSelect={() => setSelectedMatchId(match.id)}
+                  />
                 );
               })
             ) : (
@@ -120,7 +97,9 @@ export default function MatchCenter() {
                   <div className="flex flex-col w-48 shrink-0">
                     <span className="text-sm font-medium text-muted-foreground">
                       {match.actualStartTime
-                        ? format(new Date(match.actualStartTime), "MMM d, yyyy")
+                        ? formatDate(match.actualStartTime)
+                        : match.schedule?.scheduledAt
+                        ? formatDate(match.schedule.scheduledAt)
                         : t("publicPlayer.matchCenter.unknownDate", "Unknown Date")}
                     </span>
                     <span className="font-semibold text-foreground">

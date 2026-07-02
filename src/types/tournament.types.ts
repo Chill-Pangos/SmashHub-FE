@@ -286,6 +286,64 @@ export type UpdateTournamentResponse = Tournament;
  */
 export type DeleteTournamentResponse = void;
 
+// ==================== Complete Tournament Types ====================
+
+export interface TournamentAwardEntryUser {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  avatarUrl: string;
+}
+
+export interface TournamentAwardEntryMember {
+  userId: number;
+  eloAtEntry: number;
+  user: TournamentAwardEntryUser;
+}
+
+export interface TournamentAwardEntry {
+  id: number;
+  name: string;
+  captainId: number;
+  members: TournamentAwardEntryMember[];
+}
+
+export interface TournamentAward {
+  categoryId: number;
+  categoryName: string;
+  source: "knockout" | "group";
+  placement: number;
+  title: "champion" | "runner_up" | "third_place" | "group_winner" | string;
+  groupName?: string;
+  entry: TournamentAwardEntry;
+}
+
+export interface TournamentEloChange {
+  userId: number;
+  currentElo: number;
+  finalElo: number;
+  totalDelta: number;
+}
+
+export interface TournamentEloResult {
+  tournamentId: number;
+  totalMatches: number;
+  tierMultiplier: number;
+  historyRecordsCreated: number;
+  changes: TournamentEloChange[];
+}
+
+export interface CompleteTournamentResponse {
+  success: boolean;
+  message: string;
+  data: {
+    tournament: Tournament;
+    awards: TournamentAward[];
+    elo: TournamentEloResult;
+  };
+}
+
 export type CreateTournamentCategoryResponse = TournamentCategory;
 export type GetTournamentCategoryResponse = TournamentCategory;
 export type GetTournamentCategoriesResponse = TournamentCategory[];

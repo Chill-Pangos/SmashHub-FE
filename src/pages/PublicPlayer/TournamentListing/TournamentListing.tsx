@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Calendar, MapPin, Users, Search } from "lucide-react";
 import { useTournaments, useScheduleConfigsByTournaments } from "@/hooks/queries";
 import { useDateFormat } from "@/hooks/useDateFormat";
+import { getCombinedDateTimeStr } from "@/utils/timezone.utils";
 import type { Tournament } from "@/types";
 import ServerPagination from "@/components/custom/ServerPagination";
 import { useTranslation } from "react-i18next";
@@ -38,8 +39,8 @@ export default function TournamentListing() {
     const configs = JSON.parse(scheduleConfigsDep);
     let items = apiTournaments.map((t, index) => ({
       ...t,
-      startDate: configs[index]?.startDate || t.startDate,
-      endDate: configs[index]?.endDate || t.endDate,
+      startDate: getCombinedDateTimeStr(configs[index]?.startDate || t.startDate, configs[index]?.dailyStartHour, configs[index]?.dailyStartMinute) || t.startDate,
+      endDate: getCombinedDateTimeStr(configs[index]?.endDate || t.endDate, configs[index]?.dailyEndHour, configs[index]?.dailyEndMinute) || t.endDate,
     }));
     if (query) {
       const q = query.toLowerCase();

@@ -3,6 +3,7 @@ export default {
     "tournament": {
       "upcoming": "Upcoming",
       "registration_open": "Registration Open",
+      "registration_closed": "Registration Closed",
       "brackets_generated": "Brackets Generated",
       "ongoing": "Ongoing",
       "completed": "Completed",
@@ -29,6 +30,7 @@ export default {
   },
   "format": {
     "single": "Single",
+    "double": "Doubles",
     "doubles": "Doubles",
     "team": "Team"
   },
@@ -42,5 +44,6 @@ export default {
   "any": "Any",
   "max": "Max",
   "free": "Free",
-  "tbd": "TBD"
+  "tbd": "TBD",
+  "you": "You"
 };

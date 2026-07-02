@@ -157,6 +157,7 @@ export default function MatchExecution() {
               match={match}
               onMatchReady={() => setMatchReadyToFinalize(true)} 
               isUmpire={sm.umpireId === userResp?.id}
+              hideTitle={subMatches.length === 1}
             />
           ))}
         </div>
@@ -165,7 +166,7 @@ export default function MatchExecution() {
   );
 }
 
-function SubMatchCard({ subMatch, match, onMatchReady, isUmpire }: { subMatch: any; match: any; onMatchReady: () => void; isUmpire: boolean }) {
+function SubMatchCard({ subMatch, match, onMatchReady, isUmpire, hideTitle }: { subMatch: any; match: any; onMatchReady: () => void; isUmpire: boolean; hideTitle?: boolean }) {
   const { t } = useTranslation();
   const { mutate: startSubMatch, isPending: starting } = useStartSubMatch();
   const { mutate: finalizeSubMatch, isPending: finalizing } =
@@ -289,7 +290,7 @@ function SubMatchCard({ subMatch, match, onMatchReady, isUmpire }: { subMatch: a
   const isTeamCategory = (match?.schedule as any)?.tournamentCategory?.type === "team";
   const cardTitleText = isTeamCategory 
     ? `${t("matchExecution.subMatchTitle", "Sub-Match #")}${subMatch.subMatchNumber}`
-    : `${t("matchExecution.setNumber", "Set #")}${activeSetNumber}`;
+    : t("matchExecution.setNum", { num: activeSetNumber, defaultValue: `Set ${activeSetNumber}` });
 
   const teamAName = (match?.entryA as any)?.name || t("matchExecution.teamA", "Team A");
   const teamBName = (match?.entryB as any)?.name || t("matchExecution.teamB", "Team B");
@@ -298,7 +299,7 @@ function SubMatchCard({ subMatch, match, onMatchReady, isUmpire }: { subMatch: a
 
   return (
     <Card className={isSubMatchReady ? "border-amber-500 shadow-md" : ""}>
-      <CardHeader>
+      <CardHeader className={hideTitle ? "hidden" : ""}>
         <CardTitle className="flex justify-between">
           <span>{cardTitleText}</span>
           <Badge>{t(`constants.status.match.${subMatch.status}`, subMatch.status) as string}</Badge>
@@ -401,7 +402,7 @@ function SubMatchCard({ subMatch, match, onMatchReady, isUmpire }: { subMatch: a
             
             {scoreStatus?.isCompleted && (
               <div className="text-center text-sm text-green-600 font-medium">
-                {t("matchExecution.setCompleted", "Set {{num}} Completed!").replace("{{num}}", (activeSetNumber - (scoreStatus?.nextSetNumber ? 1 : 0)).toString())}
+                {t("matchExecution.setCompleted", { num: activeSetNumber - (scoreStatus?.nextSetNumber ? 1 : 0), defaultValue: `Set ${activeSetNumber - (scoreStatus?.nextSetNumber ? 1 : 0)} Completed!` })}
               </div>
             )}
 
@@ -511,7 +512,7 @@ function SubMatchCard({ subMatch, match, onMatchReady, isUmpire }: { subMatch: a
             <div className="flex gap-2 overflow-x-auto pb-2">
               {completedSets.map((s: any) => (
                 <div key={s.id} className="flex flex-col items-center bg-muted px-3 py-1.5 rounded text-xs">
-                  <span className="font-bold text-muted-foreground">{t("matchExecution.setNumber", "Set #")}{s.setNumber}</span>
+                  <span className="font-bold text-muted-foreground">{t("matchExecution.setNum", { num: s.setNumber, defaultValue: `Set ${s.setNumber}` })}</span>
                   <span className="font-black text-sm">{s.entryAScore} - {s.entryBScore}</span>
                 </div>
               ))}

@@ -11,6 +11,7 @@ import { usePreviewUpdateScheduleConfig, useUpdateScheduleConfig } from "@/hooks
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { TimePicker } from "@/components/ui/time-picker";
 import { showToast, showApiError } from "@/utils/toast.utils";
+import { applyScheduleTimezone, extractScheduleTimezone } from "@/utils/timezone.utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,6 +51,7 @@ export interface ScheduleConfigData {
   notes?: string | null;
   regenerateSchedule?: boolean;
   regenerationKey?: string;
+  timeZone?: string;
 }
 
 export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
@@ -102,7 +104,8 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
       if (data.bracketGenerationDate) setBracketGenerationDate(new Date(data.bracketGenerationDate));
       
       const formatTime = (hour: number, min: number) => {
-        return `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+        const local = applyScheduleTimezone(hour, min, data.timeZone || "UTC");
+        return `${String(local.hour).padStart(2, '0')}:${String(local.minute).padStart(2, '0')}`;
       };
       
       if (data.dailyStartHour !== undefined && data.dailyStartMinute !== undefined) {
@@ -128,20 +131,34 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
   const closeHour = parseInt(facilityClose.split(":")[0]) || 22;
 
   const handleSave = () => {
+    const openTimeLocal = { hour: parseInt(facilityOpen.split(":")[0]) || 8, minute: parseInt(facilityOpen.split(":")[1]) || 0 };
+    const closeTimeLocal = { hour: parseInt(facilityClose.split(":")[0]) || 22, minute: parseInt(facilityClose.split(":")[1]) || 0 };
+    
+    const openTimeUtc = extractScheduleTimezone(openTimeLocal.hour, openTimeLocal.minute);
+    const closeTimeUtc = extractScheduleTimezone(closeTimeLocal.hour, closeTimeLocal.minute);
+
     let endHour = null;
     let endMinute = null;
     let startHour = null;
     let startMinute = null;
 
     if (hasBreaks) {
-      startHour = parseInt(breakStartTime.split(":")[0]) || 0;
-      startMinute = parseInt(breakStartTime.split(":")[1]) || 0;
+      const localBreakHour = parseInt(breakStartTime.split(":")[0]) || 0;
+      const localBreakMinute = parseInt(breakStartTime.split(":")[1]) || 0;
       
-      const totalStartMinutes = startHour * 60 + startMinute;
+      const totalStartMinutes = localBreakHour * 60 + localBreakMinute;
       const totalEndMinutes = totalStartMinutes + breakDuration;
       
-      endHour = Math.floor(totalEndMinutes / 60) % 24;
-      endMinute = totalEndMinutes % 60;
+      const localEndHour = Math.floor(totalEndMinutes / 60) % 24;
+      const localEndMinute = totalEndMinutes % 60;
+      
+      const breakStartUtc = extractScheduleTimezone(localBreakHour, localBreakMinute);
+      const breakEndUtc = extractScheduleTimezone(localEndHour, localEndMinute);
+      
+      startHour = breakStartUtc.hour;
+      startMinute = breakStartUtc.minute;
+      endHour = breakEndUtc.hour;
+      endMinute = breakEndUtc.minute;
     }
 
     const payload: Omit<ScheduleConfigData, 'id' | 'tournamentId'> = {
@@ -153,15 +170,16 @@ export default function ScheduleConfig({ tournamentId }: ScheduleConfigProps) {
       numberOfTables: tables,
       matchDurationMinutes: matchDuration,
       breakDurationMinutes: 10, // Default break between matches
-      dailyStartHour: openHour,
-      dailyStartMinute: parseInt(facilityOpen.split(":")[1]) || 0,
-      dailyEndHour: closeHour,
-      dailyEndMinute: parseInt(facilityClose.split(":")[1]) || 0,
+      dailyStartHour: openTimeUtc.hour,
+      dailyStartMinute: openTimeUtc.minute,
+      dailyEndHour: closeTimeUtc.hour,
+      dailyEndMinute: closeTimeUtc.minute,
       lunchBreakStartHour: startHour,
       lunchBreakStartMinute: startMinute,
       lunchBreakEndHour: endHour,
       lunchBreakEndMinute: endMinute,
       lunchBreakDurationMinutes: hasBreaks ? breakDuration : null,
+      timeZone: "UTC"
     };
     
     const previewPayload = {

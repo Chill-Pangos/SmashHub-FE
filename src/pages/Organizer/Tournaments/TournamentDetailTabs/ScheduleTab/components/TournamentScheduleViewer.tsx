@@ -5,7 +5,7 @@ import { ChampionshipBracket } from "./ChampionshipBracket";
 import { useDateFormat } from "@/hooks/useDateFormat";
 import { EntryInfoModal } from "./EntryInfoModal";
 import { useState, useEffect } from "react";
-import { useGroupStandingsByCategory } from "@/hooks/queries";
+import { useGroupStandingsByCategory, useKnockoutBracketTreeByCategory } from "@/hooks/queries";
 import { useTranslation } from "react-i18next";
 
 interface TournamentScheduleViewerProps {
@@ -59,7 +59,7 @@ export default function TournamentScheduleViewer({
         .filter((s: any) => s.groupName === groupName)
         .map((s: any) => ({
           rank: s.position || 0,
-          player: s.entryName || `Entry ${s.entryId}`, // Adjust based on your API
+          player: s.entry?.team?.name || s.entry?.name || s.entryName || `Entry ${s.entryId}`,
           entryId: s.entryId,
           p: s.matchesPlayed || 0,
           w: s.matchesWon || 0,
@@ -72,52 +72,58 @@ export default function TournamentScheduleViewer({
 
   const hasGroupStage = groups.length > 0;
   
-  const knockoutSchedules = rawSchedules.filter((s: any) => s.stage === "knockout");
-  
-  const KNOCKOUT_ROUND_ORDER: Record<string, number> = {
-    "Round of 128": 1,
-    "Round of 64": 2,
-    "Round of 32": 3,
-    "Round of 16": 4,
-    "Quarter-final": 5,
-    "Semi-final": 6,
-    "Final": 7,
-  };
+  // Fetch real knockout bracket tree
+  const { data: treeData } = useKnockoutBracketTreeByCategory(contentId);
+  let knockoutRounds = (treeData as any)?.data?.rounds || [];
 
-  const roundMap = new Map<string, any[]>();
-  knockoutSchedules.forEach((s: any) => {
-    const r = s.knockoutRound || "Unknown";
-    if (!roundMap.has(r)) roundMap.set(r, []);
+  if (knockoutRounds.length === 0) {
+    const knockoutSchedules = rawSchedules.filter((s: any) => s.stage === "knockout");
     
-    (s.scheduledMatches || []).forEach((m: any) => {
-      roundMap.get(r)!.push({
-        ...m,
-        scheduledAt: s.scheduledAt,
+    const KNOCKOUT_ROUND_ORDER: Record<string, number> = {
+      "Round of 128": 1,
+      "Round of 64": 2,
+      "Round of 32": 3,
+      "Round of 16": 4,
+      "Quarter-final": 5,
+      "Semi-final": 6,
+      "Final": 7,
+    };
+
+    const roundMap = new Map<string, any[]>();
+    knockoutSchedules.forEach((s: any) => {
+      const r = s.knockoutRound || "Unknown";
+      if (!roundMap.has(r)) roundMap.set(r, []);
+      
+      (s.scheduledMatches || []).forEach((m: any) => {
+        roundMap.get(r)!.push({
+          ...m,
+          scheduledAt: s.scheduledAt,
+        });
       });
     });
-  });
 
-  let knockoutRounds = Array.from(roundMap.keys())
-    .sort((a, b) => (KNOCKOUT_ROUND_ORDER[a] || 99) - (KNOCKOUT_ROUND_ORDER[b] || 99))
-    .map((roundName, index) => {
-      return {
-        roundNumber: index + 1,
-        roundName: roundName,
-        brackets: roundMap.get(roundName)!.map((m: any) => ({
-          id: m.id,
-          status: m.status,
-          entryA: m.entryA ? { entryId: m.entryA.id, entryName: m.entryA.name } : null,
-          entryB: m.entryB ? { entryId: m.entryB.id, entryName: m.entryB.name } : null,
-          winnerEntryId: m.winnerEntryId,
-          scheduledAt: m.scheduledAt,
-          setsWonA: m.setsWonA ?? null,
-          setsWonB: m.setsWonB ?? null,
-        }))
-      };
-    });
+    knockoutRounds = Array.from(roundMap.keys())
+      .sort((a, b) => (KNOCKOUT_ROUND_ORDER[a] || 99) - (KNOCKOUT_ROUND_ORDER[b] || 99))
+      .map((roundName, index) => {
+        return {
+          roundNumber: index + 1,
+          roundName: roundName,
+          brackets: roundMap.get(roundName)!.map((m: any) => ({
+            id: m.id,
+            status: m.status,
+            entryA: m.entryA ? { entryId: m.entryA.id, entryName: m.entryA.name } : null,
+            entryB: m.entryB ? { entryId: m.entryB.id, entryName: m.entryB.name } : null,
+            winnerEntryId: m.winnerEntryId,
+            scheduledAt: m.scheduledAt,
+            setsWonA: m.setsWonA ?? null,
+            setsWonB: m.setsWonB ?? null,
+          }))
+        };
+      });
 
-  if (knockoutRounds.length === 0 && bracketOverride && bracketOverride.rounds && bracketOverride.rounds.length > 0) {
-    knockoutRounds = bracketOverride.rounds;
+    if (knockoutRounds.length === 0 && bracketOverride && bracketOverride.rounds && bracketOverride.rounds.length > 0) {
+      knockoutRounds = bracketOverride.rounds;
+    }
   }
 
   const hasKnockoutStage = knockoutRounds.length > 0;

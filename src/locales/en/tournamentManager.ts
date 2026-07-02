@@ -116,7 +116,16 @@ export default {
     "hideRegenerate": "Hide Regenerate Options",
     "regenerateSchedule": "Regenerate Schedule",
     "bulkStartMatches": "Bulk Start Matches",
-    "generateKnockout": "Generate Knockout"
+    "generateKnockout": "Generate Knockout",
+    "rounds": {
+      "roundOf128": "Round of 128",
+      "roundOf64": "Round of 64",
+      "roundOf32": "Round of 32",
+      "roundOf16": "Round of 16",
+      "quarterFinal": "Quarter-final",
+      "semiFinal": "Semi-final",
+      "final": "Final"
+    }
   },
   "placeholders": {
     "bulkImportTitle": "Bulk Import",
@@ -314,6 +323,38 @@ export default {
       "cancelling": "Cancelling...",
       "success": "Tournament cancelled successfully",
       "error": "Failed to cancel tournament"
+    },
+    "completeTournament": {
+      "button": "Complete Tournament",
+      "title": "Complete Tournament?",
+      "description": "Are you sure you want to complete the tournament <strong>{{name}}</strong>? This will distribute awards and calculate final Elo changes. This action cannot be undone.",
+      "close": "Close",
+      "confirm": "Yes, Complete It",
+      "completing": "Completing...",
+      "success": "Tournament completed successfully.",
+      "error": "Failed to complete tournament."
+    },
+    "completeTournamentResult": {
+      "title": "Tournament Completed",
+      "description": "The tournament has been marked as completed. Awards have been distributed and Elo ratings updated.",
+      "awards": "Awards",
+      "eloChanges": "Elo Changes",
+      "category": "Category",
+      "placement": "Placement",
+      "source": "Source",
+      "entry": "Entry",
+      "title_label": "Title",
+      "player": "Player",
+      "currentElo": "Current Elo",
+      "finalElo": "Final Elo",
+      "delta": "Change",
+      "champion": "Champion",
+      "runner_up": "Runner-up",
+      "third_place": "Third Place",
+      "group_winner": "Group Winner",
+      "knockout": "Knockout",
+      "group": "Group Stage",
+      "close": "Close"
     },
     "loading": "Loading tournament details...",
     "loadError": "Failed to load tournament"

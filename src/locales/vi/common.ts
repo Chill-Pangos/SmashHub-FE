@@ -49,7 +49,7 @@ export default {
   "starting": "Đang bắt đầu...",
   "start": "Start",
   "finalizing": "Đang hoàn tất...",
-  "finalize": "Finalize",
+  "finalize": "Hoàn tất",
   "declining": "Đang từ chối...",
   "decline": "Decline",
   "of": "trong số",

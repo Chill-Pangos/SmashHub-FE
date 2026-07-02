@@ -42,7 +42,7 @@ export default {
     "liveData": "LIVE DATA",
     "performanceTracker": "Performance Tracker",
     "viewFullHistory": "View Full History",
-    "globalRank": "GLOBAL RANK",
+    "globalRank": "ELO RANK",
     "currentRating": "CURRENT RATING",
     "seasonWinRate": "SEASON WIN RATE",
     "topPercentile": "Top active players",
@@ -64,13 +64,20 @@ export default {
     "noHistory": "No history available.",
     "loadingChart": "Loading chart...",
     "eloChange": "Elo Change",
+    "you": "You",
+    "topPlayers": "Elo Leaderboard",
+    "leaderboardTable": {
+      "rank": "Rank",
+      "player": "Player",
+      "score": "Score"
+    },
     "leaderboard": {
       "title": "Performance Tracker",
       "subtitle": "Live Elo rating and historical match analytics.",
       "liveData": "LIVE DATA",
       "currentRating": "CURRENT RATING",
       "plusThisWeek": "+14 this week",
-      "globalRank": "GLOBAL RANK",
+      "globalRank": "ELO RANK",
       "topPercentage": "Top 0.5% of all active players",
       "seasonWinRate": "SEASON WIN RATE",
       "performanceCurve": "Performance Curve",
@@ -176,7 +183,19 @@ export default {
       "additionalNotes": "Additional Notes",
       "bracketGeneration": "Bracket Generation"
     },
-    "overview": "Overview"
+    "overview": "Overview",
+    "overviewDefaultIntro": "Welcome to the <span>{{name}}</span> tournament! This event will take place at <span>{{location}}</span>. We are excited to host this competition and look forward to seeing great matches.",
+    "participantsTab": {
+      "title": "Participants",
+      "category": "Category",
+      "selectCategory": "Select Category",
+      "noCategories": "No categories",
+      "totalParticipants": "Total Participants",
+      "limit": "Items per page",
+      "loading": "Loading participants...",
+      "noParticipants": "No participants found in this category.",
+      "captain": "Captain"
+    }
   },
   "entryRegistration": {
     "title": "Entry Registration",
@@ -218,11 +237,21 @@ export default {
     "totalPlayers": "Total Players",
     "matchesPlayed": "Matches Played",
     "activeTournaments": "Active Tournaments",
-    "loading": "publicPlayer.teamManagement.loading",
-    "noEntries": "publicPlayer.teamManagement.noEntries",
+    "loading": "Loading...",
+    "noEntries": "No entries found.",
     "respondSuccess": "Request processed successfully",
     "respondError": "Failed to process request",
-    "confirmed": "publicPlayer.teamManagement.confirmed",
+    "confirmed": "Confirmed",
+    "tournament": "Tournament",
+    "type": "Type",
+    "gender": "Gender",
+    "maxSets": "Max Sets",
+    "entryFee": "Entry Fee",
+    "yes": "Yes",
+    "no": "No",
+    "singleEntry": "Single Entry",
+    "captainRole": "Captain",
+    "memberRole": "Member",
     "transferSuccess": "Captaincy transferred successfully",
     "transferError": "Failed to transfer captaincy",
     "setRequiredSuccess": "Required members updated",
@@ -231,14 +260,14 @@ export default {
     "updateEntryError": "Failed to update entry",
     "confirmSuccess": "Lineup confirmed successfully",
     "confirmError": "Failed to confirm lineup",
-    "confirmLineup": "publicPlayer.teamManagement.confirmLineup",
-    "deleteEntry": "publicPlayer.teamManagement.deleteEntry",
+    "confirmLineup": "Confirm Lineup",
+    "deleteEntry": "Delete Entry",
     "deleteTitle": "Delete Team?",
     "deleteDesc": "Are you sure you want to delete this team? This action cannot be undone.",
     "deleteSuccess": "Team deleted successfully",
     "deleteError": "Failed to delete team",
     "rejectJoinTitle": "Reject Join Request?",
-    "rejectJoinDesc": "publicPlayer.teamManagement.rejectJoinDesc"
+    "rejectJoinDesc": "Are you sure you want to reject this request?"
   },
   "publicPlayer": {
     "landing": {
@@ -284,14 +313,15 @@ export default {
       "liveData": "LIVE DATA",
       "performanceTracker": "Performance Tracker",
       "viewFullHistory": "View Full History",
-      "globalRank": "GLOBAL RANK",
+      "globalRank": "ELO RANK",
       "currentRating": "CURRENT RATING",
       "seasonWinRate": "SEASON WIN RATE",
-      "topPercentile": "Top active players",
+      "topPercentile": "Top percentiles",
       "performanceCurve": "Performance Curve",
       "matchHistory": "Match History",
       "eloChangeLog": "Elo Change Log",
       "liveEloRatingDesc": "Live Elo rating and historical match analytics.",
+      "topPlayers": "Elo Leaderboard",
       "ratingProgression": "Rating Progression",
       "matchId": "Match ID",
       "date": "Date",
@@ -305,7 +335,13 @@ export default {
       "noRecords": "No records found",
       "noHistory": "No history available.",
       "loadingChart": "Loading chart...",
-      "eloChange": "Elo Change"
+      "eloChange": "Elo Change",
+      "you": "You",
+      "leaderboardTable": {
+        "rank": "Rank",
+        "player": "Player",
+        "score": "Score"
+      }
     },
     "tournaments": {
       "title": "Tournaments",
@@ -361,6 +397,15 @@ export default {
         "confirmed": "Confirmed",
         "recruiting": "RECRUITING"
       },
+      "participantsTab": {
+        "category": "Category",
+        "selectCategory": "Select Category",
+        "noCategories": "No categories",
+        "totalParticipants": "Total Participants",
+        "loading": "Loading participants...",
+        "noParticipants": "No participants found in this category.",
+        "captain": "Captain"
+      },
       "scheduleTab": {
         "title": "Schedule",
         "selectCategoryToView": "Select a category to view its schedule.",
@@ -392,7 +437,8 @@ export default {
         "endOfPlayDesc": "All matches for the day must conclude by this time.",
         "additionalNotes": "Additional Notes",
         "bracketGeneration": "Bracket Generation"
-      }
+      },
+      "overviewDefaultIntro": "Welcome to the <span>{{name}}</span> tournament! This event will take place at <span>{{location}}</span>. We are excited to host this competition and look forward to seeing great matches."
     },
     "entryRegistration": {
       "title": "Entry Registration",
@@ -429,6 +475,8 @@ export default {
       "playerPortal": "PLAYER PORTAL",
       "upcomingLive": "Upcoming & Live Matches",
       "noUpcoming": "No upcoming matches.",
+      "loadingTournament": "Loading Tournament...",
+      "loadingCategory": "Loading Category...",
       "matchHistory": "Match History",
       "noHistory": "No match history.",
       "competitiveHistory": "Competitive History",
@@ -594,6 +642,8 @@ export default {
     "upcomingMatchesTitle": "Upcoming & Live Matches",
     "matchId": "Match #{{id}}",
     "tbd": "TBD",
+    "loadingTournament": "Loading Tournament...",
+    "loadingCategory": "Loading Category...",
     "lineupRejected": "Lineup Rejected",
     "resubmitLineup": "Resubmit Lineup",
     "submitLineup": "Submit Lineup",

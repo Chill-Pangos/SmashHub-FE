@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -30,6 +30,12 @@ export default function EntriesManagement({
   const categories = (categoriesData as any[]) || [];
 
   const categoryIdToFetch = selectedCategoryId !== "all" ? parseInt(selectedCategoryId) : (categories[0]?.id || 0);
+
+  useEffect(() => {
+    if (categories.length > 0 && selectedCategoryId === "all") {
+      setSelectedCategoryId(categories[0].id.toString());
+    }
+  }, [categories, selectedCategoryId]);
 
   const { data: entriesData, isLoading } = useEligibleEntriesByCategory(categoryIdToFetch, {
     page,

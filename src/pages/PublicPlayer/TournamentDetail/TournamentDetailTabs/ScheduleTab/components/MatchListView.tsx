@@ -4,6 +4,8 @@ import { MatchDetailModal } from "@/components/custom/MatchDetailModal";
 import { useTranslation } from "react-i18next";
 import { useMatch } from "@/hooks/queries/useMatchQueries";
 import { useDateFormat } from "@/hooks/useDateFormat";
+import { getImageUrl } from "@/utils/api.utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useMatchRealtime } from "@/hooks/queries";
 
 interface MatchListViewProps {
@@ -118,9 +120,12 @@ function MatchListCard({ schedule, match, onClick }: { schedule: any, match: any
 
             <div className="flex items-center justify-between flex-1 p-4 mb-4 border rounded-lg bg-secondary/20 border-border/50">
               <div className="flex flex-col items-center flex-1 text-center">
-                <div className={`flex items-center justify-center w-10 h-10 mb-2 rounded-full ${match.winnerEntryId === match.entryAId ? 'bg-yellow-500/20 text-yellow-500' : 'bg-primary/10 text-primary'}`}>
-                  {match.winnerEntryId === match.entryAId ? <Trophy className="w-5 h-5" /> : <Users className="w-5 h-5" />}
-                </div>
+                <Avatar className={`w-10 h-10 mb-2 border ${match.winnerEntryId === match.entryAId ? 'border-yellow-500 ring-2 ring-yellow-500/50' : 'border-border'}`}>
+                  <AvatarImage src={getImageUrl(match.entryA?.team?.avatarUrl || match.entryA?.avatarUrl || "")} alt={entryA} />
+                  <AvatarFallback className={match.winnerEntryId === match.entryAId ? 'bg-yellow-500/20 text-yellow-500' : 'bg-primary/10 text-primary'}>
+                    {match.winnerEntryId === match.entryAId ? <Trophy className="w-5 h-5" /> : <Users className="w-5 h-5" />}
+                  </AvatarFallback>
+                </Avatar>
                 <span className={`font-semibold line-clamp-2 ${match.winnerEntryId === match.entryAId ? 'text-yellow-500' : 'text-foreground'}`}>
                   {entryA}
                 </span>
@@ -132,9 +137,12 @@ function MatchListCard({ schedule, match, onClick }: { schedule: any, match: any
               <div className="px-4 text-xs font-bold text-muted-foreground/50">{t("match.details.vs", "VS")}</div>
               
               <div className="flex flex-col items-center flex-1 text-center">
-                <div className={`flex items-center justify-center w-10 h-10 mb-2 rounded-full ${match.winnerEntryId === match.entryBId ? 'bg-yellow-500/20 text-yellow-500' : 'bg-chart-3/10 text-chart-3'}`}>
-                  {match.winnerEntryId === match.entryBId ? <Trophy className="w-5 h-5" /> : <Users className="w-5 h-5" />}
-                </div>
+                <Avatar className={`w-10 h-10 mb-2 border ${match.winnerEntryId === match.entryBId ? 'border-yellow-500 ring-2 ring-yellow-500/50' : 'border-border'}`}>
+                  <AvatarImage src={getImageUrl(match.entryB?.team?.avatarUrl || match.entryB?.avatarUrl || "")} alt={entryB} />
+                  <AvatarFallback className={match.winnerEntryId === match.entryBId ? 'bg-yellow-500/20 text-yellow-500' : 'bg-chart-3/10 text-chart-3'}>
+                    {match.winnerEntryId === match.entryBId ? <Trophy className="w-5 h-5" /> : <Users className="w-5 h-5" />}
+                  </AvatarFallback>
+                </Avatar>
                 <span className={`font-semibold line-clamp-2 ${match.winnerEntryId === match.entryBId ? 'text-yellow-500' : 'text-foreground'}`}>
                   {entryB}
                 </span>

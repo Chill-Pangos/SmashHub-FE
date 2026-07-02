@@ -42,8 +42,8 @@ export default {
     "liveData": "DỮ LIỆU TRỰC TIẾP",
     "performanceTracker": "Theo dõi hiệu suất",
     "viewFullHistory": "Xem toàn bộ lịch sử",
-    "globalRank": "HẠNG TOÀN CẦU",
-    "currentRating": "ĐIỂM HIỆN TẠI",
+    "globalRank": "THỨ HẠNG ELO",
+    "currentRating": "ĐIỂM ELO HIỆN TẠI",
     "seasonWinRate": "TỶ LỆ THẮNG MÙA GIẢI",
     "topPercentile": "Những người chơi hàng đầu",
     "performanceCurve": "Biểu đồ hiệu suất",
@@ -64,13 +64,20 @@ export default {
     "noHistory": "Không có lịch sử.",
     "loadingChart": "Đang tải biểu đồ...",
     "eloChange": "Thay đổi ELO",
+    "you": "Bạn",
+    "topPlayers": "Bảng xếp hạng ELO",
+    "leaderboardTable": {
+      "rank": "Hạng",
+      "player": "Người chơi",
+      "score": "Điểm"
+    },
     "leaderboard": {
       "title": "Theo dõi hiệu suất",
       "subtitle": "Xếp hạng Elo trực tiếp và phân tích lịch sử thi đấu.",
       "liveData": "LIVE DATA",
       "currentRating": "XẾP HẠNG HIỆN TẠI",
       "plusThisWeek": "+14 tuần này",
-      "globalRank": "HẠNG TOÀN CẦU",
+      "globalRank": "THỨ HẠNG ELO",
       "topPercentage": "Top 0.5% người chơi đang hoạt động",
       "seasonWinRate": "TỶ LỆ THẮNG MÙA GIẢI",
       "performanceCurve": "Biểu đồ hiệu suất",
@@ -176,7 +183,19 @@ export default {
       "additionalNotes": "Ghi chú thêm",
       "bracketGeneration": "Tạo sơ đồ"
     },
-    "overview": "Overview"
+    "overview": "Tổng quan",
+    "overviewDefaultIntro": "Chào mừng bạn đến với giải đấu <span>{{name}}</span>! Giải đấu này sẽ diễn ra tại <span>{{location}}</span>. Chúng tôi rất hào hứng được tổ chức cuộc thi này và mong chờ những trận đấu tuyệt vời.",
+    "participantsTab": {
+      "title": "Người tham gia",
+      "category": "Hạng mục",
+      "selectCategory": "Chọn Hạng mục",
+      "noCategories": "Không có hạng mục",
+      "totalParticipants": "Tổng số người tham gia",
+      "limit": "Số lượng / trang",
+      "loading": "Đang tải danh sách người tham gia...",
+      "noParticipants": "Không có người tham gia nào trong hạng mục này.",
+      "captain": "Đội trưởng"
+    }
   },
   "entryRegistration": {
     "title": "Đăng ký tham gia",
@@ -205,7 +224,17 @@ export default {
     "toggleAccepting": "Bật/tắt tuyển thành viên",
     "deleteEntry": "Xóa đăng ký",
     "confirmLineup": "Xác nhận đội hình",
-    "confirmed": "Đã xác nhận:",
+    "confirmed": "Đã xác nhận",
+    "tournament": "Giải đấu",
+    "type": "Loại hình",
+    "gender": "Giới tính",
+    "maxSets": "Số Set tối đa",
+    "entryFee": "Lệ phí",
+    "yes": "Có",
+    "no": "Không",
+    "singleEntry": "Đăng ký đơn",
+    "captainRole": "Đội trưởng",
+    "memberRole": "Thành viên",
     "noEntries": "Không tìm thấy đăng ký nào.",
     "loading": "Đang tải...",
     "respondSuccess": "Xử lý yêu cầu thành công",
@@ -239,6 +268,8 @@ export default {
     "upcomingMatchesTitle": "Trận đấu Sắp tới & Trực tiếp",
     "matchId": "Trận #{{id}}",
     "tbd": "TBD",
+    "loadingTournament": "Đang tải Giải đấu...",
+    "loadingCategory": "Đang tải Hạng mục...",
     "lineupRejected": "Đội hình bị từ chối",
     "resubmitLineup": "Gửi lại đội hình",
     "submitLineup": "Gửi đội hình",
@@ -299,14 +330,15 @@ export default {
       "liveData": "DỮ LIỆU TRỰC TIẾP",
       "performanceTracker": "Theo dõi hiệu suất",
       "viewFullHistory": "Xem toàn bộ lịch sử",
-      "globalRank": "HẠNG TOÀN CẦU",
-      "currentRating": "ĐIỂM HIỆN TẠI",
+      "globalRank": "THỨ HẠNG ELO",
+      "currentRating": "ĐIỂM ELO HIỆN TẠI",
       "seasonWinRate": "TỶ LỆ THẮNG MÙA GIẢI",
       "topPercentile": "Những người chơi hàng đầu",
       "performanceCurve": "Biểu đồ hiệu suất",
       "matchHistory": "Lịch sử trận đấu",
       "eloChangeLog": "Nhật ký thay đổi ELO",
       "liveEloRatingDesc": "Xếp hạng Elo trực tiếp và phân tích trận đấu lịch sử.",
+      "topPlayers": "Bảng xếp hạng ELO",
       "ratingProgression": "Tiến trình xếp hạng",
       "matchId": "Mã trận đấu",
       "date": "Ngày",
@@ -320,7 +352,13 @@ export default {
       "noRecords": "Không tìm thấy hồ sơ",
       "noHistory": "Không có lịch sử.",
       "loadingChart": "Đang tải biểu đồ...",
-      "eloChange": "Thay đổi ELO"
+      "eloChange": "Thay đổi ELO",
+      "you": "Bạn",
+      "leaderboardTable": {
+        "rank": "Hạng",
+        "player": "Người chơi",
+        "score": "Điểm"
+      }
     },
     "tournaments": {
       "title": "Giải đấu",
@@ -376,6 +414,15 @@ export default {
         "confirmed": "Đã xác nhận",
         "recruiting": "ĐANG TUYỂN"
       },
+      "participantsTab": {
+        "category": "Hạng mục",
+        "selectCategory": "Chọn Hạng mục",
+        "noCategories": "Không có hạng mục",
+        "totalParticipants": "Tổng số người tham gia",
+        "loading": "Đang tải danh sách người tham gia...",
+        "noParticipants": "Không có người tham gia nào trong hạng mục này.",
+        "captain": "Đội trưởng"
+      },
       "scheduleTab": {
         "title": "Lịch thi đấu",
         "selectCategoryToView": "Chọn một hạng mục để xem lịch thi đấu.",
@@ -407,7 +454,8 @@ export default {
         "endOfPlayDesc": "Tất cả trận đấu trong ngày phải kết thúc trước giờ này.",
         "additionalNotes": "Ghi chú thêm",
         "bracketGeneration": "Tạo sơ đồ"
-      }
+      },
+      "overviewDefaultIntro": "Chào mừng bạn đến với giải đấu <span>{{name}}</span>! Giải đấu này sẽ diễn ra tại <span>{{location}}</span>. Chúng tôi rất hào hứng được tổ chức sự kiện này và mong chờ những trận đấu tuyệt vời."
     },
     "entryRegistration": {
       "title": "Đăng ký tham gia",
@@ -444,6 +492,8 @@ export default {
       "playerPortal": "CỔNG THÔNG TIN VĐV",
       "upcomingLive": "Trận đấu sắp tới & Trực tiếp",
       "noUpcoming": "Không có trận đấu nào sắp tới.",
+      "loadingTournament": "Đang tải Giải đấu...",
+      "loadingCategory": "Đang tải Hạng mục...",
       "matchHistory": "Lịch sử trận đấu",
       "noHistory": "Không có lịch sử thi đấu.",
       "competitiveHistory": "Lịch sử thi đấu",

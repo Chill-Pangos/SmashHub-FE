@@ -1,6 +1,7 @@
 export default {
   "admin": {
     "title": "Admin Control",
+    "subtitle": "Admin Portal",
     "openSidebar": "Open admin sidebar",
     "users": "Users",
     "roles": "Roles & Permissions",
@@ -31,6 +32,12 @@ export default {
     "invitations": "Invitations",
     "approvals": "Approvals",
     "approvalDetail": "Approval Detail",
+    "sections": {
+      "main": "Main"
+    }
+  },
+  "player": {
+    "subtitle": "Player Portal",
     "sections": {
       "main": "Main"
     }

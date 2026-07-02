@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import type { Tournament } from "@/types/tournament.types";
 import type { ScheduleConfigResponse } from "@/types/scheduleConfig.types";
-import { useTranslation } from "react-i18next";
+import { useTranslation, Trans } from "react-i18next";
 
 interface OverviewTabProps {
   tournament: Tournament;
@@ -42,7 +42,7 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
             </span>
           </div>
           <div className="mt-2 text-xs font-medium text-chart-3">
-            ~ {t("publicPlayer.tournamentDetail.basedOn", "Based on")} {tournament.categories?.length || 0} {t("publicPlayer.tournamentDetail.categoriesCount", "categories")}
+            ~ {t("publicPlayer.tournamentDetail.basedOn", "Based on")} {t("publicPlayer.tournamentDetail.categoriesCount", { count: tournament.categories?.length || 0 })}
           </div>
         </div>
 
@@ -103,9 +103,11 @@ export default function OverviewTab({ tournament, scheduleConfig }: OverviewTabP
             <div dangerouslySetInnerHTML={{ __html: tournament.introduction }} />
           ) : (
             <p className="leading-relaxed">
-              {t("publicPlayer.tournamentDetail.welcome")} <span className="font-semibold text-foreground">{tournament.name}</span> tournament! 
-              This event will take place at <span className="font-semibold text-foreground">{tournament.location || "TBD"}</span>.
-              We are excited to host this competition and look forward to seeing great matches.
+              <Trans
+                i18nKey="publicPlayer.tournamentDetail.overviewDefaultIntro"
+                values={{ name: tournament.name, location: tournament.location || t("publicPlayer.matchCenter.tbd", "TBD") }}
+                components={{ span: <span className="font-semibold text-foreground" /> }}
+              />
             </p>
           )}
         </div>

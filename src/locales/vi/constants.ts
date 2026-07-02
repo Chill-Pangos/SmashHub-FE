@@ -3,6 +3,7 @@ export default {
     "tournament": {
       "upcoming": "Sắp tới",
       "registration_open": "Đang mở đăng ký",
+      "registration_closed": "Đã đóng đăng ký",
       "brackets_generated": "Đã tạo bảng đấu",
       "ongoing": "Đang diễn ra",
       "completed": "Đã hoàn thành",
@@ -29,6 +30,7 @@ export default {
   },
   "format": {
     "single": "Đánh đơn",
+    "double": "Đánh đôi",
     "doubles": "Đánh đôi",
     "team": "Đồng đội"
   },
@@ -42,5 +44,6 @@ export default {
   "any": "Bất kỳ",
   "max": "Tối đa",
   "free": "Miễn phí",
-  "tbd": "Chưa xác định"
+  "tbd": "Chưa xác định",
+  "you": "Bạn"
 };

@@ -347,12 +347,12 @@ export default function PortalSidebar({
         <Sheet>
           <SheetTrigger asChild>
             <Button
-              variant="outline"
+              variant="ghost"
               size="icon"
-              className="fixed left-4 top-4 z-50 rounded-full border-border bg-background/95 shadow-sm backdrop-blur"
+              className="fixed left-7 top-7 z-50 h-8 w-8 text-foreground/80 hover:bg-accent/20 hover:text-foreground"
               aria-label={triggerLabel}
             >
-              <Menu className="h-4 w-4" />
+              <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-[86vw] border-border p-0">

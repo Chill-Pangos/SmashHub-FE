@@ -72,11 +72,14 @@ export function useMatchRealtime({
       }
     };
 
-    const handleResultUpdated = (payload: MatchRealtimePayload) => {
-      if (payload.matchId === matchId) {
+    const handleResultUpdated = (payload: MatchRealtimePayload | Record<string, unknown>) => {
+      // payload could be from match_result_updated, score_update, or match_update
+      // if it has a matchId and it matches, or subMatchId which belongs to this match, we invalidate
+      const p = payload as any;
+      if (p.matchId === matchId || p.data?.matchId === matchId) {
         // Auto invalidate query cache
         invalidateMatchQueries();
-        onUpdateRef.current?.(payload);
+        onUpdateRef.current?.(payload as any);
       }
     };
 
@@ -96,6 +99,8 @@ export function useMatchRealtime({
     socket.on("match_watch_error", handleWatchError);
     socket.on("match_room_left", handleRoomLeft);
     socket.on("match_result_updated", handleResultUpdated);
+    socket.on("score_update", handleResultUpdated);
+    socket.on("match_update", handleResultUpdated);
     socket.on("connect", handleConnect);
 
     return () => {
@@ -104,6 +109,8 @@ export function useMatchRealtime({
       socket.off("match_watch_error", handleWatchError);
       socket.off("match_room_left", handleRoomLeft);
       socket.off("match_result_updated", handleResultUpdated);
+      socket.off("score_update", handleResultUpdated);
+      socket.off("match_update", handleResultUpdated);
       socket.off("connect", handleConnect);
 
       // Emit unwatch-match on unmount

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import MatchControlCenterTab from "./TournamentDetailTabs/MatchControlCenterTab";
-import MatchResultsReviewTab from "./TournamentDetailTabs/MatchResultsReviewTab";
 import LiveScoreControllerTab from "./TournamentDetailTabs/LiveScoreControllerTab";
 import ResultsSubmissionTab from "./TournamentDetailTabs/ResultsSubmissionTab";
+import PlayersTab from "./TournamentDetailTabs/PlayersTab";
+import RefereesTab from "./TournamentDetailTabs/RefereesTab";
 import { Calendar, MapPin, AlertCircle } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useTournament, useScheduleConfigByTournament } from "@/hooks/queries";
+import { getCombinedDateTimeStr } from "@/utils/timezone.utils";
 
 import { useCurrentUser } from "@/hooks/queries/useAuthQueries";
 import { useTranslation } from "react-i18next";
@@ -96,7 +98,7 @@ export default function TournamentDetail() {
         <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <Calendar className="h-4 w-4" />
-            <span>{formatEventDate(scheduleConfig?.startDate || tournament.startDate, scheduleConfig?.endDate || tournament.endDate)}</span>
+            <span>{formatEventDate(getCombinedDateTimeStr(scheduleConfig?.startDate, scheduleConfig?.dailyStartHour, scheduleConfig?.dailyStartMinute) || tournament.startDate, getCombinedDateTimeStr(scheduleConfig?.endDate, scheduleConfig?.dailyEndHour, scheduleConfig?.dailyEndMinute) || tournament.endDate)}</span>
           </div>
           <div className="h-4 w-px bg-border hidden sm:block"></div>
           <div className="flex items-center gap-1.5">
@@ -116,10 +118,10 @@ export default function TournamentDetail() {
               {t("referee.tournamentDetail.matchControlCenter", "Match Control Center")}
             </button>
             <button
-              onClick={() => setActiveTab("results_review")}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === "results_review" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+              onClick={() => setActiveTab("results_submission")}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === "results_submission" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             >
-              {t("referee.tournamentDetail.approvalDashboard", "Approval Dashboard")}
+              {t("referee.tournamentDetail.finalSubmission", "Final Submission")}
             </button>
           </>
         ) : (
@@ -130,22 +132,29 @@ export default function TournamentDetail() {
             >
               {t("referee.tournamentDetail.liveScoreController", "Live Score Controller")}
             </button>
-            <button
-              onClick={() => setActiveTab("results_submission")}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === "results_submission" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-            >
-              {t("referee.tournamentDetail.finalSubmission", "Final Submission")}
-            </button>
           </>
         )}
+        <button
+          onClick={() => setActiveTab("players")}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === "players" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+        >
+          {t("referee.tournamentDetail.players", "Players")}
+        </button>
+        <button
+          onClick={() => setActiveTab("referees")}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === "referees" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+        >
+          {t("referee.tournamentDetail.referees", "Referees")}
+        </button>
       </div>
 
       {/* Tab Content */}
       <main className="flex-1 overflow-auto">
         {activeTab === "control_center" && <MatchControlCenterTab />}
-        {activeTab === "results_review" && <MatchResultsReviewTab />}
         {activeTab === "live_score" && <LiveScoreControllerTab />}
         {activeTab === "results_submission" && <ResultsSubmissionTab />}
+        {activeTab === "players" && <PlayersTab tournamentId={id} />}
+        {activeTab === "referees" && <RefereesTab tournamentId={id} />}
       </main>
     </div>
   );

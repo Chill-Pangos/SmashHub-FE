@@ -18,6 +18,8 @@ import { useMatchesByCategory, useStartMatch, useBulkStartMatches, useTournament
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { showToast, showApiError } from "@/utils/toast.utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getImageUrl } from "@/utils/api.utils";
 
 export default function MatchControlCenterTab() {
   const { t } = useTranslation();
@@ -64,12 +66,26 @@ export default function MatchControlCenterTab() {
 
   const groupedMatches = matches.reduce((acc: any, match: any) => {
     const round = match.schedule?.stage === 'group' 
-      ? (match.schedule?.groupName ? `Group ${match.schedule.groupName}` : 'Group Stage')
-      : (match.schedule?.knockoutRound || 'Knockout Stage');
+      ? (match.schedule?.groupName ? `${t("constants.matchStage.group", "Group")} ${match.schedule.groupName.replace(/group/i, "").trim()}` : t("constants.matchStage.groupStage", "Group Stage"))
+      : (match.schedule?.knockoutRound || t("constants.matchStage.knockoutStage", "Knockout Stage"));
     if (!acc[round]) acc[round] = [];
     acc[round].push(match);
     return acc;
   }, {});
+
+  // Sort matches by scheduledAt for non-group and non-knockout if any.
+  // Actually, for all groups in groupedMatches, we can sort by scheduledAt unless it's group/knockout.
+  // But wait, the requirement says "cập nhật để xếp trận theo giờ, còn riêng group và knockout thì khỏi."
+  Object.keys(groupedMatches).forEach(round => {
+    const isGroupOrKnockout = round.toLowerCase().includes('group') || round.toLowerCase().includes('knockout');
+    if (!isGroupOrKnockout) {
+      groupedMatches[round].sort((a: any, b: any) => {
+        if (!a.schedule?.scheduledAt) return 1;
+        if (!b.schedule?.scheduledAt) return -1;
+        return new Date(a.schedule.scheduledAt).getTime() - new Date(b.schedule.scheduledAt).getTime();
+      });
+    }
+  });
 
   const handleStartMatch = (id: number) => {
     startMatchMutation.mutate(id, {
@@ -152,10 +168,10 @@ export default function MatchControlCenterTab() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t("referee.matchControlCenter.allStatuses", "All Statuses")}</SelectItem>
-                <SelectItem value="scheduled">Scheduled</SelectItem>
-                <SelectItem value="in_progress">In Progress</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
+                <SelectItem value="scheduled">{t("referee.matchControlCenter.scheduled", "Scheduled")}</SelectItem>
+                <SelectItem value="in_progress">{t("constants.status.match.in_progress", "In Progress")}</SelectItem>
+                <SelectItem value="completed">{t("constants.status.match.completed", "Completed")}</SelectItem>
+                <SelectItem value="cancelled">{t("constants.status.match.cancelled", "Cancelled")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -167,9 +183,9 @@ export default function MatchControlCenterTab() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t("referee.matchControlCenter.anyResult", "Any Result")}</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="pending">{t("constants.payment.pending", "Pending")}</SelectItem>
+                <SelectItem value="approved">{t("referee.matchResultsReview.approve", "Approved")}</SelectItem>
+                <SelectItem value="rejected">{t("referee.matchResultsReview.reject", "Rejected")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -258,8 +274,8 @@ export default function MatchControlCenterTab() {
                   
                   if (umpire || assistant) {
                     const parts = [];
-                    if (umpire) parts.push(`Umpire: ${umpire.referee?.firstName || ''} ${umpire.referee?.lastName || ''}`.trim());
-                    if (assistant) parts.push(`Asst: ${assistant.referee?.firstName || ''} ${assistant.referee?.lastName || ''}`.trim());
+                    if (umpire) parts.push(`${t("referee.matchControlCenter.umpire", "Umpire")}: ${umpire.referee?.firstName || ''} ${umpire.referee?.lastName || ''}`.trim());
+                    if (assistant) parts.push(`${t("referee.matchControlCenter.assistant", "Assistant")}: ${assistant.referee?.firstName || ''} ${assistant.referee?.lastName || ''}`.trim());
                     refereesText = parts.join(' | ');
                   } else {
                     refereesText = match.matchReferees.map((r: any) => `${r.referee?.firstName || ''} ${r.referee?.lastName || ''}`.trim()).join(', ');
@@ -292,14 +308,20 @@ export default function MatchControlCenterTab() {
                     
                     <div className="flex justify-between items-center mt-2">
                       <div className="flex flex-col items-center gap-2 w-1/3">
-                        <div className="w-12 h-12 rounded-full bg-secondary border border-border flex items-center justify-center text-lg font-bold">{player1.charAt(0)}</div>
+                        <Avatar className="w-12 h-12 border border-border">
+                          <AvatarImage src={getImageUrl(match.entryA?.team?.avatarUrl || match.entryA?.avatarUrl || "")} alt={player1} />
+                          <AvatarFallback className="bg-secondary text-lg font-bold">{player1.charAt(0)}</AvatarFallback>
+                        </Avatar>
                         <div className="text-center">
                           <p className="font-bold text-sm truncate w-full">{player1}</p>
                         </div>
                       </div>
                       <div className="text-xl font-black text-muted-foreground w-1/3 text-center">{t("referee.matchControlCenter.vs", "VS")}</div>
                       <div className="flex flex-col items-center gap-2 w-1/3">
-                        <div className="w-12 h-12 rounded-full bg-secondary border border-border flex items-center justify-center text-lg font-bold">{player2.charAt(0)}</div>
+                        <Avatar className="w-12 h-12 border border-border">
+                          <AvatarImage src={getImageUrl(match.entryB?.team?.avatarUrl || match.entryB?.avatarUrl || "")} alt={player2} />
+                          <AvatarFallback className="bg-secondary text-lg font-bold">{player2.charAt(0)}</AvatarFallback>
+                        </Avatar>
                         <div className="text-center">
                           <p className="font-bold text-sm truncate w-full">{player2}</p>
                         </div>

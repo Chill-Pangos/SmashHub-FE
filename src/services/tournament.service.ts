@@ -10,6 +10,7 @@ import type {
   UpcomingTournamentStatusChangesResponse,
   UpdateTournamentStatusesResponse,
   TournamentListResponse,
+  CompleteTournamentResponse,
 } from "@/types/tournament.types";
 
 /**
@@ -247,8 +248,9 @@ class TournamentService {
    * Complete tournament, return awards, and update Elo
    * POST /api/tournaments/:id/complete
    */
-  async completeTournament(id: number): Promise<void> {
-    await axiosInstance.post(`${this.baseURL}/${id}/complete`);
+  async completeTournament(id: number): Promise<CompleteTournamentResponse> {
+    const response = await axiosInstance.post<CompleteTournamentResponse>(`${this.baseURL}/${id}/complete`);
+    return response.data;
   }
 
   /**
