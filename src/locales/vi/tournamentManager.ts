@@ -116,7 +116,16 @@ export default {
     "hideRegenerate": "Ẩn Tùy chọn Tạo lại",
     "regenerateSchedule": "Tạo lại Lịch trình",
     "bulkStartMatches": "Bắt đầu Trận đấu Hàng loạt",
-    "generateKnockout": "Tạo sơ đồ Loại trực tiếp"
+    "generateKnockout": "Tạo sơ đồ Loại trực tiếp",
+    "rounds": {
+      "roundOf128": "Vòng 1/128",
+      "roundOf64": "Vòng 1/64",
+      "roundOf32": "Vòng 1/32",
+      "roundOf16": "Vòng 1/16",
+      "quarterFinal": "Tứ kết",
+      "semiFinal": "Bán kết",
+      "final": "Chung kết"
+    }
   },
   "placeholders": {
     "bulkImportTitle": "Nhập dữ liệu hàng loạt",

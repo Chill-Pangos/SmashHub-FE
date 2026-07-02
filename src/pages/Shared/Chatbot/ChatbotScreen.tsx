@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
 import { Send, Bot, User, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/store/useAuth";
@@ -10,7 +9,6 @@ import { useChatStream } from "@/hooks/queries";
 export default function ChatbotScreen() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { tournamentId, categoryId, entryId, matchId, scheduleId } = useParams();
   
   const { messages, isLoading, sendMessage, setMessages } = useChatStream();
   const [input, setInput] = useState("");

@@ -116,7 +116,16 @@ export default {
     "hideRegenerate": "Hide Regenerate Options",
     "regenerateSchedule": "Regenerate Schedule",
     "bulkStartMatches": "Bulk Start Matches",
-    "generateKnockout": "Generate Knockout"
+    "generateKnockout": "Generate Knockout",
+    "rounds": {
+      "roundOf128": "Round of 128",
+      "roundOf64": "Round of 64",
+      "roundOf32": "Round of 32",
+      "roundOf16": "Round of 16",
+      "quarterFinal": "Quarter-final",
+      "semiFinal": "Semi-final",
+      "final": "Final"
+    }
   },
   "placeholders": {
     "bulkImportTitle": "Bulk Import",
